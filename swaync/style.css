@@ -1,0 +1,50 @@
+.notification {
+  background: rgba(30, 30, 46, 0.95); /* base */
+  border-radius: 12px;
+  padding: 12px;
+  margin: 8px;
+  border: 1px solid rgba(88, 91, 112, 0.6); /* surface1 */
+  color: #cdd6f4; /* text */
+}
+
+/* Header */
+.notification .notification-header {
+  margin-bottom: 6px;
+}
+
+/* Title */
+.notification .summary {
+  font-size: 15px;
+  font-weight: 600;
+  color: #cdd6f4; /* text */
+}
+
+/* Body */
+.notification .body {
+  font-size: 13px;
+  color: #bac2de; /* subtext1 */
+}
+
+/* App name */
+.notification .app-name {
+  font-size: 12px;
+  color: #7f849c; /* overlay1 */
+}
+
+/* Priority accents */
+.notification.low {
+  border-left: 4px solid #89b4fa; /* blue */
+}
+
+.notification.normal {
+  border-left: 4px solid #a6e3a1; /* green */
+}
+
+.notification.critical {
+  border-left: 4px solid #f38ba8; /* red */
+}
+
+/* Hover */
+.notification box:hover {
+  background: rgba(49, 50, 68, 0.6); /* surface0 */
+}

@@ -1,0 +1,84 @@
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 13px;
+}
+
+/* Window */
+window {
+  padding: 10px;
+  background-color: rgba(30, 30, 46, 0.96);
+  border-radius: 8px;
+  border: 2px solid #b4befe;
+}
+
+/* Inner Box */
+#inner-box {
+  margin: 5px;
+  padding: 10px;
+  background-color: transparent;
+}
+
+/* Outer Box */
+#outer-box {
+  background-color: transparent;
+}
+
+/* Input */
+#input {
+  padding: 10px;
+  color: #cdd6f4;
+  background-color: rgba(30, 30, 46, 0.2);
+  border: none;
+}
+
+#input image {
+  margin-left: 9px;
+  background-color: rgba(30, 30, 46, 0.2);
+}
+
+#input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Text */
+#text {
+  background-color: transparent;
+  margin: 5px;
+  color: #cdd6f4;
+}
+
+#entry {
+  background-color: transparent;
+}
+
+#entry:selected {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+#entry arrow {
+  margin-left: -15px;
+  border: none;
+  color: transparent;
+}
+
+#entry:selected #text {
+  color: violet;
+  font-weight: bold;
+}
+
+#entry:drop(active) {
+  background-color: #b4befe !important;
+}
+
+/* App icons */
+#entry image {
+  background-color: transparent;
+}
+
+/* Selected app icon */
+#entry:selected image {
+  background-color: transparent;
+}

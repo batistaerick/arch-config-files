@@ -1,0 +1,6 @@
+insensitive=true
+allow_images=true
+image_size=20
+width=360
+height=300
+prompt=Search...

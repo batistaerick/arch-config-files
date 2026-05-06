@@ -1,0 +1,86 @@
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 14px;
+}
+
+/* Window */
+window {
+  padding: 10px;
+  background-color: rgba(239, 241, 245, 0.96);
+  border-radius: 8px;
+  border: 2px solid #7287fd;
+}
+
+/* Inner Box */
+#inner-box {
+  margin: 5px;
+  padding: 10px;
+  background-color: transparent;
+}
+
+/* Outer Box */
+#outer-box {
+  background-color: transparent;
+}
+
+/* Input */
+#input {
+  margin: 13px;
+  color: #4c4f69;
+  background-color: rgba(220, 224, 232, 0.75);
+  border: none;
+}
+
+#input image {
+  margin-left: 9px;
+  background-color: rgba(220, 224, 232, 0.4);
+}
+
+#input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Text */
+#text {
+  background-color: transparent;
+  margin: 5px;
+  color: #4c4f69;
+}
+
+#entry {
+  background-color: transparent;
+}
+
+#entry:selected {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: rgba(204, 208, 218, 0.45);
+  border-radius: 6px;
+}
+
+#entry arrow {
+  margin-left: -15px;
+  border: none;
+  color: transparent;
+}
+
+#entry:selected #text {
+  color: #8839ef;
+  font-weight: bold;
+}
+
+#entry:drop(active) {
+  background-color: #7287fd !important;
+}
+
+/* App icons */
+#entry image {
+  background-color: transparent;
+}
+
+/* Selected app icon */
+#entry:selected image {
+  background-color: transparent;
+}

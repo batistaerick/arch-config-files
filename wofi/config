@@ -1,6 +1,6 @@
 insensitive=true
 allow_images=true
-image_size=20
+image_size=16
 width=360
-height=300
+height=460
 prompt=Search...

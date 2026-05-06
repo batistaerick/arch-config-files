@@ -5,7 +5,6 @@
   "modules-center": ["hyprland/window"],
   "modules-right": [
     "custom/weather",
-    "custom/media",
     "bluetooth",
     "network",
     "pulseaudio",
@@ -17,14 +16,6 @@
     "persistent-workspaces": { "*": [1, 2, 3, 4] },
     "disable-scroll": false,
     "format": "{name}",
-  },
-  "custom/media": {
-    "exec": "~/.config/waybar/scripts/media.sh",
-    "interval": 2,
-    "on-click": "playerctl play-pause",
-    "on-click-right": "playerctl next",
-    "on-click-middle": "playerctl previous",
-    "tooltip": false,
   },
   "bluetooth": {
     "format": "",
@@ -44,7 +35,7 @@
     "format-ethernet": "󰈀 ",
     "tooltip-format": "Network: <big><b>{essid}</b></big>\nSignal strength: <b>{signaldBm}dBm ({signalStrength}%)</b>\nFrequency: <b>{frequency}MHz</b>\nInterface: <b>{ifname}</b>\nIP: <b>{ipaddr}/{cidr}</b>\nGateway: <b>{gwaddr}</b>\nNetmask: <b>{netmask}</b>",
     "tooltip-format-disconnected": "Disconnected",
-    "on-click": "",
+    "on-click": "kitty -e impala",
     "rotate": 0,
     "interval": 2,
   },

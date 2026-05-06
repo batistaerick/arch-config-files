@@ -1,22 +1,20 @@
 [Added Associations]
-application/pdf=evince-3.desktop;evince-2.desktop;evince.desktop;
-image/gif=eog.desktop;
-text/vnd.trolltech.linguist=code.desktop;nvim.desktop;
-text/x-java=intellij-idea-community-edition.desktop;
+image/png=eog-3.desktop;eog-2.desktop;eog.desktop;gedit-2.desktop;
+text/plain=gedit.desktop;
 
 [Default Applications]
 application/pdf=org.gnome.Evince.desktop
-image/gif=eog.desktop;
-image/jpeg=eog.desktop
-image/png=eog.desktop
-image/webp=eog.desktop
+application/x-directory=org.kde.dolphin.desktop
+application/x-gnome-saved-search=org.kde.dolphin.desktop
+image/jpeg=org.gnome.eog.desktop
+image/jpg=org.gnome.eog.desktop
+image/png=eog-3.desktop;
+inode/directory=org.kde.dolphin.desktop
 text/html=google-chrome.desktop
+text/plain=org.gnome.gedit.desktop
 x-scheme-handler/about=google-chrome.desktop
 x-scheme-handler/http=google-chrome.desktop
 x-scheme-handler/https=google-chrome.desktop
-x-scheme-handler/mailto=google-chrome.desktop
-x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/unknown=google-chrome.desktop
-inode/directory=nautilus.desktop
-text/vnd.trolltech.linguist=nvim.desktop
-text/x-java=intellij-idea-community-edition.desktop
+x-scheme-handler/postman=Postman.desktop
+x-scheme-handler/mailto=google-chrome.desktop

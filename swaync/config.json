@@ -1,1 +1,29 @@
-{ "show-close-button": true, "osd": { "enabled": true } }
+{
+  "notification-grouping": true,
+  "control-center-width": 390,
+  "control-center-height": 560,
+  "control-center-margin-top": 7,
+  "control-center-margin-bottom": 7,
+  "control-center-margin-right": 7,
+  "control-center-margin-left": 7,
+  "widgets": [
+    "dnd",
+    "mpris",
+    "volume",
+    "buttons-grid",
+    "title",
+    "notifications"
+  ],
+  "widget-config": {
+    "mpris": {
+      "blacklist": ["playerctld"],
+      "show-album-art": "always",
+      "loop-carousel": true,
+      "autohide": true
+    },
+    "volume": {
+      "label": "",
+      "empty-list-label": "No active audio"
+    }
+  }
+}

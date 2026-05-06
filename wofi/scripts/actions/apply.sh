@@ -34,6 +34,7 @@ nohup ~/.config/wofi/scripts/themes/rgb.sh >/tmp/rgb.log 2>&1 &
 ~/.config/wofi/scripts/themes/kitty.sh
 ~/.config/wofi/scripts/themes/vscode.sh
 ~/.config/wofi/scripts/themes/intellij.sh
+~/.config/wofi/scripts/themes/swaync.sh
 
 if [[ -f "$CURRENT_DIR/hyprland.conf" ]]; then
   mkdir -p "$HOME/.config/hypr/themes"

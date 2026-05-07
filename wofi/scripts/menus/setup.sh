@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-options="←  Back\n  Audio\n  WiFi\n  Bluetooth\n  Configs"
+options="←  Back\n  Audio\n  WiFi\n  Bluetooth\n  Dotfiles"
 
 chosen="$(
   echo -e "$options" |
@@ -20,7 +20,7 @@ case "$chosen" in
   "  Bluetooth")
     blueman-manager
     ;;
-  "  Configs")
+  "  Dotfiles")
     code ~/.config &
     ;;
   "")

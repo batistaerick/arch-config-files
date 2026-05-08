@@ -15,14 +15,14 @@
   ],
   "hyprland/workspaces#all": {
     "all-outputs": true,
-    "persistent-workspaces": { "*": [1, 2, 3, 4] },
+    "persistent-workspaces": { "*": [1, 2, 3, 4, 5, 6] },
     "disable-scroll": false,
     "format": "{name}",
   },
   "clock": {
     "format": "{:%a %b %d %I:%M %p}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
-    "on-click": "evolution",
+    "on-click": "gnome-calendar",
   },
   "battery": {
     "interval": 10,

@@ -12,7 +12,7 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "󱄄  Screensaver")
-    "$ACTIONS_DIR/capture.sh"
+    kitty --class screensaver -e cmatrix -ab
     ;;
   "󰔎  Nightlight")
     "$ACTIONS_DIR/nightlight.sh"

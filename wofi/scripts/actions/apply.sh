@@ -29,6 +29,7 @@ GTK_ENV_FILE="$HOME/.config/hypr/theme-env.conf"
 
 nohup ~/.config/wofi/scripts/themes/rgb.sh >/tmp/rgb.log 2>&1 &
 
+~/.config/wofi/scripts/themes/sddm.sh
 ~/.config/wofi/scripts/themes/system.sh
 ~/.config/wofi/scripts/themes/wofi.sh
 ~/.config/wofi/scripts/themes/kitty.sh

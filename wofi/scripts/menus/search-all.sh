@@ -21,7 +21,11 @@ options="←  Back
   Capture > Screenshot
   Capture > Screenshot Selection
   Capture > Screenshot Full Screen
-  Capture > Screenrecord
+  Capture > Record
+  Capture > Record + Audio
+  Capture > Record + Webcam
+  Capture > Record + Audio + Webcam
+  Capture > Stop Recording
   Capture > Color Picker
   Share > Clipboard
   Share > File
@@ -139,7 +143,23 @@ case "$chosen" in
     "$ACTIONS_DIR/screenshot-full.sh"
     ;;
   "  Capture > Screenrecord")
-    (sleep 0.2 && obs >/dev/null 2>&1) &
+    "$MENUS_DIR/screenrecord.sh"
+    ;;
+  "  Capture > Record")
+    "$MENUS_DIR/screenrecord.sh" record
+    ;;
+  "  Capture > Record + Audio")
+    "$MENUS_DIR/screenrecord.sh" audio
+    ;;
+  "  Capture > Record + Webcam")
+    "$MENUS_DIR/screenrecord.sh" webcam
+    ;;
+  "  Capture > Record + Audio + Webcam")
+    "$MENUS_DIR/screenrecord.sh" audio-webcam
+    ;;
+  "  Capture > Stop Recording")
+    "$MENUS_DIR/screenrecord.sh" stop
+    ;;
     ;;
   "  Capture > Color Picker")
     (sleep 0.2 && hyprpicker -a) &

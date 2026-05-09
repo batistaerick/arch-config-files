@@ -14,7 +14,7 @@ case "$chosen" in
     "$MENUS_DIR/screenshot.sh"
     ;;
   "  Screenrecord")
-    (sleep 0.2 && obs >/dev/null 2>&1) &
+    "$MENUS_DIR/screenrecord.sh"
     ;;
   "󰃉  Color")
     (sleep 0.2 && hyprpicker -a) &

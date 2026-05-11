@@ -136,10 +136,10 @@ trough {
 .control-center {
   box-shadow:
     0 0 8px 0 rgba(0, 0, 0, 0.8),
-    inset 0 0 0 1px #363a4f;
+    inset 0 0 0 1px rgba(65, 69, 89, 0.7);
   border-radius: 12.6px;
-  background-color: #24273a;
-  color: #cad3f5;
+  background: rgba(35, 38, 52, 0.6);
+  color: #c6d0f5;
   padding: 14px;
 }
 

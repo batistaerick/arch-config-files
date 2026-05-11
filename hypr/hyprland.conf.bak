@@ -17,9 +17,7 @@ monitorv2 {
     position = 320x1080
     scale = 1
 }
-render {
-    cm_fs_passthrough = true
-}
+
 DXVK_HDR=1 gamescope -W 2560 -H 1080 -r 144 -f --hdr-enabled -- %command%
 
 ###################
@@ -116,7 +114,6 @@ animations {
 }
 
 dwindle {
-    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
     preserve_split = true # You probably want this
 }
 
@@ -166,7 +163,8 @@ bind = $mainMod, E, exec, $fileManager --new-window
 bind = $mainMod, T, togglefloating,
 bind = $mainMod, T, pin
 bind = $mainMod, P, pseudo,
-bind = $mainMod, A, togglesplit,
+bind = $mainMod, A, layoutmsg, togglesplit
+bind = $mainMod SHIFT, A, layoutmsg, rotatesplit
 bind = $mainMod, V, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl
 
 # Move focus with mainMod + arrow keys

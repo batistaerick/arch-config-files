@@ -65,8 +65,7 @@ window {
 }
 
 #entry:selected #text {
-  color: violet;
-  font-weight: bold;
+  color: mediumorchid;
 }
 
 #entry:drop(active) {

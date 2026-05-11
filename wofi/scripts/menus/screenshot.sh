@@ -7,7 +7,7 @@ mkdir -p "$DIR"
 
 FILE="$DIR/$(date +'%Y-%m-%d_%H-%M-%S').png"
 
-options="←  Back\n  Selection\n  Full Screen"
+options="←  Back\n󰆞  Selection\n󰹑  Full Screen"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Screenshot")
 
@@ -17,11 +17,11 @@ case "$chosen" in
   "←  Back")
     "$MENUS_DIR/capture.sh"
     ;;
-  "  Selection")
+  "󰆞  Selection")
     "$ACTIONS_DIR/screenshot-selection.sh"
     notify-send "Screenshot saved" "$FILE"
     ;;
-  "  Full Screen")
+  "󰹑  Full Screen")
     "$ACTIONS_DIR/screenshot-full.sh"
     notify-send "Screenshot saved" "$FILE"
     ;;

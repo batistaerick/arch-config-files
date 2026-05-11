@@ -68,7 +68,6 @@ window {
 
 #entry:selected #text {
   color: #8839ef;
-  font-weight: bold;
 }
 
 #entry:drop(active) {

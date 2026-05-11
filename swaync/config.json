@@ -6,6 +6,13 @@
   "control-center-margin-bottom": 7,
   "control-center-margin-right": 7,
   "control-center-margin-left": 7,
+  "scripts": {
+    "notification-sound": {
+      "exec": "~/.config/swaync/scripts/notification-sound.sh",
+      "run-on": "receive",
+      "app-name": "kitty"
+    }
+  },
   "widgets": [
     "dnd",
     "mpris",

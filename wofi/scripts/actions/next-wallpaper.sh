@@ -2,7 +2,6 @@
 
 CURRENT_DIR="$HOME/.config/theme/current"
 BACKGROUND_DIR="$CURRENT_DIR/backgrounds"
-
 CACHE_IMAGE="$HOME/.cache/current-wallpaper-image"
 CACHE_PATH="$HOME/.cache/current-wallpaper"
 

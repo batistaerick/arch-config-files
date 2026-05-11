@@ -2,7 +2,7 @@
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 
-options="←  Back\n🖼 Screenshot\n  Screenrecord\n󰃉  Color"
+options="←  Back\n󰄀  Screenshot\n  Screenrecord\n󰈊  Color"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Capture")
 
@@ -10,13 +10,13 @@ case "$chosen" in
   "←  Back")
     "$MENUS_DIR/main.sh"
     ;;
-  "🖼 Screenshot")
+  "󰄀  Screenshot")
     "$MENUS_DIR/screenshot.sh"
     ;;
   "  Screenrecord")
     "$MENUS_DIR/screenrecord.sh"
     ;;
-  "󰃉  Color")
+  "󰈊  Color")
     (sleep 0.2 && hyprpicker -a) &
     ;;
 esac

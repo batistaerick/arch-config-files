@@ -192,13 +192,13 @@ hl.config({
 
 hl.config({
   input = {
-    follow_mouse = 1,
     sensitivity =  0,
-    kb_variant =   "",
+    follow_mouse = 1,
     kb_model =     "",
-    kb_options =   "",
     kb_rules =     "",
-    kb_layout =    "us",
+    kb_layout =    "us,us",
+    kb_variant =   ",intl",
+    kb_options =   "grp:alt_shift_toggle",
     touchpad = {
       natural_scroll = false,
     },
@@ -435,3 +435,5 @@ hl.layer_rule({ match = { namespace = "waybar" }, blur = true })
 hl.layer_rule({ match = { namespace = "waybar" }, ignore_alpha = 0 })
 hl.layer_rule({ match = { namespace = "wofi" }, blur = true })
 hl.layer_rule({ match = { namespace = "wofi" }, ignore_alpha = 0.3 })
+hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true, ignore_alpha = 0.3 })
+hl.layer_rule({ match = { namespace = "swaync-notification-window" }, ignore_alpha = 0.3 })

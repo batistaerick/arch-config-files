@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-options="←  Back\n  Clipboard\n  File\n  Folder"
+options="←  Back
+  Clipboard
+  File
+  Folder"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Share")
 

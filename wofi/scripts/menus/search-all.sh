@@ -84,13 +84,7 @@ open_setup_window() {
 chosen="$(
   echo "$options" |
     sed '/^[[:space:]]*$/d' |
-    wofi \
-      --dmenu \
-      --no-sort \
-      --matching=multi-contains \
-      --cache-file /dev/null \
-      --prompt="Search All" \
-      --search "$initial_query"
+    wofi --dmenu --no-sort --matching=multi-contains --cache-file /dev/null --prompt="Search All" --search "$initial_query"
 )"
 
 case "$chosen" in

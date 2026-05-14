@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-options="←  Back\n  Shutdown\n  Reboot\n  Suspend\n  Logout"
+options="←  Back
+  Shutdown
+  Reboot
+  Suspend
+  Logout"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Power")
 

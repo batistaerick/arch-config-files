@@ -2,7 +2,10 @@
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 
-options="←  Back\n󰄀  Screenshot\n  Screenrecord\n󰈊  Color"
+options="←  Back
+󰄀  Screenshot
+  Screenrecord
+󰈊  Color"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Capture")
 

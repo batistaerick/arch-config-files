@@ -2,7 +2,9 @@
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 
-options="←  Back\n󰸌  Theme\n🖻  Wallpaper"
+options="←  Back
+󰸌  Theme
+🖻  Wallpaper"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Style")
 

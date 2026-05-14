@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-options="←  Back\n󰚰  Pacman (official packages)\n󰀦  Yay (AUR + pacman)\n󰜉  Full upgrade (clean)"
+options="←  Back
+󰚰  Pacman (official packages)
+󰀦  Yay (AUR + pacman)
+󰜉  Full upgrade (clean)"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Update")
 

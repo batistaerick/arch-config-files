@@ -3,7 +3,16 @@
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
-options="󰣇  Apps\n  AI Tools\n  Style\n󰔎  Toggle\n  Capture\n  Share\n  Update\n  Setup\n  About\n⏻  Power"
+options="󰣇  Apps
+  AI Tools
+  Style
+󰔎  Toggle
+  Capture
+  Share
+  Update
+  Setup
+  About
+⏻  Power"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Find...")
 

@@ -3,7 +3,13 @@
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
-options="←  Back\n󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰂛  Notifications\n󰍜  Top Bar\n  Reboot bios"
+options="←  Back
+󱄄  Screensaver
+󰔎  Nightlight
+󱫖  Idle Lock
+󰂛  Notifications
+󰍜  Top Bar
+  Reboot bios"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Toggle")
 

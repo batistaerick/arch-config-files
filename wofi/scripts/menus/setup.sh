@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-options="←  Back\n  Audio\n  WiFi\n  Bluetooth\n  Dotfiles"
+options="←  Back
+  Audio
+  WiFi
+  Bluetooth
+  Dotfiles"
 
 chosen="$(
   echo -e "$options" |

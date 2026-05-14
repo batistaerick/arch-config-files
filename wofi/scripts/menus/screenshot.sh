@@ -7,7 +7,9 @@ mkdir -p "$DIR"
 
 FILE="$DIR/$(date +'%Y-%m-%d_%H-%M-%S').png"
 
-options="←  Back\n󰆞  Selection\n󰹑  Full Screen"
+options="←  Back
+󰆞  Selection
+󰹑  Full Screen"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Screenshot")
 

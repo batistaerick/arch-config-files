@@ -2,16 +2,15 @@
 
 DEV_DIR="$HOME/Development"
 
-options="←  Back\n  Codex\n󰚩  Claude Code"
+options="←  Back
+  Code
+󰚩  Claude Code"
 
-tool="$(
-  echo -e "$options" |
-    wofi --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool"
-)"
+chosen="$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool")"
 
-[[ -z "$tool" ]] && exit 0
+[[ -z "$chosen" ]] && exit 0
 
-case "$tool" in
+case "$chosen" in
   "←  Back")
     ~/.config/wofi/scripts/menus/main.sh
     exit 0
@@ -29,7 +28,7 @@ repo="$(
 
 repo_path="$DEV_DIR/$repo"
 
-case "$tool" in
+case "$chosen" in
   "  Codex")
     kitty --directory "$repo_path" zsh -ic 'codex; exec zsh'
     ;;

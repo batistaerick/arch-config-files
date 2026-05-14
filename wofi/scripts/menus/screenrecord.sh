@@ -68,10 +68,7 @@ options="←  Back
 󰍬  Record + audio + webcam
   Stop recording"
 
-chosen="$(
-  echo "$options" |
-    wofi --dmenu --no-sort --cache-file /dev/null --prompt="Screenrecord"
-)"
+chosen="$(echo "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Screenrecord")"
 
 case "$chosen" in
   "←  Back")

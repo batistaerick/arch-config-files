@@ -1,14 +1,13 @@
-local function has_internal_display()
-  local handle = io.popen("cat /sys/class/drm/card*-eDP-*/status 2>/dev/null")
-  if not handle then return false end
-
-  local output = handle:read("*a") or ""
+local function get_hostname()
+  local handle = io.popen("hostname 2>/dev/null")
+  if not handle then return "" end
+  local hostname = handle:read("*l") or ""
   handle:close()
-
-  return output:match("connected") ~= nil
+  return hostname
 end
 
-local is_laptop = has_internal_display()
+local hostname = get_hostname()
+local is_laptop = hostname == "laptop"
 
 ----------------
 --- THEMES ---

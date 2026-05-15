@@ -279,11 +279,14 @@ hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/screenshot-selection.sh"))
 hl.bind("PRINT", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/screenshot-full.sh"))
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/toggle-waybar.sh"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/next-wallpaper.sh"))
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/next-wallpaper.sh"))
 hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/wallpaper.sh"))
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/main.sh"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/search.sh"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/google-search.sh"))
+
+-- Notification center
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 
 -- hyprpicker
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("hyprpicker -a"))

@@ -3,7 +3,7 @@
 DEV_DIR="$HOME/Development"
 
 options="←  Back
-  Code
+  Codex
 󰚩  Claude Code"
 
 chosen="$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool")"

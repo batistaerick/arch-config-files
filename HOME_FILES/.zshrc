@@ -43,8 +43,7 @@ fif() {
     --layout=default \
     --border \
     --info=hidden \
-    --prompt='❯ ' \
-    --preview 'bat --style=numbers --color=always {}'
+    --prompt='❯ '
   ) || return
 
   open_file "$file"

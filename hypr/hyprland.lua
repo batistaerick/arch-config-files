@@ -236,10 +236,12 @@ hl.bind(mainMod .. " + W", hl.dsp.window.close())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager .. " --new-window"))
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.window.pin())
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + A", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.layout("rotatesplit"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"))
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'"))
+hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd([[kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0']]))
 
 -- Move focus with mainMod + vim-style keys
 hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "l" }))
@@ -384,6 +386,24 @@ hl.window_rule({
   float = true,
   center = true,
   size = { 700, 500 },
+})
+
+-- FIF
+hl.window_rule({
+  name = "fif-terminal-float",
+  match = { class = "^(fif-terminal)$" },
+  float = true,
+  center = true,
+  size = { 1000, 650 },
+})
+
+-- FIFS
+hl.window_rule({
+  name = "fifs-terminal-float",
+  match = { class = "^(fifs-terminal)$" },
+  float = true,
+  center = true,
+  size = { 1500, 800 },
 })
 
 -- App opacity

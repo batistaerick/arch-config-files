@@ -9,8 +9,7 @@ options="←  Back
 󰔎  Nightlight
 󱫖  Idle Lock
 󰂛  Notifications
-󰍜  Top Bar
-  Reboot bios"
+󰍜  Top Bar"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Toggle")
 
@@ -19,7 +18,7 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "󱄄  Screensaver")
-    notify-send "Toggle" "Screensaver action is not implemented yet"
+    "$TOGGLE_ACTIONS_DIR/screensaver.sh"
     ;;
   "󰔎  Nightlight")
     "$TOGGLE_ACTIONS_DIR/nightlight.sh"
@@ -32,8 +31,5 @@ case "$chosen" in
     ;;
   "󰍜  Top Bar")
     "$TOGGLE_ACTIONS_DIR/waybar.sh"
-    ;;
-  "  Reboot bios")
-    kitty -e systemctl reboot --firmware-setup
     ;;
 esac

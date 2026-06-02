@@ -100,9 +100,8 @@ $(aws_base) sts get-caller-identity \
   \"\u001b[34mUserId:\u001b[0m  \(.UserId)\",
   \"\u001b[34mAccount:\u001b[0m \(.Account)\",
   \"\u001b[34mArn:\u001b[0m     \(.Arn)\"
-' \
-| aws_fzf 'Identity' plain
-" close-on-success toggle
+'
+" close-on-key toggle
     ;;
 
   "󰃷  CloudWatch")

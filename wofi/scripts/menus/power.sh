@@ -3,6 +3,7 @@
 options="←  Back
   Shutdown
   Reboot
+  Reboot BIOS
   Suspend
   Logout"
 
@@ -17,6 +18,9 @@ case $chosen in
     ;;
   "  Reboot")
     systemctl reboot
+    ;;
+  "  Reboot BIOS")
+    kitty -e systemctl reboot --firmware-setup
     ;;
   "  Suspend")
     systemctl suspend

@@ -8,6 +8,13 @@ options="←  Back
 󰏗  Projects
   Compute Instances
 󰉋  Storage Buckets
+󰠇  GKE Clusters
+󰣇  Cloud Run
+󰈳  Cloud SQL
+  Artifact Registry
+󰊕  Cloud Functions
+󰖟  VPC Networks
+󰒃  IAM
 󰢬  Logs"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="GCP")
@@ -33,9 +40,8 @@ gcloud auth login
     run_in_kitty "GCP Auth" "
 cloud_header 'GCP auth'
 gcloud auth list --format=json \
-| jq -r '.[] | \"\u001b[36m\(.account)\u001b[0m  status=\(.status)\"' \
-| cloud_fzf 'Accounts' plain
-" close-on-success toggle
+| jq -r '.[] | \"\u001b[36m\(.account)\u001b[0m  status=\(.status)\"'
+" close-on-key toggle
     ;;
   "󰏗  Projects")
     require_gcloud
@@ -51,6 +57,27 @@ gcloud projects list --format=json \
     ;;
   "󰉋  Storage Buckets")
     "$GCP_MENUS_DIR/storage.sh"
+    ;;
+  "󰠇  GKE Clusters")
+    "$GCP_MENUS_DIR/gke.sh"
+    ;;
+  "󰣇  Cloud Run")
+    "$GCP_MENUS_DIR/cloud-run.sh"
+    ;;
+  "󰈳  Cloud SQL")
+    "$GCP_MENUS_DIR/sql.sh"
+    ;;
+  "  Artifact Registry")
+    "$GCP_MENUS_DIR/artifact-registry.sh"
+    ;;
+  "󰊕  Cloud Functions")
+    "$GCP_MENUS_DIR/functions.sh"
+    ;;
+  "󰖟  VPC Networks")
+    "$GCP_MENUS_DIR/vpc.sh"
+    ;;
+  "󰒃  IAM")
+    "$GCP_MENUS_DIR/iam.sh"
     ;;
   "󰢬  Logs")
     "$GCP_MENUS_DIR/logs.sh"

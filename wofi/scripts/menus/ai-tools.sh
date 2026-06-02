@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 DEV_DIR="$HOME/Development"
+MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+BACK_MENU="${BACK_MENU:-$MENUS_DIR/main.sh}"
 
 options="←  Back
   Codex
@@ -12,7 +14,7 @@ chosen="$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --p
 
 case "$chosen" in
   "←  Back")
-    ~/.config/wofi/scripts/menus/main.sh
+    "$BACK_MENU"
     exit 0
     ;;
 esac

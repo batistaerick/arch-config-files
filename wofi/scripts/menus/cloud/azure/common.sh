@@ -174,6 +174,16 @@ if [ "\$status" -eq 0 ] && [ "$close_mode" = "close-on-success" ]; then
   exit 0
 fi
 
+if [ "$close_mode" = "close-on-key" ]; then
+  echo
+  echo "────────────────────────────────────────"
+  echo "Exit code: \$status"
+  echo "Press any key to close."
+  echo "────────────────────────────────────────"
+  IFS= read -rsn1
+  exit "\$status"
+fi
+
 echo
 echo "────────────────────────────────────────"
 echo "Exit code: \$status"

@@ -15,4 +15,4 @@ echo
 az monitor activity-log list --subscription '$subscription' --start-time '$start_time' -o json \
 | jq -r '.[] | \"\u001b[90m\(.eventTimestamp)\u001b[0m  \u001b[36m\(.resourceGroupName // \"N/A\")\u001b[0m  status=\(.status.value // \"N/A\")  \(.operationName.localizedValue // .operationName.value // \"\")\"' \
 | cloud_fzf 'Activity'
-" close-on-success
+" close-on-success toggle

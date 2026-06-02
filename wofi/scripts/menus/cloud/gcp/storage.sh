@@ -11,5 +11,5 @@ echo
 
 gcloud storage buckets list --project '$project' --format=json \
 | jq -r '.[] | \"\u001b[36m\(.name)\u001b[0m  location=\(.location)  class=\(.storageClass)\"' \
-| cloud_fzf 'Buckets'
-" close-on-success
+| cloud_fzf 'Buckets' plain
+" close-on-success toggle

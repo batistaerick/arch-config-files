@@ -260,7 +260,7 @@ aws_header "ECS clusters"
 aws_kv "Profile" "$AWS_PROFILE"
 echo
 
-$(aws_base) ecs list-clusters | jq -r '.clusterArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' | aws_fzf "Clusters"
+$(aws_base) ecs list-clusters | jq -r '.clusterArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' | aws_fzf "Clusters" plain
 EOF
 }
 
@@ -274,7 +274,7 @@ echo
 $(aws_base) ecs list-services \\
   --cluster "$ECS_CLUSTER" \\
 | jq -r '.serviceArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' \
-| aws_fzf "Services"
+| aws_fzf "Services" plain
 EOF
 }
 
@@ -295,28 +295,28 @@ case "$chosen" in
     back_to_aws_menu
     ;;
   "󰅟  Service status")
-    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)" close-on-success
+    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)" close-on-success toggle
     ;;
   "󰐱  Deployments")
-    run_in_kitty "ECS Deployments - $AWS_PROFILE" "$(deployments_command)" close-on-success
+    run_in_kitty "ECS Deployments - $AWS_PROFILE" "$(deployments_command)" close-on-success toggle
     ;;
   "󰢬  Latest deploy logs")
-    run_in_kitty "ECS Deploy Logs - $AWS_PROFILE" "$(deployment_logs_command)" close-on-success
+    run_in_kitty "ECS Deploy Logs - $AWS_PROFILE" "$(deployment_logs_command)" close-on-success toggle
     ;;
   "󰑓  Service events")
-    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)" close-on-success
+    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)" close-on-success toggle
     ;;
   "󰐱  Running tasks")
-    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)" close-on-success
+    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)" close-on-success toggle
     ;;
   "  Stopped tasks")
-    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)" close-on-success
+    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)" close-on-success toggle
     ;;
   "󰌗  List clusters")
-    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)" close-on-success
+    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)" close-on-success toggle
     ;;
   "󰓾  List services")
-    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)" close-on-success
+    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)" close-on-success toggle
     ;;
   "")
     exit 0

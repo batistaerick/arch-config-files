@@ -101,9 +101,18 @@ cloud_warn() {
 
 cloud_fzf() {
   local prompt="${1:-Filter}"
+  local mode="${2:-preview}"
   local output
   local status
   local key
+  local preview_args=()
+
+  if [ "$mode" != "plain" ]; then
+    preview_args=(
+      --preview 'printf "%b\n" {} | bat --style=plain --color=always --language=log 2>/dev/null || printf "%b\n" {}'
+      --preview-window 'down,35%,wrap'
+    )
+  fi
 
   if command -v fzf >/dev/null 2>&1; then
     output="$(fzf \
@@ -116,8 +125,7 @@ cloud_fzf() {
       --color='fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8,fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8,info:#cba6f7,prompt:#89b4fa,pointer:#f5e0dc,marker:#a6e3a1,spinner:#f9e2af,header:#94e2d5,border:#89b4fa' \
       --prompt="$prompt > " \
       --header="Type to filter. Enter prints selection. Esc closes." \
-      --preview='printf "%b\n" {} | bat --style=plain --color=always --language=log 2>/dev/null || printf "%b\n" {}' \
-      --preview-window='down,35%,wrap' \
+      "${preview_args[@]}" \
       --expect=ctrl-c,esc)"
     status=$?
 
@@ -142,6 +150,7 @@ run_in_kitty() {
   local title="$1"
   local command="$2"
   local close_mode="${3:-keep-open}"
+  local window_mode="${4:-normal}"
   local temp_script
 
   temp_script="$(mktemp /tmp/gcp-ops.XXXXXX.sh)"
@@ -181,5 +190,9 @@ exec "\${SHELL:-/bin/bash}" -l
 EOF
 
   chmod +x "$temp_script"
-  kitty --title "$title" "$temp_script"
+  if [ "$window_mode" = "toggle" ]; then
+    kitty --class cloud-terminal --title "$title" "$temp_script"
+  else
+    kitty --title "$title" "$temp_script"
+  fi
 }

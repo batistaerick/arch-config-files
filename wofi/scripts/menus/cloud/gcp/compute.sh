@@ -11,5 +11,5 @@ echo
 
 gcloud compute instances list --project '$project' --format=json \
 | jq -r '.[] | \"\u001b[36m\(.name)\u001b[0m  zone=\(.zone | split(\"/\")[-1])  status=\(.status)  machine=\(.machineType | split(\"/\")[-1])\"' \
-| cloud_fzf 'Instances'
-" close-on-success
+| cloud_fzf 'Instances' plain
+" close-on-success toggle

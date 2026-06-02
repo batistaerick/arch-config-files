@@ -1,7 +1,7 @@
 insensitive=true
 allow_images=true
 image_size=16
-width=370
-height=500
+width=380
+height=400
 prompt=Search...
 matching=fuzzy

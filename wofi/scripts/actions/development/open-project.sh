@@ -3,6 +3,9 @@
 set -euo pipefail
 
 DEV_DIR="${DEV_DIR:-$HOME/Development}"
+DEV_DIR="${DEV_DIR%/}"
+BACK_LABEL="←  Back"
+BACK_MENU="${BACK_MENU:-$HOME/.config/wofi/scripts/menus/development.sh}"
 tool="${1:-}"
 
 if [ -z "$tool" ]; then
@@ -67,7 +70,7 @@ while true; do
       sort
   )
 
-  options=("←  Back" "$open_label")
+  options=("$BACK_LABEL" "$open_label")
 
   for dir in "${dirs[@]}"; do
     options+=("󰉋  $dir")
@@ -79,8 +82,12 @@ while true; do
     "")
       exit 0
       ;;
-    "←  Back")
+    "$BACK_LABEL")
       if [ "$current" = "$DEV_DIR" ]; then
+        if [ -x "$BACK_MENU" ]; then
+          "$BACK_MENU"
+        fi
+
         exit 0
       fi
 

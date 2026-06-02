@@ -119,13 +119,13 @@ case "$chosen" in
     "$MENUS_DIR/development.sh"
     ;;
   "󰅩  Development > VS Code")
-    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" vscode
+    BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" vscode
     ;;
   "󰅩  Development > IntelliJ")
-    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" intellij
+    BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" intellij
     ;;
   "󰅩  Development > Neovim")
-    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
+    BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
     ;;
   "󰅩  Development > AI Tools")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"

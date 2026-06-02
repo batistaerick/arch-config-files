@@ -3,37 +3,35 @@
   font-size: 14px;
 }
 
-/* Window */
 window {
   padding: 10px;
-  background-color: rgba(44, 44, 44, 0.9);
+  background-color: rgba(30, 30, 46, 0.96);
   border-radius: 8px;
   border: 2px solid #b4befe;
 }
 
-/* Inner Box */
 #inner-box {
-  margin: 5px;
+  margin: 4px;
   padding: 10px;
   background-color: transparent;
 }
 
-/* Outer Box */
 #outer-box {
   background-color: transparent;
 }
 
-/* Input */
 #input {
   margin: 13px;
-  color: white;
-  background-color: rgba(10, 10, 17, 0.2);
+  padding: 8px 10px;
+  color: #cdd6f4;
+  background-color: rgba(49, 50, 68, 0.86);
   border: none;
+  border-radius: 6px;
 }
 
 #input image {
   margin-left: 9px;
-  background-color: rgba(30, 30, 46, 0.2);
+  background-color: transparent;
 }
 
 #input:focus {
@@ -41,7 +39,6 @@ window {
   box-shadow: none;
 }
 
-/* Text */
 #text {
   background-color: transparent;
   margin: 5px;
@@ -50,12 +47,14 @@ window {
 
 #entry {
   background-color: transparent;
+  border-radius: 6px;
 }
 
 #entry:selected {
   border: none;
   outline: none;
   box-shadow: none;
+  background-color: rgba(69, 71, 90, 0.72);
 }
 
 #entry arrow {
@@ -65,20 +64,18 @@ window {
 }
 
 #entry:selected #text {
-  color: mediumorchid;
+  color: #cba6f7;
 }
 
 #entry:drop(active) {
   background-color: #b4befe !important;
 }
 
-/* App icons */
 #entry image {
   padding-right: 10px;
   background-color: transparent;
 }
 
-/* Selected app icon */
 #entry:selected image {
   background-color: transparent;
 }

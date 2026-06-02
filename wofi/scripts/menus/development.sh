@@ -17,13 +17,13 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "  VS Code")
-    "$ACTIONS_DIR/development/open-project.sh" vscode
+    BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" vscode
     ;;
   "  IntelliJ")
-    "$ACTIONS_DIR/development/open-project.sh" intellij
+    BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" intellij
     ;;
   "  Neovim")
-    "$ACTIONS_DIR/development/open-project.sh" nvim
+    BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" nvim
     ;;
   "  AI Tools")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"

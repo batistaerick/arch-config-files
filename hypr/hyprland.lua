@@ -376,6 +376,7 @@ floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
 floating_window_rule("fif-terminal-float", "^(fif-terminal)$", { 1000, 650 })
 floating_window_rule("fifs-terminal-float", "^(fifs-terminal)$", { 1500, 800 })
+floating_window_rule("cloud-terminal-float", "^(cloud-terminal)$", { 1700, 950 })
 
 -- App opacity
 opacity_rule("set-dolphin-transparency", "^(org.kde.dolphin)$", "1 0.94")

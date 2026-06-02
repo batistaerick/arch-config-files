@@ -15,4 +15,4 @@ echo
 gcloud logging read 'timestamp >= \"$since\"' --project '$project' --limit=300 --format=json \
 | jq -r '.[] | \"\u001b[90m\(.timestamp)\u001b[0m  \u001b[36m\(.resource.type)\u001b[0m  \((.severity // \"DEFAULT\"))  \((.textPayload // .jsonPayload.message // .protoPayload.methodName // \"\"))\"' \
 | cloud_fzf 'Logs'
-" close-on-success
+" close-on-success toggle

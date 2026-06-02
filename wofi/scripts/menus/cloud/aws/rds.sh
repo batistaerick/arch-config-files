@@ -73,8 +73,8 @@ echo
 
 $(aws_base) rds describe-db-instances \
 | jq -r '.DBInstances[] | \"\u001b[36m\(.DBInstanceIdentifier)\u001b[0m  engine=\(.Engine)  status=\(.DBInstanceStatus)  class=\(.DBInstanceClass)\"' \
-| aws_fzf 'DB instances'
-" close-on-success
+| aws_fzf 'DB instances' plain
+" close-on-success toggle
     ;;
 
   "󰘦  DB clusters")
@@ -85,8 +85,8 @@ echo
 
 $(aws_base) rds describe-db-clusters \
 | jq -r '.DBClusters[] | \"\u001b[36m\(.DBClusterIdentifier)\u001b[0m  engine=\(.Engine)  status=\(.Status)  endpoint=\(.Endpoint // \"N/A\")\"' \
-| aws_fzf 'DB clusters'
-" close-on-success
+| aws_fzf 'DB clusters' plain
+" close-on-success toggle
     ;;
 
   "󰅟  Instance status")
@@ -111,7 +111,7 @@ $(aws_base) rds describe-db-instances \
 \"' \
 | awk 'BEGIN { RS=\"\"; ORS=\"\\n\" } { gsub(/\\n/, \"  \"); print }' \
 | aws_fzf 'DB status'
-" close-on-success
+" close-on-success toggle
     ;;
 
   "󰕢  Recent DB events")
@@ -142,7 +142,7 @@ $(aws_base) rds describe-events \
   --duration 60 \
 | jq -r '.Events[] | \"\u001b[90m\(.Date)\u001b[0m  \u001b[36m\(.SourceIdentifier // \"N/A\")\u001b[0m  \(.Message)\"' \
 | aws_fzf 'DB events'
-" close-on-success
+" close-on-success toggle
     ;;
 
   "")

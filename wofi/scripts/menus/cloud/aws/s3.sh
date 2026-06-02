@@ -49,8 +49,8 @@ echo
 
 $(aws_base) s3 ls \
 | awk '{print \"\033[90m\" \$1 \" \" \$2 \"\033[0m  \033[36m\" \$3 \"\033[0m\"}' \
-| aws_fzf 'Buckets'
-" close-on-success
+| aws_fzf 'Buckets' plain
+" close-on-success toggle
     ;;
 
   "󰉋  Browse bucket")
@@ -75,7 +75,7 @@ $(aws_base) s3api list-objects-v2 \
   end
 ' \
 | aws_fzf 'Objects'
-" close-on-success
+" close-on-success toggle
     ;;
 
   "  Search bucket by name")
@@ -96,8 +96,8 @@ echo
 $(aws_base) s3 ls \
 | grep -i -- $quoted_word \
 | awk '{print \"\033[90m\" \$1 \" \" \$2 \"\033[0m  \033[36m\" \$3 \"\033[0m\"}' \
-| aws_fzf 'Buckets'
-" close-on-success
+| aws_fzf 'Buckets' plain
+" close-on-success toggle
     ;;
 
   "")

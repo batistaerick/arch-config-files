@@ -12,13 +12,26 @@ choose_profile() {
 
   wofi_menu "AWS Profile" \
     "${back_option[@]}" \
-    "Engineering-Dev-394540956281" \
-    "Engineering-Prod-576249115295" \
-    "default"
+    "Development" \
+    "Production"
+}
+
+resolve_profile() {
+  case "$1" in
+    "Development")
+      echo "Engineering-Dev-394540956281"
+      ;;
+    "Production")
+      echo "Engineering-Prod-576249115295"
+      ;;
+    *)
+      echo "$1"
+      ;;
+  esac
 }
 
 if [ "$1" = "--choose-profile-only" ]; then
-  AWS_PROFILE="$(choose_profile)"
+  AWS_PROFILE="$(resolve_profile "$(choose_profile)")"
 
   if [ "$AWS_PROFILE" = "←  Back" ]; then
     exit 0
@@ -28,7 +41,7 @@ if [ "$1" = "--choose-profile-only" ]; then
   exit 0
 fi
 
-AWS_PROFILE="${1:-$(choose_profile with-back)}"
+AWS_PROFILE="${1:-$(resolve_profile "$(choose_profile with-back)")}"
 
 case "$AWS_PROFILE" in
   "←  Back")
@@ -47,7 +60,17 @@ options="←  Back
 󰡨  ECS
 󰓟  S3
   Aurora / RDS
-  ECR"
+  ECR
+󰨇  Amazon Grafana
+󰘦  Cognito
+  DocumentDB
+󰊕  Lambda
+󰅧  CloudFront
+󰌢  Lightsail
+󰍹  EC2
+󰑃  Route 53
+󰖟  VPC
+󰒃  IAM"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="AWS - $AWS_PROFILE")
 
@@ -78,8 +101,8 @@ $(aws_base) sts get-caller-identity \
   \"\u001b[34mAccount:\u001b[0m \(.Account)\",
   \"\u001b[34mArn:\u001b[0m     \(.Arn)\"
 ' \
-| aws_fzf 'Identity'
-" close-on-success
+| aws_fzf 'Identity' plain
+" close-on-success toggle
     ;;
 
   "󰃷  CloudWatch")
@@ -100,6 +123,46 @@ $(aws_base) sts get-caller-identity \
 
   "  ECR")
     "$AWS_MENUS_DIR/ecr.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰨇  Amazon Grafana")
+    "$AWS_MENUS_DIR/grafana.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰘦  Cognito")
+    "$AWS_MENUS_DIR/cognito.sh" "$AWS_PROFILE"
+    ;;
+
+  "  DocumentDB")
+    "$AWS_MENUS_DIR/docdb.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰊕  Lambda")
+    "$AWS_MENUS_DIR/lambda.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰅧  CloudFront")
+    "$AWS_MENUS_DIR/cloudfront.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰌢  Lightsail")
+    "$AWS_MENUS_DIR/lightsail.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰍹  EC2")
+    "$AWS_MENUS_DIR/ec2.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰑃  Route 53")
+    "$AWS_MENUS_DIR/route53.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰖟  VPC")
+    "$AWS_MENUS_DIR/vpc.sh" "$AWS_PROFILE"
+    ;;
+
+  "󰒃  IAM")
+    "$AWS_MENUS_DIR/iam.sh" "$AWS_PROFILE"
     ;;
 
   "")

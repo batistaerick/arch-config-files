@@ -34,8 +34,8 @@ az login
 cloud_header 'Azure auth'
 az account show -o json \
 | jq -r '\"\u001b[34mName:\u001b[0m \(.name)\", \"\u001b[34mID:\u001b[0m   \(.id)\", \"\u001b[34mUser:\u001b[0m \(.user.name // \"N/A\")\"' \
-| cloud_fzf 'Account'
-" close-on-success
+| cloud_fzf 'Account' plain
+" close-on-success toggle
     ;;
   "󰏗  Subscriptions")
     require_az
@@ -43,8 +43,8 @@ az account show -o json \
 cloud_header 'Azure subscriptions'
 az account list -o json \
 | jq -r '.[] | \"\u001b[36m\(.name)\u001b[0m  id=\(.id)  state=\(.state)\"' \
-| cloud_fzf 'Subscriptions'
-" close-on-success
+| cloud_fzf 'Subscriptions' plain
+" close-on-success toggle
     ;;
   "  Virtual Machines")
     "$AZURE_MENUS_DIR/compute.sh"

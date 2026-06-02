@@ -34,8 +34,8 @@ gcloud auth login
 cloud_header 'GCP auth'
 gcloud auth list --format=json \
 | jq -r '.[] | \"\u001b[36m\(.account)\u001b[0m  status=\(.status)\"' \
-| cloud_fzf 'Accounts'
-" close-on-success
+| cloud_fzf 'Accounts' plain
+" close-on-success toggle
     ;;
   "󰏗  Projects")
     require_gcloud
@@ -43,8 +43,8 @@ gcloud auth list --format=json \
 cloud_header 'GCP projects'
 gcloud projects list --format=json \
 | jq -r '.[] | \"\u001b[36m\(.projectId)\u001b[0m  name=\(.name)  state=\(.lifecycleState)\"' \
-| cloud_fzf 'Projects'
-" close-on-success
+| cloud_fzf 'Projects' plain
+" close-on-success toggle
     ;;
   "  Compute Instances")
     "$GCP_MENUS_DIR/compute.sh"

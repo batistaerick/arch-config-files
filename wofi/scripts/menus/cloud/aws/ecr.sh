@@ -49,8 +49,8 @@ echo
 
 $(aws_base) ecr describe-repositories \
 | jq -r '.repositories[] | \"\u001b[36m\(.repositoryName)\u001b[0m  \u001b[90m\(.repositoryUri)\u001b[0m\"' \
-| aws_fzf 'Repositories'
-" close-on-success
+| aws_fzf 'Repositories' plain
+" close-on-success toggle
     ;;
 
   "  Search repository")
@@ -71,8 +71,8 @@ echo
 $(aws_base) ecr describe-repositories \
 | jq -r '.repositories[] | \"\u001b[36m\(.repositoryName)\u001b[0m  \u001b[90m\(.repositoryUri)\u001b[0m\"' \
 | grep -i -- $quoted_word \
-| aws_fzf 'Repositories'
-" close-on-success
+| aws_fzf 'Repositories' plain
+" close-on-success toggle
     ;;
 
   "󰁫  Latest image tags")
@@ -90,8 +90,8 @@ $(aws_base) ecr describe-images \
   --repository-name $quoted_repo \
   --query 'reverse(sort_by(imageDetails,& imagePushedAt))[:20]' \
 | jq -r '.[] | \"\u001b[90m\(.imagePushedAt)\u001b[0m  \u001b[36mtags=\(.imageTags // [])\u001b[0m  digest=\(.imageDigest)\"' \
-| aws_fzf 'Images'
-" close-on-success
+| aws_fzf 'Images' plain
+" close-on-success toggle
     ;;
 
   "")

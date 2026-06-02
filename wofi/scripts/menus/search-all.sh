@@ -10,12 +10,16 @@ CAPTURE_MENUS_DIR="$MENUS_DIR/capture"
 TOGGLE_ACTIONS_DIR="$ACTIONS_DIR/toggle"
 CAPTURE_ACTIONS_DIR="$ACTIONS_DIR/capture"
 SHARE_ACTIONS_DIR="$ACTIONS_DIR/share"
+DEVELOPMENT_ACTIONS_DIR="$ACTIONS_DIR/development"
 
 initial_query="${1:-}"
 
 options="←  Back
 󰣇  Apps > Search Apps
 󰅩  Development
+󰅩  Development > VS Code
+󰅩  Development > IntelliJ
+󰅩  Development > Neovim
 󰅩  Development > AI Tools
 󰅩  Development > AI Tools > Codex
 󰅩  Development > AI Tools > Claude Code
@@ -113,6 +117,15 @@ case "$chosen" in
     ;;
   "󰅩  Development")
     "$MENUS_DIR/development.sh"
+    ;;
+  "󰅩  Development > VS Code")
+    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" vscode
+    ;;
+  "󰅩  Development > IntelliJ")
+    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" intellij
+    ;;
+  "󰅩  Development > Neovim")
+    "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
     ;;
   "󰅩  Development > AI Tools")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"

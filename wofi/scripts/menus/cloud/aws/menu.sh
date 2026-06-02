@@ -73,7 +73,7 @@ aws_kv 'Profile' '$AWS_PROFILE'
 aws_success 'Checking AWS auth...'
 echo
 $(aws_base) sts get-caller-identity \
-| jq -C .
+| aws_json
 "
     ;;
 

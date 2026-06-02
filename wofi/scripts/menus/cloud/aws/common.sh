@@ -115,22 +115,56 @@ aws_error() {
   printf '%s%s%s\n' "$aws_red" "$1" "$aws_reset"
 }
 
+aws_json() {
+  if command -v bat >/dev/null 2>&1; then
+    bat --language=json --style=plain --color=always
+  else
+    jq -C .
+  fi
+}
+
 aws_fzf() {
   local prompt="${1:-Filter}"
+  local output
+  local status
+  local key
 
   if command -v fzf >/dev/null 2>&1; then
-    fzf \
+    output="$(fzf \
       --ansi \
       --no-sort \
       --cycle \
       --height=100% \
       --layout=reverse \
       --border \
+      --color='fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8,fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8,info:#cba6f7,prompt:#89b4fa,pointer:#f5e0dc,marker:#a6e3a1,spinner:#f9e2af,header:#94e2d5,border:#89b4fa' \
       --prompt="$prompt > " \
       --header="Type to filter. Enter prints selection. Esc closes." \
-      --preview='printf "%b\n" {}' \
+      --preview='printf "%b\n" {} | bat --style=plain --color=always --language=log 2>/dev/null || printf "%b\n" {}' \
       --preview-window='down,35%,wrap' \
-      || true
+      --expect=ctrl-c,esc)"
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+      if [ "$status" -eq 130 ]; then
+        return 130
+      fi
+
+      return 0
+    fi
+
+    key="${output%%$'\n'*}"
+
+    case "$key" in
+      ctrl-c)
+        return 130
+        ;;
+      esc)
+        return 0
+        ;;
+    esac
+
+    printf '%s\n' "$output"
   else
     cat
   fi
@@ -155,9 +189,15 @@ clear
 
 $(aws_terminal_helpers)
 
+trap 'exit 130' INT
+
 $command
 
 status=\$?
+
+if [ "\$status" -eq 130 ]; then
+  exit 130
+fi
 
 echo
 echo "────────────────────────────────────────"

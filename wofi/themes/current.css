@@ -1,1 +1,127 @@
-/home/erick/.config/wofi/themes/dark.css
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 14px;
+}
+
+@keyframes theme-border-spin {
+  0% {
+    border-top-color: #ea6962;
+    border-right-color: #d8a657;
+    border-bottom-color: #a9b665;
+    border-left-color: #7daea3;
+    box-shadow: 0 0 16px rgba(234, 105, 98, 0.32);
+  }
+
+  25% {
+    border-top-color: #7daea3;
+    border-right-color: #ea6962;
+    border-bottom-color: #d8a657;
+    border-left-color: #a9b665;
+    box-shadow: 0 0 16px rgba(125, 174, 163, 0.32);
+  }
+
+  50% {
+    border-top-color: #a9b665;
+    border-right-color: #7daea3;
+    border-bottom-color: #ea6962;
+    border-left-color: #d8a657;
+    box-shadow: 0 0 16px rgba(169, 182, 101, 0.32);
+  }
+
+  75% {
+    border-top-color: #d8a657;
+    border-right-color: #a9b665;
+    border-bottom-color: #7daea3;
+    border-left-color: #ea6962;
+    box-shadow: 0 0 16px rgba(216, 166, 87, 0.32);
+  }
+
+  100% {
+    border-top-color: #ea6962;
+    border-right-color: #d8a657;
+    border-bottom-color: #a9b665;
+    border-left-color: #7daea3;
+    box-shadow: 0 0 16px rgba(234, 105, 98, 0.32);
+  }
+}
+
+window {
+  padding: 10px;
+  background-color: rgba(40, 40, 40, 0.96);
+  border-radius: 8px;
+  border: 2px solid #7daea3;
+  animation-name: theme-border-spin;
+  animation-duration: 2.4s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+#inner-box {
+  margin: 4px;
+  padding: 10px;
+  background-color: transparent;
+}
+
+#outer-box {
+  background-color: transparent;
+}
+
+#input {
+  margin: 13px;
+  padding: 8px 10px;
+  color: #d4be98;
+  background-color: rgba(60, 56, 54, 0.72);
+  border: none;
+  border-radius: 6px;
+}
+
+#input image {
+  margin-left: 9px;
+  background-color: transparent;
+}
+
+#input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#text {
+  background-color: transparent;
+  margin: 5px;
+  color: #d4be98;
+}
+
+#entry {
+  background-color: transparent;
+  border-radius: 6px;
+}
+
+#entry:selected {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: rgba(60, 56, 54, 0.64);
+}
+
+#entry arrow {
+  margin-left: -15px;
+  border: none;
+  color: transparent;
+}
+
+#entry:selected #text {
+  color: #d65d0e;
+}
+
+#entry:drop(active) {
+  background-color: #d65d0e !important;
+}
+
+#entry image {
+  padding-right: 10px;
+  background-color: transparent;
+}
+
+#entry:selected image {
+  background-color: transparent;
+}

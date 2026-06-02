@@ -3,11 +3,57 @@
   font-size: 14px;
 }
 
+@keyframes rgb-border-spin {
+  0% {
+    border-top-color: #d20f39;
+    border-right-color: #df8e1d;
+    border-bottom-color: #40a02b;
+    border-left-color: #1e66f5;
+    box-shadow: 0 0 16px rgba(210, 15, 57, 0.24);
+  }
+
+  25% {
+    border-top-color: #1e66f5;
+    border-right-color: #d20f39;
+    border-bottom-color: #df8e1d;
+    border-left-color: #40a02b;
+    box-shadow: 0 0 16px rgba(30, 102, 245, 0.24);
+  }
+
+  50% {
+    border-top-color: #40a02b;
+    border-right-color: #1e66f5;
+    border-bottom-color: #d20f39;
+    border-left-color: #df8e1d;
+    box-shadow: 0 0 16px rgba(64, 160, 43, 0.24);
+  }
+
+  75% {
+    border-top-color: #df8e1d;
+    border-right-color: #40a02b;
+    border-bottom-color: #1e66f5;
+    border-left-color: #d20f39;
+    box-shadow: 0 0 16px rgba(223, 142, 29, 0.24);
+  }
+
+  100% {
+    border-top-color: #d20f39;
+    border-right-color: #df8e1d;
+    border-bottom-color: #40a02b;
+    border-left-color: #1e66f5;
+    box-shadow: 0 0 16px rgba(210, 15, 57, 0.24);
+  }
+}
+
 window {
   padding: 10px;
   background-color: rgba(239, 241, 245, 0.97);
   border-radius: 8px;
-  border: 2px solid #7287fd;
+  border: 2px solid #d20f39;
+  animation-name: rgb-border-spin;
+  animation-duration: 2.4s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 #inner-box {

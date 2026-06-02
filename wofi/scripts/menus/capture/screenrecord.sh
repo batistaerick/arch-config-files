@@ -60,6 +60,29 @@ stop_recording() {
   open_obs
 }
 
+case "${1:-}" in
+  record)
+    start_recording_scene "Screen"
+    exit 0
+    ;;
+  audio)
+    start_recording_scene "Screen + Audio"
+    exit 0
+    ;;
+  webcam)
+    start_recording_scene "Screen + Webcam"
+    exit 0
+    ;;
+  audio-webcam)
+    start_recording_scene "Screen + Audio + Webcam"
+    exit 0
+    ;;
+  stop)
+    stop_recording
+    exit 0
+    ;;
+esac
+
 options="←  Back
   Open OBS
 󰑊  Record

@@ -10,4 +10,4 @@ chosen="$(
 
 [ -z "$chosen" ] && exit 0
 
-setsid -f "$HOME/.config/wofi/scripts/actions/apply.sh" "$chosen" >/tmp/apply.log 2>&1 < /dev/null
+setsid -f "$HOME/.config/wofi/scripts/actions/style/apply.sh" "$chosen" >/tmp/apply.log 2>&1 < /dev/null

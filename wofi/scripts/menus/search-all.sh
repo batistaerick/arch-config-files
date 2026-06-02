@@ -2,6 +2,12 @@
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
+AWS_MENUS_DIR="$MENUS_DIR/cloud/aws"
+STYLE_MENUS_DIR="$MENUS_DIR/style"
+CAPTURE_MENUS_DIR="$MENUS_DIR/capture"
+TOGGLE_ACTIONS_DIR="$ACTIONS_DIR/toggle"
+CAPTURE_ACTIONS_DIR="$ACTIONS_DIR/capture"
+SHARE_ACTIONS_DIR="$ACTIONS_DIR/share"
 
 initial_query="${1:-}"
 
@@ -9,6 +15,15 @@ options="←  Back
 󰣇  Apps > Search Apps
   AI Tools > Codex
   AI Tools > Claude Code
+  Cloud
+  Cloud > AWS
+  Cloud > AWS > SSO Login
+  Cloud > AWS > Check Auth
+  Cloud > AWS > CloudWatch
+  Cloud > AWS > ECS
+  Cloud > AWS > S3
+  Cloud > AWS > Aurora / RDS
+  Cloud > AWS > ECR
   Style > Theme
   Style > Wallpaper
 󰔎  Toggle > Screensaver
@@ -21,6 +36,7 @@ options="←  Back
   Capture > Screenshot
   Capture > Screenshot Selection
   Capture > Screenshot Full Screen
+  Capture > Screenrecord
   Capture > Record
   Capture > Record + Audio
   Capture > Record + Webcam
@@ -100,26 +116,77 @@ case "$chosen" in
   "  AI Tools > Claude Code")
     run_ai_tool claude
     ;;
+  "  Cloud")
+    "$MENUS_DIR/cloud.sh"
+    ;;
+  "  Cloud > AWS")
+    "$AWS_MENUS_DIR/menu.sh"
+    ;;
+  "  Cloud > AWS > SSO Login")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    source "$AWS_MENUS_DIR/common.sh"
+    run_in_kitty "AWS SSO - $AWS_PROFILE" "
+echo 'Opening AWS SSO login...'
+echo
+$(aws_base) sso login
+"
+    ;;
+  "  Cloud > AWS > Check Auth")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    source "$AWS_MENUS_DIR/common.sh"
+    run_in_kitty "AWS Auth - $AWS_PROFILE" "
+echo 'Checking AWS auth...'
+echo
+$(aws_base) sts get-caller-identity
+"
+    ;;
+  "  Cloud > AWS > CloudWatch")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    "$AWS_MENUS_DIR/cloudwatch.sh" "$AWS_PROFILE"
+    ;;
+  "  Cloud > AWS > ECS")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    "$AWS_MENUS_DIR/ecs.sh" "$AWS_PROFILE"
+    ;;
+  "  Cloud > AWS > S3")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    "$AWS_MENUS_DIR/s3.sh" "$AWS_PROFILE"
+    ;;
+  "  Cloud > AWS > Aurora / RDS")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    "$AWS_MENUS_DIR/rds.sh" "$AWS_PROFILE"
+    ;;
+  "  Cloud > AWS > ECR")
+    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
+    [[ -z "$AWS_PROFILE" ]] && exit 0
+    "$AWS_MENUS_DIR/ecr.sh" "$AWS_PROFILE"
+    ;;
   "  Style > Theme")
-    "$MENUS_DIR/theme.sh"
+    "$STYLE_MENUS_DIR/theme.sh"
     ;;
   "  Style > Wallpaper")
-    "$MENUS_DIR/wallpaper.sh"
+    "$STYLE_MENUS_DIR/wallpaper.sh"
     ;;
   "󰔎  Toggle > Screensaver")
-    "$ACTIONS_DIR/capture.sh"
+    notify-send "Toggle" "Screensaver action is not implemented yet"
     ;;
   "󰔎  Toggle > Nightlight")
-    "$ACTIONS_DIR/nightlight.sh"
+    "$TOGGLE_ACTIONS_DIR/nightlight.sh"
     ;;
   "󰔎  Toggle > Idle Lock")
-    "$ACTIONS_DIR/idle-lock.sh"
+    "$TOGGLE_ACTIONS_DIR/idle-lock.sh"
     ;;
   "󰔎  Toggle > Notifications")
-    "$ACTIONS_DIR/notification-silencing.sh"
+    "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰔎  Toggle > Top Bar")
-    "$ACTIONS_DIR/toggle-waybar.sh"
+    "$TOGGLE_ACTIONS_DIR/waybar.sh"
     ;;
   "󰔎  Toggle > Configs")
     code "$HOME/.config" &
@@ -128,44 +195,43 @@ case "$chosen" in
     kitty -e systemctl reboot --firmware-setup
     ;;
   "  Capture > Screenshot")
-    "$MENUS_DIR/screenshot.sh"
+    "$CAPTURE_MENUS_DIR/screenshot.sh"
     ;;
   "  Capture > Screenshot Selection")
-    "$ACTIONS_DIR/screenshot-selection.sh"
+    "$CAPTURE_ACTIONS_DIR/screenshot-selection.sh"
     ;;
   "  Capture > Screenshot Full Screen")
-    "$ACTIONS_DIR/screenshot-full.sh"
+    "$CAPTURE_ACTIONS_DIR/screenshot-full.sh"
     ;;
   "  Capture > Screenrecord")
-    "$MENUS_DIR/screenrecord.sh"
+    "$CAPTURE_MENUS_DIR/screenrecord.sh"
     ;;
   "  Capture > Record")
-    "$MENUS_DIR/screenrecord.sh" record
+    "$CAPTURE_MENUS_DIR/screenrecord.sh" record
     ;;
   "  Capture > Record + Audio")
-    "$MENUS_DIR/screenrecord.sh" audio
+    "$CAPTURE_MENUS_DIR/screenrecord.sh" audio
     ;;
   "  Capture > Record + Webcam")
-    "$MENUS_DIR/screenrecord.sh" webcam
+    "$CAPTURE_MENUS_DIR/screenrecord.sh" webcam
     ;;
   "  Capture > Record + Audio + Webcam")
-    "$MENUS_DIR/screenrecord.sh" audio-webcam
+    "$CAPTURE_MENUS_DIR/screenrecord.sh" audio-webcam
     ;;
   "  Capture > Stop Recording")
-    "$MENUS_DIR/screenrecord.sh" stop
-    ;;
+    "$CAPTURE_MENUS_DIR/screenrecord.sh" stop
     ;;
   "  Capture > Color Picker")
     (sleep 0.2 && hyprpicker -a) &
     ;;
   "  Share > Clipboard")
-    "$ACTIONS_DIR/localsend-share.sh" clipboard
+    "$SHARE_ACTIONS_DIR/localsend-share.sh" clipboard
     ;;
   "  Share > File")
-    kitty -e "$ACTIONS_DIR/localsend-share.sh" file
+    kitty -e "$SHARE_ACTIONS_DIR/localsend-share.sh" file
     ;;
   "  Share > Folder")
-    kitty -e "$ACTIONS_DIR/localsend-share.sh" folder
+    kitty -e "$SHARE_ACTIONS_DIR/localsend-share.sh" folder
     ;;
   "  Update > Pacman")
     kitty -e sudo pacman -Syu

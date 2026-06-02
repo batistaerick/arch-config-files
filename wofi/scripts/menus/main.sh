@@ -5,6 +5,7 @@ ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
 options="󰣇  Apps
   AI Tools
+  Cloud
   Style
 󰔎  Toggle
   Capture
@@ -22,6 +23,9 @@ case "$chosen" in
     ;;
   "  AI Tools")
     "$MENUS_DIR/ai-tools.sh"
+    ;;
+  "  Cloud")
+    "$MENUS_DIR/cloud.sh"
     ;;
   "  Style")
     "$MENUS_DIR/style.sh"

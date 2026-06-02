@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+CAPTURE_MENUS_DIR="$MENUS_DIR/capture"
 
 options="←  Back
 󰄀  Screenshot
@@ -14,10 +15,10 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "󰄀  Screenshot")
-    "$MENUS_DIR/screenshot.sh"
+    "$CAPTURE_MENUS_DIR/screenshot.sh"
     ;;
   "  Screenrecord")
-    "$MENUS_DIR/screenrecord.sh"
+    "$CAPTURE_MENUS_DIR/screenrecord.sh"
     ;;
   "󰈊  Color")
     (sleep 0.2 && hyprpicker -a) &

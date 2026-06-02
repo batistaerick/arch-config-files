@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+SHARE_ACTIONS_DIR="$HOME/.config/wofi/scripts/actions/share"
+
 options="←  Back
   Clipboard
   File
@@ -9,15 +12,15 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --pr
 
 case "$chosen" in
   "←  Back")
-    ~/.config/wofi/scripts/menus/main.sh
+    "$MENUS_DIR/main.sh"
     ;;
   "  Clipboard")
-    ~/.config/wofi/scripts/actions/localsend-share.sh clipboard
+    "$SHARE_ACTIONS_DIR/localsend-share.sh" clipboard
     ;;
   "  File")
-    kitty -e ~/.config/wofi/scripts/actions/localsend-share.sh file
+    kitty -e "$SHARE_ACTIONS_DIR/localsend-share.sh" file
     ;;
   "  Folder")
-    kitty -e ~/.config/wofi/scripts/actions/localsend-share.sh folder
+    kitty -e "$SHARE_ACTIONS_DIR/localsend-share.sh" folder
     ;;
 esac

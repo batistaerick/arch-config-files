@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+STYLE_MENUS_DIR="$MENUS_DIR/style"
 
 options="←  Back
 󰸌  Theme
@@ -13,9 +14,9 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "󰸌  Theme")
-    "$MENUS_DIR/theme.sh"
+    "$STYLE_MENUS_DIR/theme.sh"
     ;;
   "🖻  Wallpaper")
-    "$MENUS_DIR/wallpaper.sh"
+    "$STYLE_MENUS_DIR/wallpaper.sh"
     ;;
 esac

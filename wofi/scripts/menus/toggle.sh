@@ -2,6 +2,7 @@
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
+TOGGLE_ACTIONS_DIR="$ACTIONS_DIR/toggle"
 
 options="←  Back
 󱄄  Screensaver
@@ -18,19 +19,19 @@ case "$chosen" in
     "$MENUS_DIR/main.sh"
     ;;
   "󱄄  Screensaver")
-    "$ACTIONS_DIR/capture.sh"
+    notify-send "Toggle" "Screensaver action is not implemented yet"
     ;;
   "󰔎  Nightlight")
-    "$ACTIONS_DIR/nightlight.sh"
+    "$TOGGLE_ACTIONS_DIR/nightlight.sh"
     ;;
   "󱫖  Idle Lock")
-    "$ACTIONS_DIR/idle-lock.sh"
+    "$TOGGLE_ACTIONS_DIR/idle-lock.sh"
     ;;
   "󰂛  Notifications")
-    "$ACTIONS_DIR/notification-silencing.sh"
+    "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰍜  Top Bar")
-    "$ACTIONS_DIR/toggle-waybar.sh"
+    "$TOGGLE_ACTIONS_DIR/waybar.sh"
     ;;
   "  Reboot bios")
     kitty -e systemctl reboot --firmware-setup

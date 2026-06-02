@@ -3,6 +3,7 @@
 DIR="$HOME/Pictures/Screenshots"
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
+CAPTURE_ACTIONS_DIR="$ACTIONS_DIR/capture"
 mkdir -p "$DIR"
 
 FILE="$DIR/$(date +'%Y-%m-%d_%H-%M-%S').png"
@@ -20,11 +21,11 @@ case "$chosen" in
     "$MENUS_DIR/capture.sh"
     ;;
   "󰆞  Selection")
-    "$ACTIONS_DIR/screenshot-selection.sh"
+    "$CAPTURE_ACTIONS_DIR/screenshot-selection.sh"
     notify-send "Screenshot saved" "$FILE"
     ;;
   "󰹑  Full Screen")
-    "$ACTIONS_DIR/screenshot-full.sh"
+    "$CAPTURE_ACTIONS_DIR/screenshot-full.sh"
     notify-send "Screenshot saved" "$FILE"
     ;;
 esac

@@ -7,6 +7,58 @@ if [ -z "$AWS_PROFILE" ]; then
   exit 0
 fi
 
+choose_ecs_cluster() {
+  local clusters
+  local chosen
+
+  if ! clusters="$(aws_cli ecs list-clusters | jq -r '.clusterArns[] | split("/")[-1]')"; then
+    notify-send "ECS" "Failed to list clusters for $AWS_PROFILE"
+    exit 1
+  fi
+
+  if [ -z "$clusters" ]; then
+    notify-send "ECS" "No clusters found for $AWS_PROFILE"
+    exit 0
+  fi
+
+  chosen="$(printf "%s\n" "$clusters" | wofi_menu "ECS Cluster")"
+
+  if [ -z "$chosen" ]; then
+    exit 0
+  fi
+
+  echo "$chosen"
+}
+
+choose_ecs_service() {
+  local cluster="$1"
+  local services
+  local chosen
+
+  if ! services="$(aws_cli ecs list-services \
+    --cluster "$cluster" \
+    | jq -r '.serviceArns[] | split("/")[-1]')"; then
+    notify-send "ECS" "Failed to list services in $cluster"
+    exit 1
+  fi
+
+  if [ -z "$services" ]; then
+    notify-send "ECS" "No services found in $cluster"
+    exit 0
+  fi
+
+  chosen="$(printf "%s\n" "$services" | wofi_menu "ECS Service")"
+
+  if [ -z "$chosen" ]; then
+    exit 0
+  fi
+
+  echo "$chosen"
+}
+
+ECS_CLUSTER="$(choose_ecs_cluster)"
+ECS_SERVICE="$(choose_ecs_service "$ECS_CLUSTER")"
+
 service_status_command() {
   cat <<EOF
 aws_header "ECS service status"
@@ -37,7 +89,9 @@ $(aws_base) ecs describe-services \\
       ] | join("\n")
     )
   end
-'
+' \
+| awk 'BEGIN { RS=""; ORS="\n" } { gsub(/\n/, "  "); print }' \
+| aws_fzf "Service status"
 EOF
 }
 
@@ -124,6 +178,82 @@ $(aws_base) ecs describe-tasks \\
 EOF
 }
 
+deployments_command() {
+  cat <<EOF
+aws_header "ECS deployments"
+aws_kv "Profile" "$AWS_PROFILE"
+aws_kv "Cluster" "$ECS_CLUSTER"
+aws_kv "Service" "$ECS_SERVICE"
+echo
+
+$(aws_base) ecs describe-services \\
+  --cluster "$ECS_CLUSTER" \\
+  --services "$ECS_SERVICE" \\
+| jq -r '
+  if (.services | length) == 0 then
+    "No ECS service found."
+  elif (.services[0].deployments | length) == 0 then
+    "No ECS deployments found."
+  else
+    .services[0].deployments[]
+    | "\u001b[36m\(.status)\u001b[0m  id=\(.id | split("/")[-1]) desired=\(.desiredCount) running=\(.runningCount) pending=\(.pendingCount) failed=\(.failedTasks) rollout=\(.rolloutState // "N/A") created=\(.createdAt) updated=\(.updatedAt) reason=\(.rolloutStateReason // "N/A")"
+  end
+' | aws_fzf "Deployments"
+EOF
+}
+
+deployment_logs_command() {
+  cat <<EOF
+aws_header "ECS latest deployment logs"
+aws_kv "Profile" "$AWS_PROFILE"
+aws_kv "Cluster" "$ECS_CLUSTER"
+aws_kv "Service" "$ECS_SERVICE"
+aws_kv "Log group" "$LOG_GROUP"
+echo
+
+SERVICE_JSON=\$($(aws_base) ecs describe-services \\
+  --cluster "$ECS_CLUSTER" \\
+  --services "$ECS_SERVICE")
+
+DEPLOYMENT_START=\$(printf '%s' "\$SERVICE_JSON" | jq -r '
+  [.services[0].deployments[]?.createdAt]
+  | sort
+  | last
+  // empty
+')
+
+if [ -n "\$DEPLOYMENT_START" ]; then
+  START_MS=\$(date -d "\$DEPLOYMENT_START" +%s%3N 2>/dev/null || date -d "60 minutes ago" +%s%3N)
+  aws_kv "Since" "\$DEPLOYMENT_START"
+else
+  START_MS=\$(date -d "60 minutes ago" +%s%3N)
+  aws_warn "Could not find deployment start time. Falling back to the last 60 minutes."
+fi
+
+echo
+
+$(aws_base) logs filter-log-events \\
+  --log-group-name "$LOG_GROUP" \\
+  --start-time "\$START_MS" \\
+  --end-time $(now_ms) \\
+  --max-items 300 \\
+| jq -r '
+  if (.events | length) == 0 then
+    "No logs found for the latest deployment window."
+  else
+    .events[]
+    | "\u001b[90m\(.timestamp / 1000 | todate)\u001b[0m  \u001b[36m\(.logStreamName)\u001b[0m  \(.message
+        | gsub("ERROR"; "\u001b[31mERROR\u001b[0m")
+        | gsub("WARN"; "\u001b[33mWARN\u001b[0m")
+        | gsub("Exception"; "\u001b[31mException\u001b[0m")
+        | gsub("Traceback"; "\u001b[31mTraceback\u001b[0m")
+        | gsub("failed"; "\u001b[31mfailed\u001b[0m")
+        | gsub("Failed"; "\u001b[31mFailed\u001b[0m"))"
+  end
+' | aws_fzf "Deployment logs"
+EOF
+}
+
 list_clusters_command() {
   cat <<EOF
 aws_header "ECS clusters"
@@ -150,6 +280,8 @@ EOF
 
 options="←  Back
 󰅟  Service status
+󰐱  Deployments
+󰢬  Latest deploy logs
 󰑓  Service events
 󰐱  Running tasks
   Stopped tasks
@@ -163,22 +295,28 @@ case "$chosen" in
     back_to_aws_menu
     ;;
   "󰅟  Service status")
-    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)"
+    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)" close-on-success
+    ;;
+  "󰐱  Deployments")
+    run_in_kitty "ECS Deployments - $AWS_PROFILE" "$(deployments_command)" close-on-success
+    ;;
+  "󰢬  Latest deploy logs")
+    run_in_kitty "ECS Deploy Logs - $AWS_PROFILE" "$(deployment_logs_command)" close-on-success
     ;;
   "󰑓  Service events")
-    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)"
+    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)" close-on-success
     ;;
   "󰐱  Running tasks")
-    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)"
+    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)" close-on-success
     ;;
   "  Stopped tasks")
-    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)"
+    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)" close-on-success
     ;;
   "󰌗  List clusters")
-    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)"
+    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)" close-on-success
     ;;
   "󰓾  List services")
-    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)"
+    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)" close-on-success
     ;;
   "")
     exit 0

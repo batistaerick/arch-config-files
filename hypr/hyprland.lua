@@ -1,3 +1,4 @@
+-- Detect whether this session is running on the laptop panel or the desktop monitors.
 local function has_internal_display()
   local handle = io.popen("cat /sys/class/drm/card*-eDP-*/status 2>/dev/null")
   if not handle then return false end
@@ -10,9 +11,9 @@ end
 
 local is_laptop = has_internal_display()
 
-----------------
---- THEMES ---
-----------------
+-------------
+-- Themes --
+-------------
 
 local function trim(value)
   return value:gsub("^%s+", ""):gsub("%s+$", "")
@@ -39,9 +40,9 @@ end
 
 load_theme_env(os.getenv("HOME") .. "/.config/hypr/theme-env.conf")
 
-----------------
---- MONITORS ---
-----------------
+--------------
+-- Monitors --
+--------------
 
 if is_laptop then
   hl.monitor({
@@ -66,17 +67,21 @@ else
   })
 end
 
--------------------
---- MY PROGRAMS ---
--------------------
+--------------
+-- Commands --
+--------------
 
 local terminal = "kitty"
 local fileManager = "dolphin"
-local menu = "wofi --show drun"
+local mainMod = "SUPER"
 
------------------
---- AUTOSTART ---
------------------
+local scriptsDir = "~/.config/wofi/scripts"
+local menusDir = scriptsDir .. "/menus"
+local actionsDir = scriptsDir .. "/actions"
+
+---------------
+-- Autostart --
+---------------
 
 hl.on("hyprland.start", function()
   hl.exec_cmd("blueman-applet")
@@ -91,18 +96,18 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
--------------------------------
---- ENVIRONMENT VARIABLES -----
--------------------------------
+-----------------
+-- Environment --
+-----------------
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("XDG_MENU_PREFIX", "arch-")
 hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
 
----------------------
---- LOOK AND FEEL ---
----------------------
+-------------------
+-- Look And Feel --
+-------------------
 
 hl.config({
   general = {
@@ -124,8 +129,8 @@ hl.config({
     layout =           "dwindle",
   },
   decoration = {
-    rounding =         5,
-    rounding_power =   5,
+    rounding =         4,
+    rounding_power =   4,
     active_opacity =   1.0,
     inactive_opacity = 1.0,
     shadow = {
@@ -187,9 +192,9 @@ hl.config({
   },
 })
 
--------------
---- INPUT ---
--------------
+-----------
+-- Input --
+-----------
 
 hl.config({
   input = {
@@ -225,25 +230,26 @@ hl.device({
   sensitivity = -0.5,
 })
 
--------------------
---- KEYBINDINGS ---
--------------------
+-----------------
+-- Keybindings --
+-----------------
 
-local mainMod = "SUPER"
-
+-- Launchers and app helpers
 hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + W", hl.dsp.window.close())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager .. " --new-window"))
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'"))
+hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd([[kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0']]))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"))
+
+-- Window state and layout
+hl.bind(mainMod .. " + W", hl.dsp.window.close())
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.window.pin())
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + A", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.layout("rotatesplit"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"))
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'"))
-hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd([[kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0']]))
 
--- Move focus with mainMod + vim-style keys
+-- Focus with vim-style keys
 hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "l" }))
 hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "d" }))
 hl.bind(mainMod .. " + i", hl.dsp.focus({ direction = "u" }))
@@ -261,7 +267,7 @@ hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + CTRL + i", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
--- Switch / move to workspaces 1-10
+-- Workspaces 1-10
 for i = 1, 10 do
   local key = tostring(i % 10)
   hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
@@ -273,40 +279,32 @@ hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 hl.bind(mainMod .. " + CTRL + S", hl.dsp.window.move({ workspace = 1 }))
 
--- Scroll through existing workspaces with mainMod + scroll
+-- Scroll through existing workspaces
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
--- Scripts
-hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/screenshot-selection.sh"))
-hl.bind("PRINT", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/screenshot-full.sh"))
-hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/toggle-waybar.sh"))
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/next-wallpaper.sh"))
-hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/wallpaper.sh"))
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/main.sh"))
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("~/.config/wofi/scripts/menus/search.sh"))
-hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("~/.config/wofi/scripts/actions/google-search.sh"))
+-- Wofi menus and scripts
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menusDir .. "/main.sh"))
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
+hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd(menusDir .. "/style/wallpaper.sh"))
+hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
 
--- Notification center
+hl.bind("PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-full.sh"))
+hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-selection.sh"))
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(actionsDir .. "/wallpaper/next.sh"))
+hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/waybar.sh"))
+
+-- Desktop utilities
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
-
--- hyprpicker
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("hyprpicker -a"))
-
--- hyprlock
 hl.bind(mainMod .. " + m", hl.dsp.exec_cmd("hyprlock"))
-
--- Characters
 hl.bind(mainMod .. " + SEMICOLON", hl.dsp.exec_cmd("gnome-characters"))
 
 -- Media keys
 hl.bind("F8", hl.dsp.exec_cmd("playerctl play-pause"))
 hl.bind("F9", hl.dsp.exec_cmd("playerctl next"))
 
--- Move/resize windows with mainMod + LMB/RMB and dragging
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
-
+-- Hardware keys
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume=2 --max-volume=100"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume=-2 --max-volume=100"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume=mute-toggle --max-volume=100"), { locked = true, repeating = true })
@@ -319,23 +317,27 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
--------------------------------
---- WINDOWS AND WORKSPACES ----
--------------------------------
+-- Mouse window manipulation
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+----------------------------
+-- Windows And Workspaces --
+----------------------------
 
 if is_laptop then
   for i = 1, 10 do
     hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
   end
 else
-  -- DP-3 main gets 1, 3, 5
+  -- Main monitor
   hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
+  hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
   hl.workspace_rule({ workspace = "3", monitor = "DP-3" })
-  hl.workspace_rule({ workspace = "5", monitor = "DP-3" })
 
-  -- HDMI-A-1 secondary gets 2, 4, 6
-  hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1" })
+  -- Secondary monitor
   hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
+  hl.workspace_rule({ workspace = "5", monitor = "HDMI-A-1" })
   hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1" })
 end
 
@@ -343,74 +345,43 @@ end
 -- Uncomment this together with the 4-finger scroll_move gesture above.
 -- hl.workspace_rule({ workspace = "7", layout = "scrolling" })
 
--- Calendar Manager
-hl.window_rule({
-  name = "calendar-manager-float",
-  match = { class = "^(org.gnome.Calendar)$" },
-  float = true,
-  center = true,
-  size = { 700, 700 },
-})
+local function floating_window_rule(name, class, size)
+  hl.window_rule({
+    name = name,
+    match = { class = class },
+    float = true,
+    center = true,
+    size = size,
+  })
+end
 
--- Bluetooth Manager
-hl.window_rule({
-  name = "blueman-manager-float",
-  match = { class = "^(blueman-manager)$" },
-  float = true,
-  center = true,
-  size = { 700, 500 },
-})
+local function opacity_rule(name, class, opacity)
+  hl.window_rule({
+    name = name,
+    match = { class = class },
+    opacity = opacity,
+  })
+end
 
--- Pavucontrol
-hl.window_rule({
-  name = "pavucontrol-float",
-  match = { class = "^(org.pulseaudio.pavucontrol)$" },
-  float = true,
-  center = true,
-  size = { 1000, 500 },
-})
+local function blurred_layer(namespace, ignore_alpha)
+  hl.layer_rule({ match = { namespace = namespace }, blur = true })
+  hl.layer_rule({ match = { namespace = namespace }, ignore_alpha = ignore_alpha })
+end
 
--- GNOME Calculator
-hl.window_rule({
-  name = "gnome-calculator-float",
-  match = { class = "^(org.gnome.Calculator)$" },
-  float = true,
-  center = true,
-  size = { 420, 560 },
-})
-
--- GNOME Characters
-hl.window_rule({
-  name = "gnome-characters-float",
-  match = { class = "^(org.gnome.Characters)$" },
-  float = true,
-  center = true,
-  size = { 700, 500 },
-})
-
--- FIF
-hl.window_rule({
-  name = "fif-terminal-float",
-  match = { class = "^(fif-terminal)$" },
-  float = true,
-  center = true,
-  size = { 1000, 650 },
-})
-
--- FIFS
-hl.window_rule({
-  name = "fifs-terminal-float",
-  match = { class = "^(fifs-terminal)$" },
-  float = true,
-  center = true,
-  size = { 1500, 800 },
-})
+-- Floating utility windows
+floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 700 })
+floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 500 })
+floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 500 })
+floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
+floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
+floating_window_rule("fif-terminal-float", "^(fif-terminal)$", { 1000, 650 })
+floating_window_rule("fifs-terminal-float", "^(fifs-terminal)$", { 1500, 800 })
 
 -- App opacity
-hl.window_rule({ name = "set-dolphin-transparency", match = { class = "^(org.kde.dolphin)$" }, opacity = "1 0.94" })
-hl.window_rule({ name = "set-google-chrome-transparency", match = { class = "^(google-chrome)$" }, opacity = "1 0.96" })
-hl.window_rule({ name = "set-vscode-transparency", match = { class = "^(code)$" }, opacity = "1 0.94" })
-hl.window_rule({ name = "set-intellij-transparency", match = { class = "^(jetbrains-.*)$" }, opacity = "1 0.94" })
+opacity_rule("set-dolphin-transparency", "^(org.kde.dolphin)$", "1 0.94")
+opacity_rule("set-google-chrome-transparency", "^(google-chrome)$", "1 0.96")
+opacity_rule("set-vscode-transparency", "^(code)$", "1 0.94")
+opacity_rule("set-intellij-transparency", "^(jetbrains-.*)$", "1 0.94")
 
 -- Focus behavior
 hl.window_rule({
@@ -446,7 +417,7 @@ hl.window_rule({
   no_focus = true,
 })
 
--- Hyprland-run windowrule
+-- Hyprland-run launcher position
 hl.window_rule({
   name = "move-hyprland-run",
   match = { class = "hyprland-run" },
@@ -455,13 +426,8 @@ hl.window_rule({
 })
 
 -- Layer rules
-hl.layer_rule({ match = { namespace = "waybar" }, blur = true })
-hl.layer_rule({ match = { namespace = "waybar" }, ignore_alpha = 0 })
-hl.layer_rule({ match = { namespace = "wofi" }, blur = true })
-hl.layer_rule({ match = { namespace = "wofi" }, ignore_alpha = 0.3 })
-hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true })
-hl.layer_rule({ match = { namespace = "swaync-control-center" }, ignore_alpha = 0.3 })
-hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true })
-hl.layer_rule({ match = { namespace = "swaync-notification-window" }, ignore_alpha = 0.3 })
-hl.layer_rule({ match = { namespace = "swayosd" }, blur = true })
-hl.layer_rule({ match = { namespace = "swayosd" }, ignore_alpha = 0.3 })
+blurred_layer("waybar", 0)
+blurred_layer("wofi", 0.3)
+blurred_layer("swaync-control-center", 0.3)
+blurred_layer("swaync-notification-window", 0.3)
+blurred_layer("swayosd", 0.3)

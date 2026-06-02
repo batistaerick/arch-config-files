@@ -4,15 +4,12 @@ MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
 options="󰣇  Apps
-  AI Tools
-  Cloud
+󰅩  Development
   Style
 󰔎  Toggle
   Capture
   Share
-  Update
-  Setup
-  About
+  System
 ⏻  Power"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Find...")
@@ -21,11 +18,8 @@ case "$chosen" in
   "󰣇  Apps")
     "$MENUS_DIR/search.sh"
     ;;
-  "  AI Tools")
-    "$MENUS_DIR/ai-tools.sh"
-    ;;
-  "  Cloud")
-    "$MENUS_DIR/cloud.sh"
+  "󰅩  Development")
+    "$MENUS_DIR/development.sh"
     ;;
   "  Style")
     "$MENUS_DIR/style.sh"
@@ -39,14 +33,8 @@ case "$chosen" in
   "  Share")
     "$MENUS_DIR/share.sh"
     ;;
-  "  Update")
-    "$MENUS_DIR/update.sh"
-    ;;
-  "  Setup")
-    "$MENUS_DIR/setup.sh"
-    ;;
-  "  About")
-    "$ACTIONS_DIR/about.sh"
+  "  System")
+    "$MENUS_DIR/system.sh"
     ;;
   "⏻  Power")
     "$MENUS_DIR/power.sh"

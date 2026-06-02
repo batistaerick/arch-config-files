@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+BACK_MENU="${BACK_MENU:-$MENUS_DIR/main.sh}"
 
 options="←  Back
   AWS
@@ -11,7 +12,7 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --pr
 
 case "$chosen" in
   "←  Back")
-    "$MENUS_DIR/main.sh"
+    "$BACK_MENU"
     ;;
   "  AWS")
     "$MENUS_DIR/cloud/aws/menu.sh"

@@ -9,7 +9,7 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --pr
 
 case "$chosen" in
   "←  Back")
-    ~/.config/wofi/scripts/menus/main.sh
+    ~/.config/wofi/scripts/menus/system.sh
     ;;
   "󰚰  Pacman (official packages)")
     kitty -e sudo pacman -Syu

@@ -15,31 +15,14 @@ initial_query="${1:-}"
 
 options="←  Back
 󰣇  Apps > Search Apps
-  AI Tools > Codex
-  AI Tools > Claude Code
-  Cloud
-  Cloud > AWS
-  Cloud > AWS > SSO Login
-  Cloud > AWS > Check Auth
-  Cloud > AWS > CloudWatch
-  Cloud > AWS > ECS
-  Cloud > AWS > S3
-  Cloud > AWS > Aurora / RDS
-  Cloud > AWS > ECR
-  Cloud > GCP
-  Cloud > GCP > Login
-  Cloud > GCP > Check Auth
-  Cloud > GCP > Projects
-  Cloud > GCP > Compute Instances
-  Cloud > GCP > Storage Buckets
-  Cloud > GCP > Logs
-󰠅  Cloud > Azure
-󰠅  Cloud > Azure > Login
-󰠅  Cloud > Azure > Check Auth
-󰠅  Cloud > Azure > Subscriptions
-󰠅  Cloud > Azure > Virtual Machines
-󰠅  Cloud > Azure > Storage Accounts
-󰠅  Cloud > Azure > Activity Logs
+󰅩  Development
+󰅩  Development > AI Tools
+󰅩  Development > AI Tools > Codex
+󰅩  Development > AI Tools > Claude Code
+󰅩  Development > Cloud
+󰅩  Development > Cloud > AWS
+󰅩  Development > Cloud > GCP
+󰅩  Development > Cloud > Azure
   Style > Theme
   Style > Wallpaper
 󰔎  Toggle > Screensaver
@@ -47,8 +30,6 @@ options="←  Back
 󰔎  Toggle > Idle Lock
 󰔎  Toggle > Notifications
 󰔎  Toggle > Top Bar
-󰔎  Toggle > Configs
-󰔎  Toggle > Reboot BIOS
   Capture > Screenshot
   Capture > Screenshot Selection
   Capture > Screenshot Full Screen
@@ -62,15 +43,19 @@ options="←  Back
   Share > Clipboard
   Share > File
   Share > Folder
-  Update > Pacman
-  Update > Yay
-  Update > Full Upgrade Clean
-  Setup > Audio
-  Setup > WiFi
-  Setup > Bluetooth
-  About
+  System
+  System > Audio
+  System > WiFi
+  System > Bluetooth
+  System > Dotfiles
+  System > Update
+  System > Update > Pacman
+  System > Update > Yay
+  System > Update > Full Upgrade Clean
+  System > About
 ⏻  Power > Shutdown
 ⏻  Power > Reboot
+⏻  Power > Reboot BIOS
 ⏻  Power > Suspend
 ⏻  Power > Logout"
 
@@ -126,152 +111,29 @@ case "$chosen" in
   "󰣇  Apps > Search Apps")
     "$MENUS_DIR/search.sh"
     ;;
-  "  AI Tools > Codex")
+  "󰅩  Development")
+    "$MENUS_DIR/development.sh"
+    ;;
+  "󰅩  Development > AI Tools")
+    BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"
+    ;;
+  "󰅩  Development > AI Tools > Codex")
     run_ai_tool codex
     ;;
-  "  AI Tools > Claude Code")
+  "󰅩  Development > AI Tools > Claude Code")
     run_ai_tool claude
     ;;
-  "  Cloud")
-    "$MENUS_DIR/cloud.sh"
+  "󰅩  Development > Cloud")
+    BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/cloud.sh"
     ;;
-  "  Cloud > AWS")
-    "$AWS_MENUS_DIR/menu.sh"
+  "󰅩  Development > Cloud > AWS")
+    "$MENUS_DIR/cloud/aws/menu.sh"
     ;;
-  "  Cloud > AWS > SSO Login")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    source "$AWS_MENUS_DIR/common.sh"
-    run_in_kitty "AWS SSO - $AWS_PROFILE" "
-echo 'Opening AWS SSO login...'
-echo
-$(aws_base) sso login
-"
+  "󰅩  Development > Cloud > GCP")
+    "$MENUS_DIR/cloud/gcp/menu.sh"
     ;;
-  "  Cloud > AWS > Check Auth")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    source "$AWS_MENUS_DIR/common.sh"
-    run_in_kitty "AWS Auth - $AWS_PROFILE" "
-echo 'Checking AWS auth...'
-echo
-$(aws_base) sts get-caller-identity
-"
-    ;;
-  "  Cloud > AWS > CloudWatch")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    "$AWS_MENUS_DIR/cloudwatch.sh" "$AWS_PROFILE"
-    ;;
-  "  Cloud > AWS > ECS")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    "$AWS_MENUS_DIR/ecs.sh" "$AWS_PROFILE"
-    ;;
-  "  Cloud > AWS > S3")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    "$AWS_MENUS_DIR/s3.sh" "$AWS_PROFILE"
-    ;;
-  "  Cloud > AWS > Aurora / RDS")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    "$AWS_MENUS_DIR/rds.sh" "$AWS_PROFILE"
-    ;;
-  "  Cloud > AWS > ECR")
-    AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
-    [[ -z "$AWS_PROFILE" ]] && exit 0
-    "$AWS_MENUS_DIR/ecr.sh" "$AWS_PROFILE"
-    ;;
-  "  Cloud > GCP")
-    "$GCP_MENUS_DIR/menu.sh"
-    ;;
-  "  Cloud > GCP > Login")
-    source "$GCP_MENUS_DIR/common.sh"
-    if ! gcp_cli_available; then
-      notify-send "GCP" "gcloud CLI is not installed"
-      exit 0
-    fi
-    run_in_kitty "GCP Login" "
-cloud_header 'GCP login'
-cloud_success 'Opening gcloud auth login...'
-echo
-gcloud auth login
-" close-on-success
-    ;;
-  "  Cloud > GCP > Check Auth")
-    source "$GCP_MENUS_DIR/common.sh"
-    require_gcloud
-    run_in_kitty "GCP Auth" "
-cloud_header 'GCP auth'
-gcloud auth list --format=json \
-| jq -r '.[] | \"\u001b[36m\(.account)\u001b[0m  status=\(.status)\"' \
-| cloud_fzf 'Accounts'
-" close-on-success
-    ;;
-  "  Cloud > GCP > Projects")
-    source "$GCP_MENUS_DIR/common.sh"
-    require_gcloud
-    run_in_kitty "GCP Projects" "
-cloud_header 'GCP projects'
-gcloud projects list --format=json \
-| jq -r '.[] | \"\u001b[36m\(.projectId)\u001b[0m  name=\(.name)  state=\(.lifecycleState)\"' \
-| cloud_fzf 'Projects'
-" close-on-success
-    ;;
-  "  Cloud > GCP > Compute Instances")
-    "$GCP_MENUS_DIR/compute.sh"
-    ;;
-  "  Cloud > GCP > Storage Buckets")
-    "$GCP_MENUS_DIR/storage.sh"
-    ;;
-  "  Cloud > GCP > Logs")
-    "$GCP_MENUS_DIR/logs.sh"
-    ;;
-  "󰠅  Cloud > Azure")
-    "$AZURE_MENUS_DIR/menu.sh"
-    ;;
-  "󰠅  Cloud > Azure > Login")
-    source "$AZURE_MENUS_DIR/common.sh"
-    if ! azure_cli_available; then
-      notify-send "Azure" "Azure CLI is not installed"
-      exit 0
-    fi
-    run_in_kitty "Azure Login" "
-cloud_header 'Azure login'
-cloud_success 'Opening az login...'
-echo
-az login
-" close-on-success
-    ;;
-  "󰠅  Cloud > Azure > Check Auth")
-    source "$AZURE_MENUS_DIR/common.sh"
-    require_az
-    run_in_kitty "Azure Auth" "
-cloud_header 'Azure auth'
-az account show -o json \
-| jq -r '\"\u001b[34mName:\u001b[0m \(.name)\", \"\u001b[34mID:\u001b[0m   \(.id)\", \"\u001b[34mUser:\u001b[0m \(.user.name // \"N/A\")\"' \
-| cloud_fzf 'Account'
-" close-on-success
-    ;;
-  "󰠅  Cloud > Azure > Subscriptions")
-    source "$AZURE_MENUS_DIR/common.sh"
-    require_az
-    run_in_kitty "Azure Subscriptions" "
-cloud_header 'Azure subscriptions'
-az account list -o json \
-| jq -r '.[] | \"\u001b[36m\(.name)\u001b[0m  id=\(.id)  state=\(.state)\"' \
-| cloud_fzf 'Subscriptions'
-" close-on-success
-    ;;
-  "󰠅  Cloud > Azure > Virtual Machines")
-    "$AZURE_MENUS_DIR/compute.sh"
-    ;;
-  "󰠅  Cloud > Azure > Storage Accounts")
-    "$AZURE_MENUS_DIR/storage.sh"
-    ;;
-  "󰠅  Cloud > Azure > Activity Logs")
-    "$AZURE_MENUS_DIR/logs.sh"
+  "󰅩  Development > Cloud > Azure")
+    "$MENUS_DIR/cloud/azure/menu.sh"
     ;;
   "  Style > Theme")
     "$STYLE_MENUS_DIR/theme.sh"
@@ -280,7 +142,7 @@ az account list -o json \
     "$STYLE_MENUS_DIR/wallpaper.sh"
     ;;
   "󰔎  Toggle > Screensaver")
-    notify-send "Toggle" "Screensaver action is not implemented yet"
+    "$TOGGLE_ACTIONS_DIR/screensaver.sh"
     ;;
   "󰔎  Toggle > Nightlight")
     "$TOGGLE_ACTIONS_DIR/nightlight.sh"
@@ -293,12 +155,6 @@ az account list -o json \
     ;;
   "󰔎  Toggle > Top Bar")
     "$TOGGLE_ACTIONS_DIR/waybar.sh"
-    ;;
-  "󰔎  Toggle > Configs")
-    code "$HOME/.config" &
-    ;;
-  "󰔎  Toggle > Reboot BIOS")
-    kitty -e systemctl reboot --firmware-setup
     ;;
   "  Capture > Screenshot")
     "$CAPTURE_MENUS_DIR/screenshot.sh"
@@ -339,25 +195,34 @@ az account list -o json \
   "  Share > Folder")
     kitty -e "$SHARE_ACTIONS_DIR/localsend-share.sh" folder
     ;;
-  "  Update > Pacman")
-    kitty -e sudo pacman -Syu
+  "  System")
+    "$MENUS_DIR/system.sh"
     ;;
-  "  Update > Yay")
-    kitty -e yay -Syu
-    ;;
-  "  Update > Full Upgrade Clean")
-    kitty -e bash -c "sudo pacman -Syu && yay -Sua --devel"
-    ;;
-  "  Setup > Audio")
+  "  System > Audio")
     open_setup_window "pavucontrol" "pavucontrol"
     ;;
-  "  Setup > WiFi")
+  "  System > WiFi")
     open_setup_window "setup-wifi" "kitty --class setup-wifi -e impala"
     ;;
-  "  Setup > Bluetooth")
+  "  System > Bluetooth")
     open_setup_window "blueman-manager" "blueman-manager"
     ;;
-  "  About")
+  "  System > Dotfiles")
+    code "$HOME/.config" &
+    ;;
+  "  System > Update")
+    "$MENUS_DIR/update.sh"
+    ;;
+  "  System > Update > Pacman")
+    kitty -e sudo pacman -Syu
+    ;;
+  "  System > Update > Yay")
+    kitty -e yay -Syu
+    ;;
+  "  System > Update > Full Upgrade Clean")
+    kitty -e bash -c "sudo pacman -Syu && yay -Sua --devel"
+    ;;
+  "  System > About")
     "$ACTIONS_DIR/about.sh"
     ;;
   "⏻  Power > Shutdown")
@@ -365,6 +230,9 @@ az account list -o json \
     ;;
   "⏻  Power > Reboot")
     systemctl reboot
+    ;;
+  "⏻  Power > Reboot BIOS")
+    kitty -e systemctl reboot --firmware-setup
     ;;
   "⏻  Power > Suspend")
     systemctl suspend

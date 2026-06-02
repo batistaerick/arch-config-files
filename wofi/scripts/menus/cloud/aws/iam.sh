@@ -39,8 +39,9 @@ aws_header 'IAM account summary'
 aws_kv 'Profile' '$AWS_PROFILE'
 echo
 
-$(aws_base) iam get-account-summary | jq -r '.SummaryMap | to_entries[] | \"\u001b[36m\(.key)\u001b[0m  \(.value)\"' | aws_fzf 'Summary' plain
-" close-on-success toggle
+$(aws_base) iam get-account-summary \
+| jq -r '.SummaryMap | to_entries[] | \"\u001b[36m\(.key)\u001b[0m  \(.value)\"'
+" close-on-key toggle
     ;;
   "󰀄  Users")
     run_in_kitty "IAM Users - $AWS_PROFILE" "

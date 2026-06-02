@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
 
-AWS_REGION="eu-central-1"
-
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
-AWS_MENUS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-LOG_GROUP="doola-data-logs"
-
-ECS_CLUSTER="doola-data-cluster"
-ECS_SERVICE="doola-data-ecs-service"
+GCP_MENUS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DEFAULT_TIME_RANGE_MINUTES="30"
 
@@ -31,20 +24,9 @@ wofi_menu() {
 choose_time_range_minutes() {
   local value
 
-  value=$(wofi_menu "Minutes" \
-    "15" \
-    "30" \
-    "60" \
-    "120" \
-    "360" \
-    "1440")
+  value=$(wofi_menu "Minutes" "15" "30" "60" "120" "360" "1440")
 
-  if [ -z "$value" ]; then
-    echo "$DEFAULT_TIME_RANGE_MINUTES"
-    return
-  fi
-
-  if ! [[ "$value" =~ ^[0-9]+$ ]]; then
+  if [ -z "$value" ] || ! [[ "$value" =~ ^[0-9]+$ ]]; then
     echo "$DEFAULT_TIME_RANGE_MINUTES"
     return
   fi
@@ -52,86 +34,72 @@ choose_time_range_minutes() {
   echo "$value"
 }
 
-ask_search_word() {
-  local value
-
-  value=$(printf "" | wofi \
-    --dmenu \
-    --no-sort \
-    --matching=contains \
-    --cache-file /dev/null \
-    --prompt "Search word")
-
-  echo "$value"
+gcp_cli_available() {
+  command -v gcloud >/dev/null 2>&1
 }
 
-now_ms() {
-  date +%s%3N
+require_gcloud() {
+  if ! gcp_cli_available; then
+    notify-send "GCP" "gcloud CLI is not installed"
+    exit 0
+  fi
 }
 
-minutes_ago_ms() {
-  date -d "$1 minutes ago" +%s%3N
+choose_gcp_project() {
+  local projects
+  local chosen
+
+  require_gcloud
+
+  if ! projects="$(gcloud projects list --format='value(projectId)' 2>/dev/null)"; then
+    notify-send "GCP" "Failed to list projects. Login or configure gcloud first."
+    exit 1
+  fi
+
+  if [ -z "$projects" ]; then
+    notify-send "GCP" "No projects found"
+    exit 0
+  fi
+
+  chosen="$(printf "%s\n" "$projects" | wofi_menu "GCP Project")"
+  [ -z "$chosen" ] && exit 0
+
+  echo "$chosen"
 }
 
-aws_base() {
-  echo "aws --profile \"$AWS_PROFILE\" --region \"$AWS_REGION\""
+back_to_gcp_menu() {
+  "$GCP_MENUS_DIR/menu.sh"
 }
 
-aws_cli() {
-  aws --profile "$AWS_PROFILE" --region "$AWS_REGION" "$@"
-}
-
-shell_quote() {
-  printf "%q" "$1"
-}
-
-back_to_aws_menu() {
-  "$AWS_MENUS_DIR/menu.sh" "$AWS_PROFILE"
-}
-
-aws_terminal_helpers() {
+cloud_terminal_helpers() {
   cat <<'EOF'
-aws_reset=$'\033[0m'
-aws_bold=$'\033[1m'
-aws_dim=$'\033[2m'
-aws_red=$'\033[31m'
-aws_green=$'\033[32m'
-aws_yellow=$'\033[33m'
-aws_blue=$'\033[34m'
-aws_magenta=$'\033[35m'
-aws_cyan=$'\033[36m'
-aws_gray=$'\033[90m'
+cloud_reset=$'\033[0m'
+cloud_bold=$'\033[1m'
+cloud_red=$'\033[31m'
+cloud_green=$'\033[32m'
+cloud_yellow=$'\033[33m'
+cloud_blue=$'\033[34m'
+cloud_cyan=$'\033[36m'
+cloud_dim=$'\033[2m'
 
-aws_header() {
-  printf '\n%s%s%s\n' "$aws_bold$aws_cyan" "$1" "$aws_reset"
-  printf '%s\n' "${aws_dim}────────────────────────────────────────${aws_reset}"
+cloud_header() {
+  printf '\n%s%s%s\n' "$cloud_bold$cloud_cyan" "$1" "$cloud_reset"
+  printf '%s\n' "${cloud_dim}────────────────────────────────────────${cloud_reset}"
 }
 
-aws_kv() {
-  printf '%s%-12s%s %s\n' "$aws_blue" "$1:" "$aws_reset" "$2"
+cloud_kv() {
+  printf '%s%-12s%s %s\n' "$cloud_blue" "$1:" "$cloud_reset" "$2"
 }
 
-aws_success() {
-  printf '%s%s%s\n' "$aws_green" "$1" "$aws_reset"
+cloud_success() {
+  printf '%s%s%s\n' "$cloud_green" "$1" "$cloud_reset"
 }
 
-aws_warn() {
-  printf '%s%s%s\n' "$aws_yellow" "$1" "$aws_reset"
+cloud_warn() {
+  printf '%s%s%s\n' "$cloud_yellow" "$1" "$cloud_reset"
 }
 
-aws_error() {
-  printf '%s%s%s\n' "$aws_red" "$1" "$aws_reset"
-}
-
-aws_json() {
-  if command -v bat >/dev/null 2>&1; then
-    bat --language=json --style=plain --color=always
-  else
-    jq -C .
-  fi
-}
-
-aws_fzf() {
+cloud_fzf() {
   local prompt="${1:-Filter}"
   local output
   local status
@@ -154,23 +122,13 @@ aws_fzf() {
     status=$?
 
     if [ "$status" -ne 0 ]; then
-      if [ "$status" -eq 130 ]; then
-        return 130
-      fi
-
+      [ "$status" -eq 130 ] && return 130
       return 0
     fi
 
     key="${output%%$'\n'*}"
-
-    case "$key" in
-      ctrl-c)
-        return 130
-        ;;
-      esc)
-        return 0
-        ;;
-    esac
+    [ "$key" = "ctrl-c" ] && return 130
+    [ "$key" = "esc" ] && return 0
 
     printf '%s\n' "$output"
   else
@@ -186,19 +144,16 @@ run_in_kitty() {
   local close_mode="${3:-keep-open}"
   local temp_script
 
-  temp_script="$(mktemp /tmp/aws-ops.XXXXXX.sh)"
+  temp_script="$(mktemp /tmp/gcp-ops.XXXXXX.sh)"
 
-cat > "$temp_script" <<EOF
+  cat > "$temp_script" <<EOF
 #!/usr/bin/env bash
 
 set -o pipefail
 
-export AWS_PROFILE="$AWS_PROFILE"
-export AWS_REGION="$AWS_REGION"
-
 clear
 
-$(aws_terminal_helpers)
+$(cloud_terminal_helpers)
 
 trap 'exit 130' INT
 
@@ -226,6 +181,5 @@ exec "\${SHELL:-/bin/bash}" -l
 EOF
 
   chmod +x "$temp_script"
-
   kitty --title "$title" "$temp_script"
 }

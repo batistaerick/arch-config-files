@@ -7,8 +7,32 @@ if [ -z "$AWS_PROFILE" ]; then
   exit 0
 fi
 
+choose_s3_bucket() {
+  local buckets
+  local chosen
+
+  if ! buckets="$(aws_cli s3api list-buckets | jq -r '.Buckets[].Name')"; then
+    notify-send "S3" "Failed to list buckets for $AWS_PROFILE"
+    exit 1
+  fi
+
+  if [ -z "$buckets" ]; then
+    notify-send "S3" "No buckets found for $AWS_PROFILE"
+    exit 0
+  fi
+
+  chosen="$(printf "%s\n" "$buckets" | wofi_menu "S3 Bucket")"
+
+  if [ -z "$chosen" ]; then
+    exit 0
+  fi
+
+  echo "$chosen"
+}
+
 options="←  Back
 󰉋  List buckets
+󰉋  Browse bucket
   Search bucket by name"
 
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="S3 - $AWS_PROFILE")
@@ -26,7 +50,32 @@ echo
 $(aws_base) s3 ls \
 | awk '{print \"\033[90m\" \$1 \" \" \$2 \"\033[0m  \033[36m\" \$3 \"\033[0m\"}' \
 | aws_fzf 'Buckets'
-"
+" close-on-success
+    ;;
+
+  "󰉋  Browse bucket")
+    bucket="$(choose_s3_bucket)"
+    quoted_bucket="$(shell_quote "$bucket")"
+
+    run_in_kitty "S3 Browse - $AWS_PROFILE" "
+aws_header 'S3 bucket objects'
+aws_kv 'Profile' '$AWS_PROFILE'
+aws_kv 'Bucket' $quoted_bucket
+echo
+
+$(aws_base) s3api list-objects-v2 \
+  --bucket $quoted_bucket \
+  --max-items 300 \
+| jq -r '
+  if (.Contents | length) == 0 then
+    \"No objects found.\"
+  else
+    .Contents[]
+    | \"\u001b[90m\(.LastModified)\u001b[0m  \u001b[36m\(.Key)\u001b[0m  size=\(.Size)\"
+  end
+' \
+| aws_fzf 'Objects'
+" close-on-success
     ;;
 
   "  Search bucket by name")
@@ -48,7 +97,7 @@ $(aws_base) s3 ls \
 | grep -i -- $quoted_word \
 | awk '{print \"\033[90m\" \$1 \" \" \$2 \"\033[0m  \033[36m\" \$3 \"\033[0m\"}' \
 | aws_fzf 'Buckets'
-"
+" close-on-success
     ;;
 
   "")

@@ -17,10 +17,10 @@ case "$chosen" in
     "$MENUS_DIR/cloud/aws/menu.sh"
     ;;
   "  GCP")
-    notify-send "Cloud" "GCP menu not implemented yet"
+    "$MENUS_DIR/cloud/gcp/menu.sh"
     ;;
   "󰠅  Azure")
-    notify-send "Cloud" "Azure menu not implemented yet"
+    "$MENUS_DIR/cloud/azure/menu.sh"
     ;;
   "")
     exit 0

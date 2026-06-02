@@ -3,6 +3,8 @@
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 AWS_MENUS_DIR="$MENUS_DIR/cloud/aws"
+GCP_MENUS_DIR="$MENUS_DIR/cloud/gcp"
+AZURE_MENUS_DIR="$MENUS_DIR/cloud/azure"
 STYLE_MENUS_DIR="$MENUS_DIR/style"
 CAPTURE_MENUS_DIR="$MENUS_DIR/capture"
 TOGGLE_ACTIONS_DIR="$ACTIONS_DIR/toggle"
@@ -24,6 +26,20 @@ options="←  Back
   Cloud > AWS > S3
   Cloud > AWS > Aurora / RDS
   Cloud > AWS > ECR
+  Cloud > GCP
+  Cloud > GCP > Login
+  Cloud > GCP > Check Auth
+  Cloud > GCP > Projects
+  Cloud > GCP > Compute Instances
+  Cloud > GCP > Storage Buckets
+  Cloud > GCP > Logs
+󰠅  Cloud > Azure
+󰠅  Cloud > Azure > Login
+󰠅  Cloud > Azure > Check Auth
+󰠅  Cloud > Azure > Subscriptions
+󰠅  Cloud > Azure > Virtual Machines
+󰠅  Cloud > Azure > Storage Accounts
+󰠅  Cloud > Azure > Activity Logs
   Style > Theme
   Style > Wallpaper
 󰔎  Toggle > Screensaver
@@ -166,6 +182,96 @@ $(aws_base) sts get-caller-identity
     AWS_PROFILE="$("$AWS_MENUS_DIR/menu.sh" --choose-profile-only)"
     [[ -z "$AWS_PROFILE" ]] && exit 0
     "$AWS_MENUS_DIR/ecr.sh" "$AWS_PROFILE"
+    ;;
+  "  Cloud > GCP")
+    "$GCP_MENUS_DIR/menu.sh"
+    ;;
+  "  Cloud > GCP > Login")
+    source "$GCP_MENUS_DIR/common.sh"
+    if ! gcp_cli_available; then
+      notify-send "GCP" "gcloud CLI is not installed"
+      exit 0
+    fi
+    run_in_kitty "GCP Login" "
+cloud_header 'GCP login'
+cloud_success 'Opening gcloud auth login...'
+echo
+gcloud auth login
+" close-on-success
+    ;;
+  "  Cloud > GCP > Check Auth")
+    source "$GCP_MENUS_DIR/common.sh"
+    require_gcloud
+    run_in_kitty "GCP Auth" "
+cloud_header 'GCP auth'
+gcloud auth list --format=json \
+| jq -r '.[] | \"\u001b[36m\(.account)\u001b[0m  status=\(.status)\"' \
+| cloud_fzf 'Accounts'
+" close-on-success
+    ;;
+  "  Cloud > GCP > Projects")
+    source "$GCP_MENUS_DIR/common.sh"
+    require_gcloud
+    run_in_kitty "GCP Projects" "
+cloud_header 'GCP projects'
+gcloud projects list --format=json \
+| jq -r '.[] | \"\u001b[36m\(.projectId)\u001b[0m  name=\(.name)  state=\(.lifecycleState)\"' \
+| cloud_fzf 'Projects'
+" close-on-success
+    ;;
+  "  Cloud > GCP > Compute Instances")
+    "$GCP_MENUS_DIR/compute.sh"
+    ;;
+  "  Cloud > GCP > Storage Buckets")
+    "$GCP_MENUS_DIR/storage.sh"
+    ;;
+  "  Cloud > GCP > Logs")
+    "$GCP_MENUS_DIR/logs.sh"
+    ;;
+  "󰠅  Cloud > Azure")
+    "$AZURE_MENUS_DIR/menu.sh"
+    ;;
+  "󰠅  Cloud > Azure > Login")
+    source "$AZURE_MENUS_DIR/common.sh"
+    if ! azure_cli_available; then
+      notify-send "Azure" "Azure CLI is not installed"
+      exit 0
+    fi
+    run_in_kitty "Azure Login" "
+cloud_header 'Azure login'
+cloud_success 'Opening az login...'
+echo
+az login
+" close-on-success
+    ;;
+  "󰠅  Cloud > Azure > Check Auth")
+    source "$AZURE_MENUS_DIR/common.sh"
+    require_az
+    run_in_kitty "Azure Auth" "
+cloud_header 'Azure auth'
+az account show -o json \
+| jq -r '\"\u001b[34mName:\u001b[0m \(.name)\", \"\u001b[34mID:\u001b[0m   \(.id)\", \"\u001b[34mUser:\u001b[0m \(.user.name // \"N/A\")\"' \
+| cloud_fzf 'Account'
+" close-on-success
+    ;;
+  "󰠅  Cloud > Azure > Subscriptions")
+    source "$AZURE_MENUS_DIR/common.sh"
+    require_az
+    run_in_kitty "Azure Subscriptions" "
+cloud_header 'Azure subscriptions'
+az account list -o json \
+| jq -r '.[] | \"\u001b[36m\(.name)\u001b[0m  id=\(.id)  state=\(.state)\"' \
+| cloud_fzf 'Subscriptions'
+" close-on-success
+    ;;
+  "󰠅  Cloud > Azure > Virtual Machines")
+    "$AZURE_MENUS_DIR/compute.sh"
+    ;;
+  "󰠅  Cloud > Azure > Storage Accounts")
+    "$AZURE_MENUS_DIR/storage.sh"
+    ;;
+  "󰠅  Cloud > Azure > Activity Logs")
+    "$AZURE_MENUS_DIR/logs.sh"
     ;;
   "  Style > Theme")
     "$STYLE_MENUS_DIR/theme.sh"

@@ -63,7 +63,7 @@ aws_kv 'Profile' '$AWS_PROFILE'
 aws_success 'Opening AWS SSO login...'
 echo
 $(aws_base) sso login
-"
+" close-on-success
     ;;
 
   "󰅟  Check Auth")
@@ -73,8 +73,13 @@ aws_kv 'Profile' '$AWS_PROFILE'
 aws_success 'Checking AWS auth...'
 echo
 $(aws_base) sts get-caller-identity \
-| aws_json
-"
+| jq -r '
+  \"\u001b[34mUserId:\u001b[0m  \(.UserId)\",
+  \"\u001b[34mAccount:\u001b[0m \(.Account)\",
+  \"\u001b[34mArn:\u001b[0m     \(.Arn)\"
+' \
+| aws_fzf 'Identity'
+" close-on-success
     ;;
 
   "󰃷  CloudWatch")

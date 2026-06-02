@@ -7,6 +7,29 @@ if [ -z "$AWS_PROFILE" ]; then
   exit 0
 fi
 
+choose_ecr_repository() {
+  local repositories
+  local chosen
+
+  if ! repositories="$(aws_cli ecr describe-repositories | jq -r '.repositories[].repositoryName')"; then
+    notify-send "ECR" "Failed to list repositories for $AWS_PROFILE"
+    exit 1
+  fi
+
+  if [ -z "$repositories" ]; then
+    notify-send "ECR" "No repositories found for $AWS_PROFILE"
+    exit 0
+  fi
+
+  chosen="$(printf "%s\n" "$repositories" | wofi_menu "ECR Repository")"
+
+  if [ -z "$chosen" ]; then
+    exit 0
+  fi
+
+  echo "$chosen"
+}
+
 options="←  Back
   List repositories
   Search repository
@@ -27,7 +50,7 @@ echo
 $(aws_base) ecr describe-repositories \
 | jq -r '.repositories[] | \"\u001b[36m\(.repositoryName)\u001b[0m  \u001b[90m\(.repositoryUri)\u001b[0m\"' \
 | aws_fzf 'Repositories'
-"
+" close-on-success
     ;;
 
   "  Search repository")
@@ -49,15 +72,11 @@ $(aws_base) ecr describe-repositories \
 | jq -r '.repositories[] | \"\u001b[36m\(.repositoryName)\u001b[0m  \u001b[90m\(.repositoryUri)\u001b[0m\"' \
 | grep -i -- $quoted_word \
 | aws_fzf 'Repositories'
-"
+" close-on-success
     ;;
 
   "󰁫  Latest image tags")
-    repo="$(ask_search_word)"
-
-    if [ -z "$repo" ]; then
-      exit 0
-    fi
+    repo="$(choose_ecr_repository)"
 
     quoted_repo="$(shell_quote "$repo")"
 
@@ -72,7 +91,7 @@ $(aws_base) ecr describe-images \
   --query 'reverse(sort_by(imageDetails,& imagePushedAt))[:20]' \
 | jq -r '.[] | \"\u001b[90m\(.imagePushedAt)\u001b[0m  \u001b[36mtags=\(.imageTags // [])\u001b[0m  digest=\(.imageDigest)\"' \
 | aws_fzf 'Images'
-"
+" close-on-success
     ;;
 
   "")

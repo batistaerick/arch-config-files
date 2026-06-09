@@ -188,6 +188,7 @@ hl.config({
   misc = {
     focus_on_activate =       true,
     disable_hyprland_logo =   true,
+    disable_splash_rendering = true,
     force_default_wallpaper = -1,
   },
 })
@@ -374,9 +375,11 @@ floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 500 
 floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 500 })
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
+floating_window_rule("imv-float", "^(imv)$", { 1400, 850 })
 floating_window_rule("fif-terminal-float", "^(fif-terminal)$", { 1000, 650 })
 floating_window_rule("fifs-terminal-float", "^(fifs-terminal)$", { 1500, 800 })
 floating_window_rule("cloud-terminal-float", "^(cloud-terminal)$", { 1700, 950 })
+floating_window_rule("about-terminal-float", "^(about-terminal)$", { 1000, 650 })
 
 -- App opacity
 opacity_rule("set-dolphin-transparency", "^(org.kde.dolphin)$", "1 0.94")

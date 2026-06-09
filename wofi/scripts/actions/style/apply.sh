@@ -43,6 +43,7 @@ nohup "$WOFI_THEME_SCRIPTS_DIR/rgb.sh" >/tmp/rgb.log 2>&1 &
 "$WOFI_THEME_SCRIPTS_DIR/sddm.sh"
 "$WOFI_THEME_SCRIPTS_DIR/system.sh"
 "$WOFI_THEME_SCRIPTS_DIR/wofi.sh"
+"$WOFI_THEME_SCRIPTS_DIR/btop.sh"
 "$WOFI_THEME_SCRIPTS_DIR/kitty.sh"
 "$WOFI_THEME_SCRIPTS_DIR/vscode.sh"
 "$WOFI_THEME_SCRIPTS_DIR/intellij.sh"

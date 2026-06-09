@@ -47,7 +47,7 @@
 
 window {
   padding: 10px;
-  background-color: rgba(239, 241, 245, 0.97);
+  background-color: rgba(239, 241, 245, 0.75);
   border-radius: 8px;
   border: 2px solid #d20f39;
   animation-name: rgb-border-spin;

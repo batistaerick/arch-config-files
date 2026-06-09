@@ -286,6 +286,7 @@ hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
 -- Wofi menus and scripts
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menusDir .. "/main.sh"))
+hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(menusDir .. "/shortcuts.sh"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
 hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd(menusDir .. "/style/wallpaper.sh"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))

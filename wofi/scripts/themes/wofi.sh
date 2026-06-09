@@ -88,12 +88,12 @@ color6="${color6:-$accent}"
 color8="${color8:-$color0}"
 
 if is_light_mode; then
-  window_alpha="0.97"
+  window_alpha="0.75"
   field_alpha="0.82"
   selected_alpha="0.68"
   glow_alpha="0.22"
 else
-  window_alpha="0.96"
+  window_alpha="0.75"
   field_alpha="0.72"
   selected_alpha="0.64"
   glow_alpha="0.32"

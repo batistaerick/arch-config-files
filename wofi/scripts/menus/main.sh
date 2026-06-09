@@ -9,6 +9,7 @@ options="󰣇  Apps
 󰔎  Toggle
   Capture
   Share
+󰌌  Shortcuts
   System
 ⏻  Power"
 
@@ -32,6 +33,9 @@ case "$chosen" in
     ;;
   "  Share")
     "$MENUS_DIR/share.sh"
+    ;;
+  "󰌌  Shortcuts")
+    "$MENUS_DIR/shortcuts.sh"
     ;;
   "  System")
     "$MENUS_DIR/system.sh"

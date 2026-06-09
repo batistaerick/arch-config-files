@@ -86,4 +86,15 @@ color15 {bright_white}
 kitty_path.write_text(kitty)
 PY
 
-kitty @ set-colors --all --configured "$KITTY_THEME" >/dev/null 2>&1 || true
+if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+  clients_json="$(hyprctl clients -j 2>/dev/null || true)"
+
+  if printf '%s\n' "$clients_json" | jq -e type >/dev/null 2>&1; then
+    printf '%s\n' "$clients_json" |
+      jq -r '.[] | select(.class == "kitty" or .initialClass == "kitty") | .pid' |
+      sort -u |
+      xargs -r kill -USR1 2>/dev/null || true
+  fi
+fi
+
+pkill -USR1 -x kitty >/dev/null 2>&1 || true

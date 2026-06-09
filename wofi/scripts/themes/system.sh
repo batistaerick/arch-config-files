@@ -36,6 +36,12 @@ if [[ -f "$CURRENT_DIR/kde.colors" ]]; then
   KDE_COLOR_SCHEME="$(tr -d '[:space:]' < "$CURRENT_DIR/kde.colors")"
 fi
 
+if [[ -f "$CURRENT_DIR/icons.theme" ]]; then
+  ICON_THEME="$(tr -d '\r' < "$CURRENT_DIR/icons.theme" | xargs)"
+else
+  ICON_THEME="Yaru-blue"
+fi
+
 cat > "$KVANTUM_DIR/kvantum.kvconfig" <<EOF
 [General]
 theme=$KVANTUM_THEME
@@ -56,6 +62,7 @@ fixed="$QT_FONT_NAME"
 general="$QT_FONT_NAME"
 
 [Interface]
+icon_theme=$ICON_THEME
 menus_have_icons=true
 toolbutton_style=4
 EOF
@@ -63,15 +70,19 @@ done
 
 if command -v kwriteconfig6 >/dev/null 2>&1; then
   kwriteconfig6 --file "$KDEGLOBALS" --group General --key ColorScheme "$KDE_COLOR_SCHEME"
+  kwriteconfig6 --file "$KDEGLOBALS" --group Icons --key Theme "$ICON_THEME"
 
   kwriteconfig6 --file "$DOLPHINRC" --group General --key ColorScheme "$KDE_COLOR_SCHEME"
   kwriteconfig6 --file "$DOLPHINRC" --group UiSettings --key ColorScheme "$KDE_COLOR_SCHEME"
+  kwriteconfig6 --file "$DOLPHINRC" --group Icons --key Theme "$ICON_THEME"
 
 elif command -v kwriteconfig5 >/dev/null 2>&1; then
   kwriteconfig5 --file "$KDEGLOBALS" --group General --key ColorScheme "$KDE_COLOR_SCHEME"
+  kwriteconfig5 --file "$KDEGLOBALS" --group Icons --key Theme "$ICON_THEME"
 
   kwriteconfig5 --file "$DOLPHINRC" --group General --key ColorScheme "$KDE_COLOR_SCHEME"
   kwriteconfig5 --file "$DOLPHINRC" --group UiSettings --key ColorScheme "$KDE_COLOR_SCHEME"
+  kwriteconfig5 --file "$DOLPHINRC" --group Icons --key Theme "$ICON_THEME"
 
 else
   echo "kwriteconfig6/kwriteconfig5 not found. Install kde-cli-tools."
@@ -95,6 +106,7 @@ fi
 
 if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME"
+  gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME"
   gsettings set org.gnome.desktop.interface color-scheme "$GTK_COLOR_SCHEME"
   gsettings set org.gnome.desktop.interface gtk-application-prefer-dark-theme "$GTK_DARK" 2>/dev/null || true
 fi
@@ -102,12 +114,14 @@ fi
 cat > "$GTK3_DIR/settings.ini" <<EOF
 [Settings]
 gtk-theme-name=$GTK_THEME
+gtk-icon-theme-name=$ICON_THEME
 gtk-application-prefer-dark-theme=$GTK_DARK
 EOF
 
 cat > "$GTK4_DIR/settings.ini" <<EOF
 [Settings]
 gtk-theme-name=$GTK_THEME
+gtk-icon-theme-name=$ICON_THEME
 gtk-application-prefer-dark-theme=$GTK_DARK
 EOF
 

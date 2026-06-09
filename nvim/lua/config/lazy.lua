@@ -14,13 +14,34 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local function current_theme_specs()
+  local theme_file = vim.fn.expand("~/.config/theme/current/neovim.lua")
+
+  if vim.fn.filereadable(theme_file) ~= 1 then
+    return {}
+  end
+
+  local ok, spec = pcall(dofile, theme_file)
+
+  if not ok then
+    vim.notify("Failed to load theme file: " .. spec, vim.log.levels.WARN)
+    return {}
+  end
+
+  return spec
+end
+
+local specs = current_theme_specs()
+
+vim.list_extend(specs, {
+  -- add LazyVim and import its plugins
+  { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+  -- import/override with your plugins
+  { import = "plugins" },
+})
+
 require("lazy").setup({
-  spec = {
-    -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import/override with your plugins
-    { import = "plugins" },
-  },
+  spec = specs,
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
     -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.

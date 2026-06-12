@@ -5,51 +5,51 @@
 
 @keyframes theme-border-spin {
   0% {
-    border-top-color: #f7768e;
-    border-right-color: #e0af68;
-    border-bottom-color: #9ece6a;
-    border-left-color: #7aa2f7;
-    box-shadow: 0 0 16px rgba(247, 118, 142, 0.32);
+    border-top-color: #e67e80;
+    border-right-color: #dbbc7f;
+    border-bottom-color: #a7c080;
+    border-left-color: #7fbbb3;
+    box-shadow: 0 0 16px rgba(230, 126, 128, 0.32);
   }
 
   25% {
-    border-top-color: #7aa2f7;
-    border-right-color: #f7768e;
-    border-bottom-color: #e0af68;
-    border-left-color: #9ece6a;
-    box-shadow: 0 0 16px rgba(122, 162, 247, 0.32);
+    border-top-color: #7fbbb3;
+    border-right-color: #e67e80;
+    border-bottom-color: #dbbc7f;
+    border-left-color: #a7c080;
+    box-shadow: 0 0 16px rgba(127, 187, 179, 0.32);
   }
 
   50% {
-    border-top-color: #9ece6a;
-    border-right-color: #7aa2f7;
-    border-bottom-color: #f7768e;
-    border-left-color: #e0af68;
-    box-shadow: 0 0 16px rgba(158, 206, 106, 0.32);
+    border-top-color: #a7c080;
+    border-right-color: #7fbbb3;
+    border-bottom-color: #e67e80;
+    border-left-color: #dbbc7f;
+    box-shadow: 0 0 16px rgba(167, 192, 128, 0.32);
   }
 
   75% {
-    border-top-color: #e0af68;
-    border-right-color: #9ece6a;
-    border-bottom-color: #7aa2f7;
-    border-left-color: #f7768e;
-    box-shadow: 0 0 16px rgba(224, 175, 104, 0.32);
+    border-top-color: #dbbc7f;
+    border-right-color: #a7c080;
+    border-bottom-color: #7fbbb3;
+    border-left-color: #e67e80;
+    box-shadow: 0 0 16px rgba(219, 188, 127, 0.32);
   }
 
   100% {
-    border-top-color: #f7768e;
-    border-right-color: #e0af68;
-    border-bottom-color: #9ece6a;
-    border-left-color: #7aa2f7;
-    box-shadow: 0 0 16px rgba(247, 118, 142, 0.32);
+    border-top-color: #e67e80;
+    border-right-color: #dbbc7f;
+    border-bottom-color: #a7c080;
+    border-left-color: #7fbbb3;
+    box-shadow: 0 0 16px rgba(230, 126, 128, 0.32);
   }
 }
 
 window {
   padding: 10px;
-  background-color: rgba(26, 27, 38, 0.75);
+  background-color: rgba(45, 53, 59, 0.75);
   border-radius: 8px;
-  border: 2px solid #7aa2f7;
+  border: 2px solid #7fbbb3;
   animation-name: theme-border-spin;
   animation-duration: 2.4s;
   animation-timing-function: linear;
@@ -69,8 +69,8 @@ window {
 #input {
   margin: 13px;
   padding: 8px 10px;
-  color: #a9b1d6;
-  background-color: rgba(50, 52, 74, 0.72);
+  color: #d3c6aa;
+  background-color: rgba(71, 82, 88, 0.72);
   border: none;
   border-radius: 6px;
 }
@@ -88,7 +88,7 @@ window {
 #text {
   background-color: transparent;
   margin: 5px;
-  color: #a9b1d6;
+  color: #d3c6aa;
 }
 
 #entry {
@@ -100,7 +100,7 @@ window {
   border: none;
   outline: none;
   box-shadow: none;
-  background-color: rgba(68, 75, 106, 0.64);
+  background-color: rgba(71, 82, 88, 0.64);
 }
 
 #entry arrow {
@@ -110,11 +110,11 @@ window {
 }
 
 #entry:selected #text {
-  color: #7aa2f7;
+  color: #d3c6aa;
 }
 
 #entry:drop(active) {
-  background-color: #7aa2f7 !important;
+  background-color: #d3c6aa !important;
 }
 
 #entry image {

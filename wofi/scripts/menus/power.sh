@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
+MENUS_DIR="$HOME/.config/wofi/scripts/menus"
+ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
+HYPR_SCRIPTS_DIR="$HOME/.config/hypr/scripts"
+
 options="←  Back
+  Lock
   Shutdown
   Reboot
   Reboot BIOS
@@ -11,7 +16,10 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --pr
 
 case $chosen in
   "←  Back")
-    ~/.config/wofi/scripts/menus/main.sh
+    "$MENUS_DIR/main.sh"
+    ;;
+  "  Lock")
+    "$HYPR_SCRIPTS_DIR/manual-lock.sh"
     ;;
   "  Shutdown")
     systemctl poweroff

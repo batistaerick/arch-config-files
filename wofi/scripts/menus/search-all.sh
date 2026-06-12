@@ -11,6 +11,7 @@ TOGGLE_ACTIONS_DIR="$ACTIONS_DIR/toggle"
 CAPTURE_ACTIONS_DIR="$ACTIONS_DIR/capture"
 SHARE_ACTIONS_DIR="$ACTIONS_DIR/share"
 DEVELOPMENT_ACTIONS_DIR="$ACTIONS_DIR/development"
+HYPR_SCRIPTS_DIR="$HOME/.config/hypr/scripts"
 
 initial_query="${1:-}"
 
@@ -57,6 +58,7 @@ options="←  Back
   System > Update > Yay
   System > Update > Full Upgrade Clean
   System > About
+⏻  Power > Lock
 ⏻  Power > Shutdown
 ⏻  Power > Reboot
 ⏻  Power > Reboot BIOS
@@ -237,6 +239,9 @@ case "$chosen" in
     ;;
   "  System > About")
     "$ACTIONS_DIR/about.sh"
+    ;;
+  "⏻  Power > Lock")
+    "$HYPR_SCRIPTS_DIR/manual-lock.sh"
     ;;
   "⏻  Power > Shutdown")
     systemctl poweroff

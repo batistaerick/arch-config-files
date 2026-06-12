@@ -78,6 +78,7 @@ local mainMod = "SUPER"
 local scriptsDir = "~/.config/wofi/scripts"
 local menusDir = scriptsDir .. "/menus"
 local actionsDir = scriptsDir .. "/actions"
+local hyprScriptsDir = "~/.config/hypr/scripts"
 
 ---------------
 -- Autostart --
@@ -299,7 +300,7 @@ hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/wa
 -- Desktop utilities
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("hyprpicker -a"))
-hl.bind(mainMod .. " + m", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + m", hl.dsp.exec_cmd(hyprScriptsDir .. "/manual-lock.sh"))
 hl.bind(mainMod .. " + SEMICOLON", hl.dsp.exec_cmd("gnome-characters"))
 
 -- Media keys

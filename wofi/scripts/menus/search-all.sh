@@ -248,7 +248,7 @@ case "$chosen" in
     kitty -e systemctl reboot --firmware-setup
     ;;
   "⏻  Power > Suspend")
-    systemctl suspend
+    loginctl lock-session && sleep 1 && systemctl suspend
     ;;
   "⏻  Power > Logout")
     hyprctl dispatch exit

@@ -7,7 +7,7 @@
 }
 
 trough highlight {
-  background: #e68e0d;
+  background: #7fbbb3;
 }
 
 scale {
@@ -26,28 +26,28 @@ trough slider {
   border-radius: 12.6px;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.72);
   transition: all 0.2s ease;
-  background-color: #e68e0d;
+  background-color: #7fbbb3;
 }
 
 trough slider:hover {
   box-shadow:
     0 0 2px rgba(0, 0, 0, 0.72),
-    0 0 8px #e68e0d;
+    0 0 8px #7fbbb3;
 }
 
 trough {
-  background-color: #2e2e2e;
+  background-color: #464d53;
 }
 
 /* notifications */
 .notification-background {
   box-shadow:
     0 0 8px 0 rgba(0, 0, 0, 0.72),
-    inset 0 0 0 1px #383838;
+    inset 0 0 0 1px #525553;
   border-radius: 12.6px;
   margin: 18px;
-  background: #232323;
-  color: #bebebe;
+  background: #3c4349;
+  color: #d3c6aa;
   padding: 0;
 }
 
@@ -57,7 +57,7 @@ trough {
 }
 
 .notification-background .notification.critical {
-  box-shadow: inset 0 0 7px 0 #d35f5f;
+  box-shadow: inset 0 0 7px 0 #e67e80;
 }
 
 .notification .notification-content {
@@ -65,15 +65,15 @@ trough {
 }
 
 .notification-content .summary {
-  color: #bebebe;
+  color: #d3c6aa;
 }
 
 .notification-content .time {
-  color: #8a8a8d;
+  color: #475258;
 }
 
 .notification-content .body {
-  color: #9f9f9f;
+  color: #b5ac96;
 }
 
 .notification > *:last-child > * {
@@ -84,43 +84,43 @@ trough {
   margin: 7px;
   padding: 2px;
   border-radius: 6.3px;
-  color: #121212;
-  background-color: #d35f5f;
+  color: #2d353b;
+  background-color: #e67e80;
 }
 
 .notification-background .close-button:hover {
-  background-color: #cf7070;
+  background-color: #e38b88;
 }
 
 .notification-background .close-button:active {
-  background-color: #cc7d7d;
+  background-color: #e0958d;
 }
 
 .notification .notification-action {
   border-radius: 7px;
-  color: #bebebe;
-  box-shadow: inset 0 0 0 1px #383838;
+  color: #d3c6aa;
+  box-shadow: inset 0 0 0 1px #525553;
   margin: 4px;
   padding: 8px;
   font-size: 0.2rem; /* controls the button size not text size*/
-  background-color: #2e2e2e;
+  background-color: #464d53;
 }
 
 .notification .notification-action:hover {
-  background-color: #3d3d3d;
+  background-color: #53595e;
 }
 
 .notification .notification-action:active {
-  background-color: #4d4d4d;
+  background-color: #61666b;
 }
 
 .notification.critical progress {
-  background-color: #d35f5f;
+  background-color: #e67e80;
 }
 
 .notification.low progress,
 .notification.normal progress {
-  background-color: #e68e0d;
+  background-color: #7fbbb3;
 }
 
 .notification progress,
@@ -134,16 +134,16 @@ trough {
 .control-center {
   box-shadow:
     0 0 8px 0 rgba(0, 0, 0, 0.72),
-    inset 0 0 0 1px #383838;
+    inset 0 0 0 1px #525553;
   border-radius: 12.6px;
-  background: rgba(25, 25, 25, 0.66);
-  color: #bebebe;
+  background: rgba(51, 59, 65, 0.66);
+  color: #d3c6aa;
   padding: 14px;
 }
 
 .control-center .notification-background {
   border-radius: 7px;
-  box-shadow: inset 0 0 0 1px #383838;
+  box-shadow: inset 0 0 0 1px #525553;
   margin: 4px 10px;
 }
 
@@ -156,24 +156,24 @@ trough {
 }
 
 .control-center .widget-title > label {
-  color: #bebebe;
+  color: #d3c6aa;
   font-size: 1.3em;
 }
 
 .control-center .widget-title button {
   border-radius: 7px;
-  color: #bebebe;
-  background-color: #2e2e2e;
-  box-shadow: inset 0 0 0 1px #383838;
+  color: #d3c6aa;
+  background-color: #464d53;
+  box-shadow: inset 0 0 0 1px #525553;
   padding: 8px;
 }
 
 .control-center .widget-title button:hover {
-  background-color: #3d3d3d;
+  background-color: #53595e;
 }
 
 .control-center .widget-title button:active {
-  background-color: #4d4d4d;
+  background-color: #61666b;
 }
 
 .control-center .notification-group {
@@ -181,7 +181,7 @@ trough {
 }
 
 .control-center .notification-group:focus .notification-background {
-  background-color: #2e2e2e;
+  background-color: #464d53;
 }
 
 scrollbar slider {
@@ -203,28 +203,28 @@ scrollbar trough {
 .widget-dnd > switch {
   font-size: initial;
   border-radius: 8px;
-  background: #2e2e2e;
+  background: #464d53;
   box-shadow: none;
 }
 
 .widget-dnd > switch:checked {
-  background: #e68e0d;
+  background: #7fbbb3;
 }
 
 .widget-dnd > switch slider {
-  background: #383838;
+  background: #525553;
   border-radius: 8px;
 }
 
 /* mpris */
 .widget-mpris-player {
-  background: #2e2e2e;
+  background: #464d53;
   border-radius: 12.6px;
-  color: #bebebe;
+  color: #d3c6aa;
 }
 
 .mpris-overlay {
-  background-color: #2e2e2e;
+  background-color: #464d53;
   opacity: 0.9;
   padding: 15px 10px;
 }
@@ -237,17 +237,17 @@ scrollbar trough {
 
 .widget-mpris-title {
   font-size: 1.2rem;
-  color: #bebebe;
+  color: #d3c6aa;
 }
 
 .widget-mpris-subtitle {
   font-size: 1rem;
-  color: #9f9f9f;
+  color: #b5ac96;
 }
 
 .widget-mpris button {
   border-radius: 12.6px;
-  color: #bebebe;
+  color: #d3c6aa;
   margin: 0 5px;
   padding: 2px;
 }
@@ -257,11 +257,11 @@ scrollbar trough {
 }
 
 .widget-mpris button:hover {
-  background-color: #3d3d3d;
+  background-color: #53595e;
 }
 
 .widget-mpris button:active {
-  background-color: #4d4d4d;
+  background-color: #61666b;
 }
 
 .widget-mpris button:disabled {
@@ -274,17 +274,17 @@ scrollbar trough {
 }
 
 .widget-menubar > box > .menu-button-bar > :last-child {
-  color: #d35f5f;
+  color: #e67e80;
 }
 
 .power-buttons button:hover,
 .powermode-buttons button:hover,
 .screenshot-buttons button:hover {
-  background: #3d3d3d;
+  background: #53595e;
 }
 
 .control-center .widget-label > label {
-  color: #bebebe;
+  color: #d3c6aa;
   font-size: 2rem;
 }
 
@@ -301,21 +301,21 @@ scrollbar trough {
 }
 
 .widget-volume label {
-  color: #bebebe;
+  color: #d3c6aa;
   padding: 0 1rem;
 }
 
 .widget-volume trough highlight {
-  background: #bebebe;
+  background: #83c092;
 }
 
 .widget-backlight trough highlight {
-  background: #b91c1c;
+  background: #dbbc7f;
 }
 
 .widget-backlight label {
   font-size: 1.5rem;
-  color: #b91c1c;
+  color: #dbbc7f;
 }
 
 .widget-backlight .KB {

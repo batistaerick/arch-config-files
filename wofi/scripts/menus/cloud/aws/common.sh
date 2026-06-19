@@ -32,6 +32,7 @@ choose_time_range_minutes() {
   local value
 
   value=$(wofi_menu "Minutes" \
+    "←  Back" \
     "1" \
     "2" \
     "3" \
@@ -43,6 +44,11 @@ choose_time_range_minutes() {
     "120" \
     "360" \
     "1440")
+
+  if [ "$value" = "←  Back" ]; then
+    echo "__back__"
+    return
+  fi
 
   if [ -z "$value" ]; then
     echo "$DEFAULT_TIME_RANGE_MINUTES"
@@ -62,9 +68,12 @@ ask_search_word() {
 
   value=$(printf "" | wofi \
     --dmenu \
+    --exec-search \
+    --hide-scroll \
     --no-sort \
     --matching=contains \
     --cache-file /dev/null \
+    --height 82 \
     --prompt "Search word")
 
   echo "$value"
@@ -146,8 +155,25 @@ aws_fzf() {
 
   if [ "$mode" != "plain" ]; then
     preview_args=(
-      --preview 'printf "%b\n" {} | bat --style=plain --color=always --language=log 2>/dev/null || printf "%b\n" {}'
-      --preview-window 'down,35%,wrap'
+      --preview 'line="$(printf "%b\n" {})"
+plain="$(printf "%s\n" "$line" | sed "s/\x1b\[[0-9;]*m//g")"
+
+if printf "%s\n" "$plain" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_object="$(printf "%s\n" "$plain" | sed "s/^[^{]*//")"
+if [ -n "$json_object" ] && [ "$json_object" != "$plain" ] && printf "%s\n" "$json_object" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_array="$(printf "%s\n" "$plain" | sed "s/^[^[]*//")"
+if [ -n "$json_array" ] && [ "$json_array" != "$plain" ] && printf "%s\n" "$json_array" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+printf "%s\n" "$line" | bat --style=plain --color=always --language=log 2>/dev/null || printf "%s\n" "$line"'
+      --preview-window 'right,50%,wrap'
     )
   fi
 
@@ -161,7 +187,7 @@ aws_fzf() {
       --border \
       --color='fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8,fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8,info:#cba6f7,prompt:#89b4fa,pointer:#f5e0dc,marker:#a6e3a1,spinner:#f9e2af,header:#94e2d5,border:#89b4fa' \
       --prompt="$prompt > " \
-      --header="Type to filter. Enter prints selection. Esc closes." \
+      --header="Enter print  Esc close" \
       "${preview_args[@]}" \
       --expect=ctrl-c,esc)"
     status=$?
@@ -189,6 +215,207 @@ aws_fzf() {
   else
     cat
   fi
+}
+
+aws_cloudwatch_search_fzf() {
+  local log_group="$1"
+  local initial_word="$2"
+  local minutes="$3"
+  local state_file
+  local minutes_file
+  local helper_script
+  local search_reload_command
+  local time_reload_command
+  local output
+  local status
+  local key
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    AWS_CW_LOG_GROUP="$log_group" AWS_CW_MINUTES="$minutes" AWS_CW_WORD="$initial_word" bash -c '
+      args=(
+        logs filter-log-events
+        --log-group-name "$AWS_CW_LOG_GROUP"
+        --start-time "$(date -d "$AWS_CW_MINUTES minutes ago" +%s%3N)"
+        --end-time "$(date +%s%3N)"
+      )
+
+      if [ -n "$AWS_CW_WORD" ]; then
+        args+=(--filter-pattern "$AWS_CW_WORD")
+      fi
+
+      aws --profile "$AWS_PROFILE" --region "$AWS_REGION" "${args[@]}" \
+      | jq -r ".events[].message"
+    '
+    return
+  fi
+
+  state_file="$(mktemp /tmp/aws-cw-query.XXXXXX)"
+  minutes_file="$(mktemp /tmp/aws-cw-minutes.XXXXXX)"
+  helper_script="$(mktemp /tmp/aws-cw-search.XXXXXX.sh)"
+
+  printf '%s' "$initial_word" > "$state_file"
+  printf '%s' "$minutes" > "$minutes_file"
+
+  cat > "$helper_script" <<'AWS_CW_SEARCH_HELPER'
+#!/usr/bin/env bash
+
+set -o pipefail
+
+prompt_mode="${1:-}"
+
+if [ "$prompt_mode" = "search" ]; then
+  new_word=""
+
+  if command -v wofi >/dev/null 2>&1; then
+    new_word="$(printf "" | wofi \
+      --dmenu \
+      --exec-search \
+      --hide-scroll \
+      --no-sort \
+      --matching=contains \
+      --cache-file /dev/null \
+      --height 82 \
+      --prompt "CloudWatch search")"
+  else
+    printf '\nCloudWatch search: ' > /dev/tty
+    IFS= read -r new_word < /dev/tty
+  fi
+
+  if [ -n "$new_word" ]; then
+    printf '%s' "$new_word" > "$AWS_CW_STATE_FILE"
+  fi
+elif [ "$prompt_mode" = "time" ]; then
+  new_minutes=""
+
+  if command -v wofi >/dev/null 2>&1; then
+    new_minutes="$(printf '%s\n' "←  Back" "1" "2" "3" "5" "10" "15" "30" "60" "120" "360" "1440" | wofi \
+      --dmenu \
+      --no-sort \
+      --matching=contains \
+      --cache-file /dev/null \
+      --prompt "Minutes")"
+  else
+    printf '\nMinutes: ' > /dev/tty
+    IFS= read -r new_minutes < /dev/tty
+  fi
+
+  if [[ "$new_minutes" =~ ^[0-9]+$ ]]; then
+    printf '%s' "$new_minutes" > "$AWS_CW_MINUTES_FILE"
+  fi
+fi
+
+word="$(cat "$AWS_CW_STATE_FILE" 2>/dev/null || true)"
+minutes="$(cat "$AWS_CW_MINUTES_FILE" 2>/dev/null || printf '%s' "$AWS_CW_MINUTES")"
+
+display_word="$word"
+
+if [ -z "$display_word" ]; then
+  display_word="<all logs>"
+fi
+
+if [ "${#display_word}" -gt 32 ]; then
+  display_word="${display_word:0:29}..."
+fi
+
+printf '\033[2mQ: %s | %sm\033[0m\n' "$display_word" "$minutes"
+
+args=(
+  logs filter-log-events
+  --log-group-name "$AWS_CW_LOG_GROUP"
+  --start-time "$(date -d "$minutes minutes ago" +%s%3N)"
+  --end-time "$(date +%s%3N)"
+)
+
+if [ -n "$word" ]; then
+  args+=(--filter-pattern "$word")
+fi
+
+if ! response="$(aws --profile "$AWS_PROFILE" --region "$AWS_REGION" "${args[@]}" 2>&1)"; then
+  printf '\033[31mCloudWatch search failed:\033[0m %s\n' "$response"
+  exit 0
+fi
+
+printf '%s\n' "$response" | jq -r '
+  if (.events | length) == 0 then
+    "No logs found."
+  else
+    .events[]
+    | "\u001b[90m\(.timestamp / 1000 | todate)\u001b[0m  \u001b[36m\(.logStreamName)\u001b[0m  \(.message
+        | gsub("ERROR"; "\u001b[31mERROR\u001b[0m")
+        | gsub("WARN"; "\u001b[33mWARN\u001b[0m")
+        | gsub("INFO"; "\u001b[36mINFO\u001b[0m")
+        | gsub("Exception"; "\u001b[31mException\u001b[0m")
+        | gsub("Traceback"; "\u001b[31mTraceback\u001b[0m")
+        | gsub("failed"; "\u001b[31mfailed\u001b[0m")
+        | gsub("Failed"; "\u001b[31mFailed\u001b[0m"))"
+  end
+'
+AWS_CW_SEARCH_HELPER
+
+  chmod +x "$helper_script"
+
+  search_reload_command="env AWS_CW_STATE_FILE=$(printf '%q' "$state_file") AWS_CW_MINUTES_FILE=$(printf '%q' "$minutes_file") AWS_CW_LOG_GROUP=$(printf '%q' "$log_group") AWS_CW_MINUTES=$(printf '%q' "$minutes") $(printf '%q' "$helper_script") search"
+  time_reload_command="env AWS_CW_STATE_FILE=$(printf '%q' "$state_file") AWS_CW_MINUTES_FILE=$(printf '%q' "$minutes_file") AWS_CW_LOG_GROUP=$(printf '%q' "$log_group") AWS_CW_MINUTES=$(printf '%q' "$minutes") $(printf '%q' "$helper_script") time"
+
+  output="$(env AWS_CW_STATE_FILE="$state_file" AWS_CW_MINUTES_FILE="$minutes_file" AWS_CW_LOG_GROUP="$log_group" AWS_CW_MINUTES="$minutes" "$helper_script" \
+    | fzf \
+      --ansi \
+      --no-sort \
+      --cycle \
+      --height=100% \
+      --layout=reverse \
+      --border \
+      --color='fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8,fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8,info:#cba6f7,prompt:#89b4fa,pointer:#f5e0dc,marker:#a6e3a1,spinner:#f9e2af,header:#94e2d5,border:#89b4fa' \
+      --prompt="Logs > " \
+      --header="C-s search  C-t time  C-y copy  Esc close" \
+      --header-lines=1 \
+      --preview 'line="$(printf "%b\n" {})"
+plain="$(printf "%s\n" "$line" | sed "s/\x1b\[[0-9;]*m//g")"
+
+if printf "%s\n" "$plain" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_object="$(printf "%s\n" "$plain" | sed "s/^[^{]*//")"
+if [ -n "$json_object" ] && [ "$json_object" != "$plain" ] && printf "%s\n" "$json_object" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_array="$(printf "%s\n" "$plain" | sed "s/^[^[]*//")"
+if [ -n "$json_array" ] && [ "$json_array" != "$plain" ] && printf "%s\n" "$json_array" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+printf "%s\n" "$line" | bat --style=plain --color=always --language=log 2>/dev/null || printf "%s\n" "$line"' \
+      --preview-window 'right,50%,wrap' \
+      --bind "ctrl-s:reload($search_reload_command)+clear-query" \
+      --bind "ctrl-t:reload($time_reload_command)+clear-query" \
+      --bind 'ctrl-y:execute-silent(printf "%b\n" {} | sed "s/\x1b\[[0-9;]*m//g" | wl-copy)' \
+      --expect=ctrl-c,esc)"
+  status=$?
+
+  rm -f "$state_file" "$minutes_file" "$helper_script"
+
+  if [ "$status" -ne 0 ]; then
+    if [ "$status" -eq 130 ]; then
+      return 130
+    fi
+
+    return 0
+  fi
+
+  key="${output%%$'\n'*}"
+
+  case "$key" in
+    ctrl-c)
+      return 130
+      ;;
+    esc)
+      return 0
+      ;;
+  esac
+
+  printf '%s\n' "$output"
 }
 EOF
 }

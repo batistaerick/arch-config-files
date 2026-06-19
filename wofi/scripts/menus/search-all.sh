@@ -22,8 +22,13 @@ options="←  Back
 󰅩  Development > IntelliJ
 󰅩  Development > Neovim
 󰅩  Development > AI Tools
-󰅩  Development > AI Tools > Codex
-󰅩  Development > AI Tools > Claude Code
+󰅩  Development > AI Tools > Codex > New
+󰅩  Development > AI Tools > Codex > Resume Picker
+󰅩  Development > AI Tools > Codex > Resume by Name or ID
+󰅩  Development > AI Tools > Claude Code > New
+󰅩  Development > AI Tools > Claude Code > New Named
+󰅩  Development > AI Tools > Claude Code > Resume Picker
+󰅩  Development > AI Tools > Claude Code > Resume by Name
 󰅩  Development > Cloud
 󰅩  Development > Cloud > AWS
 󰅩  Development > Cloud > GCP
@@ -67,13 +72,14 @@ options="←  Back
 
 run_ai_tool() {
   local tool="$1"
+  local action="$2"
   local dev_dir="$HOME/Development"
 
   repo="$(
     find "$dev_dir" -mindepth 3 -maxdepth 3 -type d -name ".git" |
       sed "s|$dev_dir/||; s|/.git||" |
       sort |
-      wofi --dmenu --no-sort --cache-file /dev/null --prompt="Repository"
+      wofi --width 500 --dmenu --no-sort --cache-file /dev/null --prompt="Repository"
   )"
 
   [[ -z "$repo" ]] && exit 0
@@ -82,13 +88,49 @@ run_ai_tool() {
 
   case "$tool" in
     codex)
-      kitty --directory "$repo_path" zsh -ic 'codex; exec zsh'
+      case "$action" in
+        new)
+          kitty --directory "$repo_path" zsh -ic 'codex; exec zsh'
+          ;;
+        resume-picker)
+          kitty --directory "$repo_path" zsh -ic 'codex resume; exec zsh'
+          ;;
+        resume-name)
+          session_name="$(prompt_text "Codex Session Name or ID")"
+          [[ -z "$session_name" ]] && exit 0
+          kitty --directory "$repo_path" env AI_SESSION_NAME="$session_name" zsh -ic 'codex resume "$AI_SESSION_NAME"; exec zsh'
+          ;;
+      esac
       ;;
 
     claude)
-      kitty --directory "$repo_path" zsh -ic 'claude; exec zsh'
+      case "$action" in
+        new)
+          kitty --directory "$repo_path" zsh -ic 'claude; exec zsh'
+          ;;
+        new-named)
+          session_name="$(prompt_text "Claude Session Name")"
+          [[ -z "$session_name" ]] && exit 0
+          kitty --directory "$repo_path" env AI_SESSION_NAME="$session_name" zsh -ic 'claude -n "$AI_SESSION_NAME"; exec zsh'
+          ;;
+        resume-picker)
+          kitty --directory "$repo_path" zsh -ic 'claude -r; exec zsh'
+          ;;
+        resume-name)
+          session_name="$(prompt_text "Claude Session Name")"
+          [[ -z "$session_name" ]] && exit 0
+          kitty --directory "$repo_path" env AI_SESSION_NAME="$session_name" zsh -ic 'claude -r "$AI_SESSION_NAME"; exec zsh'
+          ;;
+      esac
       ;;
   esac
+}
+
+prompt_text() {
+  local prompt="$1"
+
+  printf "" |
+    wofi --width 500 --dmenu --no-sort --cache-file /dev/null --prompt="$prompt"
 }
 
 open_setup_window() {
@@ -107,7 +149,7 @@ open_setup_window() {
 chosen="$(
   echo "$options" |
     sed '/^[[:space:]]*$/d' |
-    wofi --dmenu --no-sort --matching=multi-contains --cache-file /dev/null --prompt="Search All" --search "$initial_query"
+    wofi --width 500 --dmenu --no-sort --matching=multi-contains --cache-file /dev/null --prompt="Search All" --search "$initial_query"
 )"
 
 case "$chosen" in
@@ -132,11 +174,26 @@ case "$chosen" in
   "󰅩  Development > AI Tools")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"
     ;;
-  "󰅩  Development > AI Tools > Codex")
-    run_ai_tool codex
+  "󰅩  Development > AI Tools > Codex > New")
+    run_ai_tool codex new
     ;;
-  "󰅩  Development > AI Tools > Claude Code")
-    run_ai_tool claude
+  "󰅩  Development > AI Tools > Codex > Resume Picker")
+    run_ai_tool codex resume-picker
+    ;;
+  "󰅩  Development > AI Tools > Codex > Resume by Name or ID")
+    run_ai_tool codex resume-name
+    ;;
+  "󰅩  Development > AI Tools > Claude Code > New")
+    run_ai_tool claude new
+    ;;
+  "󰅩  Development > AI Tools > Claude Code > New Named")
+    run_ai_tool claude new-named
+    ;;
+  "󰅩  Development > AI Tools > Claude Code > Resume Picker")
+    run_ai_tool claude resume-picker
+    ;;
+  "󰅩  Development > AI Tools > Claude Code > Resume by Name")
+    run_ai_tool claude resume-name
     ;;
   "󰅩  Development > Cloud")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/cloud.sh"

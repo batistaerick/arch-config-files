@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
 query="$(
-  printf "\n" |
-    wofi --dmenu --cache-file /dev/null --height 100 --prompt="Google it..."
+  wofi \
+    --dmenu \
+    --exec-search \
+    --hide-scroll \
+    --cache-file /dev/null \
+    --height 82 \
+    --prompt="Google it..." \
+    < /dev/null
 )"
+
+query="${query#"${query%%[![:space:]]*}"}"
+query="${query%"${query##*[![:space:]]}"}"
 
 [[ -z "$query" ]] && exit 0
 

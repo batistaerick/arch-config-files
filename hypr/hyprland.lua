@@ -57,6 +57,9 @@ else
     mode =     "2560x1080@144",
     position = "0x0",
     scale =    1,
+    bitdepth = 10,
+    supports_wide_color = 1,
+    supports_hdr = 1,
   })
 
   hl.monitor({
@@ -64,6 +67,9 @@ else
     mode =     "1920x1080@144",
     position = "320x1080",
     scale =    1,
+    bitdepth = 10,
+    supports_wide_color = 1,
+    supports_hdr = 1,
   })
 end
 
@@ -111,6 +117,16 @@ hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
 -------------------
 
 hl.config({
+  render = {
+    cm_enabled =       true,
+    send_content_type = true,
+    cm_auto_hdr =      1,
+    direct_scanout =   2,
+    use_fp16 =         2,
+  },
+  quirks = {
+    prefer_hdr = 2,
+  },
   general = {
     gaps_in =          4,
     gaps_out =         8,

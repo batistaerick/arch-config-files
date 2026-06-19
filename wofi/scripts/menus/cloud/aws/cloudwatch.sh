@@ -32,12 +32,26 @@ choose_log_group() {
 
 LOG_GROUP="$(choose_log_group)"
 
+choose_cloudwatch_minutes() {
+  local minutes
+
+  minutes="$(choose_time_range_minutes)"
+
+  if [ "$minutes" = "__back__" ]; then
+    return 1
+  fi
+
+  echo "$minutes"
+}
+
 cloudwatch_logs_command() {
   local filter_pattern="$1"
   local minutes="$2"
   local quoted_filter_pattern
+  local quoted_log_group
 
   quoted_filter_pattern="$(shell_quote "$filter_pattern")"
+  quoted_log_group="$(shell_quote "$LOG_GROUP")"
 
   cat <<EOF
 aws_header "CloudWatch logs"
@@ -47,27 +61,15 @@ aws_kv "Filter" $quoted_filter_pattern
 aws_kv "Minutes" "$minutes"
 echo
 
-$(aws_base) logs filter-log-events \\
-  --log-group-name "$LOG_GROUP" \\
-  --filter-pattern $quoted_filter_pattern \\
-  --start-time $(minutes_ago_ms "$minutes") \\
-  --end-time $(now_ms) \\
-| jq -r '
-  if (.events | length) == 0 then
-    "No logs found."
-  else
-    .events[]
-    | "\u001b[90m\(.timestamp / 1000 | todate)\u001b[0m  \(.message
-        | gsub("ERROR"; "\u001b[31mERROR\u001b[0m")
-        | gsub("WARN"; "\u001b[33mWARN\u001b[0m")
-        | gsub("INFO"; "\u001b[36mINFO\u001b[0m"))"
-  end
-' | aws_fzf "Logs"
+aws_cloudwatch_search_fzf $quoted_log_group $quoted_filter_pattern "$minutes"
 EOF
 }
 
 all_logs_command() {
   local minutes="$1"
+  local quoted_log_group
+
+  quoted_log_group="$(shell_quote "$LOG_GROUP")"
 
   cat <<EOF
 aws_header "CloudWatch all logs"
@@ -76,25 +78,7 @@ aws_kv "Log group" "$LOG_GROUP"
 aws_kv "Minutes" "$minutes"
 echo
 
-$(aws_base) logs filter-log-events \\
-  --log-group-name "$LOG_GROUP" \\
-  --start-time $(minutes_ago_ms "$minutes") \\
-  --end-time $(now_ms) \\
-| jq -r '
-  if (.events | length) == 0 then
-    "No logs found."
-  else
-    .events[]
-    | "\u001b[90m\(.timestamp / 1000 | todate)\u001b[0m  \u001b[36m\(.logStreamName)\u001b[0m  \(.message
-        | gsub("ERROR"; "\u001b[31mERROR\u001b[0m")
-        | gsub("WARN"; "\u001b[33mWARN\u001b[0m")
-        | gsub("INFO"; "\u001b[36mINFO\u001b[0m")
-        | gsub("Exception"; "\u001b[31mException\u001b[0m")
-        | gsub("Traceback"; "\u001b[31mTraceback\u001b[0m")
-        | gsub("failed"; "\u001b[31mfailed\u001b[0m")
-        | gsub("Failed"; "\u001b[31mFailed\u001b[0m"))"
-  end
-' | aws_fzf "All logs"
+aws_cloudwatch_search_fzf $quoted_log_group "" "$minutes"
 EOF
 }
 
@@ -102,8 +86,10 @@ search_word_logs_command() {
   local word="$1"
   local minutes="$2"
   local quoted_word
+  local quoted_log_group
 
   quoted_word="$(shell_quote "$word")"
+  quoted_log_group="$(shell_quote "$LOG_GROUP")"
 
   cat <<EOF
 aws_header "CloudWatch search"
@@ -113,19 +99,7 @@ aws_kv "Word" $quoted_word
 aws_kv "Minutes" "$minutes"
 echo
 
-$(aws_base) logs filter-log-events \\
-  --log-group-name "$LOG_GROUP" \\
-  --filter-pattern $quoted_word \\
-  --start-time $(minutes_ago_ms "$minutes") \\
-  --end-time $(now_ms) \\
-| jq -r '
-  if (.events | length) == 0 then
-    "No logs found."
-  else
-    .events[]
-    | "\u001b[90m\(.timestamp / 1000 | todate)\u001b[0m  \u001b[36m\(.logStreamName)\u001b[0m  \(.message)"
-  end
-' | aws_fzf "Logs"
+aws_cloudwatch_search_fzf $quoted_log_group $quoted_word "$minutes"
 EOF
 }
 
@@ -152,6 +126,7 @@ $(aws_base) logs describe-log-streams \\
 EOF
 }
 
+while true; do
 options="←  Back
 󰁫  All logs
   ERROR logs
@@ -165,22 +140,27 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --matching=contains --cache
 case "$chosen" in
   "←  Back")
     back_to_aws_menu
+    exit 0
     ;;
   "󰁫  All logs")
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_cloudwatch_minutes)" || continue
     run_in_kitty "CloudWatch Logs - $AWS_PROFILE" "$(all_logs_command "$minutes")" close-on-success toggle
+    exit 0
     ;;
   "  ERROR logs")
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_cloudwatch_minutes)" || continue
     run_in_kitty "CloudWatch ERROR - $AWS_PROFILE" "$(cloudwatch_logs_command "ERROR" "$minutes")" close-on-success toggle
+    exit 0
     ;;
   "  WARN logs")
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_cloudwatch_minutes)" || continue
     run_in_kitty "CloudWatch WARN - $AWS_PROFILE" "$(cloudwatch_logs_command "WARN" "$minutes")" close-on-success toggle
+    exit 0
     ;;
   "  INFO logs")
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_cloudwatch_minutes)" || continue
     run_in_kitty "CloudWatch INFO - $AWS_PROFILE" "$(cloudwatch_logs_command "INFO" "$minutes")" close-on-success toggle
+    exit 0
     ;;
   "  Search word")
     word="$(ask_search_word)"
@@ -189,13 +169,16 @@ case "$chosen" in
       exit 0
     fi
 
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_cloudwatch_minutes)" || continue
     run_in_kitty "CloudWatch Search - $AWS_PROFILE" "$(search_word_logs_command "$word" "$minutes")" close-on-success toggle
+    exit 0
     ;;
   "󰁫  Latest log streams")
     run_in_kitty "CloudWatch Streams - $AWS_PROFILE" "$(latest_streams_command)" close-on-success toggle
+    exit 0
     ;;
   "")
     exit 0
     ;;
 esac
+done

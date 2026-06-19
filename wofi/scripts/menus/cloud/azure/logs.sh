@@ -4,6 +4,12 @@ source "$HOME/.config/wofi/scripts/menus/cloud/azure/common.sh"
 
 subscription="$(choose_azure_subscription)"
 minutes="$(choose_time_range_minutes)"
+
+if [ "$minutes" = "__back__" ]; then
+  back_to_azure_menu
+  exit 0
+fi
+
 start_time="$(date -u -d "$minutes minutes ago" '+%Y-%m-%dT%H:%M:%SZ')"
 
 run_in_kitty "Azure Activity Logs" "

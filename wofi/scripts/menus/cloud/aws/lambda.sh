@@ -5,6 +5,19 @@ source "$HOME/.config/wofi/scripts/menus/cloud/aws/common.sh"
 
 [ -z "$AWS_PROFILE" ] && exit 0
 
+choose_lambda_minutes() {
+  local minutes
+
+  minutes="$(choose_time_range_minutes)"
+
+  if [ "$minutes" = "__back__" ]; then
+    "$0" "$AWS_PROFILE"
+    exit 0
+  fi
+
+  echo "$minutes"
+}
+
 choose_lambda_function() {
   local functions chosen
 
@@ -102,12 +115,12 @@ $(aws_base) lambda get-function-configuration --function-name $quoted_function_n
     ;;
   "󰢬  Recent logs")
     function_name="$(choose_lambda_function)"
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_lambda_minutes)"
     run_in_kitty "Lambda Logs - $AWS_PROFILE" "$(lambda_logs_command "$function_name" "$minutes" "")" close-on-success toggle
     ;;
   "  Recent errors")
     function_name="$(choose_lambda_function)"
-    minutes="$(choose_time_range_minutes)"
+    minutes="$(choose_lambda_minutes)"
     run_in_kitty "Lambda Errors - $AWS_PROFILE" "$(lambda_logs_command "$function_name" "$minutes" "ERROR ?Exception ?Timeout")" close-on-success toggle
     ;;
   "")

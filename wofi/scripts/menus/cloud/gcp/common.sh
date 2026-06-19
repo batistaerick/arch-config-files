@@ -24,7 +24,12 @@ wofi_menu() {
 choose_time_range_minutes() {
   local value
 
-  value=$(wofi_menu "Minutes" "15" "30" "60" "120" "360" "1440")
+  value=$(wofi_menu "Minutes" "←  Back" "15" "30" "60" "120" "360" "1440")
+
+  if [ "$value" = "←  Back" ]; then
+    echo "__back__"
+    return
+  fi
 
   if [ -z "$value" ] || ! [[ "$value" =~ ^[0-9]+$ ]]; then
     echo "$DEFAULT_TIME_RANGE_MINUTES"
@@ -109,8 +114,25 @@ cloud_fzf() {
 
   if [ "$mode" != "plain" ]; then
     preview_args=(
-      --preview 'printf "%b\n" {} | bat --style=plain --color=always --language=log 2>/dev/null || printf "%b\n" {}'
-      --preview-window 'down,35%,wrap'
+      --preview 'line="$(printf "%b\n" {})"
+plain="$(printf "%s\n" "$line" | sed "s/\x1b\[[0-9;]*m//g")"
+
+if printf "%s\n" "$plain" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_object="$(printf "%s\n" "$plain" | sed "s/^[^{]*//")"
+if [ -n "$json_object" ] && [ "$json_object" != "$plain" ] && printf "%s\n" "$json_object" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+json_array="$(printf "%s\n" "$plain" | sed "s/^[^[]*//")"
+if [ -n "$json_array" ] && [ "$json_array" != "$plain" ] && printf "%s\n" "$json_array" | jq -C . 2>/dev/null; then
+  exit 0
+fi
+
+printf "%s\n" "$line" | bat --style=plain --color=always --language=log 2>/dev/null || printf "%s\n" "$line"'
+      --preview-window 'right,50%,wrap'
     )
   fi
 
@@ -124,8 +146,9 @@ cloud_fzf() {
       --border \
       --color='fg:#cdd6f4,bg:#1e1e2e,hl:#f38ba8,fg+:#cdd6f4,bg+:#313244,hl+:#f38ba8,info:#cba6f7,prompt:#89b4fa,pointer:#f5e0dc,marker:#a6e3a1,spinner:#f9e2af,header:#94e2d5,border:#89b4fa' \
       --prompt="$prompt > " \
-      --header="Type to filter. Enter prints selection. Esc closes." \
+      --header="C-y copy  Enter print  Esc close" \
       "${preview_args[@]}" \
+      --bind 'ctrl-y:execute-silent(printf "%b\n" {} | sed "s/\x1b\[[0-9;]*m//g" | wl-copy)' \
       --expect=ctrl-c,esc)"
     status=$?
 

@@ -81,7 +81,7 @@ local terminal = "kitty"
 local fileManager = "dolphin"
 local mainMod = "SUPER"
 
-local scriptsDir = "~/.config/wofi/scripts"
+local scriptsDir = "~/.config/walker/scripts"
 local menusDir = scriptsDir .. "/menus"
 local actionsDir = scriptsDir .. "/actions"
 local hyprScriptsDir = "~/.config/hypr/scripts"
@@ -257,7 +257,7 @@ hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager .. " --new-window"))
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'"))
 hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd([[kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0']]))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"))
 
 -- Window state and layout
 hl.bind(mainMod .. " + W", hl.dsp.window.close())
@@ -268,21 +268,21 @@ hl.bind(mainMod .. " + A", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.layout("rotatesplit"))
 
 -- Focus with vim-style keys
-hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "l" }))
-hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "d" }))
-hl.bind(mainMod .. " + i", hl.dsp.focus({ direction = "u" }))
+hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "l" }))
+hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "d" }))
+hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "u" }))
 hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "r" }))
 
 -- Resize active window
-hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.resize({ x = -15, y = 0,  relative = true }), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.resize({ x = 0,   y = 15, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + i", hl.dsp.window.resize({ x = 0,   y = -15, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.resize({ x = -15, y = 0,  relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.resize({ x = 0,   y = 15, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.resize({ x = 0,   y = -15, relative = true }), { repeating = true })
 hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.resize({ x = 15,  y = 0,  relative = true }), { repeating = true })
 
 -- Move active window
-hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "d" }))
-hl.bind(mainMod .. " + CTRL + i", hl.dsp.window.move({ direction = "u" }))
+hl.bind(mainMod .. " + CTRL + h", hl.dsp.window.move({ direction = "l" }))
+hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.move({ direction = "d" }))
+hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
 -- Workspaces 1-10
@@ -301,9 +301,10 @@ hl.bind(mainMod .. " + CTRL + S", hl.dsp.window.move({ workspace = 1 }))
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
--- Wofi menus and scripts
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menusDir .. "/main.sh"))
+-- Walker menus and scripts
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("walker --provider menus:main"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(menusDir .. "/shortcuts.sh"))
+hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd(menusDir .. "/vim.sh"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
 hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd(menusDir .. "/style/wallpaper.sh"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
@@ -449,7 +450,7 @@ hl.window_rule({
 
 -- Layer rules
 blurred_layer("waybar", 0)
-blurred_layer("wofi", 0.3)
+blurred_layer("walker", 0.8)
 blurred_layer("swaync-control-center", 0.3)
 blurred_layer("swaync-notification-window", 0.3)
 blurred_layer("swayosd", 0.3)

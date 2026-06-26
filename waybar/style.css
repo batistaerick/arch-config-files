@@ -64,6 +64,54 @@ button:hover {
   color: #1e1e2e;
 }
 
+#custom-ws1,
+#custom-ws2,
+#custom-ws3,
+#custom-ws4,
+#custom-ws5,
+#custom-ws6 {
+  min-width: 0;
+  padding: 0 6px;
+  margin: 4px 2px;
+  border-radius: 8px;
+  color: #cdd6f4;
+  background: transparent;
+}
+
+#custom-ws1 {
+  margin-left: 8px;
+}
+
+#custom-ws1:hover,
+#custom-ws2:hover,
+#custom-ws3:hover,
+#custom-ws4:hover,
+#custom-ws5:hover,
+#custom-ws6:hover {
+  background: rgba(180, 190, 254, 0.15);
+  color: #cdd6f4;
+}
+
+#custom-ws1.active,
+#custom-ws2.active,
+#custom-ws3.active,
+#custom-ws4.active,
+#custom-ws5.active,
+#custom-ws6.active {
+  background-color: #cdd6f4;
+  color: black;
+}
+
+#custom-ws1.urgent,
+#custom-ws2.urgent,
+#custom-ws3.urgent,
+#custom-ws4.urgent,
+#custom-ws5.urgent,
+#custom-ws6.urgent {
+  background-color: #eb4d4b;
+  color: #1e1e2e;
+}
+
 #pulseaudio,
 #cpu,
 #memory,

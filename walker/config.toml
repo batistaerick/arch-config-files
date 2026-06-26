@@ -1,0 +1,31 @@
+force_keyboard_focus = true
+selection_wrap = true
+theme = "current"
+minwidth = 700
+minheight = 500
+hide_action_hints = false
+hide_action_hints_dmenu = false
+hide_return_action = false
+keybind_symbols = false
+hide_quick_activation = true
+
+[placeholders]
+"default" = { input = "Search...", list = "No Results" }
+"desktopapplications" = { input = "Search apps...", list = "No Apps" }
+"menus:main" = { input = "Find...", list = "No Menu Items" }
+
+[providers]
+max_results = 256
+default = [ "desktopapplications", "websearch" ]
+
+[keybinds]
+close = ["Escape"]
+quick_activate = []
+
+[providers.actions]
+fallback = [
+  { action = "menus:open", label = "open", bind = "Return", default = true, after = "Nothing" },
+  { action = "menus:default", label = "run", bind = "Return", default = true, after = "Close" },
+  { action = "menus:parent", label = "back", bind = "shift BackSpace", after = "Nothing" },
+  { action = "erase_history", label = "clear hist", bind = "ctrl h", after = "AsyncReload" },
+]

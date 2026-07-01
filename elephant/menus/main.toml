@@ -1,0 +1,59 @@
+name = "main"
+name_pretty = "Main"
+description = "Main menu"
+icon = "󰣇"
+fixed_order = true
+
+[[entries]]
+text = "Apps"
+keywords = ["applications", "launcher", "desktop"]
+icon = "󰣇"
+submenu = "apps"
+
+[[entries]]
+text = "Development"
+keywords = ["dev", "projects", "code"]
+icon = "󰅩"
+submenu = "development"
+
+[[entries]]
+text = "Style"
+keywords = ["theme", "wallpaper", "appearance"]
+icon = ""
+submenu = "style"
+
+[[entries]]
+text = "Toggle"
+keywords = ["switch", "enable", "disable"]
+icon = "󰔎"
+submenu = "toggle"
+
+[[entries]]
+text = "Capture"
+keywords = ["screenshot", "screenrecord", "record"]
+icon = ""
+submenu = "capture"
+
+[[entries]]
+text = "Share"
+keywords = ["localsend", "send"]
+icon = ""
+submenu = "share"
+
+[[entries]]
+text = "Shortcuts"
+keywords = ["keybinds", "keys", "help"]
+icon = "󰌌"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/shortcuts.sh" }
+
+[[entries]]
+text = "System"
+keywords = ["settings", "tools"]
+icon = ""
+submenu = "system"
+
+[[entries]]
+text = "Power"
+keywords = ["shutdown", "reboot", "logout", "lock"]
+icon = "⏻"
+submenu = "power"

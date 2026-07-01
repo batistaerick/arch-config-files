@@ -1,0 +1,47 @@
+name = "development"
+name_pretty = "Development"
+parent = "main"
+icon = "󰅩"
+fixed_order = true
+
+[[entries]]
+text = "VS Code"
+keywords = ["code", "vscode", "project"]
+icon = ""
+submenu = "projects-vscode"
+
+[[entries]]
+text = "IntelliJ"
+keywords = ["idea", "java", "project"]
+icon = ""
+submenu = "projects-intellij"
+
+[[entries]]
+text = "Neovim"
+keywords = ["nvim", "vim", "project"]
+icon = ""
+submenu = "projects-nvim"
+
+[[entries]]
+text = "Neovim Commands"
+keywords = ["nvim", "vim", "commands", "help"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }
+
+[[entries]]
+text = "AI Tools"
+keywords = ["codex", "claude"]
+icon = ""
+submenu = "ai-tools"
+
+[[entries]]
+text = "Grafana Logs"
+keywords = ["grafana", "logs", "loki", "observability"]
+icon = "󰨇"
+submenu = "grafana-logs"
+
+[[entries]]
+text = "Cloud"
+keywords = ["aws", "gcp", "azure"]
+icon = ""
+submenu = "cloud"

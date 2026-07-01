@@ -6,6 +6,7 @@ ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 options="  VS Code
   IntelliJ
   Neovim
+  Neovim Commands
   AI Tools
 󰨇  Grafana Logs
   Cloud"
@@ -21,6 +22,9 @@ case "$chosen" in
     ;;
   "  Neovim")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" nvim
+    ;;
+  "  Neovim Commands")
+    BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/vim.sh"
     ;;
   "  AI Tools")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"

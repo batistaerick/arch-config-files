@@ -1,0 +1,23 @@
+name = "cloud"
+name_pretty = "Cloud"
+parent = "development"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "AWS"
+keywords = ["amazon"]
+icon = ""
+submenu = "aws-profiles"
+
+[[entries]]
+text = "GCP"
+keywords = ["google cloud"]
+icon = ""
+submenu = "gcp"
+
+[[entries]]
+text = "Azure"
+keywords = ["microsoft cloud"]
+icon = "󰠅"
+submenu = "azure"

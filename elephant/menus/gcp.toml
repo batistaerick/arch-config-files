@@ -1,0 +1,70 @@
+name = "gcp"
+name_pretty = "GCP"
+parent = "cloud"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Login"
+icon = "󰊭"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/menu.sh --login" }
+
+[[entries]]
+text = "Check Auth"
+icon = "󰅟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/menu.sh --check-auth" }
+
+[[entries]]
+text = "Projects"
+icon = "󰏗"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/menu.sh --projects" }
+
+[[entries]]
+text = "Compute Instances"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/compute.sh" }
+
+[[entries]]
+text = "Storage Buckets"
+icon = "󰉋"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/storage.sh" }
+
+[[entries]]
+text = "GKE Clusters"
+icon = "󰠇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/gke.sh" }
+
+[[entries]]
+text = "Cloud Run"
+icon = "󰣇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/cloud-run.sh" }
+
+[[entries]]
+text = "Cloud SQL"
+icon = "󰈳"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/sql.sh" }
+
+[[entries]]
+text = "Artifact Registry"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/artifact-registry.sh" }
+
+[[entries]]
+text = "Cloud Functions"
+icon = "󰊕"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/functions.sh" }
+
+[[entries]]
+text = "VPC Networks"
+icon = "󰖟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/vpc.sh" }
+
+[[entries]]
+text = "IAM"
+icon = "󰒃"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/iam.sh" }
+
+[[entries]]
+text = "Logs"
+icon = "󰢬"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/gcp/logs.sh" }

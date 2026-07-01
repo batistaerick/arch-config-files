@@ -1,0 +1,17 @@
+name = "grafana-logs"
+name_pretty = "Grafana Logs"
+parent = "development"
+icon = "󰨇"
+fixed_order = true
+
+[[entries]]
+text = "Development"
+subtext = "Engineering-Dev-394540956281"
+icon = "󰨇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Dev-394540956281" }
+
+[[entries]]
+text = "Production"
+subtext = "Engineering-Prod-576249115295"
+icon = "󰨇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Prod-576249115295" }

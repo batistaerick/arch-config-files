@@ -3,7 +3,7 @@
 MENUS_DIR="$HOME/.config/walker/scripts/menus"
 
 options="$(cat <<'EOF'
-Basics
+󰌌  Basics
   i                         Insert before cursor
   a                         Insert after cursor
   Esc                       Return to normal mode
@@ -11,7 +11,7 @@ Basics
   :q                        Quit window
   :wq                       Save and quit
   :q!                       Quit without saving
-Movement
+󰁔  Movement
   h / j / k / l             Move left / down / up / right
   w                         Next word
   b                         Previous word
@@ -22,7 +22,7 @@ Movement
   gg                        First line
   G                         Last line
   {number}G                 Go to line number
-Editing
+  Editing
   u                         Undo
   Ctrl-r                    Redo
   .                         Repeat last change
@@ -33,7 +33,7 @@ Editing
   p                         Paste after cursor
   P                         Paste before cursor
   J                         Join next line
-Text objects
+󰉿  Text objects
   diw                       Delete inner word
   ciw                       Change inner word
   yiw                       Yank inner word
@@ -41,7 +41,7 @@ Text objects
   ci\"                       Change inside quotes
   di(                       Delete inside parentheses
   ci(                       Change inside parentheses
-Visual mode
+󰒆  Visual mode
   v                         Visual character mode
   V                         Visual line mode
   Ctrl-v                    Visual block mode
@@ -49,7 +49,7 @@ Visual mode
   d                         Delete selection
   >                         Indent selection
   <                         Unindent selection
-Search and replace
+󰍉  Search and replace
   /text                     Search forward
   ?text                     Search backward
   n                         Next search match
@@ -59,13 +59,13 @@ Search and replace
   :noh                      Clear search highlight
   :%s/old/new/g             Replace in whole file
   :s/old/new/g              Replace in current line
-Windows
+󰖲  Windows
   Ctrl-w s                  Horizontal split
   Ctrl-w v                  Vertical split
   Ctrl-w h/j/k/l            Move between windows
   Ctrl-w =                  Equalize windows
   Ctrl-w q                  Close window
-Tabs and buffers
+󰓩  Tabs and buffers
   :e file                   Edit file
   :bn                       Next buffer
   :bp                       Previous buffer
@@ -74,14 +74,14 @@ Tabs and buffers
   :tabnew                   New tab
   gt                        Next tab
   gT                        Previous tab
-Marks and jumps
+󰃀  Marks and jumps
   ma                        Set mark a
   'a                        Jump to line mark a
   `a                        Jump to exact mark a
   Ctrl-o                    Jump back
   Ctrl-i                    Jump forward
   :marks                    List marks
-Registers and macros
+󰑋  Registers and macros
   :reg                      List registers
   \"0p                       Paste last yanked text
   \"+y                       Yank to system clipboard
@@ -90,13 +90,13 @@ Registers and macros
   q                         Stop recording macro
   @a                        Play macro a
   @@                        Replay last macro
-Folds
+󰘖  Folds
   za                        Toggle fold
   zo                        Open fold
   zc                        Close fold
   zR                        Open all folds
   zM                        Close all folds
-Help
+󰋖  Help
   :Tutor                    Open Vim tutor
   :help motion              Help for motions
   :help text-objects        Help for text objects
@@ -121,7 +121,7 @@ copy_command() {
 }
 
 case "$chosen" in
-  "" | Basics | Movement | Editing | "Text objects" | "Visual mode" | "Search and replace" | Windows | "Tabs and buffers" | "Marks and jumps" | "Registers and macros" | Folds | Help)
+  "" | 󰌌* | 󰁔* | * | 󰉿* | 󰒆* | 󰍉* | 󰖲* | 󰓩* | 󰃀* | 󰑋* | 󰘖* | 󰋖*)
     exit 0
     ;;
   *)

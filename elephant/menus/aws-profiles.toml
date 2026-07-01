@@ -1,0 +1,17 @@
+name = "aws-profiles"
+name_pretty = "AWS"
+parent = "cloud"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Development"
+subtext = "Engineering-Dev-394540956281"
+icon = ""
+submenu = "aws-development"
+
+[[entries]]
+text = "Production"
+subtext = "Engineering-Prod-576249115295"
+icon = ""
+submenu = "aws-production"

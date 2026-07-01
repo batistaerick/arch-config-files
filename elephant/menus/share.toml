@@ -1,0 +1,23 @@
+name = "share"
+name_pretty = "Share"
+parent = "main"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Clipboard"
+keywords = ["localsend"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/share/localsend-share.sh clipboard" }
+
+[[entries]]
+text = "File"
+keywords = ["localsend"]
+icon = ""
+actions = { "open" = "kitty -e $HOME/.config/walker/scripts/actions/share/localsend-share.sh file" }
+
+[[entries]]
+text = "Folder"
+keywords = ["localsend", "directory"]
+icon = ""
+actions = { "open" = "kitty -e $HOME/.config/walker/scripts/actions/share/localsend-share.sh folder" }

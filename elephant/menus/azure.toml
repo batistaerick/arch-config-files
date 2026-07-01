@@ -1,0 +1,70 @@
+name = "azure"
+name_pretty = "Azure"
+parent = "cloud"
+icon = "󰠅"
+fixed_order = true
+
+[[entries]]
+text = "Login"
+icon = "󰊭"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/menu.sh --login" }
+
+[[entries]]
+text = "Check Auth"
+icon = "󰅟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/menu.sh --check-auth" }
+
+[[entries]]
+text = "Subscriptions"
+icon = "󰏗"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/menu.sh --subscriptions" }
+
+[[entries]]
+text = "Resource Groups"
+icon = "󰉖"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/resource-groups.sh" }
+
+[[entries]]
+text = "Virtual Machines"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/compute.sh" }
+
+[[entries]]
+text = "Storage Accounts"
+icon = "󰉋"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/storage.sh" }
+
+[[entries]]
+text = "AKS Clusters"
+icon = "󰠇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/aks.sh" }
+
+[[entries]]
+text = "App Services"
+icon = "󰣇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/app-service.sh" }
+
+[[entries]]
+text = "SQL Servers"
+icon = "󰈳"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/sql.sh" }
+
+[[entries]]
+text = "Container Registries"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/acr.sh" }
+
+[[entries]]
+text = "Function Apps"
+icon = "󰊕"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/functions.sh" }
+
+[[entries]]
+text = "Virtual Networks"
+icon = "󰖟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/vnet.sh" }
+
+[[entries]]
+text = "Activity Logs"
+icon = "󰢬"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/azure/logs.sh" }

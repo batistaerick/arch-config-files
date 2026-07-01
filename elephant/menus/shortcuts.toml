@@ -1,0 +1,125 @@
+name = "shortcuts"
+name_pretty = "Shortcuts"
+parent = "main"
+icon = "󰌌"
+fixed_order = true
+
+[[entries]]
+text = "Open Terminal"
+subtext = "SUPER + Enter"
+icon = ""
+actions = { "open" = "kitty" }
+
+[[entries]]
+text = "Main Menu"
+subtext = "SUPER + Space"
+icon = "󰣇"
+submenu = "main"
+
+[[entries]]
+text = "Vim Commands"
+subtext = "SUPER + Shift + /"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }
+
+[[entries]]
+text = "File Manager"
+subtext = "SUPER + E"
+icon = ""
+actions = { "open" = "dolphin --new-window" }
+
+[[entries]]
+text = "Search Apps"
+subtext = "SUPER + F"
+icon = "󰍉"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/search.sh" }
+
+[[entries]]
+text = "Search Google"
+subtext = "SUPER + G"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/search/google.sh" }
+
+[[entries]]
+text = "Clipboard History"
+subtext = "SUPER + V"
+icon = ""
+actions = { "open" = "sh -c 'cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 500 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl'" }
+
+[[entries]]
+text = "Fuzzy Find Files"
+subtext = "SUPER + P"
+icon = "󰈞"
+actions = { "open" = "kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'" }
+
+[[entries]]
+text = "Fuzzy Find Text"
+subtext = "SUPER + Ctrl + P"
+icon = "󰈞"
+actions = { "open" = "kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0'" }
+
+[[entries]]
+text = "Close Window"
+subtext = "SUPER + W"
+icon = "󰖭"
+actions = { "open" = "hyprctl dispatch killactive" }
+
+[[entries]]
+text = "Toggle Floating And Pin"
+subtext = "SUPER + T"
+icon = "󰖲"
+actions = { "open" = "hyprctl --batch 'dispatch togglefloating; dispatch pin'" }
+
+[[entries]]
+text = "Screenshot Full"
+subtext = "Print"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot-full.sh" }
+
+[[entries]]
+text = "Screenshot Selection"
+subtext = "SUPER + Print"
+icon = "󰄀"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot-selection.sh" }
+
+[[entries]]
+text = "Next Wallpaper"
+subtext = "SUPER + Shift + N"
+icon = "🖻"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/wallpaper/next.sh" }
+
+[[entries]]
+text = "Wallpaper Picker"
+subtext = "SUPER + Ctrl + N"
+icon = "🖻"
+submenu = "wallpaper"
+
+[[entries]]
+text = "Toggle Waybar"
+subtext = "SUPER + Shift + Space"
+icon = "󰍜"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/waybar.sh" }
+
+[[entries]]
+text = "Notification Center"
+subtext = "SUPER + N"
+icon = "󰂛"
+actions = { "open" = "swaync-client -t -sw" }
+
+[[entries]]
+text = "Color Picker"
+subtext = "SUPER + ="
+icon = "󰈊"
+actions = { "open" = "hyprpicker -a" }
+
+[[entries]]
+text = "Lock Screen"
+subtext = "SUPER + M"
+icon = ""
+actions = { "open" = "$HOME/.config/hypr/scripts/manual-lock.sh" }
+
+[[entries]]
+text = "Characters"
+subtext = "SUPER + ;"
+icon = "󰊄"
+actions = { "open" = "gnome-characters" }

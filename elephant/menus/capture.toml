@@ -1,0 +1,22 @@
+name = "capture"
+name_pretty = "Capture"
+parent = "main"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Screenshot"
+icon = "󰄀"
+submenu = "screenshot"
+
+[[entries]]
+text = "Screenrecord"
+keywords = ["record", "video"]
+icon = ""
+submenu = "screenrecord"
+
+[[entries]]
+text = "Color"
+keywords = ["picker", "hyprpicker"]
+icon = "󰈊"
+actions = { "open" = "sh -c 'sleep 0.2 && hyprpicker -a'" }

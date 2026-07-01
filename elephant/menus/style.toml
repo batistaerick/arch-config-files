@@ -1,0 +1,17 @@
+name = "style"
+name_pretty = "Style"
+parent = "main"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Theme"
+keywords = ["colors", "appearance"]
+icon = "󰸌"
+submenu = "theme"
+
+[[entries]]
+text = "Wallpaper"
+keywords = ["background"]
+icon = "🖻"
+submenu = "wallpaper"

@@ -1,0 +1,35 @@
+name = "screenrecord"
+name_pretty = "Screenrecord"
+parent = "capture"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Open OBS"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh open" }
+
+[[entries]]
+text = "Record"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh record" }
+
+[[entries]]
+text = "Record + Audio"
+icon = "󰕾"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh audio" }
+
+[[entries]]
+text = "Record + Webcam"
+icon = "󰖠"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh webcam" }
+
+[[entries]]
+text = "Record + Audio + Webcam"
+icon = "󰖠"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh audio-webcam" }
+
+[[entries]]
+text = "Stop Recording"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh stop" }

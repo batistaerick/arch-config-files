@@ -1,0 +1,47 @@
+name = "ai-tools"
+name_pretty = "AI Tools"
+parent = "development"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Codex: New"
+keywords = ["codex"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-new" }
+
+[[entries]]
+text = "Codex: Resume Picker"
+keywords = ["codex", "resume"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-picker" }
+
+[[entries]]
+text = "Codex: Resume by Name or ID"
+keywords = ["codex", "resume"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-name" }
+
+[[entries]]
+text = "Claude Code: New"
+keywords = ["claude"]
+icon = "󰚩"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-new" }
+
+[[entries]]
+text = "Claude Code: New Named"
+keywords = ["claude"]
+icon = "󰚩"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-new-named" }
+
+[[entries]]
+text = "Claude Code: Resume Picker"
+keywords = ["claude", "resume"]
+icon = "󰚩"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-picker" }
+
+[[entries]]
+text = "Claude Code: Resume by Name"
+keywords = ["claude", "resume"]
+icon = "󰚩"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-name" }

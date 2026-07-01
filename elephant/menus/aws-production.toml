@@ -1,0 +1,90 @@
+name = "aws-production"
+name_pretty = "AWS Production"
+parent = "aws-profiles"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "SSO Login"
+icon = "󰒋"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh Engineering-Prod-576249115295 --sso-login" }
+
+[[entries]]
+text = "Check Auth"
+icon = "󰅟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh Engineering-Prod-576249115295 --check-auth" }
+
+[[entries]]
+text = "CloudWatch"
+icon = "󰃷"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudwatch.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "ECS"
+icon = "󰡨"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecs.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "S3"
+icon = "󰓟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/s3.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Aurora / RDS"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/rds.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "ECR"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecr.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Amazon Grafana"
+icon = "󰨇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Cognito"
+icon = "󰘦"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cognito.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "DocumentDB"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/docdb.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Lambda"
+icon = "󰊕"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lambda.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "CloudFront"
+icon = "󰅧"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudfront.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Lightsail"
+icon = "󰌢"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lightsail.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "EC2"
+icon = "󰍹"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ec2.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "Route 53"
+icon = "󰑃"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/route53.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "VPC"
+icon = "󰖟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/vpc.sh Engineering-Prod-576249115295" }
+
+[[entries]]
+text = "IAM"
+icon = "󰒃"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/iam.sh Engineering-Prod-576249115295" }

@@ -3,6 +3,7 @@
 DEV_DIR="$HOME/Development"
 MENUS_DIR="$HOME/.config/walker/scripts/menus"
 BACK_MENU="${BACK_MENU:-$MENUS_DIR/native-main.sh}"
+WALKER_DMENU="$HOME/.config/walker/bin/walker-dmenu"
 
 case "${1:-}" in
   codex-new)
@@ -41,22 +42,76 @@ esac
 
 [[ -z "$chosen" ]] && exit 0
 
-repo="$(
-  find "$DEV_DIR" -mindepth 3 -maxdepth 3 -type d -name ".git" |
-    sed "s|$DEV_DIR/||; s|/.git||" |
-    sort |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Repository"
-)"
+if [ ! -d "$DEV_DIR" ]; then
+  notify-send "AI Tools" "$DEV_DIR does not exist"
+  exit 0
+fi
 
-[[ -z "$repo" ]] && exit 0
+choose_project_dir() {
+  local current rel prompt open_label chosen_dir next
+  local dirs=()
+  local options=()
 
-repo_path="$DEV_DIR/$repo"
+  current="$DEV_DIR"
+
+  while true; do
+    rel="${current#$DEV_DIR}"
+    rel="${rel#/}"
+
+    if [ -z "$rel" ]; then
+      prompt="AI project"
+      open_label="  Open Development"
+    else
+      prompt="AI project: $rel"
+      open_label="  Open $rel"
+    fi
+
+    mapfile -t dirs < <(
+      find "$current" -mindepth 1 -maxdepth 1 -type d \
+        ! -name ".git" \
+        ! -name "node_modules" \
+        ! -name ".idea" \
+        ! -name ".gradle" \
+        ! -name "target" \
+        ! -name "build" \
+        -printf "%f\n" |
+        sort
+    )
+
+    options=("$open_label")
+
+    for chosen_dir in "${dirs[@]}"; do
+      options+=("󰉋  $chosen_dir")
+    done
+
+    chosen_dir="$(printf "%s\n" "${options[@]}" | "$WALKER_DMENU" --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="$prompt")"
+
+    case "$chosen_dir" in
+      "")
+        return 1
+        ;;
+      "$open_label")
+        printf "%s\n" "$current"
+        return 0
+        ;;
+      󰉋\ *)
+        next="${chosen_dir#󰉋  }"
+
+        if [ -d "$current/$next" ]; then
+          current="$current/$next"
+        fi
+        ;;
+    esac
+  done
+}
+
+repo_path="$(choose_project_dir)" || exit 0
 
 prompt_text() {
   local prompt="$1"
 
   printf "" |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="$prompt"
+    "$WALKER_DMENU" --dmenu --no-sort --cache-file /dev/null --prompt="$prompt"
 }
 
 case "$chosen" in

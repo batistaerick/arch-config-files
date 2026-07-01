@@ -1,0 +1,37 @@
+name = "system"
+name_pretty = "System"
+parent = "main"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Audio"
+icon = ""
+actions = { "open" = "pavucontrol" }
+
+[[entries]]
+text = "WiFi"
+keywords = ["network", "impala"]
+icon = ""
+actions = { "open" = "kitty -e impala" }
+
+[[entries]]
+text = "Bluetooth"
+icon = ""
+actions = { "open" = "blueman-manager" }
+
+[[entries]]
+text = "Dotfiles"
+keywords = ["config"]
+icon = ""
+actions = { "open" = "code $HOME/.config" }
+
+[[entries]]
+text = "Update"
+icon = ""
+submenu = "update"
+
+[[entries]]
+text = "About"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/about.sh" }

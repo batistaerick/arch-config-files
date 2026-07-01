@@ -1,0 +1,23 @@
+name = "update"
+name_pretty = "Update"
+parent = "system"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "Pacman"
+subtext = "Official packages"
+icon = "󰚰"
+actions = { "open" = "kitty -e sudo pacman -Syu" }
+
+[[entries]]
+text = "Yay"
+subtext = "AUR and official packages"
+icon = "󰀦"
+actions = { "open" = "kitty -e yay -Syu" }
+
+[[entries]]
+text = "Full Upgrade"
+subtext = "Pacman plus AUR devel update"
+icon = "󰜉"
+actions = { "open" = "kitty -e bash -c 'sudo pacman -Syu && yay -Sua --devel'" }

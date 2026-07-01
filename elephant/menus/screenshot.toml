@@ -1,0 +1,15 @@
+name = "screenshot"
+name_pretty = "Screenshot"
+parent = "capture"
+icon = "󰄀"
+fixed_order = true
+
+[[entries]]
+text = "Selection"
+icon = "󰄀"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot-selection.sh" }
+
+[[entries]]
+text = "Full Screen"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot-full.sh" }

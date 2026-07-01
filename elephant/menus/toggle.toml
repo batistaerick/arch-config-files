@@ -1,0 +1,31 @@
+name = "toggle"
+name_pretty = "Toggle"
+parent = "main"
+icon = "󰔎"
+fixed_order = true
+
+[[entries]]
+text = "Screensaver"
+icon = "󱄄"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/screensaver.sh" }
+
+[[entries]]
+text = "Nightlight"
+icon = "󰔎"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/nightlight.sh" }
+
+[[entries]]
+text = "Idle Lock"
+icon = "󱫖"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/idle-lock.sh" }
+
+[[entries]]
+text = "Notifications"
+icon = "󰂛"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/notification-silencing.sh" }
+
+[[entries]]
+text = "Top Bar"
+keywords = ["waybar"]
+icon = "󰍜"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/waybar.sh" }

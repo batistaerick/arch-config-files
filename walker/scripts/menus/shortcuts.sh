@@ -64,7 +64,7 @@ options="󰌌  Launchers
   Print                     Full screenshot
   SUPER + Print             Selection screenshot
   SUPER + Shift + N         Next wallpaper
-  SUPER + Ctrl + Space      Wallpaper picker
+  SUPER + Ctrl + N          Wallpaper picker
   SUPER + Shift + Space     Toggle Waybar
   SUPER + N                 Notification center
   SUPER + =                 Color picker
@@ -257,8 +257,8 @@ case "$chosen" in
   "  SUPER + Shift + N"*)
     "$ACTIONS_DIR/wallpaper/next.sh"
     ;;
-  "  SUPER + Ctrl + Space"*)
-    "$MENUS_DIR/style/wallpaper.sh"
+  "  SUPER + Ctrl + N"*)
+    walker --provider menus:wallpaper
     ;;
   "  SUPER + Shift + Space"*)
     "$ACTIONS_DIR/toggle/waybar.sh"

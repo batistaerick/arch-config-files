@@ -187,7 +187,7 @@ row:selected .item-text {
 }
 
 .item-image-text {
-  font-size: 28px;
+  font-size: 18px;
 }
 
 .preview {

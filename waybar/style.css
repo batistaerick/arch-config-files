@@ -102,16 +102,6 @@ button:hover {
   color: black;
 }
 
-#custom-ws1.urgent,
-#custom-ws2.urgent,
-#custom-ws3.urgent,
-#custom-ws4.urgent,
-#custom-ws5.urgent,
-#custom-ws6.urgent {
-  background-color: #eb4d4b;
-  color: #1e1e2e;
-}
-
 #pulseaudio,
 #cpu,
 #memory,

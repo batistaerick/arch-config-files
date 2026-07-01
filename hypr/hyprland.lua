@@ -306,7 +306,7 @@ hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("walker --provider menus:main"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(menusDir .. "/shortcuts.sh"))
 hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd(menusDir .. "/vim.sh"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
-hl.bind(mainMod .. " + CTRL + SPACE", hl.dsp.exec_cmd(menusDir .. "/style/wallpaper.sh"))
+hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("walker --provider menus:wallpaper"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
 
 hl.bind("PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-full.sh"))

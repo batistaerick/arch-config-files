@@ -79,7 +79,7 @@ scrollbar {
 }
 
 .item-quick-activation {
-  background: rgba(137, 180, 250, 0.20);
+  background: rgba(137, 180, 250, 0.2);
   border-radius: 5px;
   padding: 10px;
 }
@@ -106,7 +106,7 @@ row:selected .item-text {
 }
 
 .item-image-text {
-  font-size: 28px;
+  font-size: 18px;
 }
 
 .preview {

@@ -41,10 +41,10 @@ icon = ""
 submenu = "share"
 
 [[entries]]
-text = "Shortcuts"
-keywords = ["keybinds", "keys", "help"]
-icon = "󰌌"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/shortcuts.sh" }
+text = "Learn"
+keywords = ["shortcuts", "keybinds", "vim", "commands", "help"]
+icon = "󰧑"
+submenu = "learn"
 
 [[entries]]
 text = "System"

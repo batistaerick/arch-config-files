@@ -1,0 +1,17 @@
+name = "learn"
+name_pretty = "Learn"
+parent = "main"
+icon = "󰧑"
+fixed_order = true
+
+[[entries]]
+text = "Shortcuts"
+keywords = ["keybinds", "keys", "hotkeys"]
+icon = "󰌌"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/shortcuts.sh" }
+
+[[entries]]
+text = "Vim Commands"
+keywords = ["vim", "nvim", "neovim", "commands"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }

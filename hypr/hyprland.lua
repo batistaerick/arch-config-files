@@ -128,8 +128,8 @@ hl.config({
     prefer_hdr = 2,
   },
   general = {
-    gaps_in =          4,
-    gaps_out =         8,
+    gaps_in =          5,
+    gaps_out =         10,
     border_size =      2,
     col = {
       active_border = {
@@ -263,6 +263,7 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | $HOME/.config/walker
 hl.bind(mainMod .. " + W", hl.dsp.window.close())
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.window.pin())
+hl.bind(mainMod .. " + CTRL + F", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + A", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.layout("rotatesplit"))

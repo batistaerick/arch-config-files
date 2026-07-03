@@ -5,34 +5,28 @@ icon = "󰅩"
 fixed_order = true
 
 [[entries]]
+text = "AI Tools"
+keywords = ["codex", "claude"]
+icon = ""
+submenu = "ai-tools"
+
+[[entries]]
 text = "VS Code"
 keywords = ["code", "vscode", "project"]
 icon = ""
-submenu = "projects-vscode"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh vscode" }
 
 [[entries]]
 text = "IntelliJ"
 keywords = ["idea", "java", "project"]
 icon = ""
-submenu = "projects-intellij"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh intellij" }
 
 [[entries]]
 text = "Neovim"
 keywords = ["nvim", "vim", "project"]
 icon = ""
-submenu = "projects-nvim"
-
-[[entries]]
-text = "Neovim Commands"
-keywords = ["nvim", "vim", "commands", "help"]
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }
-
-[[entries]]
-text = "AI Tools"
-keywords = ["codex", "claude"]
-icon = ""
-submenu = "ai-tools"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh nvim" }
 
 [[entries]]
 text = "Grafana Logs"

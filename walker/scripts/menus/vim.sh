@@ -26,21 +26,45 @@ options="$(cat <<'EOF'
   u                         Undo
   Ctrl-r                    Redo
   .                         Repeat last change
+  o                         New line below
+  O                         New line above
+  A                         Append at end of line
+  I                         Insert at start of line
+  C                         Change to end of line
   x                         Delete character
   dd                        Delete line
   D                         Delete to end of line
+  cc                        Change whole line
   yy                        Yank line
   p                         Paste after cursor
   P                         Paste before cursor
+  r                         Replace one character
   J                         Join next line
+󰅇  Copy and paste
+  yy                        Copy line
+  y                         Copy selection
+  p                         Paste after cursor
+  P                         Paste before cursor
+  \"_d                       Delete without yanking
+  \"_x                       Delete char without yanking
+  \"+y                       Copy to system clipboard
+  \"+p                       Paste from system clipboard
+  :set paste                Enable paste mode
+  :set nopaste              Disable paste mode
 󰉿  Text objects
   diw                       Delete inner word
   ciw                       Change inner word
   yiw                       Yank inner word
+  daw                       Delete a word
+  caw                       Change a word
   di\"                       Delete inside quotes
   ci\"                       Change inside quotes
+  yi\"                       Yank inside quotes
   di(                       Delete inside parentheses
   ci(                       Change inside parentheses
+  yi(                       Yank inside parentheses
+  cit                       Change inside tag
+  vat                       Select around tag
 󰒆  Visual mode
   v                         Visual character mode
   V                         Visual line mode
@@ -59,12 +83,49 @@ options="$(cat <<'EOF'
   :noh                      Clear search highlight
   :%s/old/new/g             Replace in whole file
   :s/old/new/g              Replace in current line
+  :%s/old/new/gc            Replace with confirm
+  :g/pattern/d              Delete matching lines
+  :v/pattern/d              Delete nonmatching lines
+󰈞  Files and project
+  :e file                   Open file
+  :Ex                       Open file explorer
+  :find file                Find file in path
+  :grep text **/*           Search text in files
+  :vimgrep /text/g **/*     Search with quickfix
+  :copen                    Open quickfix list
+  :cnext                    Next quickfix result
+  :cprev                    Previous quickfix result
+  <leader><space>           Find project files
+  <leader>/                 Search in project
+  <leader>,                 Switch buffers
+  <leader>e                 File explorer
+󰒓  LSP and code
+  gd                        Go to definition
+  gr                        Go to references
+  K                         Hover documentation
+  ]d                        Next diagnostic
+  [d                        Previous diagnostic
+  <leader>ca                Code action
+  <leader>cr                Rename symbol
+  <leader>cf                Format file
+  <leader>cd                Line diagnostics
+  :LspInfo                  Show LSP info
+  :Mason                    Manage language tools
+󰊢  Git
+  ]h                        Next git hunk
+  [h                        Previous git hunk
+  <leader>gb                Git blame line
+  <leader>gg                Open lazygit
+  :Gitsigns preview_hunk    Preview git hunk
+  :Gitsigns reset_hunk      Reset git hunk
 󰖲  Windows
   Ctrl-w s                  Horizontal split
   Ctrl-w v                  Vertical split
   Ctrl-w h/j/k/l            Move between windows
   Ctrl-w =                  Equalize windows
   Ctrl-w q                  Close window
+  Ctrl-w o                  Keep only current window
+  Ctrl-w T                  Move window to tab
 󰓩  Tabs and buffers
   :e file                   Edit file
   :bn                       Next buffer
@@ -74,6 +135,15 @@ options="$(cat <<'EOF'
   :tabnew                   New tab
   gt                        Next tab
   gT                        Previous tab
+  :b#                       Previous active buffer
+  :bufdo w                  Save all buffers
+  :wall                     Save all files
+  :qa                       Quit all
+  Terminal
+  :terminal                 Open terminal
+  Ctrl-\\ Ctrl-n             Terminal normal mode
+  :split | terminal         Terminal split
+  :vsplit | terminal        Terminal vsplit
 󰃀  Marks and jumps
   ma                        Set mark a
   'a                        Jump to line mark a
@@ -81,6 +151,10 @@ options="$(cat <<'EOF'
   Ctrl-o                    Jump back
   Ctrl-i                    Jump forward
   :marks                    List marks
+  :jumps                    List jumps
+  :changes                  List changes
+  g;                        Previous change
+  g,                        Next change
 󰑋  Registers and macros
   :reg                      List registers
   \"0p                       Paste last yanked text
@@ -96,6 +170,12 @@ options="$(cat <<'EOF'
   zc                        Close fold
   zR                        Open all folds
   zM                        Close all folds
+󰙅  Sessions and plugins
+  :Lazy                     Plugin manager
+  :Lazy update              Update plugins
+  :Lazy sync                Sync plugins
+  :checkhealth              Check Neovim health
+  :Inspect                  Inspect highlight
 󰋖  Help
   :Tutor                    Open Vim tutor
   :help motion              Help for motions
@@ -121,7 +201,7 @@ copy_command() {
 }
 
 case "$chosen" in
-  "" | 󰌌* | 󰁔* | * | 󰉿* | 󰒆* | 󰍉* | 󰖲* | 󰓩* | 󰃀* | 󰑋* | 󰘖* | 󰋖*)
+  "" | 󰌌* | 󰁔* | * | 󰅇* | 󰉿* | 󰒆* | 󰍉* | 󰈞* | 󰒓* | 󰊢* | 󰖲* | 󰓩* | * | 󰃀* | 󰑋* | 󰘖* | 󰙅* | 󰋖*)
     exit 0
     ;;
   *)

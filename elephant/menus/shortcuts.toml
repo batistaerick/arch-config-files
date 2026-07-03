@@ -1,6 +1,6 @@
 name = "shortcuts"
 name_pretty = "Shortcuts"
-parent = "main"
+parent = "learn"
 icon = "󰌌"
 fixed_order = true
 
@@ -15,12 +15,6 @@ text = "Main Menu"
 subtext = "SUPER + Space"
 icon = "󰣇"
 submenu = "main"
-
-[[entries]]
-text = "Vim Commands"
-subtext = "SUPER + Shift + /"
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }
 
 [[entries]]
 text = "File Manager"
@@ -69,6 +63,12 @@ text = "Toggle Floating And Pin"
 subtext = "SUPER + T"
 icon = "󰖲"
 actions = { "open" = "hyprctl --batch 'dispatch togglefloating; dispatch pin'" }
+
+[[entries]]
+text = "Toggle Fullscreen"
+subtext = "SUPER + Ctrl + F"
+icon = "󰊓"
+actions = { "open" = "hyprctl dispatch 'hl.dsp.window.fullscreen()'" }
 
 [[entries]]
 text = "Screenshot Full"

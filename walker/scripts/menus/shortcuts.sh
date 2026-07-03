@@ -17,6 +17,7 @@ options="󰌌  Launchers
 󰖲  Windows
   SUPER + W                 Close active window
   SUPER + T                 Toggle floating and pin
+  SUPER + Ctrl + F          Toggle fullscreen
   SUPER + Shift + P         Toggle pseudo tiling
   SUPER + A                 Toggle split direction
   SUPER + Shift + A         Rotate split direction
@@ -127,6 +128,9 @@ case "$chosen" in
     ;;
   "  SUPER + T"*)
     hyprctl --batch "dispatch togglefloating; dispatch pin"
+    ;;
+  "  SUPER + Ctrl + F"*)
+    hyprctl dispatch 'hl.dsp.window.fullscreen()'
     ;;
   "  SUPER + Shift + P"*)
     hyprctl dispatch pseudo

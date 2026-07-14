@@ -13,6 +13,9 @@
   ],
   "modules-center": ["clock"],
   "modules-right": [
+    "custom/gpu",
+    "cpu",
+    "memory",
     "battery",
     "network",
     "bluetooth",
@@ -72,6 +75,26 @@
     "format": "{:%a %b %d %I:%M %p}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
     "on-click": "gnome-calendar",
+  },
+  "cpu": {
+    "interval": 2,
+    "format": " <span size='small'>{usage}%</span>",
+    "tooltip": true,
+    "tooltip-format": "CPU: {usage}%\nLoad: {load}",
+  },
+  "memory": {
+    "interval": 5,
+    "format": " <span size='small'>{percentage}%</span>",
+    "tooltip": true,
+    "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nAvailable: {avail:0.1f}G",
+  },
+  "custom/gpu": {
+    "exec": "~/.config/waybar/scripts/gpu-usage.sh",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}",
+    "tooltip": true,
+    "escape": false,
   },
   "battery": {
     "interval": 10,

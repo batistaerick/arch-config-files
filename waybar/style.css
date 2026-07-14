@@ -114,6 +114,7 @@ button:hover {
 #battery,
 #mode,
 #custom-weather,
+#custom-gpu,
 #custom-notifications,
 #scratchpad {
   min-width: 24px;
@@ -164,4 +165,8 @@ button:hover {
 
 #custom-weather {
   font-size: medium;
+}
+
+#custom-gpu.unavailable {
+  color: lightcoral;
 }

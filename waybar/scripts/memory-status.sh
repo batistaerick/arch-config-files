@@ -18,7 +18,8 @@ if [[ "$active_class" == "system-monitor" ]]; then
 fi
 
 text=" <span size='small'>${percentage}%</span>"
-tooltip="RAM: ${used_gib}G / ${total_gib}G (${percentage}%)\nAvailable: ${available_gib}G"
+tooltip="RAM: ${used_gib}G / ${total_gib}G (${percentage}%)
+Available: ${available_gib}G"
 
 jq -cn --arg text "$text" --arg tooltip "$tooltip" --arg class "$class" \
   '{text: $text, tooltip: $tooltip, class: $class}'

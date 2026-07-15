@@ -29,7 +29,8 @@ fi
 
 load="$(cut -d' ' -f1-3 /proc/loadavg)"
 text=" <span size='small'>${usage}%</span>"
-tooltip="CPU: ${usage}%\nLoad: ${load}"
+tooltip="CPU: ${usage}%
+Load: ${load}"
 
 jq -cn --arg text "$text" --arg tooltip "$tooltip" --arg class "$class" \
   '{text: $text, tooltip: $tooltip, class: $class}'

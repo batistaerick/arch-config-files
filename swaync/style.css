@@ -7,7 +7,7 @@
 }
 
 trough highlight {
-  background: #7fbbb3;
+  background: #509475;
 }
 
 scale {
@@ -26,28 +26,28 @@ trough slider {
   border-radius: 12.6px;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.72);
   transition: all 0.2s ease;
-  background-color: #7fbbb3;
+  background-color: #509475;
 }
 
 trough slider:hover {
   box-shadow:
     0 0 2px rgba(0, 0, 0, 0.72),
-    0 0 8px #7fbbb3;
+    0 0 8px #509475;
 }
 
 trough {
-  background-color: #464d53;
+  background-color: #2e3734;
 }
 
 /* notifications */
 .notification-background {
   box-shadow:
     0 0 8px 0 rgba(0, 0, 0, 0.72),
-    inset 0 0 0 1px #525553;
+    inset 0 0 0 1px #384134;
   border-radius: 12.6px;
   margin: 18px;
-  background: #3c4349;
-  color: #d3c6aa;
+  background: #222c28;
+  color: #c1c497;
   padding: 0;
 }
 
@@ -57,7 +57,7 @@ trough {
 }
 
 .notification-background .notification.critical {
-  box-shadow: inset 0 0 7px 0 #e67e80;
+  box-shadow: inset 0 0 7px 0 #ff5345;
 }
 
 .notification .notification-content {
@@ -65,15 +65,15 @@ trough {
 }
 
 .notification-content .summary {
-  color: #d3c6aa;
+  color: #c1c497;
 }
 
 .notification-content .time {
-  color: #475258;
+  color: #53685b;
 }
 
 .notification-content .body {
-  color: #b5ac96;
+  color: #a1a680;
 }
 
 .notification > *:last-child > * {
@@ -84,43 +84,43 @@ trough {
   margin: 7px;
   padding: 2px;
   border-radius: 6.3px;
-  color: #2d353b;
-  background-color: #e67e80;
+  color: #111c18;
+  background-color: #ff5345;
 }
 
 .notification-background .close-button:hover {
-  background-color: #e38b88;
+  background-color: #f46754;
 }
 
 .notification-background .close-button:active {
-  background-color: #e0958d;
+  background-color: #eb775f;
 }
 
 .notification .notification-action {
   border-radius: 7px;
-  color: #d3c6aa;
-  box-shadow: inset 0 0 0 1px #525553;
+  color: #c1c497;
+  box-shadow: inset 0 0 0 1px #384134;
   margin: 4px;
   padding: 8px;
   font-size: 0.2rem; /* controls the button size not text size*/
-  background-color: #464d53;
+  background-color: #2e3734;
 }
 
 .notification .notification-action:hover {
-  background-color: #53595e;
+  background-color: #3c4542;
 }
 
 .notification .notification-action:active {
-  background-color: #61666b;
+  background-color: #4c5451;
 }
 
 .notification.critical progress {
-  background-color: #e67e80;
+  background-color: #ff5345;
 }
 
 .notification.low progress,
 .notification.normal progress {
-  background-color: #7fbbb3;
+  background-color: #509475;
 }
 
 .notification progress,
@@ -133,17 +133,17 @@ trough {
 /* control center */
 .control-center {
   box-shadow:
-    0 0 8px 0 rgba(0, 0, 0, 0.72),
-    inset 0 0 0 1px #525553;
-  border-radius: 12.6px;
-  background: rgba(51, 59, 65, 0.66);
-  color: #d3c6aa;
+    0 12px 35px 0 rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(56, 65, 52, 0.42);
+  border-radius: 4px;
+  background: rgba(24, 35, 31, 0.42);
+  color: #c1c497;
   padding: 14px;
 }
 
 .control-center .notification-background {
   border-radius: 7px;
-  box-shadow: inset 0 0 0 1px #525553;
+  box-shadow: inset 0 0 0 1px #384134;
   margin: 4px 10px;
 }
 
@@ -156,24 +156,24 @@ trough {
 }
 
 .control-center .widget-title > label {
-  color: #d3c6aa;
+  color: #c1c497;
   font-size: 1.3em;
 }
 
 .control-center .widget-title button {
   border-radius: 7px;
-  color: #d3c6aa;
-  background-color: #464d53;
-  box-shadow: inset 0 0 0 1px #525553;
+  color: #c1c497;
+  background-color: #2e3734;
+  box-shadow: inset 0 0 0 1px #384134;
   padding: 8px;
 }
 
 .control-center .widget-title button:hover {
-  background-color: #53595e;
+  background-color: #3c4542;
 }
 
 .control-center .widget-title button:active {
-  background-color: #61666b;
+  background-color: #4c5451;
 }
 
 .control-center .notification-group {
@@ -181,7 +181,7 @@ trough {
 }
 
 .control-center .notification-group:focus .notification-background {
-  background-color: #464d53;
+  background-color: #2e3734;
 }
 
 scrollbar slider {
@@ -203,29 +203,29 @@ scrollbar trough {
 .widget-dnd > switch {
   font-size: initial;
   border-radius: 8px;
-  background: #464d53;
+  background: #2e3734;
   box-shadow: none;
 }
 
 .widget-dnd > switch:checked {
-  background: #7fbbb3;
+  background: #509475;
 }
 
 .widget-dnd > switch slider {
-  background: #525553;
+  background: #384134;
   border-radius: 8px;
 }
 
 /* mpris */
 .widget-mpris-player {
-  background: #464d53;
-  border-radius: 12.6px;
-  color: #d3c6aa;
+  background: rgba(46, 55, 52, 0.48);
+  border-radius: 18px;
+  color: #c1c497;
 }
 
 .mpris-overlay {
-  background-color: #464d53;
-  opacity: 0.9;
+  background-color: rgba(46, 55, 52, 0.55);
+  opacity: 1;
   padding: 15px 10px;
 }
 
@@ -237,17 +237,17 @@ scrollbar trough {
 
 .widget-mpris-title {
   font-size: 1.2rem;
-  color: #d3c6aa;
+  color: #c1c497;
 }
 
 .widget-mpris-subtitle {
   font-size: 1rem;
-  color: #b5ac96;
+  color: #a1a680;
 }
 
 .widget-mpris button {
   border-radius: 12.6px;
-  color: #d3c6aa;
+  color: #c1c497;
   margin: 0 5px;
   padding: 2px;
 }
@@ -257,11 +257,11 @@ scrollbar trough {
 }
 
 .widget-mpris button:hover {
-  background-color: #53595e;
+  background-color: #3c4542;
 }
 
 .widget-mpris button:active {
-  background-color: #61666b;
+  background-color: #4c5451;
 }
 
 .widget-mpris button:disabled {
@@ -274,48 +274,77 @@ scrollbar trough {
 }
 
 .widget-menubar > box > .menu-button-bar > :last-child {
-  color: #e67e80;
+  color: #ff5345;
 }
 
 .power-buttons button:hover,
 .powermode-buttons button:hover,
 .screenshot-buttons button:hover {
-  background: #53595e;
+  background: #3c4542;
 }
 
 .control-center .widget-label > label {
-  color: #d3c6aa;
+  color: #c1c497;
   font-size: 2rem;
 }
 
 .widget-buttons-grid {
-  padding-top: 1rem;
+  padding-top: 0;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild {
+  min-width: 0;
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button label {
-  font-size: 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 0;
+  text-align: center;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  min-width: 154px;
+  min-height: 66px;
+  border-radius: 18px;
+  margin: 4px;
+  padding: 0 10px;
+  color: #c1c497;
+  background: rgba(46, 55, 52, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(56, 65, 52, 0.38);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: rgba(60, 69, 66, 0.58);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked {
+  color: #111c18;
+  background: rgba(80, 148, 117, 0.78);
 }
 
 .widget-volume {
   padding: 1rem 0;
+  border-radius: 18px;
+  background: rgba(46, 55, 52, 0.38);
 }
 
 .widget-volume label {
-  color: #d3c6aa;
+  color: #c1c497;
   padding: 0 1rem;
 }
 
 .widget-volume trough highlight {
-  background: #83c092;
+  background: #2dd5b7;
 }
 
 .widget-backlight trough highlight {
-  background: #dbbc7f;
+  background: #459451;
 }
 
 .widget-backlight label {
   font-size: 1.5rem;
-  color: #dbbc7f;
+  color: #459451;
 }
 
 .widget-backlight .KB {

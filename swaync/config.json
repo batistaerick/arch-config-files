@@ -1,11 +1,10 @@
 {
   "notification-grouping": true,
-  "control-center-width": 390,
-  "control-center-height": 560,
-  "control-center-margin-top": 7,
-  "control-center-margin-bottom": 7,
-  "control-center-margin-right": 7,
-  "control-center-margin-left": 7,
+  "control-center-width": 400,
+  "control-center-margin-top": 10,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-left": 10,
   "notification-visibility": {
     "ignore-kitty": {
       "state": "ignored",
@@ -19,14 +18,7 @@
       "app-name": "kitty"
     }
   },
-  "widgets": [
-    "dnd",
-    "mpris",
-    "volume",
-    "buttons-grid",
-    "title",
-    "notifications"
-  ],
+  "widgets": ["buttons-grid", "mpris", "volume", "title", "notifications"],
   "widget-config": {
     "mpris": {
       "blacklist": ["playerctld"],
@@ -37,6 +29,22 @@
     "volume": {
       "label": "",
       "empty-list-label": "No active audio"
+    },
+    "buttons-grid": {
+      "buttons-per-row": 2,
+      "actions": [
+        {
+          "label": "󰤨  Wi-Fi",
+          "command": "/home/erick/.config/wofi/scripts/actions/toggle-setup-window.sh setup-wifi kitty --class setup-wifi -e impala"
+        },
+        {
+          "label": "  Bluetooth",
+          "type": "toggle",
+          "active": true,
+          "command": "sh -c 'if [ \"$SWAYNC_TOGGLE_STATE\" = true ]; then bluetoothctl power on; else bluetoothctl power off; fi'",
+          "update-command": "sh -c 'bluetoothctl show 2>/dev/null | grep -q \"Powered: yes\" && echo true || echo false'"
+        }
+      ]
     }
   }
 }

@@ -2,10 +2,6 @@
 
 set -euo pipefail
 
-json_escape() {
-  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
-}
-
 if ! command -v nvidia-smi >/dev/null 2>&1; then
   printf '{"text":"󰢮 <span size='\''small'\''>--</span>","tooltip":"GPU: nvidia-smi is not installed","class":"unavailable"}\n'
   exit 0
@@ -40,9 +36,11 @@ fi
 name="${name#"${name%%[![:space:]]*}"}"
 name="${name%"${name##*[![:space:]]}"}"
 
-tooltip="$(json_escape "GPU: $name
+text="󰢮 <span size='small'>${util}%</span>"
+tooltip="GPU: $name
 Usage: ${util}%
 Memory: ${mem_used} MiB / ${mem_total} MiB
-Temperature: ${temp}°C")"
+Temperature: ${temp}°C"
 
-printf '{"text":"󰢮 <span size='\''small'\''>%s%%</span>","tooltip":"%s","class":"active"}\n' "$util" "$tooltip"
+jq -cn --arg text "$text" --arg tooltip "$tooltip" \
+  '{text: $text, tooltip: $tooltip, class: "active"}'

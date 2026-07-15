@@ -12,7 +12,7 @@
 }
 
 window#waybar {
-  background: rgba(35, 38, 52, 0.5);
+  background: transparent;
   color: #cdd6f4;
   transition-property: background-color;
   transition-duration: 0.1s;
@@ -115,6 +115,9 @@ button:hover {
 #mode,
 #custom-weather,
 #custom-gpu,
+#custom-cpu,
+#custom-memory,
+#custom-wifi,
 #custom-notifications,
 #scratchpad {
   min-width: 24px;
@@ -125,8 +128,10 @@ button:hover {
 }
 
 #clock {
-  font-size: medium;
+  font-size: 14px;
   color: #ffffff;
+  padding: 3px 10px 3px 7px;
+  margin: 0 4px 0 6px;
 }
 
 #pulseaudio {
@@ -141,8 +146,14 @@ button:hover {
   font-size: 17px;
 }
 
+#custom-wifi {
+  font-size: 17px;
+}
+
 #network.disabled,
-#network.off {
+#network.off,
+#custom-wifi.off,
+#custom-wifi.disconnected {
   color: lightcoral;
 }
 
@@ -161,6 +172,12 @@ button:hover {
 #bluetooth.disabled,
 #bluetooth.off {
   color: lightcoral;
+}
+
+#custom-wifi.active {
+  background-color: rgba(205, 214, 244, 0.22);
+  color: #cdd6f4;
+  border-radius: 4px;
 }
 
 #custom-weather {

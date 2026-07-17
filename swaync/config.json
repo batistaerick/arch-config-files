@@ -5,12 +5,12 @@
   "control-center-margin-bottom": 10,
   "control-center-margin-right": 10,
   "control-center-margin-left": 10,
-  "notification-visibility": {
-    "ignore-kitty": {
-      "state": "ignored",
-      "app-name": "^(kitty|Kitty|Terminal)$"
-    }
-  },
+  // "notification-visibility": {
+  //   "ignore-kitty": {
+  //     "state": "ignored",
+  //     "app-name": "^(kitty|Kitty|Terminal)$"
+  //   }
+  // },
   "scripts": {
     "notification-sound": {
       "exec": "~/.config/swaync/scripts/notification-sound.sh",
@@ -41,8 +41,8 @@
           "label": "  Bluetooth",
           "type": "toggle",
           "active": true,
-          "command": "sh -c 'if [ \"$SWAYNC_TOGGLE_STATE\" = true ]; then bluetoothctl power on; else bluetoothctl power off; fi'",
-          "update-command": "sh -c 'bluetoothctl show 2>/dev/null | grep -q \"Powered: yes\" && echo true || echo false'"
+          "command": "/home/erick/.config/swaync/scripts/bluetooth-power.sh toggle",
+          "update-command": "/home/erick/.config/swaync/scripts/bluetooth-power.sh status"
         }
       ]
     }

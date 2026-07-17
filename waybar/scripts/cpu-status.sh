@@ -28,9 +28,37 @@ if [[ "$active_class" == "system-monitor" ]]; then
 fi
 
 load="$(cut -d' ' -f1-3 /proc/loadavg)"
-text=" <span size='small'>${usage}%</span>"
-tooltip="CPU: ${usage}%
+temperature="$(
+  sensors 2>/dev/null |
+    awk '
+      /^Package id 0:/ {
+        gsub(/^\+/, "", $4)
+        gsub(/°C.*/, "°C", $4)
+        print $4
+        found = 1
+        exit
+      }
+      /^PECI 0.0:/ && temp == "" {
+        gsub(/^\+/, "", $3)
+        gsub(/°C.*/, "°C", $3)
+        temp = $3
+      }
+      END {
+        if (!found && temp != "") print temp
+      }
+    '
+)"
+
+if [[ -n "$temperature" ]]; then
+  text=" <span size='small'>${usage}%</span>"
+  tooltip="CPU: ${usage}%
+Temperature: ${temperature}
 Load: ${load}"
+else
+  text=" <span size='small'>${usage}%</span>"
+  tooltip="CPU: ${usage}%
+Load: ${load}"
+fi
 
 jq -cn --arg text "$text" --arg tooltip "$tooltip" --arg class "$class" \
   '{text: $text, tooltip: $tooltip, class: $class}'

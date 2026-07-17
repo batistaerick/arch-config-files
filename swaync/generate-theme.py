@@ -381,7 +381,6 @@ scrollbar trough {{
   font-size: 0.95rem;
   font-weight: 600;
   min-width: 0;
-  text-align: center;
 }}
 
 .widget-buttons-grid > flowbox > flowboxchild > button {{

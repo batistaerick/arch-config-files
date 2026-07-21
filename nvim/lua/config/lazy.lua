@@ -36,6 +36,8 @@ local specs = current_theme_specs()
 vim.list_extend(specs, {
   -- add LazyVim and import its plugins
   { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+  { import = "lazyvim.plugins.extras.lang.java" },
+  { import = "lazyvim.plugins.extras.lang.typescript" },
   -- import/override with your plugins
   { import = "plugins" },
 })

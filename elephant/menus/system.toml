@@ -13,7 +13,7 @@ actions = { "open" = "pavucontrol" }
 text = "WiFi"
 keywords = ["network", "impala"]
 icon = ""
-actions = { "open" = "kitty -e impala" }
+actions = { "open" = "/home/erick/.config/wofi/scripts/actions/toggle-setup-window.sh setup-wifi kitty --class setup-wifi -e impala" }
 
 [[entries]]
 text = "Bluetooth"

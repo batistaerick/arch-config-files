@@ -16,13 +16,18 @@
       "exec": "~/.config/swaync/scripts/notification-sound.sh",
       "run-on": "receive",
       "app-name": "kitty"
+    },
+    "notification-log": {
+      "exec": "~/.config/swaync/scripts/notification-log.sh",
+      "run-on": "receive",
+      "app-name": ".*"
     }
   },
   "widgets": ["buttons-grid", "mpris", "volume", "title", "notifications"],
   "widget-config": {
     "mpris": {
       "blacklist": ["playerctld"],
-      "show-album-art": "always",
+      "show-album-art": "when-available",
       "loop-carousel": true,
       "autohide": true
     },

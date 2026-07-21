@@ -392,6 +392,8 @@ end
 -- Floating utility windows
 floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 700 })
 floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 500 })
+floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 500 })
+floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 650 })
 floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 500 })
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
@@ -452,6 +454,6 @@ hl.window_rule({
 -- Layer rules
 blurred_layer("waybar", 0)
 blurred_layer("walker", 0.8)
-blurred_layer("swaync-control-center", 0.3)
-blurred_layer("swaync-notification-window", 0.3)
+blurred_layer("swaync-control-center", 0.4)
+blurred_layer("swaync-notification-window", 0.4)
 blurred_layer("swayosd", 0.3)

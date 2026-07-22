@@ -1,22 +1,18 @@
 {
   "notification-grouping": true,
+  "image-visibility": "when-available",
   "control-center-width": 400,
   "control-center-margin-top": 10,
   "control-center-margin-bottom": 10,
   "control-center-margin-right": 10,
   "control-center-margin-left": 10,
-  // "notification-visibility": {
-  //   "ignore-kitty": {
-  //     "state": "ignored",
-  //     "app-name": "^(kitty|Kitty|Terminal)$"
-  //   }
-  // },
+  "notification-visibility": {
+    "ignore-terminal": {
+      "state": "ignored",
+      "app-name": "^(kitty|Kitty|Terminal)$"
+    }
+  },
   "scripts": {
-    "notification-sound": {
-      "exec": "~/.config/swaync/scripts/notification-sound.sh",
-      "run-on": "receive",
-      "app-name": "kitty"
-    },
     "notification-log": {
       "exec": "~/.config/swaync/scripts/notification-log.sh",
       "run-on": "receive",
@@ -27,7 +23,7 @@
   "widget-config": {
     "mpris": {
       "blacklist": ["playerctld"],
-      "show-album-art": "when-available",
+      "show-album-art": "never",
       "loop-carousel": true,
       "autohide": true
     },

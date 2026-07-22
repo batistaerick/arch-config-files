@@ -9,7 +9,18 @@ local function has_internal_display()
   return output:match("connected") ~= nil
 end
 
+local function has_connected_output(output)
+  local handle = io.popen("cat /sys/class/drm/card*-" .. output .. "/status 2>/dev/null")
+  if not handle then return false end
+
+  local status = handle:read("*a") or ""
+  handle:close()
+
+  return status:match("connected") ~= nil
+end
+
 local is_laptop = has_internal_display()
+local has_hdmi = has_connected_output("HDMI-A-1")
 
 -------------
 -- Themes --
@@ -62,15 +73,17 @@ else
     supports_hdr = 1,
   })
 
-  hl.monitor({
-    output =   "HDMI-A-1",
-    mode =     "1920x1080@144",
-    position = "320x1080",
-    scale =    1,
-    bitdepth = 10,
-    supports_wide_color = 1,
-    supports_hdr = 1,
-  })
+  if has_hdmi then
+    hl.monitor({
+      output =   "HDMI-A-1",
+      mode =     "1920x1080@144",
+      position = "320x1080",
+      scale =    1,
+      bitdepth = 10,
+      supports_wide_color = 1,
+      supports_hdr = 1,
+    })
+  end
 end
 
 --------------
@@ -92,7 +105,7 @@ local hyprScriptsDir = "~/.config/hypr/scripts"
 
 hl.on("hyprland.start", function()
   hl.exec_cmd("blueman-applet")
-  hl.exec_cmd("waybar")
+  hl.exec_cmd("~/.config/waybar/scripts/start-profiled-waybar.sh")
   hl.exec_cmd("swaync")
   hl.exec_cmd("hypridle")
   hl.exec_cmd("hyprpaper")
@@ -350,7 +363,7 @@ if is_laptop then
   for i = 1, 10 do
     hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
   end
-else
+elseif has_hdmi then
   -- Main monitor
   hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
   hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
@@ -360,6 +373,10 @@ else
   hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
   hl.workspace_rule({ workspace = "5", monitor = "HDMI-A-1" })
   hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1" })
+else
+  for i = 1, 10 do
+    hl.workspace_rule({ workspace = tostring(i), monitor = "DP-3" })
+  end
 end
 
 -- Optional test workspace for the new scrolling layout + scroll_move gesture.

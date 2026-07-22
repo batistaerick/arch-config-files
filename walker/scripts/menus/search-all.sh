@@ -315,7 +315,7 @@ case "$chosen" in
     loginctl lock-session && sleep 1 && systemctl suspend
     ;;
   "⏻  Power > Logout")
-    hyprctl dispatch exit
+    uwsm stop
     ;;
   "")
     exit 0

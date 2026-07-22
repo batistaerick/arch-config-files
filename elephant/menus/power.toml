@@ -27,7 +27,7 @@ actions = { "open" = "sh -c 'loginctl lock-session && sleep 1 && systemctl suspe
 [[entries]]
 text = "Logout"
 icon = ""
-actions = { "open" = "hyprctl dispatch exit" }
+actions = { "open" = "uwsm stop" }
 
 [[entries]]
 text = "Reboot BIOS"

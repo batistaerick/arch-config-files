@@ -4,6 +4,7 @@ MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
 options="←  Back
+󰐊  Start Doola Setup
   VS Code
   IntelliJ
   Neovim
@@ -15,6 +16,9 @@ chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --pr
 case "$chosen" in
   "←  Back")
     "$MENUS_DIR/main.sh"
+    ;;
+  "󰐊  Start Doola Setup")
+    "$HOME/.config/walker/scripts/actions/development/start-doola-setup.sh"
     ;;
   "  VS Code")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" vscode

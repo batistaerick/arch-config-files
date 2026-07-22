@@ -24,7 +24,7 @@ case "$chosen" in
     pavucontrol
     ;;
   "  WiFi")
-    kitty -e impala
+    "$HOME/.config/wofi/scripts/actions/toggle-setup-window.sh" setup-wifi kitty --class setup-wifi -e impala
     ;;
   "  Bluetooth")
     blueman-manager

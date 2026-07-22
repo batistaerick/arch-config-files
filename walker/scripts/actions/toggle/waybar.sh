@@ -3,5 +3,5 @@
 if pgrep -x waybar >/dev/null; then
   pkill -x waybar
 else
-  uwsm-app -- waybar >/dev/null 2>&1 &
+  ~/.config/waybar/scripts/start-profiled-waybar.sh >/dev/null 2>&1 &
 fi

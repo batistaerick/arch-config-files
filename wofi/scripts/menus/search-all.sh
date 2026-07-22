@@ -135,15 +135,9 @@ prompt_text() {
 
 open_setup_window() {
   local class="$1"
-  local command="$2"
+  shift
 
-  if hyprctl clients -j | jq -e ".[] | select(.class == \"$class\")" >/dev/null; then
-    hyprctl dispatch togglespecialworkspace setup
-  else
-    hyprctl dispatch exec "[workspace special:setup silent] $command"
-    sleep 0.3
-    hyprctl dispatch togglespecialworkspace setup
-  fi
+  "$HOME/.config/wofi/scripts/actions/toggle-setup-window.sh" "$class" "$@"
 }
 
 chosen="$(
@@ -271,13 +265,13 @@ case "$chosen" in
     "$MENUS_DIR/system.sh"
     ;;
   "  System > Audio")
-    open_setup_window "pavucontrol" "pavucontrol"
+    open_setup_window "pavucontrol" pavucontrol
     ;;
   "  System > WiFi")
-    open_setup_window "setup-wifi" "kitty --class setup-wifi -e impala"
+    open_setup_window "setup-wifi" kitty --class setup-wifi -e impala
     ;;
   "  System > Bluetooth")
-    open_setup_window "blueman-manager" "blueman-manager"
+    open_setup_window "blueman-manager" blueman-manager
     ;;
   "  System > Dotfiles")
     code "$HOME/.config" &
@@ -313,7 +307,7 @@ case "$chosen" in
     loginctl lock-session && sleep 1 && systemctl suspend
     ;;
   "⏻  Power > Logout")
-    hyprctl dispatch exit
+    uwsm stop
     ;;
   "")
     exit 0

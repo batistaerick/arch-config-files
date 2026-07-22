@@ -27,7 +27,7 @@ case $chosen in
     loginctl lock-session && sleep 1 && systemctl suspend
     ;;
   "  Logout")
-    hyprctl dispatch exit
+    uwsm stop
     ;;
   "  Reboot BIOS")
     kitty -e systemctl reboot --firmware-setup

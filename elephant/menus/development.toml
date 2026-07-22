@@ -11,6 +11,12 @@ icon = ""
 submenu = "ai-tools"
 
 [[entries]]
+text = "Start Doola Setup"
+keywords = ["setup", "start", "doola", "workspace"]
+icon = "󰐊"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/start-doola-setup.sh" }
+
+[[entries]]
 text = "VS Code"
 keywords = ["code", "vscode", "project"]
 icon = ""

@@ -109,8 +109,7 @@ $(aws_base) rds describe-db-instances \
 \u001b[34mMultiAZ:\u001b[0m \(.MultiAZ)
 \u001b[34mEndpoint:\u001b[0m \(.Endpoint.Address // \"N/A\")
 \"' \
-| awk 'BEGIN { RS=\"\"; ORS=\"\\n\" } { gsub(/\\n/, \"  \"); print }' \
-| aws_fzf 'DB status'
+| aws_report
 " close-on-success toggle
     ;;
 
@@ -141,7 +140,7 @@ $(aws_base) rds describe-events \
   --source-identifier $quoted_source_id \
   --duration 60 \
 | jq -r '.Events[] | \"\u001b[90m\(.Date)\u001b[0m  \u001b[36m\(.SourceIdentifier // \"N/A\")\u001b[0m  \(.Message)\"' \
-| aws_fzf 'DB events'
+| aws_report
 " close-on-success toggle
     ;;
 

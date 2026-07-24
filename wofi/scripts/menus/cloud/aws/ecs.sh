@@ -89,9 +89,7 @@ $(aws_base) ecs describe-services \\
       ] | join("\n")
     )
   end
-' \
-| awk 'BEGIN { RS=""; ORS="\n" } { gsub(/\n/, "  "); print }' \
-| aws_fzf "Service status"
+' | aws_report
 EOF
 }
 
@@ -115,7 +113,7 @@ $(aws_base) ecs describe-services \\
     .services[0].events[:30][]
     | "\u001b[90m\(.createdAt)\u001b[0m  \(.message)"
   end
-' | aws_fzf "Events"
+' | aws_report
 EOF
 }
 
@@ -144,7 +142,7 @@ $(aws_base) ecs describe-tasks \\
 | jq -r '
   .tasks[]
   | "\u001b[36m\(.taskArn | split("/")[-1])\u001b[0m  last=\(.lastStatus) desired=\(.desiredStatus) health=\(.healthStatus // "N/A") started=\(.startedAt // "N/A") cpu=\(.cpu // "N/A") memory=\(.memory // "N/A")"
-' | aws_fzf "Running tasks"
+' | aws_report
 EOF
 }
 
@@ -174,7 +172,7 @@ $(aws_base) ecs describe-tasks \\
 | jq -r '
   .tasks[]
   | "\u001b[36m\(.taskArn | split("/")[-1])\u001b[0m  code=\(.stopCode // "N/A") stopped=\(.stoppedAt // "N/A") reason=\(.stoppedReason // "N/A") containers=\([.containers[] | "\(.name):exit=\(.exitCode // "N/A") reason=\(.reason // "N/A")"] | join("; "))"
-' | aws_fzf "Stopped tasks"
+' | aws_report
 EOF
 }
 
@@ -198,7 +196,7 @@ $(aws_base) ecs describe-services \\
     .services[0].deployments[]
     | "\u001b[36m\(.status)\u001b[0m  id=\(.id | split("/")[-1]) desired=\(.desiredCount) running=\(.runningCount) pending=\(.pendingCount) failed=\(.failedTasks) rollout=\(.rolloutState // "N/A") created=\(.createdAt) updated=\(.updatedAt) reason=\(.rolloutStateReason // "N/A")"
   end
-' | aws_fzf "Deployments"
+' | aws_report
 EOF
 }
 

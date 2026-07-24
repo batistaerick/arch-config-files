@@ -85,7 +85,7 @@ cat > "$CURRENT_FILE" <<EOF
 @define-color accent_bg_color $accent;
 @define-color theme_fg_color $foreground;
 @define-color selected_bg_color $(rgba "$color8" "$selected_alpha");
-@define-color selected_fg_color $selection_background;
+@define-color selected_fg_color $selection_foreground;
 @define-color error_bg_color $error_background;
 @define-color error_fg_color $selection_foreground;
 

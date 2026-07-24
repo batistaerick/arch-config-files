@@ -11,5 +11,5 @@ echo
 
 gcloud projects get-iam-policy '$project' --format=json \
 | jq -r '.bindings[] | \"\u001b[36m\(.role)\u001b[0m  members=\(.members | join(\", \"))\"' \
-| cloud_fzf 'IAM bindings'
+| cloud_report
 " close-on-success toggle

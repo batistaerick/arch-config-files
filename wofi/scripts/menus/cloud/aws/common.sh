@@ -138,10 +138,28 @@ aws_error() {
 }
 
 aws_json() {
-  if command -v bat >/dev/null 2>&1; then
+  if [ -t 1 ] && command -v bat >/dev/null 2>&1; then
     bat --language=json --style=plain --color=always
   else
     jq -C .
+  fi
+}
+
+aws_report() {
+  if command -v bat >/dev/null 2>&1 && command -v less >/dev/null 2>&1; then
+    bat --language=log --style=plain --color=always --paging=always
+  elif command -v less >/dev/null 2>&1; then
+    less -R
+  elif command -v bat >/dev/null 2>&1; then
+    bat --language=log --style=plain --color=always --paging=never
+    printf '\nPress any key to close.' > /dev/tty
+    IFS= read -rsn1 < /dev/tty
+    printf '\n' > /dev/tty
+  else
+    cat
+    printf '\nPress any key to close.' > /dev/tty
+    IFS= read -rsn1 < /dev/tty
+    printf '\n' > /dev/tty
   fi
 }
 

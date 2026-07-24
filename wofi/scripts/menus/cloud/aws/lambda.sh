@@ -110,7 +110,7 @@ aws_kv 'Profile' '$AWS_PROFILE'
 aws_kv 'Function' $quoted_function_name
 echo
 
-$(aws_base) lambda get-function-configuration --function-name $quoted_function_name | aws_json
+$(aws_base) lambda get-function-configuration --function-name $quoted_function_name | aws_json | aws_report
 " close-on-success toggle
     ;;
   "󰢬  Recent logs")

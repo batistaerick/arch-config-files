@@ -19,7 +19,7 @@ options="󰣇  Apps > Search Apps
 󰅩  Development
 󰅩  Development > VS Code
 󰅩  Development > IntelliJ
-󰅩  Development > Neovim
+󰅩  Development > LazyVim
 󰅩  Development > AI Tools
 󰅩  Development > AI Tools > Codex > New
 󰅩  Development > AI Tools > Codex > Resume Picker
@@ -165,7 +165,7 @@ case "$chosen" in
   "󰅩  Development > IntelliJ")
     BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" intellij
     ;;
-  "󰅩  Development > Neovim")
+  "󰅩  Development > LazyVim")
     BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
     ;;
   "󰅩  Development > AI Tools")

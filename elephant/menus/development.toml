@@ -29,8 +29,8 @@ icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh intellij" }
 
 [[entries]]
-text = "Neovim"
-keywords = ["nvim", "vim", "project"]
+text = "LazyVim"
+keywords = ["lazyvim", "nvim", "vim", "project"]
 icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh nvim" }
 

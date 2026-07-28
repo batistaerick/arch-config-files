@@ -7,7 +7,7 @@ options="󰌌  Launchers
   SUPER + Enter             Open terminal
   SUPER + Space             Open main menu
   SUPER + /                 Show shortcuts
-  SUPER + Shift + /         Show Vim commands
+  SUPER + Shift + /         Show LazyVim commands
   SUPER + E                 Open file manager
   SUPER + F                 Search apps
   SUPER + G                 Search Google

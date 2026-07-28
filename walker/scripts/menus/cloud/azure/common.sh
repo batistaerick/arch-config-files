@@ -70,6 +70,20 @@ back_to_azure_menu() {
   "$AZURE_MENUS_DIR/menu.sh"
 }
 
+cloud_menu_return_command() {
+  local command
+
+  printf -v command "%q" "$0"
+
+  for arg in "$@"; do
+    printf -v command "%s %q" "$command" "$arg"
+  done
+
+  printf '%s' "$command"
+}
+
+CLOUD_DEFAULT_RETURN_COMMAND="$(cloud_menu_return_command "$@")"
+
 cloud_terminal_helpers() {
   cat <<'EOF'
 cloud_reset=$'\033[0m'
@@ -180,9 +194,13 @@ EOF
 run_in_kitty() {
   local title="$1"
   local command="$2"
-  local close_mode="${3:-keep-open}"
+  local close_mode="${3:-close-on-success}"
   local window_mode="${4:-normal}"
+  local return_command="${5:-}"
+  local effective_return_command
   local temp_script
+
+  effective_return_command="${return_command:-${CLOUD_MENU_RETURN_COMMAND:-$CLOUD_DEFAULT_RETURN_COMMAND}}"
 
   temp_script="$(mktemp /tmp/azure-ops.XXXXXX.sh)"
 
@@ -206,6 +224,16 @@ if [ "\$status" -eq 130 ]; then
 fi
 
 if [ "\$status" -eq 0 ] && [ "$close_mode" = "close-on-success" ]; then
+  if [ -n "$effective_return_command" ]; then
+    nohup bash -lc $(printf "%q" "$effective_return_command") >/dev/null 2>&1 < /dev/null &
+  fi
+  exit 0
+fi
+
+if [ "\$status" -eq 0 ] && [ "$close_mode" = "return-on-success" ]; then
+  if [ -n "$effective_return_command" ]; then
+    nohup bash -lc $(printf "%q" "$effective_return_command") >/dev/null 2>&1 < /dev/null &
+  fi
   exit 0
 fi
 

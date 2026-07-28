@@ -7,7 +7,7 @@ options="←  Back
 󰐊  Start Doola Setup
   VS Code
   IntelliJ
-  Neovim
+  LazyVim
   AI Tools
   Cloud"
 
@@ -26,7 +26,7 @@ case "$chosen" in
   "  IntelliJ")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" intellij
     ;;
-  "  Neovim")
+  "  LazyVim")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" nvim
     ;;
   "  AI Tools")

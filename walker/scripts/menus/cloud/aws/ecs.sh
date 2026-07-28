@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-AWS_PROFILE="$1"
+AWS_PROFILE="${1:-}"
 source "$HOME/.config/walker/scripts/menus/cloud/aws/common.sh"
 
 if [ -z "$AWS_PROFILE" ]; then
@@ -58,6 +58,7 @@ choose_ecs_service() {
 
 ECS_CLUSTER="$(choose_ecs_cluster)"
 ECS_SERVICE="$(choose_ecs_service "$ECS_CLUSTER")"
+printf -v RETURN_TO_ECS_COMMAND "%q %q" "$0" "$AWS_PROFILE"
 
 service_status_command() {
   cat <<EOF
@@ -289,28 +290,28 @@ chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no
 
 case "$chosen" in
   "󰅟  Service status")
-    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)" close-on-success toggle
+    run_in_kitty "ECS Status - $AWS_PROFILE" "$(service_status_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰐱  Deployments")
-    run_in_kitty "ECS Deployments - $AWS_PROFILE" "$(deployments_command)" close-on-success toggle
+    run_in_kitty "ECS Deployments - $AWS_PROFILE" "$(deployments_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰢬  Latest deploy logs")
-    run_in_kitty "ECS Deploy Logs - $AWS_PROFILE" "$(deployment_logs_command)" close-on-success toggle
+    run_in_kitty "ECS Deploy Logs - $AWS_PROFILE" "$(deployment_logs_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰑓  Service events")
-    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)" close-on-success toggle
+    run_in_kitty "ECS Events - $AWS_PROFILE" "$(service_events_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰐱  Running tasks")
-    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)" close-on-success toggle
+    run_in_kitty "ECS Running Tasks - $AWS_PROFILE" "$(running_tasks_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "  Stopped tasks")
-    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)" close-on-success toggle
+    run_in_kitty "ECS Stopped Tasks - $AWS_PROFILE" "$(stopped_tasks_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰌗  List clusters")
-    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)" close-on-success toggle
+    run_in_kitty "ECS Clusters - $AWS_PROFILE" "$(list_clusters_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "󰓾  List services")
-    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)" close-on-success toggle
+    run_in_kitty "ECS Services - $AWS_PROFILE" "$(list_services_command)" return-on-success toggle "$RETURN_TO_ECS_COMMAND"
     ;;
   "")
     exit 0

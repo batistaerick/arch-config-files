@@ -6,8 +6,8 @@ ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 options="󰐊  Start Doola Setup
   VS Code
   IntelliJ
-  Neovim
-  Neovim Commands
+  LazyVim
+  LazyVim Commands
   AI Tools
 󰨇  Grafana Logs
   Cloud"
@@ -24,10 +24,10 @@ case "$chosen" in
   "  IntelliJ")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" intellij
     ;;
-  "  Neovim")
+  "  LazyVim")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" nvim
     ;;
-  "  Neovim Commands")
+  "  LazyVim Commands")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/vim.sh"
     ;;
   "  AI Tools")

@@ -8,7 +8,7 @@ import Quickshell.Wayland
 ShellRoot {
     id: shell
 
-    property bool statusOpen: false
+    property bool statusOpen: true
     property int barHeight: 30
     property color bg: Qt.rgba(24 / 255, 24 / 255, 36 / 255, 0.38)
     property color fg: "#cdd6f4"
@@ -42,21 +42,6 @@ ShellRoot {
                 fallback = screens[i];
         }
         return fallback ? [fallback] : [];
-    }
-
-    onStatusOpenChanged: {
-        if (statusOpen)
-            statusAutoClose.restart();
-        else
-            statusAutoClose.stop();
-    }
-
-    Timer {
-        id: statusAutoClose
-
-        interval: 30000
-        repeat: false
-        onTriggered: shell.statusOpen = false
     }
 
     Variants {
@@ -187,6 +172,11 @@ ShellRoot {
                                 icon: "󰍬"
                                 open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh org.pulseaudio.pavucontrol pavucontrol"
+                            }
+
+                            StatusIcon {
+                                icon: "󰚩"
+                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.AiUsagePanel python3 $HOME/.config/quickshell/desktop-bar/scripts/ai-usage-panel.py"
                             }
 
                             NotificationWidget {

@@ -23,8 +23,8 @@ def panel_colors():
         return value if re.fullmatch(r"#[0-9a-fA-F]{6}", str(value)) else fallback
 
     light = palette.get("mode") == "light"
-    foreground = color("foreground", "#20202c") if light else color("foreground", "#cdd6f4")
-    background = color("background", "#f5f5fa") if light else "#181824"
+    foreground = color("foreground", "#20202c" if light else "#cdd6f4")
+    background = color("background", "#f5f5fa" if light else "#181824")
 
     def rgba(value, alpha):
         rgb = [int(value[index:index+2], 16) for index in (1, 3, 5)]

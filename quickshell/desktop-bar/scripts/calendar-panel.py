@@ -10,6 +10,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+from panel_theme import install_panel_css
 
 
 APP_ID = "dev.local.CalendarPanel"
@@ -138,13 +139,7 @@ class CalendarPanel(Adw.Application):
           background: #cdd6f4;
         }
         """
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-        )
+        install_panel_css(css.decode())
 
     def build_ui(self) -> None:
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)

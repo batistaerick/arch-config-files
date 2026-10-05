@@ -6,13 +6,13 @@ from pathlib import Path
 import subprocess
 import threading
 import time
-import tomllib
 
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 from panel_position import keep_top_on_resize
+from panel_theme import install_panel_css
 
 APP_ID = "dev.local.AiUsagePanel"
 CACHE = Path.home() / ".cache/desktop-ai-usage.json"
@@ -30,21 +30,14 @@ class UsagePanel(Adw.Application):
         self.window = Adw.ApplicationWindow(application=self, title="AI usage")
         self.window.set_default_size(560, 520)
         self.window.set_resizable(False)
-        palette = {"background": "#181824", "foreground": "#cdd6f4", "accent": "#cdd6f4"}
-        try:
-            palette.update(tomllib.loads((Path.home() / ".config/theme/current/colors.toml").read_text()))
-        except (OSError, ValueError):
-            pass
-        css = Gtk.CssProvider()
-        css.load_from_data(f"""
-          window {{ background: {palette['background']}; color: {palette['foreground']}; }}
-          .heading {{ font-size: 22px; font-weight: bold; }}
-          .provider {{ font-size: 17px; font-weight: bold; }}
-          progressbar progress {{ background: {palette['accent']}; min-height: 6px; }}
-          progressbar trough {{ min-height: 6px; }}
-          .muted {{ opacity: 0.7; font-size: 12px; }}
-        """.encode())
-        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        install_panel_css("""
+          window { background: rgba(24, 24, 36, 0.94); color: #cdd6f4; }
+          .heading { font-size: 22px; font-weight: bold; }
+          .provider { font-size: 17px; font-weight: bold; }
+          progressbar progress { min-height: 6px; }
+          progressbar trough { min-height: 6px; background: rgba(205, 214, 244, 0.12); }
+          .muted { color: rgba(205, 214, 244, 0.72); font-size: 12px; }
+        """)
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
         for setter in (root.set_margin_start, root.set_margin_end, root.set_margin_top, root.set_margin_bottom):
             setter(24)

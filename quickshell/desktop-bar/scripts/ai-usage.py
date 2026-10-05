@@ -26,9 +26,14 @@ def codex_binary():
 
 
 def codex_usage():
+    binary = codex_binary()
+    env = os.environ.copy()
+    # NVM's CLI launcher uses /usr/bin/env node; desktop sessions omit its bin dir.
+    env["PATH"] = str(Path(binary).parent) + os.pathsep + env.get("PATH", "")
     proc = subprocess.Popen(
-        [codex_binary(), "-s", "read-only", "-a", "on-request", "app-server"],
+        [binary, "-s", "read-only", "-a", "on-request", "app-server"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        env=env,
     )
     pending = b""
 

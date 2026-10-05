@@ -99,8 +99,15 @@ chosen="$(
     $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --width 820 --height 720 --prompt="Shortcuts"
 )"
 
+# Normalize Walker's output so actions also match when indentation is trimmed.
+chosen="${chosen#"${chosen%%[![:space:]]*}"}"
+[[ -n "$chosen" ]] || exit 0
+chosen="  $chosen"
+# Let the launcher release keyboard focus before acting on the previous window.
+sleep 0.15
+
 case "$chosen" in
-  "" | 󰌌* | 󰖲* | 󰆾* | 󰙀* | 󰎤* | * | *)
+  "  󰌌"* | "  󰖲"* | "  󰆾"* | "  󰙀"* | "  󰎤"* | "  "* | "  "*)
     exit 0
     ;;
   "  SUPER + Enter"*)

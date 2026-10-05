@@ -13,6 +13,12 @@ end
 
 function GetEntries()
     local entries = {}
+    local current = ""
+    local current_file = io.open(home .. "/.cache/current-theme", "r")
+    if current_file then
+        current = current_file:read("*a"):match("^%s*(.-)%s*$")
+        current_file:close()
+    end
     local handle = io.popen("find '" .. themes_dir .. "' -mindepth 1 -maxdepth 1 -type d -printf '%f\\n' 2>/dev/null | sort")
 
     if handle then
@@ -20,7 +26,8 @@ function GetEntries()
             table.insert(entries, {
                 Text = theme,
                 Value = theme,
-                Icon = "󰸌",
+                Icon = theme == current and "" or "󰸌",
+                State = theme == current and { "current" } or {},
                 Preview = themes_dir .. "/" .. theme .. "/preview.png",
                 PreviewType = "file",
                 Actions = {

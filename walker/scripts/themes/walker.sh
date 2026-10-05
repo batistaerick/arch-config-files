@@ -264,6 +264,16 @@ row:selected .item-image {
   font-style: italic;
 }
 
+.current:not(.calc) .item-text {
+  color: @accent_bg_color;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.current:not(.calc) .item-image-text {
+  color: @accent_bg_color;
+}
+
 .preview-content.archlinuxpkgs,
 .preview-content.dnfpackages {
   font-family: monospace;

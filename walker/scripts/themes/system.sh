@@ -42,6 +42,44 @@ else
   ICON_THEME="Yaru-blue"
 fi
 
+# Kvantum loads per-user overrides named after the base theme with a '#' suffix.
+python3 - "$KVANTUM_THEME" "$KVANTUM_DIR" <<'PY'
+import configparser
+import pathlib
+import shutil
+import sys
+
+name, directory = sys.argv[1:]
+base = name.removesuffix("#")
+root = pathlib.Path(directory)
+sources = [root / base, pathlib.Path("/usr/share/Kvantum") / base]
+source = next((path for path in sources if (path / f"{base}.kvconfig").is_file()), None)
+if source is None:
+    raise SystemExit(f"Kvantum theme not found: {base}")
+override = root / f"{base}#"
+override.mkdir(exist_ok=True)
+target = override / f"{base}#.kvconfig"
+config = configparser.ConfigParser(interpolation=None, strict=False)
+config.optionxform = str
+config.read(target if target.exists() else source / f"{base}.kvconfig")
+for section, values in {
+    "%General": {"reduce_window_opacity": "10"},
+    "Hacks": {"transparent_dolphin_view": "true"},
+}.items():
+    if not config.has_section(section):
+        config.add_section(section)
+    for key, value in values.items():
+        config.set(section, key, value)
+with target.open("w") as output:
+    config.write(output, space_around_delimiters=False)
+svg = source / f"{base}.svg"
+if svg.exists():
+    shutil.copy2(svg, override / f"{base}#.svg")
+PY
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
 cat > "$KVANTUM_DIR/kvantum.kvconfig" <<EOF
 [General]
 theme=$KVANTUM_THEME

@@ -97,10 +97,10 @@ icon = "🖻"
 submenu = "wallpaper"
 
 [[entries]]
-text = "Toggle Waybar"
+text = "Toggle Desktop Bar"
 subtext = "SUPER + Shift + Space"
 icon = "󰍜"
-actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/waybar.sh" }
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh" }
 
 [[entries]]
 text = "Notification Center"

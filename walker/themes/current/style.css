@@ -91,7 +91,11 @@ row:selected .item-box {
 }
 
 child:selected .item-text,
-row:selected .item-text {
+row:selected .item-text,
+child:selected .item-image-text,
+row:selected .item-image-text,
+child:selected .item-image,
+row:selected .item-image {
   color: @selected_fg_color;
 }
 

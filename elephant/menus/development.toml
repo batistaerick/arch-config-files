@@ -24,12 +24,6 @@ icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh vscode" }
 
 [[entries]]
-text = "IntelliJ"
-keywords = ["idea", "java", "project"]
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh intellij" }
-
-[[entries]]
 text = "LazyVim"
 keywords = ["lazyvim", "nvim", "vim", "project"]
 icon = ""

@@ -286,7 +286,7 @@ case "$chosen" in
     "$MENUS_DIR/style/wallpaper.sh"
     ;;
   "  SUPER + Shift + Space"*)
-    "$ACTIONS_DIR/toggle/waybar.sh"
+    "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh"
     ;;
   "  SUPER + N"*)
     swaync-client -t -sw

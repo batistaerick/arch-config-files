@@ -5,6 +5,31 @@ icon = "󰄀"
 fixed_order = true
 
 [[entries]]
+text = "Window"
+icon = "󰖯"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot.sh window edit" }
+
+[[entries]]
+text = "Selection: Copy"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot.sh selection copy" }
+
+[[entries]]
+text = "Selection: Save and Copy"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot.sh selection both" }
+
+[[entries]]
+text = "Window: Copy"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot.sh window copy" }
+
+[[entries]]
+text = "Full Screen: Save and Copy"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot.sh full both" }
+
+[[entries]]
 text = "Selection"
 icon = "󰄀"
 actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/screenshot-selection.sh" }

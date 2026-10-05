@@ -17,18 +17,6 @@ start_hyprsunset() {
   sleep 1
 }
 
-restart_waybar_if_needed() {
-  if grep -q "custom/nightlight" "$HOME/.config/waybar/config.jsonc" 2>/dev/null; then
-    if command -v omarchy-restart-waybar >/dev/null 2>&1; then
-      omarchy-restart-waybar
-    else
-      pkill waybar
-      sleep 0.3
-      waybar >/dev/null 2>&1 &
-    fi
-  fi
-}
-
 start_hyprsunset
 
 if [[ -f "$STATE_FILE" ]]; then
@@ -40,5 +28,3 @@ else
   touch "$STATE_FILE"
   notify-send -u low "  Nightlight screen temperature"
 fi
-
-restart_waybar_if_needed

@@ -18,7 +18,6 @@ initial_query="${1:-}"
 options="󰣇  Apps > Search Apps
 󰅩  Development
 󰅩  Development > VS Code
-󰅩  Development > IntelliJ
 󰅩  Development > LazyVim
 󰅩  Development > AI Tools
 󰅩  Development > AI Tools > Codex > New
@@ -163,9 +162,6 @@ case "$chosen" in
   "󰅩  Development > VS Code")
     BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" vscode
     ;;
-  "󰅩  Development > IntelliJ")
-    BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" intellij
-    ;;
   "󰅩  Development > LazyVim")
     BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
     ;;
@@ -229,7 +225,7 @@ case "$chosen" in
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰔎  Toggle > Top Bar")
-    "$TOGGLE_ACTIONS_DIR/waybar.sh"
+    "$TOGGLE_ACTIONS_DIR/desktop-bar.sh"
     ;;
   "  Capture > Screenshot")
     "$CAPTURE_MENUS_DIR/screenshot.sh"

@@ -220,7 +220,7 @@ case "$chosen" in
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰔎  Toggle > Top Bar")
-    "$TOGGLE_ACTIONS_DIR/waybar.sh"
+    "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh"
     ;;
   "  Capture > Screenshot")
     "$CAPTURE_MENUS_DIR/screenshot.sh"

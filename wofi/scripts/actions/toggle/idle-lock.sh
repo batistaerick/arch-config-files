@@ -12,5 +12,3 @@ else
 
   notify-send -u low "󱫖  Now locking computer when idle"
 fi
-
-pkill -RTMIN+9 waybar 2>/dev/null || true

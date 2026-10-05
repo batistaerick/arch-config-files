@@ -319,7 +319,7 @@ hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
--- Workspaces 1-10. Waybar only displays 1-4, but 5-10 remain available on demand.
+-- Workspaces 1-10. The bar displays 1-4, but 5-10 remain available on demand.
 for i = 1, 10 do
 	local key = tostring(i % 10)
 	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
@@ -347,6 +347,7 @@ hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
 
 hl.bind("PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-full.sh"))
 hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-selection.sh"))
+hl.bind(mainMod .. " + SHIFT + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot.sh window edit"))
 hl.bind(mainMod .. " + CTRL + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/text.sh"))
 hl.bind(mainMod .. " + ALT + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/qr.sh"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(actionsDir .. "/wallpaper/next.sh"))
@@ -466,6 +467,7 @@ floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 10
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
 floating_window_rule("imv-float", "^(imv)$", { 1400, 850 })
+floating_window_rule("screenshot-editor-float", "^(dev.local.ScreenshotEditor)$", { 1100, 720 })
 floating_window_rule("fif-terminal-float", "^(fif-terminal)$", { 1000, 650 })
 floating_window_rule("fifs-terminal-float", "^(fifs-terminal)$", { 1500, 800 })
 floating_window_rule("cloud-terminal-float", "^(cloud-terminal)$", { 1700, 950 })
@@ -475,7 +477,6 @@ floating_window_rule("about-terminal-float", "^(about-terminal)$", { 1000, 650 }
 opacity_rule("set-dolphin-transparency", "^(org.kde.dolphin)$", "1 0.94")
 opacity_rule("set-google-chrome-transparency", "^(google-chrome)$", "1 0.96")
 opacity_rule("set-vscode-transparency", "^(code)$", "1 0.94")
-opacity_rule("set-intellij-transparency", "^(jetbrains-.*)$", "1 0.94")
 
 -- Focus behavior
 hl.window_rule({
@@ -520,7 +521,6 @@ hl.window_rule({
 })
 
 -- Layer rules
-blurred_layer("waybar", 0.2)
 blurred_layer("desktop-bar", 0.2)
 blurred_layer("walker", 0.8)
 blurred_layer("swaync-control-center", 0.4)

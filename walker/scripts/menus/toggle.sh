@@ -26,6 +26,6 @@ case "$chosen" in
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰍜  Top Bar")
-    "$TOGGLE_ACTIONS_DIR/waybar.sh"
+    "$TOGGLE_ACTIONS_DIR/desktop-bar.sh"
     ;;
 esac

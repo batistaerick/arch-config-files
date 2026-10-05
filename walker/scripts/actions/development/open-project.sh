@@ -21,11 +21,6 @@ case "$tool" in
     title="VS Code"
     app_icon=""
     ;;
-  intellij)
-    command_name="idea"
-    title="IntelliJ"
-    app_icon=""
-    ;;
   nvim)
     command_name="nvim"
     title="Neovim"

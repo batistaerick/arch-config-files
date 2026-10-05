@@ -26,6 +26,6 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/notification-s
 
 [[entries]]
 text = "Top Bar"
-keywords = ["waybar"]
+keywords = ["quickshell", "bar"]
 icon = "󰍜"
-actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/waybar.sh" }
+actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh" }

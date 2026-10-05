@@ -30,6 +30,6 @@ case "$chosen" in
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
   "󰍜  Top Bar")
-    "$TOGGLE_ACTIONS_DIR/waybar.sh"
+    "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh"
     ;;
 esac

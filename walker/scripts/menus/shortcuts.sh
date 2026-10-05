@@ -26,18 +26,19 @@ options="󰌌  Launchers
   SUPER + A                 Toggle split direction
   SUPER + Shift + A         Rotate split direction
 󰆾  Focus
-  SUPER + J                 Focus left
-  SUPER + K                 Focus down
-  SUPER + I                 Focus up
+  SUPER + H                 Focus left
+  SUPER + J                 Focus down
+  SUPER + K                 Focus up
   SUPER + L                 Focus right
 󰙀  Move And Resize
-  SUPER + Shift + J         Resize narrower
-  SUPER + Shift + K         Resize taller
-  SUPER + Shift + I         Resize shorter
+  SUPER + Shift + H         Resize narrower
+  SUPER + Shift + J         Resize taller
+  SUPER + Shift + K         Resize shorter
   SUPER + Shift + L         Resize wider
-  SUPER + Ctrl + J          Move window left
-  SUPER + Ctrl + K          Move window down
-  SUPER + Ctrl + I          Move window up
+  SUPER + Ctrl + U          Quarter-size window
+  SUPER + Ctrl + H          Move window left
+  SUPER + Ctrl + J          Move window down
+  SUPER + Ctrl + K          Move window up
   SUPER + Ctrl + L          Move window right
 󰎤  Workspaces
   SUPER + 1                 Go to workspace 1
@@ -68,8 +69,9 @@ options="󰌌  Launchers
   SUPER + Alt + H           Previous existing workspace
   SUPER + Alt + L           Next existing workspace
   Capture And Desktop
-  Print                     Full screenshot
-  SUPER + Print             Selection screenshot
+  Print                     Full screenshot (floating editor)
+  SUPER + Print             Frozen selection (floating editor)
+  SUPER + Shift + Print     Window screenshot (floating editor)
   SUPER + Ctrl + Print      OCR text from selection
   SUPER + Alt + Print       Decode QR from selection
   SUPER + Shift + N         Next wallpaper
@@ -103,6 +105,9 @@ case "$chosen" in
     ;;
   "  SUPER + Enter"*)
     kitty &
+    ;;
+  "  SUPER + Ctrl + Enter"*)
+    kitty -e tmux new-session -A -s main &
     ;;
   "  SUPER + Space"*)
     "$MENUS_DIR/search.sh"
@@ -147,7 +152,7 @@ case "$chosen" in
     hyprctl --batch "dispatch togglefloating; dispatch pin"
     ;;
   "  SUPER + Ctrl + F"*)
-    hyprctl dispatch 'hl.dsp.window.fullscreen()'
+    hyprctl dispatch fullscreen
     ;;
   "  SUPER + Shift + P"*)
     hyprctl dispatch pseudo
@@ -158,37 +163,40 @@ case "$chosen" in
   "  SUPER + Shift + A"*)
     hyprctl dispatch layoutmsg rotatesplit
     ;;
-  "  SUPER + J"*)
+  "  SUPER + H"*)
     hyprctl dispatch movefocus l
     ;;
-  "  SUPER + K"*)
+  "  SUPER + J"*)
     hyprctl dispatch movefocus d
     ;;
-  "  SUPER + I"*)
+  "  SUPER + K"*)
     hyprctl dispatch movefocus u
     ;;
   "  SUPER + L"*)
     hyprctl dispatch movefocus r
     ;;
-  "  SUPER + Shift + J"*)
+  "  SUPER + Shift + H"*)
     hyprctl dispatch resizeactive -15 0
     ;;
-  "  SUPER + Shift + K"*)
+  "  SUPER + Shift + J"*)
     hyprctl dispatch resizeactive 0 15
     ;;
-  "  SUPER + Shift + I"*)
+  "  SUPER + Shift + K"*)
     hyprctl dispatch resizeactive 0 -15
     ;;
   "  SUPER + Shift + L"*)
     hyprctl dispatch resizeactive 15 0
     ;;
-  "  SUPER + Ctrl + J"*)
+  "  SUPER + Ctrl + U"*)
+    "$HOME/.config/hypr/scripts/window-quarter-size.sh"
+    ;;
+  "  SUPER + Ctrl + H"*)
     hyprctl dispatch movewindow l
     ;;
-  "  SUPER + Ctrl + K"*)
+  "  SUPER + Ctrl + J"*)
     hyprctl dispatch movewindow d
     ;;
-  "  SUPER + Ctrl + I"*)
+  "  SUPER + Ctrl + K"*)
     hyprctl dispatch movewindow u
     ;;
   "  SUPER + Ctrl + L"*)
@@ -281,6 +289,9 @@ case "$chosen" in
   "  SUPER + Print"*)
     "$ACTIONS_DIR/capture/screenshot-selection.sh"
     ;;
+  "  SUPER + Shift + Print"*)
+    "$ACTIONS_DIR/capture/screenshot.sh" window edit
+    ;;
   "  SUPER + Ctrl + Print"*)
     "$ACTIONS_DIR/capture/text.sh"
     ;;
@@ -294,7 +305,7 @@ case "$chosen" in
     walker --provider menus:wallpaper
     ;;
   "  SUPER + Shift + Space"*)
-    "$ACTIONS_DIR/toggle/waybar.sh"
+    "$ACTIONS_DIR/toggle/desktop-bar.sh"
     ;;
   "  SUPER + N"*)
     swaync-client -t -sw
@@ -303,7 +314,7 @@ case "$chosen" in
     hyprpicker -a
     ;;
   "  SUPER + M"*)
-    hyprlock
+    "$HOME/.config/hypr/scripts/manual-lock.sh"
     ;;
   "  SUPER + ;"*)
     gnome-characters &

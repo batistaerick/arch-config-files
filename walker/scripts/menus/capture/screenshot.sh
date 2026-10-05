@@ -18,10 +18,8 @@ sleep 0.2
 case "$chosen" in
   "󰆞  Selection")
     "$CAPTURE_ACTIONS_DIR/screenshot-selection.sh"
-    notify-send "Screenshot saved" "$FILE"
     ;;
   "󰹑  Full Screen")
     "$CAPTURE_ACTIONS_DIR/screenshot-full.sh"
-    notify-send "Screenshot saved" "$FILE"
     ;;
 esac

@@ -10,7 +10,7 @@ if [[ -z "$class" || "$#" -eq 0 ]]; then
   exit 2
 fi
 
-target_monitor="${WAYBAR_PANEL_MONITOR:-HDMI-A-1}"
+target_monitor="${DESKTOP_PANEL_MONITOR:-HDMI-A-1}"
 
 if ! hyprctl monitors -j | jq -e --arg monitor "$target_monitor" '.[] | select(.name == $monitor)' >/dev/null; then
   target_monitor="$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name' | head -n1)"

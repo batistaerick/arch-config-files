@@ -5,13 +5,17 @@ ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 
 options="󰌌  Launchers
   SUPER + Enter             Open terminal
-  SUPER + Space             Open main menu
+  SUPER + Ctrl + Enter      Open tmux
+  SUPER + Space             Search apps
   SUPER + /                 Show shortcuts
   SUPER + Shift + /         Show LazyVim commands
   SUPER + E                 Open file manager
-  SUPER + F                 Search apps
+  SUPER + F                 Open main menu
   SUPER + G                 Search Google
-  SUPER + V                 Paste clipboard history
+  SUPER + C                 Copy
+  SUPER + X                 Cut
+  SUPER + V                 Paste
+  SUPER + Ctrl + V          Paste clipboard history
   SUPER + P                 Fuzzy-find files
   SUPER + Ctrl + P          Fuzzy-find text
 󰖲  Windows
@@ -61,12 +65,16 @@ options="󰌌  Launchers
   SUPER + Ctrl + S          Move window to workspace 1
   SUPER + Mouse Wheel Down  Next existing workspace
   SUPER + Mouse Wheel Up    Previous existing workspace
+  SUPER + Alt + H           Previous existing workspace
+  SUPER + Alt + L           Next existing workspace
   Capture And Desktop
   Print                     Full screenshot
   SUPER + Print             Selection screenshot
+  SUPER + Ctrl + Print      OCR text from selection
+  SUPER + Alt + Print       Decode QR from selection
   SUPER + Shift + N         Next wallpaper
   SUPER + Ctrl + N          Wallpaper picker
-  SUPER + Shift + Space     Toggle Waybar
+  SUPER + Shift + Space     Toggle desktop bar
   SUPER + N                 Notification center
   SUPER + =                 Color picker
   SUPER + M                 Lock screen
@@ -97,7 +105,7 @@ case "$chosen" in
     kitty &
     ;;
   "  SUPER + Space"*)
-    "$MENUS_DIR/native-main.sh"
+    "$MENUS_DIR/search.sh"
     ;;
   "  SUPER + /"*)
     "$MENUS_DIR/shortcuts.sh"
@@ -109,12 +117,21 @@ case "$chosen" in
     dolphin --new-window &
     ;;
   "  SUPER + F"*)
-    "$MENUS_DIR/search.sh"
+    walker --provider menus:main
     ;;
   "  SUPER + G"*)
     "$ACTIONS_DIR/search/google.sh"
     ;;
+  "  SUPER + C"*)
+    wtype -M ctrl c -m ctrl
+    ;;
+  "  SUPER + X"*)
+    wtype -M ctrl x -m ctrl
+    ;;
   "  SUPER + V"*)
+    wtype -M ctrl v -m ctrl
+    ;;
+  "  SUPER + Ctrl + V"*)
     cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl
     ;;
   "  SUPER + P"*)
@@ -252,11 +269,23 @@ case "$chosen" in
   "  SUPER + Mouse Wheel Up"*)
     hyprctl dispatch workspace e-1
     ;;
+  "  SUPER + Alt + H"*)
+    hyprctl dispatch workspace e-1
+    ;;
+  "  SUPER + Alt + L"*)
+    hyprctl dispatch workspace e+1
+    ;;
   "  Print"*)
     "$ACTIONS_DIR/capture/screenshot-full.sh"
     ;;
   "  SUPER + Print"*)
     "$ACTIONS_DIR/capture/screenshot-selection.sh"
+    ;;
+  "  SUPER + Ctrl + Print"*)
+    "$ACTIONS_DIR/capture/text.sh"
+    ;;
+  "  SUPER + Alt + Print"*)
+    "$ACTIONS_DIR/capture/qr.sh"
     ;;
   "  SUPER + Shift + N"*)
     "$ACTIONS_DIR/wallpaper/next.sh"

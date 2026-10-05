@@ -6,12 +6,14 @@ fixed_order = true
 
 [[entries]]
 text = "Development"
-subtext = "Engineering-Dev-394540956281"
+subtext = ">"
+keywords = ["doola-dev"]
 icon = ""
 submenu = "aws-development"
 
 [[entries]]
 text = "Production"
-subtext = "Engineering-Prod-576249115295"
+subtext = ">"
+keywords = ["doola-prod"]
 icon = ""
 submenu = "aws-production"

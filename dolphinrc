@@ -2,12 +2,16 @@
 Sorting=type
 
 [DetailsMode]
+RightPadding=0
 Sorting=type
 
 [General]
 ColorScheme=CatppuccinMochaTeal
 Version=202
 ViewPropsTimestamp=2026,5,4,21,11,55.694
+
+[Icons]
+Theme=Yaru-prussiangreen
 
 [IconsMode]
 PreviewSize=48

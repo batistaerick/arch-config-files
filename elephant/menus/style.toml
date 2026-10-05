@@ -6,12 +6,14 @@ fixed_order = true
 
 [[entries]]
 text = "Theme"
+subtext = ">"
 keywords = ["colors", "appearance"]
 icon = "󰸌"
 submenu = "theme"
 
 [[entries]]
 text = "Wallpaper"
+subtext = ">"
 keywords = ["background"]
 icon = "🖻"
 submenu = "wallpaper"

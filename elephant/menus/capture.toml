@@ -6,14 +6,34 @@ fixed_order = true
 
 [[entries]]
 text = "Screenshot"
+subtext = ">"
 icon = "󰄀"
 submenu = "screenshot"
 
 [[entries]]
 text = "Screenrecord"
+subtext = ">"
 keywords = ["record", "video"]
 icon = ""
 submenu = "screenrecord"
+
+[[entries]]
+text = "OCR text"
+keywords = ["text", "ocr", "tesseract"]
+icon = "󰴑"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/text.sh" }
+
+[[entries]]
+text = "QR code"
+keywords = ["qr", "barcode"]
+icon = "󰐲"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/qr.sh" }
+
+[[entries]]
+text = "Transcode"
+keywords = ["convert", "compress", "image", "video"]
+icon = "󰑕"
+actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/transcode.sh" }
 
 [[entries]]
 text = "Color"

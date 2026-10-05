@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+*.log
+waybar/.status-icons.css
+waybar/.toggle-fade.css

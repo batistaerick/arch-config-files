@@ -19,10 +19,10 @@ choose_profile() {
 resolve_profile() {
   case "$1" in
     "Development")
-      echo "Engineering-Dev-394540956281"
+      echo "doola-dev"
       ;;
     "Production")
-      echo "Engineering-Prod-576249115295"
+      echo "doola-prod"
       ;;
     *)
       echo "$1"

@@ -6,12 +6,12 @@ fixed_order = true
 
 [[entries]]
 text = "Development"
-subtext = "Engineering-Dev-394540956281"
+subtext = "doola-dev"
 icon = "󰨇"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh doola-dev" }
 
 [[entries]]
 text = "Production"
-subtext = "Engineering-Prod-576249115295"
+subtext = "doola-prod"
 icon = "󰨇"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Prod-576249115295" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh doola-prod" }

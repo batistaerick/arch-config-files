@@ -12,7 +12,8 @@ actions = { "open" = "kitty" }
 
 [[entries]]
 text = "Main Menu"
-subtext = "SUPER + Space"
+subtext = ">"
+keywords = ["SUPER", "F"]
 icon = "󰣇"
 submenu = "main"
 
@@ -24,7 +25,7 @@ actions = { "open" = "dolphin --new-window" }
 
 [[entries]]
 text = "Search Apps"
-subtext = "SUPER + F"
+subtext = "SUPER + Space"
 icon = "󰍉"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/search.sh" }
 
@@ -36,7 +37,7 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/search/google.sh" }
 
 [[entries]]
 text = "Clipboard History"
-subtext = "SUPER + V"
+subtext = "SUPER + Ctrl + V"
 icon = ""
 actions = { "open" = "sh -c 'cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 500 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl'" }
 
@@ -90,7 +91,8 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/wallpaper/next.sh" }
 
 [[entries]]
 text = "Wallpaper Picker"
-subtext = "SUPER + Ctrl + N"
+subtext = ">"
+keywords = ["SUPER", "Ctrl", "N"]
 icon = "🖻"
 submenu = "wallpaper"
 

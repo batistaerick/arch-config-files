@@ -5,55 +5,64 @@ icon = "󰣇"
 fixed_order = true
 
 [[entries]]
-text = "Apps"
-keywords = ["applications", "launcher", "desktop"]
-icon = "󰣇"
-submenu = "apps"
-
-[[entries]]
 text = "Development"
+subtext = ">"
 keywords = ["dev", "projects", "code"]
 icon = "󰅩"
 submenu = "development"
 
 [[entries]]
+text = "Apps"
+subtext = ">"
+keywords = ["applications", "launcher", "desktop"]
+icon = "󰣇"
+submenu = "apps"
+
+[[entries]]
 text = "Style"
+subtext = ">"
 keywords = ["theme", "wallpaper", "appearance"]
 icon = ""
 submenu = "style"
 
 [[entries]]
 text = "Toggle"
+subtext = ">"
 keywords = ["switch", "enable", "disable"]
 icon = "󰔎"
 submenu = "toggle"
 
 [[entries]]
 text = "Capture"
+subtext = ">"
 keywords = ["screenshot", "screenrecord", "record"]
 icon = ""
 submenu = "capture"
 
 [[entries]]
 text = "Share"
+subtext = ">"
 keywords = ["localsend", "send"]
 icon = ""
 submenu = "share"
 
 [[entries]]
 text = "Learn"
+subtext = ">"
 keywords = ["shortcuts", "keybinds", "vim", "commands", "help"]
 icon = "󰧑"
 submenu = "learn"
 
 [[entries]]
 text = "System"
+subtext = ">"
 keywords = ["settings", "tools"]
 icon = ""
 submenu = "system"
 
 [[entries]]
 text = "Power"
+subtext = ">"
 keywords = ["shutdown", "reboot", "logout", "lock"]
 icon = "⏻"
 submenu = "power"

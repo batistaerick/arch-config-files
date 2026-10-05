@@ -39,14 +39,13 @@ echo "$THEME_NAME" > "$HOME/.cache/current-theme"
 nohup "$THEME_SCRIPTS_DIR/rgb.sh" >/tmp/rgb.log 2>&1 &
 
 # Apply theme modules
-"$THEME_SCRIPTS_DIR/sddm.sh"
-"$THEME_SCRIPTS_DIR/system.sh"
-"$THEME_SCRIPTS_DIR/walker.sh"
-"$THEME_SCRIPTS_DIR/btop.sh"
-"$THEME_SCRIPTS_DIR/kitty.sh"
-"$THEME_SCRIPTS_DIR/vscode.sh"
-"$THEME_SCRIPTS_DIR/intellij.sh"
-"$THEME_SCRIPTS_DIR/swaync.sh"
+failed_modules=()
+for module in sddm system walker btop kitty vscode swaync; do
+  if ! "$THEME_SCRIPTS_DIR/$module.sh"; then
+    failed_modules+=("$module")
+    printf 'Theme module failed: %s\n' "$module" >&2
+  fi
+done
 
 # Hyprland theme files
 mkdir -p "$HYPR_THEMES_DIR"
@@ -82,12 +81,12 @@ if command -v kbuildsycoca6 >/dev/null 2>&1; then
 fi
 
 # Wallpaper
-FIRST_WALLPAPER="$(
+mapfile -t wallpapers < <(
   find "$CURRENT_DIR/backgrounds" -type f \
     \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) 2>/dev/null |
-    sort |
-    head -n 1
-)"
+    sort
+)
+FIRST_WALLPAPER="${wallpapers[0]:-}"
 
 if [[ -n "$FIRST_WALLPAPER" ]]; then
   ln -sf "$FIRST_WALLPAPER" "$HOME/.cache/current-wallpaper-image"
@@ -98,4 +97,8 @@ if [[ -n "$FIRST_WALLPAPER" ]]; then
   done < <(hyprctl monitors -j | jq -r '.[].name')
 fi
 
-notify-send "Theme applied" "$THEME_NAME"
+if (( ${#failed_modules[@]} )); then
+  notify-send "Theme applied with warnings" "$THEME_NAME: failed modules: ${failed_modules[*]}"
+else
+  notify-send "Theme applied" "$THEME_NAME"
+fi

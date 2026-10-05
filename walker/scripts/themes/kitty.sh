@@ -27,8 +27,6 @@ def get(*keys, default=None):
         cur = cur[key]
     return cur
 
-# Support simple Omarchy-style colors.toml.
-# If your colors.toml structure is different, send me one file and I adapt this.
 bg = get("colors", "background") or get("background") or "#1e1e2e"
 fg = get("colors", "foreground") or get("foreground") or "#cdd6f4"
 cursor = get("colors", "cursor") or get("cursor") or fg
@@ -52,6 +50,15 @@ bright_blue = get("colors", "bright_blue") or get("bright_blue") or blue
 bright_magenta = get("colors", "bright_magenta") or get("bright_magenta") or magenta
 bright_cyan = get("colors", "bright_cyan") or get("bright_cyan") or cyan
 bright_white = get("colors", "bright_white") or get("bright_white") or "#a6adc8"
+
+# Numbered palette entries take precedence over semantic fallbacks.
+palette = [black, red, green, yellow, blue, magenta, cyan, white,
+           bright_black, bright_red, bright_green, bright_yellow,
+           bright_blue, bright_magenta, bright_cyan, bright_white]
+palette = [get("colors", f"color{i}") or get(f"color{i}") or color
+           for i, color in enumerate(palette)]
+black, red, green, yellow, blue, magenta, cyan, white = palette[:8]
+bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white = palette[8:]
 
 kitty = f"""# Auto-generated from ~/.config/theme/current/colors.toml
 

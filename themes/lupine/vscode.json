@@ -1,0 +1,5 @@
+{
+  "name": "Lupine",
+  "extension": "local.lupine-theme",
+  "vsix": "vscode.vsix"
+}

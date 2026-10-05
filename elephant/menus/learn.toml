@@ -15,3 +15,9 @@ text = "LazyVim Commands"
 keywords = ["lazyvim", "vim", "nvim", "neovim", "commands"]
 icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/menus/vim.sh" }
+
+[[entries]]
+text = "Tmux Commands"
+keywords = ["tmux", "terminal", "multiplexer", "session", "panes"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/tmux.sh" }

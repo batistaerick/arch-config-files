@@ -28,8 +28,15 @@ actions = { "open" = "code $HOME/.config" }
 
 [[entries]]
 text = "Update"
+subtext = ">"
 icon = ""
 submenu = "update"
+
+[[entries]]
+text = "Cleanup"
+keywords = ["clean", "cache", "disk", "storage", "ssd"]
+icon = "󰃢"
+actions = { "open" = "kitty --class system-cleanup -e $HOME/.config/walker/scripts/actions/system/cleanup.sh" }
 
 [[entries]]
 text = "About"

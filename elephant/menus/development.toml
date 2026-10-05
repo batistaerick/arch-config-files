@@ -6,6 +6,7 @@ fixed_order = true
 
 [[entries]]
 text = "AI Tools"
+subtext = ">"
 keywords = ["codex", "claude"]
 icon = ""
 submenu = "ai-tools"
@@ -36,12 +37,14 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-proj
 
 [[entries]]
 text = "Grafana Logs"
+subtext = ">"
 keywords = ["grafana", "logs", "loki", "observability"]
 icon = "󰨇"
 submenu = "grafana-logs"
 
 [[entries]]
 text = "Cloud"
+subtext = ">"
 keywords = ["aws", "gcp", "azure"]
 icon = ""
 submenu = "cloud"

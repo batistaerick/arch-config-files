@@ -108,12 +108,15 @@ local hyprScriptsDir = "~/.config/hypr/scripts"
 ---------------
 
 hl.on("hyprland.start", function()
+	hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
+	hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
 	hl.exec_cmd("blueman-applet")
-	hl.exec_cmd("~/.config/waybar/scripts/start-profiled-waybar.sh")
+	hl.exec_cmd("quickshell -n -c desktop-bar --daemonize")
 	hl.exec_cmd("swaync")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hyprsunset")
+	hl.exec_cmd("~/.config/walker/scripts/actions/toggle/nightlight-auto.sh")
 	hl.exec_cmd("swayosd-server")
 	hl.exec_cmd("rm -f ~/.cache/cliphist/db")
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
@@ -204,9 +207,9 @@ hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "easeOutQu
 hl.animation({ leaf = "layersOut", enabled = true, speed = 1.5, bezier = "linear", style = "fade" })
 hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 1.79, bezier = "almostLinear" })
 hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.39, bezier = "almostLinear" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspaces", enabled = false, speed = 1.94, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspacesIn", enabled = false, speed = 1.21, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspacesOut", enabled = false, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "zoomFactor", enabled = true, speed = 7, bezier = "quick" })
 
 hl.config({
@@ -271,14 +274,18 @@ hl.device({
 
 -- Launchers and app helpers
 hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + CTRL + return", hl.dsp.exec_cmd("kitty -e tmux new-session -A -s main"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager .. " --new-window"))
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$'"))
 hl.bind(
 	mainMod .. " + CTRL + P",
 	hl.dsp.exec_cmd([[kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0']])
 )
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("sleep 0.08; wtype -M ctrl c -m ctrl"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("sleep 0.08; wtype -M ctrl x -m ctrl"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("sleep 0.08; wtype -M ctrl v -m ctrl"))
 hl.bind(
-	mainMod .. " + V",
+	mainMod .. " + CTRL + V",
 	hl.dsp.exec_cmd(
 		"cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"
 	)
@@ -312,7 +319,7 @@ hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
--- Workspaces 1-10
+-- Workspaces 1-10. Waybar only displays 1-4, but 5-10 remain available on demand.
 for i = 1, 10 do
 	local key = tostring(i % 10)
 	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
@@ -327,19 +334,23 @@ hl.bind(mainMod .. " + CTRL + S", hl.dsp.window.move({ workspace = 1 }))
 -- Scroll through existing workspaces
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mainMod .. " + ALT + h", hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mainMod .. " + ALT + l", hl.dsp.focus({ workspace = "e+1" }))
 
 -- Walker menus and scripts
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("walker --provider menus:main"))
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(menusDir .. "/shortcuts.sh"))
 hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd(menusDir .. "/vim.sh"))
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("walker --provider menus:main"))
 hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("walker --provider menus:wallpaper"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
 
 hl.bind("PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-full.sh"))
 hl.bind(mainMod .. " + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/screenshot-selection.sh"))
+hl.bind(mainMod .. " + CTRL + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/text.sh"))
+hl.bind(mainMod .. " + ALT + PRINT", hl.dsp.exec_cmd(actionsDir .. "/capture/qr.sh"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(actionsDir .. "/wallpaper/next.sh"))
-hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/waybar.sh"))
+hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/desktop-bar.sh"))
 
 -- Desktop utilities
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
@@ -389,21 +400,19 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 ----------------------------
 
 if is_laptop then
-	for i = 1, 10 do
+	for i = 1, 4 do
 		hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
 	end
 elseif has_hdmi then
 	-- Main monitor
 	hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
 	hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
-	hl.workspace_rule({ workspace = "3", monitor = "DP-3" })
 
 	-- Secondary monitor
+	hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1" })
 	hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
-	hl.workspace_rule({ workspace = "5", monitor = "HDMI-A-1" })
-	hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1" })
 else
-	for i = 1, 10 do
+	for i = 1, 4 do
 		hl.workspace_rule({ workspace = tostring(i), monitor = "DP-3" })
 	end
 end
@@ -412,14 +421,23 @@ end
 -- Uncomment this together with the 4-finger scroll_move gesture above.
 -- hl.workspace_rule({ workspace = "7", layout = "scrolling" })
 
-local function floating_window_rule(name, class, size)
-	hl.window_rule({
+local function floating_window_rule(name, class, size, move)
+	local rule = {
 		name = name,
 		match = { class = class },
 		float = true,
-		center = true,
 		size = size,
-	})
+	}
+
+	if move == "top-right" then
+		rule.move = { "monitor_w-" .. tostring(size[1]) .. "-10", "40" }
+	elseif move then
+		rule.move = move
+	else
+		rule.center = true
+	end
+
+	hl.window_rule(rule)
 end
 
 local function opacity_rule(name, class, opacity)
@@ -436,11 +454,15 @@ local function blurred_layer(namespace, ignore_alpha)
 end
 
 -- Floating utility windows
-floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 700 })
-floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 500 })
-floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 500 })
-floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 650 })
-floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 500 })
+local topRightPanelPosition = "top-right"
+
+floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 660 }, topRightPanelPosition)
+floating_window_rule("calendar-panel-float", "^(dev.local.CalendarPanel)$", { 560, 500 }, topRightPanelPosition)
+floating_window_rule("weather-panel-float", "^(dev.local.WeatherPanel)$", { 560, 250 }, topRightPanelPosition)
+floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 480 }, topRightPanelPosition)
+floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 480 }, topRightPanelPosition)
+floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 620 }, topRightPanelPosition)
+floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 480 }, topRightPanelPosition)
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })
 floating_window_rule("imv-float", "^(imv)$", { 1400, 850 })
@@ -498,7 +520,8 @@ hl.window_rule({
 })
 
 -- Layer rules
-blurred_layer("waybar", 0)
+blurred_layer("waybar", 0.2)
+blurred_layer("desktop-bar", 0.2)
 blurred_layer("walker", 0.8)
 blurred_layer("swaync-control-center", 0.4)
 blurred_layer("swaync-notification-window", 0.4)

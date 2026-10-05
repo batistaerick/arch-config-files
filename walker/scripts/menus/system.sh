@@ -8,6 +8,7 @@ options="  Audio
   Bluetooth
   Dotfiles
   Update
+󰃢  Cleanup
   About"
 
 chosen="$(
@@ -30,6 +31,9 @@ case "$chosen" in
     ;;
   "  Update")
     "$MENUS_DIR/update.sh"
+    ;;
+  "󰃢  Cleanup")
+    kitty --class system-cleanup -e "$ACTIONS_DIR/system/cleanup.sh"
     ;;
   "  About")
     "$ACTIONS_DIR/about.sh"

@@ -1,20 +1,30 @@
 [Added Associations]
-image/png=eog-3.desktop;eog-2.desktop;eog.desktop;gedit-2.desktop;
+application/pdf=evince-4.desktop;evince-3.desktop;evince-2.desktop;evince.desktop;
+image/gif=eog-6.desktop;eog-5.desktop;
+image/png=eog-4.desktop;eog-3.desktop;eog-2.desktop;eog.desktop;gedit-2.desktop;
+image/webp=eog-7.desktop;
 text/plain=gedit.desktop;
+video/mp4=vlc-2.desktop;totem-2.desktop;totem.desktop;
 
 [Default Applications]
-application/pdf=org.gnome.Evince.desktop
+application/pdf=evince-4.desktop;
 application/x-directory=org.kde.dolphin.desktop
 application/x-gnome-saved-search=org.kde.dolphin.desktop
+image/gif=eog-6.desktop;
 image/jpeg=org.gnome.eog.desktop
 image/jpg=org.gnome.eog.desktop
-image/png=eog-3.desktop;
+image/png=eog-4.desktop;
+image/webp=eog-7.desktop;
 inode/directory=org.kde.dolphin.desktop
 text/html=google-chrome.desktop
 text/plain=org.gnome.gedit.desktop
+video/mp4=mpv.desktop
 x-scheme-handler/about=google-chrome.desktop
+x-scheme-handler/bruno=bruno.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/http=google-chrome.desktop
 x-scheme-handler/https=google-chrome.desktop
-x-scheme-handler/unknown=google-chrome.desktop
-x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/mailto=google-chrome.desktop
+x-scheme-handler/postman=Postman.desktop
+x-scheme-handler/slack=slack.desktop
+x-scheme-handler/unknown=google-chrome.desktop

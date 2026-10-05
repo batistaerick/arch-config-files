@@ -6,12 +6,16 @@ ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 options="←  Back
 󰌌  Launchers
   SUPER + Enter             Open terminal
+  SUPER + Ctrl + Enter      Open tmux
   SUPER + Space             Open main menu
   SUPER + /                 Show shortcuts
   SUPER + E                 Open file manager
   SUPER + F                 Search apps
   SUPER + G                 Search Google
-  SUPER + V                 Paste clipboard history
+  SUPER + C                 Copy
+  SUPER + X                 Cut
+  SUPER + V                 Paste
+  SUPER + Ctrl + V          Paste clipboard history
   SUPER + P                 Fuzzy-find files
   SUPER + Ctrl + P          Fuzzy-find text
 󰖲  Windows
@@ -64,9 +68,11 @@ options="←  Back
   Capture And Desktop
   Print                     Full screenshot
   SUPER + Print             Selection screenshot
+  SUPER + Ctrl + Print      OCR text from selection
+  SUPER + Alt + Print       Decode QR from selection
   SUPER + Shift + N         Next wallpaper
   SUPER + Ctrl + Space      Wallpaper picker
-  SUPER + Shift + Space     Toggle Waybar
+  SUPER + Shift + Space     Toggle desktop bar
   SUPER + N                 Notification center
   SUPER + =                 Color picker
   SUPER + M                 Lock screen
@@ -114,7 +120,16 @@ case "$chosen" in
   "  SUPER + G"*)
     "$ACTIONS_DIR/search/google.sh"
     ;;
+  "  SUPER + C"*)
+    wtype -M ctrl c -m ctrl
+    ;;
+  "  SUPER + X"*)
+    wtype -M ctrl x -m ctrl
+    ;;
   "  SUPER + V"*)
+    wtype -M ctrl v -m ctrl
+    ;;
+  "  SUPER + Ctrl + V"*)
     cliphist list | wofi --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl
     ;;
   "  SUPER + P"*)
@@ -257,6 +272,12 @@ case "$chosen" in
     ;;
   "  SUPER + Print"*)
     "$ACTIONS_DIR/capture/screenshot-selection.sh"
+    ;;
+  "  SUPER + Ctrl + Print"*)
+    "$HOME/.config/walker/scripts/actions/capture/text.sh"
+    ;;
+  "  SUPER + Alt + Print"*)
+    "$HOME/.config/walker/scripts/actions/capture/qr.sh"
     ;;
   "  SUPER + Shift + N"*)
     "$ACTIONS_DIR/wallpaper/next.sh"

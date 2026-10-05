@@ -409,13 +409,28 @@ scrollbar trough {{
   background: {rgba(surface_alt, "0.38")};
 }}
 
+.widget-slider {{
+  padding: 1rem 0;
+  border-radius: 18px;
+  background: {rgba(surface_alt, "0.38")};
+}}
+
 .widget-volume label {{
+  color: {fg};
+  padding: 0 1rem;
+}}
+
+.widget-slider label {{
   color: {fg};
   padding: 0 1rem;
 }}
 
 .widget-volume trough highlight {{
   background: {cyan};
+}}
+
+.widget-slider trough highlight {{
+  background: {yellow};
 }}
 
 .widget-backlight trough highlight {{
@@ -439,6 +454,7 @@ scrollbar trough {{
 .widget-dnd,
 .widget-mpris,
 .widget-volume,
+.widget-slider,
 .widget-buttons-grid,
 .widget-notifications {{
   margin: 0 0 10px 0;

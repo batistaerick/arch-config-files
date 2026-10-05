@@ -62,6 +62,7 @@ options="󰣇  Apps > Search Apps
   System > Update > Pacman
   System > Update > Yay
   System > Update > Full Upgrade Clean
+  System > Cleanup
   System > About
 ⏻  Power > Lock
 ⏻  Power > Shutdown
@@ -295,6 +296,9 @@ case "$chosen" in
     ;;
   "  System > Update > Full Upgrade Clean")
     kitty -e bash -c "sudo pacman -Syu && yay -Sua --devel"
+    ;;
+  "  System > Cleanup")
+    kitty --class system-cleanup -e "$ACTIONS_DIR/system/cleanup.sh"
     ;;
   "  System > About")
     "$ACTIONS_DIR/about.sh"

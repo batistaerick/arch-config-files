@@ -7,84 +7,84 @@ fixed_order = true
 [[entries]]
 text = "SSO Login"
 icon = "󰒋"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh Engineering-Dev-394540956281 --sso-login" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-dev --sso-login" }
 
 [[entries]]
 text = "Check Auth"
 icon = "󰅟"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh Engineering-Dev-394540956281 --check-auth" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-dev --check-auth" }
 
 [[entries]]
 text = "CloudWatch"
 icon = "󰃷"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudwatch.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudwatch.sh doola-dev" }
 
 [[entries]]
 text = "ECS"
 icon = "󰡨"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecs.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecs.sh doola-dev" }
 
 [[entries]]
 text = "S3"
 icon = "󰓟"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/s3.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/s3.sh doola-dev" }
 
 [[entries]]
 text = "Aurora / RDS"
 icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/rds.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/rds.sh doola-dev" }
 
 [[entries]]
 text = "ECR"
 icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecr.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecr.sh doola-dev" }
 
 [[entries]]
 text = "Amazon Grafana"
 icon = "󰨇"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh doola-dev" }
 
 [[entries]]
 text = "Cognito"
 icon = "󰘦"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cognito.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cognito.sh doola-dev" }
 
 [[entries]]
 text = "DocumentDB"
 icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/docdb.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/docdb.sh doola-dev" }
 
 [[entries]]
 text = "Lambda"
 icon = "󰊕"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lambda.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lambda.sh doola-dev" }
 
 [[entries]]
 text = "CloudFront"
 icon = "󰅧"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudfront.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudfront.sh doola-dev" }
 
 [[entries]]
 text = "Lightsail"
 icon = "󰌢"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lightsail.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lightsail.sh doola-dev" }
 
 [[entries]]
 text = "EC2"
 icon = "󰍹"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ec2.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ec2.sh doola-dev" }
 
 [[entries]]
 text = "Route 53"
 icon = "󰑃"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/route53.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/route53.sh doola-dev" }
 
 [[entries]]
 text = "VPC"
 icon = "󰖟"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/vpc.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/vpc.sh doola-dev" }
 
 [[entries]]
 text = "IAM"
 icon = "󰒃"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/iam.sh Engineering-Dev-394540956281" }
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/iam.sh doola-dev" }

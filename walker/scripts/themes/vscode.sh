@@ -27,7 +27,17 @@ PY
 
 if [[ -n "$EXTENSION_ID" ]] && command -v code >/dev/null 2>&1; then
   if ! code --list-extensions | grep -qx "$EXTENSION_ID"; then
-    code --install-extension "$EXTENSION_ID" >/dev/null 2>&1 || true
+    local_vsix="$(python - "$VSCODE_THEME_FILE" <<'PY'
+import json, sys
+from pathlib import Path
+print(json.loads(Path(sys.argv[1]).read_text()).get("vsix", ""))
+PY
+)"
+    if [[ -n "$local_vsix" && -f "$CURRENT_DIR/$local_vsix" ]]; then
+      code --install-extension "$CURRENT_DIR/$local_vsix" || exit 1
+    else
+      code --install-extension "$EXTENSION_ID" || exit 1
+    fi
   fi
 fi
 
@@ -47,12 +57,20 @@ theme_name = sys.argv[2]
 
 raw = settings_path.read_text()
 
-# Remove // comments and /* */ comments, while being careful enough for normal VS Code settings.
-raw = re.sub(r"/\*.*?\*/", "", raw, flags=re.S)
-raw = re.sub(r"^\s*//.*$", "", raw, flags=re.M)
+# Preserve quoted strings while removing JSONC comments.
+raw = re.sub(
+    r'("(?:\\.|[^"\\])*")|/\*.*?\*/|//[^\n]*',
+    lambda match: match.group(1) or " ",
+    raw,
+    flags=re.S,
+)
 
 # Remove trailing commas before } or ]
-raw = re.sub(r",(\s*[}\]])", r"\1", raw)
+raw = re.sub(
+    r'("(?:\\.|[^"\\])*")|,(\s*[}\]])',
+    lambda match: match.group(1) or match.group(2),
+    raw,
+)
 
 try:
     data = json.loads(raw)

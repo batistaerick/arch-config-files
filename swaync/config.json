@@ -19,7 +19,7 @@
       "app-name": ".*"
     }
   },
-  "widgets": ["buttons-grid", "mpris", "volume", "title", "notifications"],
+  "widgets": ["buttons-grid", "mpris", "volume", "slider#brightness", "title", "notifications"],
   "widget-config": {
     "mpris": {
       "blacklist": ["playerctld"],
@@ -30,6 +30,15 @@
     "volume": {
       "label": "",
       "empty-list-label": "No active audio"
+    },
+    "slider#brightness": {
+      "label": "󰃠",
+      "cmd_getter": "/home/erick/.config/swaync/scripts/brightness-get.sh",
+      "cmd_setter": "/home/erick/.config/swaync/scripts/brightness-set.sh $value",
+      "min": 0,
+      "max": 100,
+      "min_limit": 10,
+      "max_limit": 100
     },
     "buttons-grid": {
       "buttons-per-row": 2,

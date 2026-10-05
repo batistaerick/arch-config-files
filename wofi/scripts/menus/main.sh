@@ -3,8 +3,8 @@
 MENUS_DIR="$HOME/.config/wofi/scripts/menus"
 ACTIONS_DIR="$HOME/.config/wofi/scripts/actions"
 
-options="󰣇  Apps
-󰅩  Development
+options="󰅩  Development
+󰣇  Apps
   Style
 󰔎  Toggle
   Capture
@@ -16,11 +16,11 @@ options="󰣇  Apps
 chosen=$(echo -e "$options" | wofi --dmenu --no-sort --cache-file /dev/null --prompt="Find...")
 
 case "$chosen" in
-  "󰣇  Apps")
-    "$MENUS_DIR/search.sh"
-    ;;
   "󰅩  Development")
     "$MENUS_DIR/development.sh"
+    ;;
+  "󰣇  Apps")
+    "$MENUS_DIR/search.sh"
     ;;
   "  Style")
     "$MENUS_DIR/style.sh"

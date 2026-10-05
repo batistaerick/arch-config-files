@@ -31,7 +31,8 @@ function GetEntries()
                 Preview = themes_dir .. "/" .. theme .. "/preview.png",
                 PreviewType = "file",
                 Actions = {
-                    open = home .. "/.config/walker/scripts/actions/style/apply.sh " .. shell_quote(theme),
+                    theme_apply = home .. "/.config/walker/scripts/actions/style/apply.sh " .. shell_quote(theme),
+                    theme_preview = home .. "/.config/walker/scripts/actions/style/preview.sh " .. shell_quote(theme),
                 },
             })
         end

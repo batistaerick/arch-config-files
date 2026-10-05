@@ -55,6 +55,19 @@ end
 
 load_theme_env(os.getenv("HOME") .. "/.config/hypr/theme-env.conf")
 
+local active_border_color = "rgba(33ccffee)"
+local palette_file = io.open(os.getenv("HOME") .. "/.config/theme/current/colors.toml", "r")
+if palette_file then
+	for line in palette_file:lines() do
+		local accent = line:match('^%s*accent%s*=%s*"#(%x%x%x%x%x%x)"')
+		if accent then
+			active_border_color = "rgba(" .. accent .. "ee)"
+			break
+		end
+	end
+	palette_file:close()
+end
+
 --------------
 -- Monitors --
 --------------
@@ -154,8 +167,7 @@ hl.config({
 		col = {
 			active_border = {
 				colors = {
-					"rgba(33ccffee)",
-					"rgba(00ff99ee)",
+					active_border_color,
 				},
 				angle = 45,
 			},
@@ -357,7 +369,7 @@ hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/de
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mainMod .. " + m", hl.dsp.exec_cmd(hyprScriptsDir .. "/manual-lock.sh"))
-hl.bind(mainMod .. " + SEMICOLON", hl.dsp.exec_cmd("gnome-characters"))
+hl.bind(mainMod .. " + SEMICOLON", hl.dsp.exec_cmd(actionsDir .. "/emoji-picker.sh"))
 
 -- Media keys
 hl.bind("F8", hl.dsp.exec_cmd("playerctl play-pause"))
@@ -432,6 +444,10 @@ local function floating_window_rule(name, class, size, move)
 
 	if move == "top-right" then
 		rule.move = { "monitor_w-" .. tostring(size[1]) .. "-10", "40" }
+	elseif move == "top-center" then
+		rule.move = { "monitor_w*0.5-" .. tostring(size[1] / 2), "40" }
+	elseif move == "top-left" then
+		rule.move = { "10", "40" }
 	elseif move then
 		rule.move = move
 	else
@@ -458,11 +474,11 @@ end
 local topRightPanelPosition = "top-right"
 
 floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 660 }, topRightPanelPosition)
-floating_window_rule("calendar-panel-float", "^(dev.local.CalendarPanel)$", { 560, 500 }, topRightPanelPosition)
-floating_window_rule("weather-panel-float", "^(dev.local.WeatherPanel)$", { 560, 250 }, topRightPanelPosition)
+floating_window_rule("calendar-panel-float", "^(dev.local.CalendarPanel)$", { 560, 550 }, "top-center")
+floating_window_rule("weather-panel-float", "^(dev.local.WeatherPanel)$", { 560, 250 }, "top-center")
 floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 480 }, topRightPanelPosition)
-floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 620 }, topRightPanelPosition)
+floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 620 }, "top-left")
 floating_window_rule("pavucontrol-float", "^(org.pulseaudio.pavucontrol)$", { 1000, 480 }, topRightPanelPosition)
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })

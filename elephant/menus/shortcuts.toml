@@ -121,7 +121,7 @@ icon = ""
 actions = { "open" = "$HOME/.config/hypr/scripts/manual-lock.sh" }
 
 [[entries]]
-text = "Characters"
+text = "Emojis"
 subtext = "SUPER + ;"
 icon = "󰊄"
-actions = { "open" = "gnome-characters" }
+actions = { "open" = "$HOME/.config/walker/scripts/actions/emoji-picker.sh" }

@@ -16,6 +16,8 @@ ShellRoot {
     property color activeBg: "#cdd6f4"
     property color hoverBg: Qt.rgba(180 / 255, 190 / 255, 254 / 255, 0.15)
 
+    AppearancePicker {}
+
     function run(command) {
         Quickshell.execDetached(["bash", "-lc", command]);
     }
@@ -113,6 +115,33 @@ ShellRoot {
 
                         }
 
+                        Row {
+                            Layout.alignment: Qt.AlignVCenter
+                            Layout.leftMargin: 12
+                            spacing: 6
+
+                            StatusCommand {
+                                script: "$HOME/.config/quickshell/desktop-bar/scripts/gpu-usage.sh"
+                                interval: 5000
+                                open: true
+                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                            }
+
+                            StatusCommand {
+                                script: "$HOME/.config/quickshell/desktop-bar/scripts/cpu-status.sh"
+                                interval: 2000
+                                open: true
+                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                            }
+
+                            StatusCommand {
+                                script: "$HOME/.config/quickshell/desktop-bar/scripts/memory-status.sh"
+                                interval: 5000
+                                open: true
+                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                            }
+                        }
+
                         Item {
                             Layout.fillWidth: true
                         }
@@ -132,27 +161,6 @@ ShellRoot {
                                 iconSize: 21
                                 glyphOffsetY: -1
                                 onClicked: shell.statusOpen = !shell.statusOpen
-                            }
-
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/gpu-usage.sh"
-                                interval: 5000
-                                open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
-                            }
-
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/cpu-status.sh"
-                                interval: 2000
-                                open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
-                            }
-
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/memory-status.sh"
-                                interval: 5000
-                                open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
                             }
 
                             StatusCommand {
@@ -184,15 +192,20 @@ ShellRoot {
                             NotificationWidget {
                             }
 
-                            WeatherWidget {
-                            }
-
-                            ClockButton {
-                                onClicked: shell.run("$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.CalendarPanel $HOME/.config/quickshell/desktop-bar/scripts/calendar-panel.py")
-                            }
-
                         }
 
+                    }
+
+                    ClockButton {
+                        id: centerInfo
+                        anchors.centerIn: parent
+                        onClicked: shell.run("$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.CalendarPanel $HOME/.config/quickshell/desktop-bar/scripts/calendar-panel.py")
+                    }
+
+                    WeatherWidget {
+                        anchors.left: centerInfo.right
+                        anchors.leftMargin: 6
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
                 }

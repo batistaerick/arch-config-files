@@ -80,7 +80,7 @@ options="󰌌  Launchers
   SUPER + N                 Notification center
   SUPER + =                 Color picker
   SUPER + M                 Lock screen
-  SUPER + ;                 Character picker
+  SUPER + ;                 Emoji picker
   Media And Hardware
   F8                        Play or pause media
   F9                        Next media
@@ -324,7 +324,7 @@ case "$chosen" in
     "$HOME/.config/hypr/scripts/manual-lock.sh"
     ;;
   "  SUPER + ;"*)
-    gnome-characters &
+    "$ACTIONS_DIR/emoji-picker.sh"
     ;;
   "  F8"* | "  Media Play/Pause"*)
     playerctl play-pause

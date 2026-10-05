@@ -3,6 +3,7 @@
 import calendar
 import datetime as dt
 import sys
+from panel_position import keep_top_on_resize
 
 import gi
 
@@ -27,7 +28,7 @@ class CalendarPanel(Adw.Application):
     def do_activate(self) -> None:
         self.window = Adw.ApplicationWindow(application=self)
         self.window.set_title("Calendar")
-        self.window.set_default_size(560, 500)
+        self.window.set_default_size(560, 550)
         self.window.set_resizable(False)
 
         self.install_css()
@@ -39,6 +40,7 @@ class CalendarPanel(Adw.Application):
         self.window.add_controller(key)
 
         self.window.present()
+        keep_top_on_resize(self.window, APP_ID)
 
     def pointer_cursor(self, widget: Gtk.Widget) -> Gtk.Widget:
         widget.set_cursor(Gdk.Cursor.new_from_name("pointer"))
@@ -150,6 +152,7 @@ class CalendarPanel(Adw.Application):
         self.window.set_content(root)
 
         hero = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=18)
+        hero.set_halign(Gtk.Align.CENTER)
         root.append(hero)
 
         icon = Gtk.Label(label="󰃭")
@@ -157,30 +160,24 @@ class CalendarPanel(Adw.Application):
         hero.append(icon)
 
         hero_text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        hero_text.set_hexpand(True)
         hero.append(hero_text)
 
-        self.hero_date = Gtk.Label(xalign=0)
+        self.hero_date = Gtk.Label(xalign=0.5)
         self.hero_date.add_css_class("hero-date")
         hero_text.append(self.hero_date)
 
-        self.hero_meta = Gtk.Label(xalign=0)
+        self.hero_meta = Gtk.Label(xalign=0.5)
         self.hero_meta.add_css_class("hero-meta")
         hero_text.append(self.hero_meta)
 
         nav = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        root.append(nav)
+        nav.set_halign(Gtk.Align.CENTER)
 
         prev_button = Gtk.Button(label="‹")
         prev_button.add_css_class("nav-button")
         prev_button.connect("clicked", lambda *_: self.move_month(-1))
         self.pointer_cursor(prev_button)
         nav.append(prev_button)
-
-        self.month_label = Gtk.Label()
-        self.month_label.add_css_class("month-label")
-        self.month_label.set_hexpand(True)
-        nav.append(self.month_label)
 
         today_button = Gtk.Button(label="Today")
         today_button.add_css_class("nav-button")
@@ -195,7 +192,9 @@ class CalendarPanel(Adw.Application):
         nav.append(next_button)
 
         self.grid = Gtk.Grid(column_spacing=6, row_spacing=8)
+        self.grid.set_halign(Gtk.Align.CENTER)
         root.append(self.grid)
+        root.append(nav)
 
         progress_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=7)
         root.append(progress_box)
@@ -224,9 +223,11 @@ class CalendarPanel(Adw.Application):
         self.today = dt.date.today()
         view_date = dt.date(self.view_year, self.view_month, 1)
 
-        self.hero_date.set_label(self.today.strftime("%B %-d"))
+        is_current_month = (self.view_year, self.view_month) == (self.today.year, self.today.month)
+        self.hero_date.set_label(
+            self.today.strftime("%B %-d") if is_current_month else view_date.strftime("%B %Y")
+        )
         self.hero_meta.set_label(self.today.strftime("%A · Week %V · %Y").upper())
-        self.month_label.set_label(view_date.strftime("%B %Y"))
 
         self.populate_grid()
         self.update_progress()
@@ -240,6 +241,9 @@ class CalendarPanel(Adw.Application):
 
         cal = calendar.Calendar(firstweekday=calendar.MONDAY)
         weeks = cal.monthdatescalendar(self.view_year, self.view_month)
+        while len(weeks) < 6:
+            next_monday = weeks[-1][-1] + dt.timedelta(days=1)
+            weeks.append([next_monday + dt.timedelta(days=offset) for offset in range(7)])
 
         week_header = Gtk.Label(label="W")
         week_header.add_css_class("week-number")

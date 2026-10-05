@@ -2,10 +2,14 @@
 
 set -euo pipefail
 
-state_file="${XDG_STATE_HOME:-$HOME/.local/state}/desktop-bar/weather.json"
-cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/desktop-bar-weather.json"
+state_file="${WEATHER_STATE_FILE:-${XDG_STATE_HOME:-$HOME/.local/state}/desktop-bar/weather.json}"
+cache_file="${WEATHER_CACHE_FILE:-${XDG_CACHE_HOME:-$HOME/.cache}/desktop-bar-weather.json}"
 cache_ttl_seconds=900
-cache_source="open-meteo-v3-celsius"
+location_key="auto"
+if [[ -r "$state_file" ]]; then
+  location_key="$(sha256sum "$state_file" | awk '{print $1}')"
+fi
+cache_source="open-meteo-v4-${location_key}"
 
 round_number() {
   awk -v n="${1:-}" 'BEGIN { if (n == "" || n == "null") print "--"; else printf "%.0f", n }'
@@ -102,6 +106,16 @@ fi
 unit_args="&temperature_unit=celsius&wind_speed_unit=kmh"
 unit_suffix="°C"
 wind_suffix="km/h"
+if [[ -r "$state_file" ]]; then
+  country_code="$(jq -r '.country_code // empty' "$state_file")"
+  case "$country_code" in
+    US|LR|MM)
+      unit_args="&temperature_unit=fahrenheit&wind_speed_unit=mph"
+      unit_suffix="°F"
+      wind_suffix="mph"
+      ;;
+  esac
+fi
 
 url="https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&timezone=auto${unit_args}"
 raw="$(curl --max-time 5 --silent --show-error --fail "$url" 2>/dev/null || true)"

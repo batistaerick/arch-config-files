@@ -25,6 +25,8 @@ quick_activate = []
 
 [providers.actions]
 fallback = [
+  { action = "theme_apply", label = "Apply", bind = "Return", default = true, after = "Close" },
+  { action = "theme_preview", label = "Preview", bind = "ctrl p", after = "Close" },
   { action = "menus:open", label = "open", bind = "Return", default = true, after = "Nothing" },
   { action = "menus:default", label = "run", bind = "Return", default = true, after = "Close" },
   { action = "menus:parent", label = "back", bind = "shift BackSpace", after = "Nothing" },

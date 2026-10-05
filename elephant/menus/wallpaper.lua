@@ -13,6 +13,12 @@ end
 
 function GetEntries()
     local entries = {}
+    local current = ""
+    local current_file = io.open(home .. "/.cache/current-wallpaper", "r")
+    if current_file then
+        current = current_file:read("*a"):match("^%s*(.-)%s*$")
+        current_file:close()
+    end
     local cmd = "find '" .. background_dir .. "' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) -printf '%f\\n' 2>/dev/null | sort -V"
     local handle = io.popen(cmd)
 
@@ -22,7 +28,8 @@ function GetEntries()
             table.insert(entries, {
                 Text = file,
                 Value = path,
-                Icon = path,
+                Icon = path == current and "" or path,
+                State = path == current and { "current" } or {},
                 Preview = path,
                 PreviewType = "file",
                 Actions = {

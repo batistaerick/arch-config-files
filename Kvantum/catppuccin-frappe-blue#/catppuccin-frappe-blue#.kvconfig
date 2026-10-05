@@ -224,6 +224,9 @@ frame.top=1
 frame.bottom=1
 frame.left=1
 frame.right=1
+text.normal.color=#C6D0F5
+text.press.color=#C6D0F5
+text.focus.color=#C6D0F5
 
 [Tab]
 inherits=PanelButtonCommand
@@ -370,9 +373,6 @@ text.toggle.color=#292C3C
 text.bold=false
 frame.expansion=18
 
-[RadioButton]
-inherits=PanelButtonCommand
-
 [Menu]
 frame.element=menu
 interior.element=menu
@@ -437,12 +437,6 @@ text.margin.right=3
 text.press.color=#C6D0F5
 text.toggle.color=#C6D0F5
 
-[ToolboxTab]
-inherits=PanelButtonCommand
-text.normal.color=#C6D0F5
-text.press.color=#C6D0F5
-text.focus.color=#C6D0F5
-
 [Hacks]
 transparent_dolphin_view=true
 blur_konsole=true
@@ -476,3 +470,4 @@ frame.top=0
 frame.bottom=0
 frame.left=0
 frame.right=0
+

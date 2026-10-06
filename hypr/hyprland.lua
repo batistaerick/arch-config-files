@@ -246,14 +246,19 @@ hl.config({
 -- Input --
 -----------
 
+local keyboard_ok, keyboard_layouts = pcall(dofile, os.getenv("HOME") .. "/.config/hypr/keyboard-layouts.lua")
+if not keyboard_ok or type(keyboard_layouts) ~= "table" then
+	keyboard_layouts = { layout = "us,us", variant = ",intl" }
+end
+
 hl.config({
 	input = {
 		sensitivity = 0,
 		follow_mouse = 1,
 		kb_model = "",
 		kb_rules = "",
-		kb_layout = "us,us",
-		kb_variant = ",intl",
+		kb_layout = keyboard_layouts.layout,
+		kb_variant = keyboard_layouts.variant,
 		kb_options = "grp:alt_shift_toggle",
 		touchpad = {
 			natural_scroll = false,

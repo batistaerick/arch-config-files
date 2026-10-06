@@ -40,7 +40,7 @@ ThemedPopup {
     }
     function choose(network) {
         if (network.connected) { act("disconnect", device.path); return; }
-        if (network.type === "8021x") { message = "Configure enterprise credentials in Walker's WiFi tool."; return; }
+        if (network.type === "8021x") { message = "Enterprise credentials require impala or your network configuration."; return; }
         if (network.type === "open" || network.known) { secret = ""; act("connect", network.path); }
         else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
     }

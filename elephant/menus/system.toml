@@ -7,25 +7,51 @@ fixed_order = true
 [[entries]]
 text = "Audio"
 icon = ""
-actions = { "open" = "pavucontrol" }
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh volume" }
 
 [[entries]]
 text = "WiFi"
 keywords = ["network", "impala"]
 icon = ""
-actions = { "open" = "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh setup-wifi kitty --class setup-wifi -e impala" }
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh wifi" }
 
 [[entries]]
 text = "Bluetooth"
 icon = ""
-actions = { "open" = "blueman-manager" }
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh bluetooth" }
 
 [[entries]]
 text = "Keyboard"
-subtext = ">"
 keywords = ["layout", "language", "input", "alt shift"]
 icon = "󰌌"
-submenu = "keyboard"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh keyboard" }
+
+[[entries]]
+text = "Microphone"
+icon = "󰍬"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh mic" }
+
+[[entries]]
+text = "Calendar"
+icon = "󰃭"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh calendar" }
+
+[[entries]]
+text = "Weather"
+icon = "󰖐"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh weather" }
+
+[[entries]]
+text = "Hardware"
+keywords = ["gpu", "cpu", "ram", "memory", "monitor"]
+icon = "󰍛"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh hardware" }
+
+[[entries]]
+text = "AI Usage"
+keywords = ["claude", "codex", "limits", "tokens"]
+icon = "󱜙"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh ai" }
 
 [[entries]]
 text = "Dotfiles"

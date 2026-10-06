@@ -7,6 +7,11 @@ options="  Audio
   WiFi
   Bluetooth
 󰌌  Keyboard
+󰍬  Microphone
+󰃭  Calendar
+󰖐  Weather
+󰍛  Hardware
+󱜙  AI Usage
   Dotfiles
   Update
 󰃢  Cleanup
@@ -19,16 +24,31 @@ chosen="$(
 
 case "$chosen" in
   "  Audio")
-    pavucontrol
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" volume
     ;;
   "  WiFi")
-    kitty -e impala
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" wifi
     ;;
   "  Bluetooth")
-    blueman-manager
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" bluetooth
     ;;
   "󰌌  Keyboard")
-    walker --provider menus:keyboard
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" keyboard
+    ;;
+  "󰍬  Microphone")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" mic
+    ;;
+  "󰃭  Calendar")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" calendar
+    ;;
+  "󰖐  Weather")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" weather
+    ;;
+  "󰍛  Hardware")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" hardware
+    ;;
+  "󱜙  AI Usage")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" ai
     ;;
   "  Dotfiles")
     code "$HOME/.config" &

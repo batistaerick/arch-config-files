@@ -59,6 +59,11 @@ options="󰣇  Apps > Search Apps
   System > WiFi
   System > Bluetooth
   System > Keyboard
+  System > Microphone
+  System > Calendar
+  System > Weather
+  System > Hardware
+  System > AI Usage
   System > Dotfiles
   System > Update
   System > Update > Pacman
@@ -279,16 +284,31 @@ case "$chosen" in
     "$MENUS_DIR/system.sh"
     ;;
   "  System > Audio")
-    open_setup_window "pavucontrol" "pavucontrol"
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" volume
     ;;
   "  System > WiFi")
-    open_setup_window "setup-wifi" "kitty --class setup-wifi -e impala"
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" wifi
     ;;
   "  System > Bluetooth")
-    open_setup_window "blueman-manager" "blueman-manager"
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" bluetooth
     ;;
   "  System > Keyboard")
-    walker --provider menus:keyboard
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" keyboard
+    ;;
+  "  System > Microphone")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" mic
+    ;;
+  "  System > Calendar")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" calendar
+    ;;
+  "  System > Weather")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" weather
+    ;;
+  "  System > Hardware")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" hardware
+    ;;
+  "  System > AI Usage")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" ai
     ;;
   "  System > Dotfiles")
     code "$HOME/.config" &

@@ -118,6 +118,23 @@ ShellRoot {
                 WlrLayershell.namespace: "desktop-bar"
                 WlrLayershell.layer: WlrLayer.Top
 
+                IpcHandler {
+                    target: "panels"
+                    function close(): void {
+                        for (var panel of [wifiMenu, bluetoothMenu, volumeMenu, micMenu,
+                                keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu])
+                            panel.visible = false;
+                    }
+                    function show(kind: string): void {
+                        var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, volume: volumeMenu,
+                            mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
+                            weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu};
+                        if (!panels[kind]) return;
+                        for (var key in panels) panels[key].visible = false;
+                        panels[kind].visible = true;
+                    }
+                }
+
                 anchors {
                     top: true
                     left: true
@@ -259,7 +276,7 @@ ShellRoot {
 
                             WifiMenu {
                                 id: wifiMenu
-                                target: wifiIcon
+                                target: shell.statusOpen ? wifiIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -277,7 +294,7 @@ ShellRoot {
 
                             BluetoothMenu {
                                 id: bluetoothMenu
-                                target: bluetoothIcon
+                                target: shell.statusOpen ? bluetoothIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -296,7 +313,7 @@ ShellRoot {
                             AudioMenu {
                                 id: volumeMenu
                                 maximumHeight: bar.screen.height - 70
-                                target: volumeIcon
+                                target: shell.statusOpen ? volumeIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -316,7 +333,7 @@ ShellRoot {
                             AudioMenu {
                                 id: micMenu
                                 maximumHeight: bar.screen.height - 70
-                                target: micIcon
+                                target: shell.statusOpen ? micIcon : notificationIcon
                                 microphone: true
                                 accent: shell.activeBg
                                 foreground: shell.fg
@@ -336,7 +353,7 @@ ShellRoot {
 
                             KeyboardLayoutMenu {
                                 id: keyboardMenu
-                                target: keyboardIcon
+                                target: shell.statusOpen ? keyboardIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -356,7 +373,7 @@ ShellRoot {
                             AiUsageMenu {
                                 id: aiMenu
                                 maximumHeight: bar.screen.height - 70
-                                target: aiIcon
+                                target: shell.statusOpen ? aiIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg

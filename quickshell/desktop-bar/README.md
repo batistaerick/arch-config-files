@@ -49,6 +49,12 @@ WiFi and Bluetooth open themed native popups on the right. Outside clicks,
 Escape, or hiding the status icons dismiss them; pointer movement does not.
 Inactive workspace tooltips list their open applications by display name, with
 duplicates omitted. Current and empty workspaces show no tooltip.
+Walker System entries use show-panel.sh to open these same bar popups, including
+audio, microphone, keyboard, calendar, weather, hardware, and AI usage. Hidden
+status icons remain hidden; their popups anchor beside the notification icon.
+Keyboard's Add Layout searches the installed XKB languages and variants. Added
+layouts persist in hypr/keyboard-layouts.lua and retain Alt+Shift switching.
+Up to four layouts can be configured; duplicate and unknown layouts are rejected.
 WiFi retains the existing iwd service and uses its D-Bus API for adapter power,
 scanning, connection, and disconnection. The compact panel separates remembered
 networks from other networks and shows latency, packet loss, live transfer rates,
@@ -57,8 +63,8 @@ cover the interface's lifetime since boot, not a billing period. Ping probes use
 two packets to 1.1.1.1 on opening and every 15 seconds while visible.
 Band selection remains managed by iwd; no unsupported band controls are shown.
 Passwords are passed through stdin,
-not command-line arguments. Enterprise network configuration remains available
-through the existing Walker WiFi tool. Bluetooth uses Quickshell's BlueZ service
+not command-line arguments. Enterprise network configuration uses the existing
+iwd tools, such as impala. Bluetooth uses Quickshell's BlueZ service
 for power, discovery, pairing, connecting, and forgetting devices (with confirmation).
 Bluetooth groups connected, known, and scanned devices separately; row actions
 stay beside the device, with power and Scan in the panel header. The adapter's

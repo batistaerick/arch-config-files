@@ -184,7 +184,7 @@ ShellRoot {
                             }
 
                             StatusIcon {
-                                icon: "󰚩"
+                                icon: "󱜙"
                                 tooltip: "AI Usage"
                                 open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.AiUsagePanel python3 $HOME/.config/quickshell/desktop-bar/scripts/ai-usage-panel.py"

@@ -12,8 +12,9 @@ mode = sys.argv[1] if len(sys.argv) > 1 else "wallpaper"
 cache = Path(os.environ.get("XDG_CACHE_HOME", str(home / ".cache")))
 config = home / ".config"
 def preview_url(path):
-    if path.suffix.lower() != ".webp":
-        return path.as_uri()
+    with Image.open(path) as source:
+        if source.format != "WEBP":
+            return path.as_uri()
     info = path.stat()
     key = hashlib.sha256(f"{path}:{info.st_mtime_ns}:{info.st_size}".encode()).hexdigest()
     directory = cache / "desktop-appearance"

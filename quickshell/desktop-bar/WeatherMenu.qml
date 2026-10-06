@@ -160,6 +160,7 @@ ThemedPopup {
                             Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "Search city"; visible: cityInput.text === ""; color: menu.foreground; opacity: 0.58; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
                             TextInput {
                                 id: cityInput
+                                HoverHandler { cursorShape: Qt.IBeamCursor }
                                 activeFocusOnTab: true
                                 anchors.fill: parent
                                 anchors.margins: 8

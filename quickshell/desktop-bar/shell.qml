@@ -228,20 +228,42 @@ ShellRoot {
                             }
 
                             StatusCommand {
+                                id: wifiIcon
                                 script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
                                 hoverLabel: "WiFi"
                                 fontSize: 16
                                 interval: 3000
                                 open: shell.statusOpen
                                 slotWidth: 28
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh setup-wifi kitty --class setup-wifi -e impala"
+                                clickable: true
+                                onClicked: wifiMenu.visible = !wifiMenu.visible
+                                onOpenChanged: if (!open) wifiMenu.visible = false
+                            }
+
+                            WifiMenu {
+                                id: wifiMenu
+                                target: wifiIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
                             }
 
                             StatusIcon {
+                                id: bluetoothIcon
                                 icon: "󰂯"
                                 tooltip: "Bluetooth"
                                 open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh blueman-manager blueman-manager"
+                                clickable: true
+                                onClicked: bluetoothMenu.visible = !bluetoothMenu.visible
+                                onOpenChanged: if (!open) bluetoothMenu.visible = false
+                            }
+
+                            BluetoothMenu {
+                                id: bluetoothMenu
+                                target: bluetoothIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
                             }
 
                             StatusIcon {

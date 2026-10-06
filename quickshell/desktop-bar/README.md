@@ -25,6 +25,17 @@ sources are in `scripts/native/`, with builds cached in
 
 Bar tooltips follow the current theme's background and foreground colors.
 
+WiFi and Bluetooth open themed native popups on the right. Outside clicks,
+Escape, or hiding the status icons dismiss them; pointer movement does not.
+WiFi retains the existing iwd service and uses its D-Bus API for adapter power,
+scanning, connection, and disconnection. Passwords are passed through stdin,
+not command-line arguments. Enterprise network configuration remains available
+through the existing Walker WiFi tool. Bluetooth uses Quickshell's BlueZ service
+for power, discovery, pairing, connecting, and forgetting devices (with confirmation).
+The existing Blueman agent handles any pairing-code confirmation dialogs.
+Discovery started by the popup stops after 20 seconds or when it closes.
+These popups do not change network services or require new packages.
+
 Click GPU, CPU, or RAM to open the shared hardware popup. It refreshes every
 two seconds while visible and closes on an outside click or Escape. CPU load,
 cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals

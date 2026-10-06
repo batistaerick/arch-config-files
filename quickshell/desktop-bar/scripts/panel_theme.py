@@ -72,7 +72,6 @@ def install_panel_css(css):
             }
             themed = re.sub("|".join(re.escape(token) for token in tokens),
                             lambda match: tokens[match.group()], css)
-            themed += f"\nwindow progressbar trough progress {{ background: {colors['accent']}; }}"
             provider.load_from_data(themed.encode())
         return True
 

@@ -34,8 +34,20 @@ class UsagePanel(Adw.Application):
           window { background: rgba(24, 24, 36, 0.94); color: #cdd6f4; }
           .heading { font-size: 22px; font-weight: bold; }
           .provider { font-size: 17px; font-weight: bold; }
-          progressbar progress { min-height: 6px; }
-          progressbar trough { min-height: 6px; background: rgba(205, 214, 244, 0.12); }
+          window progressbar.usage-meter trough,
+          window progressbar.usage-meter trough progress {
+            min-height: 6px;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            border-radius: 999px;
+            border: none;
+            box-shadow: none;
+            background-image: none;
+          }
+          window progressbar.usage-meter trough { background: rgba(205, 214, 244, 0.12); }
+          window progressbar.usage-meter trough progress { background: #cdd6f4; }
+          .provider-divider { min-height: 1px; background: rgba(205, 214, 244, 0.08); }
           .muted { color: rgba(205, 214, 244, 0.72); font-size: 12px; }
         """)
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
@@ -51,7 +63,7 @@ class UsagePanel(Adw.Application):
         header.append(self.refresh_button)
         root.append(header)
         scroll = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
-        self.content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=22)
+        self.content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         scroll.set_child(self.content)
         root.append(scroll)
         self.status = Gtk.Label(label="Checking usage...", xalign=0)
@@ -119,7 +131,13 @@ class UsagePanel(Adw.Application):
     def render(self, data):
         while child := self.content.get_first_child():
             self.content.remove(child)
-        for provider in data["providers"]:
+        for index, provider in enumerate(data["providers"]):
+            if index:
+                divider = Gtk.Box()
+                divider.add_css_class("provider-divider")
+                divider.set_margin_top(24)
+                divider.set_margin_bottom(24)
+                self.content.append(divider)
             section = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
             name = Gtk.Label(label=provider["name"], xalign=0)
             name.add_css_class("provider")
@@ -135,6 +153,7 @@ class UsagePanel(Adw.Application):
                 labels.append(Gtk.Label(label=f"{100-used:.0f}% left", xalign=1))
                 section.append(labels)
                 bar = Gtk.ProgressBar(fraction=used / 100)
+                bar.add_css_class("usage-meter")
                 bar.set_tooltip_text(f"{used:g}% used")
                 section.append(bar)
                 if window.get("reset"):

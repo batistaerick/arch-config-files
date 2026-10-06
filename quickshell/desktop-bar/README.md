@@ -33,6 +33,18 @@ sources are in `scripts/native/`, with builds cached in
 
 Bar tooltips follow the current theme's background and foreground colors.
 
+A compact media strip sits left of the clock without moving the clock's center.
+It uses native MPRIS players (excluding the duplicate playerctld proxy), prefers
+a playing player, and retains a paused player's title.
+Meeting apps and recognized meeting-page URLs/titles are excluded, including
+Google Meet, Zoom, Teams, and Webex. Previous, play/pause, and
+next controls respect the player's capabilities. Long titles scroll only while
+hovered within a fixed-width strip and reset on pointer exit, without a title
+tooltip. Clicking the title raises players
+that support it. The animated bars indicate playback, not an audio spectrum.
+No media daemon or audio capture is started. The strip hides without an eligible
+player or when there is insufficient space beside the hardware indicators.
+
 WiFi and Bluetooth open themed native popups on the right. Outside clicks,
 Escape, or hiding the status icons dismiss them; pointer movement does not.
 WiFi retains the existing iwd service and uses its D-Bus API for adapter power,

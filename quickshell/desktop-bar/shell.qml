@@ -360,6 +360,16 @@ ShellRoot {
                         onClicked: calendarMenu.visible = !calendarMenu.visible
                     }
 
+                    MediaStrip {
+                        id: mediaStrip
+                        anchors.right: centerInfo.left
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        availableWidth: Math.max(0, centerInfo.x - hardwareStatus.mapToItem(centerInfo.parent, hardwareStatus.width, 0).x - 24)
+                        foreground: shell.fg
+                        background: shell.workspaceMenuBg
+                    }
+
                     WeatherWidget {
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6

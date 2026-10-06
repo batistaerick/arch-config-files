@@ -7,7 +7,8 @@ Rectangle {
     property bool available: true
     property bool icon: false
     signal clicked()
-    activeFocusOnTab: available
+    activeFocusOnTab: true
+    enabled: available
     Keys.onReturnPressed: if (available) clicked()
     Keys.onEnterPressed: if (available) clicked()
     Keys.onSpacePressed: if (available) clicked()

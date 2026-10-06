@@ -20,6 +20,12 @@ normally. No focus-loss fallback is used.
 
 Bar tooltips follow the current theme's background and foreground colors.
 
+Click GPU, CPU, or RAM to open the shared hardware popup. It refreshes every
+two seconds while visible and closes on an outside click or Escape. CPU load,
+cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals
+are read locally. GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
+Missing optional telemetry is shown as unavailable. No terminal is launched.
+
 The keyboard icon and Walker's System > Keyboard menu share the configured
 layout selector and follow changes made with Alt+Shift. Weather keeps the city's local temperature unit
 as the main reading, with a smaller equivalent in the other unit alongside it.

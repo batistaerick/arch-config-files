@@ -160,6 +160,7 @@ ShellRoot {
                         }
 
                         Row {
+                            id: hardwareStatus
                             Layout.alignment: Qt.AlignVCenter
                             Layout.leftMargin: 12
                             spacing: 2
@@ -169,7 +170,8 @@ ShellRoot {
                                 fixedWidth: 56
                                 interval: 5000
                                 open: true
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                                clickable: true
+                                onClicked: hardwareMenu.visible = !hardwareMenu.visible
                             }
 
                             StatusCommand {
@@ -177,7 +179,8 @@ ShellRoot {
                                 fixedWidth: 56
                                 interval: 2000
                                 open: true
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                                clickable: true
+                                onClicked: hardwareMenu.visible = !hardwareMenu.visible
                             }
 
                             StatusCommand {
@@ -185,8 +188,17 @@ ShellRoot {
                                 fixedWidth: 56
                                 interval: 5000
                                 open: true
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh system-monitor kitty --class system-monitor -e btop"
+                                clickable: true
+                                onClicked: hardwareMenu.visible = !hardwareMenu.visible
                             }
+                        }
+
+                        SystemMonitorMenu {
+                            id: hardwareMenu
+                            target: hardwareStatus
+                            accent: shell.activeBg
+                            foreground: shell.fg
+                            background: shell.workspaceMenuBg
                         }
 
                         Item {
@@ -452,6 +464,8 @@ ShellRoot {
         property string script: ""
         property string hoverLabel: script.indexOf("gpu-") !== -1 ? "GPU" : script.indexOf("cpu-") !== -1 ? "CPU" : "RAM"
         property string command: ""
+        property bool clickable: false
+        signal clicked()
         property bool open: true
         property int interval: 5000
         property string text: ""
@@ -504,10 +518,13 @@ ShellRoot {
         MouseArea {
             id: commandMouse
             anchors.fill: parent
-            enabled: item.open && item.command !== ""
+            enabled: item.open && (item.clickable || item.command !== "")
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: shell.run(item.command)
+            onClicked: {
+                item.clicked();
+                if (item.command !== "") shell.run(item.command);
+            }
         }
 
         BarTooltip {

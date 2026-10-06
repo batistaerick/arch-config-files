@@ -139,6 +139,7 @@ ShellRoot {
 
                             StatusIcon {
                                 id: statusToggle
+                                tooltip: shell.statusOpen ? "Hide icons" : "Show icons"
 
                                 icon: shell.statusOpen ? "›" : "‹"
                                 open: true
@@ -150,6 +151,7 @@ ShellRoot {
 
                             StatusCommand {
                                 script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
+                                hoverLabel: "WiFi"
                                 interval: 3000
                                 open: shell.statusOpen
                                 slotWidth: 28
@@ -158,24 +160,28 @@ ShellRoot {
 
                             StatusIcon {
                                 icon: "󰂯"
+                                tooltip: "Bluetooth"
                                 open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh blueman-manager blueman-manager"
                             }
 
                             StatusIcon {
                                 icon: ""
+                                tooltip: "Volume"
                                 open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh org.pulseaudio.pavucontrol pavucontrol"
                             }
 
                             StatusIcon {
                                 icon: "󰍬"
+                                tooltip: "Mic"
                                 open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh org.pulseaudio.pavucontrol pavucontrol"
                             }
 
                             StatusIcon {
                                 icon: "󰚩"
+                                tooltip: "AI Usage"
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.AiUsagePanel python3 $HOME/.config/quickshell/desktop-bar/scripts/ai-usage-panel.py"
                             }
 
@@ -258,6 +264,7 @@ ShellRoot {
         id: item
 
         property string icon: ""
+        property string tooltip: ""
         property string detail: ""
         property string command: ""
         property bool open: true
@@ -302,6 +309,7 @@ ShellRoot {
         }
 
         MouseArea {
+            id: iconMouse
             anchors.fill: parent
             enabled: item.open && (item.clickable || item.command !== "")
             hoverEnabled: true
@@ -312,6 +320,12 @@ ShellRoot {
 
                 item.clicked();
             }
+        }
+
+        BarTooltip {
+            target: item
+            hovered: iconMouse.containsMouse && item.open
+            text: item.tooltip
         }
 
         Behavior on width {
@@ -336,6 +350,7 @@ ShellRoot {
         id: item
 
         property string script: ""
+        property string hoverLabel: script.indexOf("gpu-") !== -1 ? "GPU" : script.indexOf("cpu-") !== -1 ? "CPU" : "RAM"
         property string command: ""
         property bool open: true
         property int interval: 5000
@@ -385,11 +400,18 @@ ShellRoot {
         }
 
         MouseArea {
+            id: commandMouse
             anchors.fill: parent
             enabled: item.open && item.command !== ""
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: shell.run(item.command)
+        }
+
+        BarTooltip {
+            target: item
+            hovered: commandMouse.containsMouse && item.open
+            text: item.hoverLabel
         }
 
         Timer {
@@ -489,10 +511,17 @@ ShellRoot {
         }
 
         MouseArea {
+            id: weatherMouse
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: shell.run("$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.WeatherPanel $HOME/.config/quickshell/desktop-bar/scripts/weather-panel.py")
+        }
+
+        BarTooltip {
+            target: weather
+            hovered: weatherMouse.containsMouse
+            text: "Weather"
         }
 
         Timer {
@@ -599,6 +628,12 @@ ShellRoot {
             onTriggered: notifications.refresh()
         }
 
+        BarTooltip {
+            target: notifications
+            hovered: mouse.containsMouse
+            text: "Notifications"
+        }
+
         Process {
             id: process
 
@@ -660,6 +695,12 @@ ShellRoot {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: clock.clicked()
+        }
+
+        BarTooltip {
+            target: clock
+            hovered: mouse.containsMouse
+            text: "Calendar"
         }
 
     }

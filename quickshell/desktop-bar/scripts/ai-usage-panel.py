@@ -34,6 +34,7 @@ class UsagePanel(Adw.Application):
           window { background: rgba(24, 24, 36, 0.94); color: #cdd6f4; }
           .heading { font-size: 22px; font-weight: bold; }
           .provider { font-size: 17px; font-weight: bold; }
+          .provider-icon { font-family: "JetBrainsMono Nerd Font"; font-size: 19px; }
           window progressbar.usage-meter trough,
           window progressbar.usage-meter trough progress {
             min-height: 6px;
@@ -139,9 +140,14 @@ class UsagePanel(Adw.Application):
                 divider.set_margin_bottom(24)
                 self.content.append(divider)
             section = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            heading = Gtk.Box(spacing=10)
+            icon = Gtk.Label(label={"Codex": "", "Claude": "󰚩"}.get(provider["name"], "󰚩"))
+            icon.add_css_class("provider-icon")
+            heading.append(icon)
             name = Gtk.Label(label=provider["name"], xalign=0)
             name.add_css_class("provider")
-            section.append(name)
+            heading.append(name)
+            section.append(heading)
             if provider.get("error"):
                 error = Gtk.Label(label=provider["error"], xalign=0, wrap=True)
                 error.add_css_class("muted")

@@ -197,6 +197,7 @@ Item {
             }
 
             Text {
+                visible: picker.mode === "theme" || !picker.items[picker.selectedIndex]
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: (content.height + content.previewHeight) / 2 - 4
                 width: content.previewWidth

@@ -1,6 +1,6 @@
-# Desktop Bar Preview
+# Desktop Bar
 
-This is a first-pass Quickshell bar preview.
+The desktop bar and its native popups follow the current theme.
 
 Right-click a workspace to choose Numbers, Glyph, or Dots, or use Walker's
 Style > Workspaces menu. Both selectors share the same saved preference.
@@ -25,11 +25,6 @@ Weather retains the 15-minute refresh,
 debounced city search, country-based units, and smaller alternate temperature.
 City overrides last only until the popup closes; the bar's default is unchanged.
 Escape cancels city search first, then closes Weather. Buttons support Tab/Enter.
-
-The previous GTK panels and their click-outside helper remain available as
-fallback scripts, but bar clicks no longer launch them. The helper's licensed
-sources are in `scripts/native/`, with builds cached in
-`~/.cache/desktop-bar-native` (dependencies: `gcc`, `pkgconf`, `wayland`, `gtk4`).
 
 Bar tooltips follow the current theme's background and foreground colors.
 

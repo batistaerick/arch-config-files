@@ -40,7 +40,7 @@ nohup "$THEME_SCRIPTS_DIR/rgb.sh" >/tmp/rgb.log 2>&1 &
 
 # Apply theme modules
 failed_modules=()
-for module in sddm system walker btop kitty vscode swaync; do
+for module in system walker btop kitty vscode swaync; do
   if ! "$THEME_SCRIPTS_DIR/$module.sh"; then
     failed_modules+=("$module")
     printf 'Theme module failed: %s\n' "$module" >&2

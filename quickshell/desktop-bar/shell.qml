@@ -131,11 +131,15 @@ ShellRoot {
                             Layout.fillWidth: true
                         }
 
+                    }
+
                         Row {
                             id: rightSide
 
                             spacing: 6
-                            Layout.alignment: Qt.AlignVCenter
+                            anchors.right: notificationIcon.left
+                            anchors.rightMargin: 6
+                            anchors.verticalCenter: parent.verticalCenter
 
                             StatusIcon {
                                 id: statusToggle
@@ -182,14 +186,17 @@ ShellRoot {
                             StatusIcon {
                                 icon: "󰚩"
                                 tooltip: "AI Usage"
+                                open: shell.statusOpen
                                 command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.AiUsagePanel python3 $HOME/.config/quickshell/desktop-bar/scripts/ai-usage-panel.py"
-                            }
-
-                            NotificationWidget {
                             }
 
                         }
 
+                    NotificationWidget {
+                        id: notificationIcon
+                        anchors.right: parent.right
+                        anchors.rightMargin: 9
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
                     ClockButton {
@@ -668,7 +675,7 @@ ShellRoot {
         width: label.implicitWidth + 17
         height: 24
         radius: 7
-        color: mouse.containsMouse ? shell.hoverBg : "transparent"
+        color: "transparent"
 
         Timer {
             interval: 1000

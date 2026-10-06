@@ -38,6 +38,9 @@ ShellRoot {
                     shell.workspaceMenuBg = palette.menuBackground;
                     shell.workspaceMenuFg = palette.menuForeground;
                     shell.fg = palette.menuForeground;
+                    var background = shell.workspaceMenuBg;
+                    shell.bg = Qt.rgba(background.r, background.g, background.b, 0.38);
+                    shell.hoverBg = Qt.rgba(shell.fg.r, shell.fg.g, shell.fg.b, 0.15);
                 } catch (e) {}
             }
         }
@@ -146,6 +149,7 @@ ShellRoot {
                                 accent: shell.activeBg
                                 foreground: shell.workspaceMenuFg
                                 background: shell.workspaceMenuBg
+                                selectedForeground: shell.activeFg
                                 onSelected: function(style) {
                                     shell.workspaceStyle = style;
                                     saveWorkspaceStyle.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/workspace-style.py", style];
@@ -300,36 +304,16 @@ ShellRoot {
         radius: cornerRadius
         color: visualStyle === "Numbers" ? (active ? shell.activeBg : (mouse.containsMouse ? shell.hoverBg : "transparent")) : "transparent"
 
-        Text {
-            visible: button.visualStyle !== "Dots"
+        WorkspaceMarker {
             anchors.fill: parent
-            text: button.text
-            color: button.active ? (button.visualStyle === "Glyph" ? shell.activeBg : shell.activeFg) : shell.fg
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: button.visualStyle === "Glyph" ? 19 : button.fontSize
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            y: button.textOffsetY
-        }
-
-        Rectangle {
-            visible: button.visualStyle === "Dots"
-            anchors.centerIn: parent
-            width: button.active ? 22 : 12
-            height: 12
-            radius: 6
-            color: button.active ? Qt.rgba(shell.activeBg.r, shell.activeBg.g, shell.activeBg.b, 0.16) : Qt.rgba(shell.fg.r, shell.fg.g, shell.fg.b, 0.08)
-            Rectangle {
-                anchors.centerIn: parent
-                width: button.active ? 17 : 6
-                height: 6
-                radius: 3
-                color: button.active ? shell.activeBg : shell.fg
-                Behavior on width { NumberAnimation { duration: 140 } }
-            }
-            Behavior on width { NumberAnimation { duration: 140 } }
-            Behavior on height { NumberAnimation { duration: 140 } }
+            style: button.visualStyle
+            label: button.text
+            active: button.active
+            accent: shell.activeBg
+            foreground: shell.fg
+            selectedForeground: shell.activeFg
+            fontSize: button.fontSize
+            textOffsetY: button.textOffsetY
         }
 
 
@@ -386,7 +370,7 @@ ShellRoot {
             Text {
                 text: item.icon
                 y: item.glyphOffsetY
-                color: "#ffffff"
+                color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: item.iconSize
                 font.bold: true
@@ -395,7 +379,7 @@ ShellRoot {
             Text {
                 visible: item.detail !== ""
                 text: item.detail
-                color: "#ffffff"
+                color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 11
                 font.bold: true
@@ -490,7 +474,7 @@ ShellRoot {
             anchors.centerIn: parent
             text: item.text
             textFormat: Text.RichText
-            color: "#ffffff"
+            color: shell.fg
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: item.fontSize
             font.bold: true
@@ -602,14 +586,14 @@ ShellRoot {
             spacing: 3
             Text {
                 text: weather.text.split(" ")[0]
-                color: "#ffffff"
+                color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 font.bold: true
             }
             Text {
                 text: weather.temp || (weather.text.indexOf(" ") >= 0 ? weather.text.slice(weather.text.indexOf(" ") + 1).trim() : "")
-                color: "#ffffff"
+                color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
                 font.bold: true
@@ -695,7 +679,7 @@ ShellRoot {
         Text {
             anchors.fill: parent
             text: notifications.text
-            color: "#ffffff"
+            color: shell.fg
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 18
             font.bold: true
@@ -788,7 +772,7 @@ ShellRoot {
 
             anchors.centerIn: parent
             text: Qt.formatDateTime(clock.now, "ddd MMM dd hh:mm AP")
-            color: "#ffffff"
+            color: shell.fg
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             font.bold: true

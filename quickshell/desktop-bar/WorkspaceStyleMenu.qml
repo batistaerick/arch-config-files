@@ -9,6 +9,7 @@ PopupWindow {
     required property color accent
     required property color foreground
     required property color background
+    required property color selectedForeground
     signal selected(string style)
 
     visible: false
@@ -53,6 +54,7 @@ PopupWindow {
             Repeater {
                 model: ["Numbers", "Glyph", "Dots"]
                 Rectangle {
+                    id: choiceRow
                     required property string modelData
                     width: 228
                     height: 33
@@ -67,36 +69,23 @@ PopupWindow {
                         font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
                     }
-                    Text {
-                        anchors.right: parent.right
-                        anchors.rightMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: modelData !== "Dots"
-                        text: {
-                            if (modelData === "Numbers") return "1 2 3 4";
-                            if (modelData === "Glyph") return "✦ ✧ · ·";
-                            return "━ · · ·";
-                        }
-                        color: menu.accent
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 13
-                        font.bold: true
-                    }
                     Row {
-                        visible: parent.modelData === "Dots"
                         anchors.right: parent.right
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 7
+                        spacing: 4
                         Repeater {
                             model: 4
-                            Rectangle {
+                            WorkspaceMarker {
                                 required property int index
-                                width: index === 3 ? 17 : 6
-                                height: 6
-                                radius: 3
-                                color: menu.accent
-                                opacity: index === 3 ? 1 : 0.65
+                                width: 23
+                                height: 20
+                                style: choiceRow.modelData
+                                label: String(index + 1)
+                                active: index === 1
+                                accent: menu.accent
+                                foreground: menu.foreground
+                                selectedForeground: menu.selectedForeground
                             }
                         }
                     }

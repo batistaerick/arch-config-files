@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Read and control iwd without parsing terminal output."""
 import json
+import ipaddress
+from pathlib import Path
+import re
+import socket
+import subprocess
 import sys
+import time
 
 from gi.repository import Gio, GLib
 
@@ -31,10 +37,52 @@ def snapshot():
                                  "type": network.get("Type", ""), "known": bool(network.get("KnownNetwork")),
                                  "connected": station.get("ConnectedNetwork") == network_path,
                                  "strength": max(0, min(100, 2 * (strength / 100 + 100)))})
+        details = telemetry(device["Name"])
+        details["automatic"] = not station.get("Affinities")
+        if station.get("State") == "connected":
+            try:
+                diagnostic = call(path, PREFIX + "StationDiagnostic", "GetDiagnostics")[0]
+                frequency = diagnostic.get("Frequency", 0)
+                details["band"] = "6 GHz" if frequency >= 5925 else "5 GHz" if frequency >= 4900 else "2.4 GHz"
+            except GLib.Error:
+                pass
         devices.append({"path": path, "name": device["Name"], "powered": device.get("Powered", False),
                         "state": station.get("State", "off"), "scanning": station.get("Scanning", False),
-                        "networks": networks})
+                        "networks": networks, "details": details})
     return {"devices": devices}
+
+
+def telemetry(interface):
+    result = {"sampled": time.monotonic()}
+    for key, counter in (("rx", "rx_bytes"), ("tx", "tx_bytes")):
+        try:
+            result[key] = int((Path("/sys/class/net") / interface / "statistics" / counter).read_text())
+        except OSError:
+            pass
+    try:
+        addresses = json.loads(subprocess.check_output(["ip", "-j", "-4", "addr", "show", "dev", interface], timeout=2))
+        result["ip"] = next((a["local"] for link in addresses for a in link.get("addr_info", []) if a.get("scope") == "global"), "")
+        routes = json.loads(subprocess.check_output(["ip", "-j", "-4", "route", "show", "default", "dev", interface], timeout=2))
+        result["gateway"] = next((r["gateway"] for r in routes if r.get("gateway")), "")
+        index = socket.if_nametoindex(interface)
+        dns = bus.call_sync("org.freedesktop.resolve1", "/org/freedesktop/resolve1", "org.freedesktop.resolve1.Manager", "GetLink",
+                            GLib.Variant("(i)", (index,)), None, Gio.DBusCallFlags.NONE, 2000, None).unpack()[0]
+        properties = bus.call_sync("org.freedesktop.resolve1", dns, "org.freedesktop.DBus.Properties", "GetAll",
+                                   GLib.Variant("(s)", ("org.freedesktop.resolve1.Link",)), None, Gio.DBusCallFlags.NONE, 2000, None).unpack()[0]
+        servers = [socket.inet_ntop(family, bytes(address)) for family, address in properties.get("DNS", [])]
+        result["dns"] = "Cloudflare" if "1.1.1.1" in servers else "Google" if "8.8.8.8" in servers else "DHCP" if result.get("gateway") in servers else "Custom"
+        result["servers"] = servers
+    except (OSError, GLib.Error, subprocess.SubprocessError, ValueError):
+        pass
+    return result
+
+
+def probe(interface):
+    result = subprocess.run(["ping", "-n", "-I", interface, "-c", "2", "-W", "1", "1.1.1.1"],
+                            capture_output=True, text=True, timeout=4, env={"PATH": "/usr/bin", "LC_ALL": "C"})
+    loss = re.search(r"([\d.]+)% packet loss", result.stdout)
+    timing = re.search(r"= [\d.]+/([\d.]+)/", result.stdout)
+    return {"loss": float(loss[1]) if loss else None, "ping": float(timing[1]) if timing else None}
 
 
 def connect(path, password):
@@ -80,6 +128,26 @@ def main():
     action = sys.argv[1] if len(sys.argv) > 1 else "status"
     if action == "status":
         return snapshot()
+    if action == "probe":
+        return probe(sys.argv[2])
+    if action == "dns":
+        interface, provider = sys.argv[2:4]
+        socket.if_nametoindex(interface)
+        if provider == "DHCP":
+            command = ["revert", interface]
+        else:
+            servers = {"Cloudflare": ["1.1.1.1", "1.0.0.1"], "Google": ["8.8.8.8", "8.8.4.4"]}.get(provider)
+            if servers is None:
+                servers = json.loads(sys.stdin.readline()).get("servers", "").split()
+            if not servers:
+                raise ValueError("Enter at least one DNS address")
+            for address in servers:
+                ipaddress.ip_address(address)
+            command = ["dns", interface] + servers
+        result = subprocess.run(["pkexec", "/usr/bin/resolvectl"] + command, capture_output=True, text=True, timeout=120)
+        if result.returncode:
+            raise RuntimeError(result.stderr.strip() or "DNS change canceled")
+        return {"ok": True}
     path = sys.argv[2]
     if action == "connect":
         request = json.loads(sys.stdin.readline())
@@ -97,6 +165,6 @@ def main():
 if __name__ == "__main__":
     try:
         print(json.dumps(main()))
-    except (GLib.Error, RuntimeError, ValueError, IndexError) as error:
+    except (GLib.Error, RuntimeError, ValueError, IndexError, OSError, subprocess.SubprocessError) as error:
         print(json.dumps({"error": str(error)}))
         sys.exit(1)

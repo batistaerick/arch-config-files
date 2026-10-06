@@ -6,31 +6,53 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 440
-    implicitHeight: 480
+    implicitHeight: 580
     property var devices: []
+    readonly property var device: devices.length ? devices[0] : null
+    readonly property var details: device ? device.details : ({})
+    readonly property var connected: device ? device.networks.find(n => n.connected) : null
+    readonly property var groups: [
+        {title: "KNOWN NETWORKS", networks: device ? device.networks.filter(n => n.known || n.connected) : []},
+        {title: "OTHER NETWORKS", networks: device ? device.networks.filter(n => !n.known && !n.connected) : []}
+    ]
     property var selectedNetwork: null
     property string message: ""
     property string secret: ""
+    property string dnsServers: ""
+    property bool customDns: false
     property bool busy: operation ? operation.running : false
+    property real downloadRate: 0
+    property real uploadRate: 0
+    property var previous: null
+    property var latency: ({})
     property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/wifi-popup.py"
+    function bytes(value) {
+        if (value === undefined) return "--";
+        var units = ["B", "KB", "MB", "GB", "TB"], index = 0;
+        while (value >= 1000 && index < units.length - 1) { value /= 1000; index++; }
+        return value.toFixed(index ? 1 : 0) + " " + units[index];
+    }
     function refresh() { if (!query.running) query.running = true; }
     function act(kind, path, extra) {
-        if (operation.running) return;
+        if (busy) return;
         message = "";
         operation.command = ["python3", helper, kind, path];
         if (extra !== undefined) operation.command = operation.command.concat([extra]);
         operation.running = true;
     }
     function choose(network) {
-        if (network.connected) return;
+        if (network.connected) { act("disconnect", device.path); return; }
+        if (network.type === "8021x") { message = "Configure enterprise credentials in Walker's WiFi tool."; return; }
         if (network.type === "open" || network.known) { secret = ""; act("connect", network.path); }
-        else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
+        else { customDns = false; selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
     }
+    function probe() { if (visible && device && device.state === "connected" && !pingQuery.running) { pingQuery.command = ["python3", helper, "probe", device.name]; pingQuery.running = true; } }
     onVisibleChanged: {
-        if (visible) { message = ""; refresh(); }
-        else { selectedNetwork = null; secret = ""; password.text = ""; }
+        if (visible) { message = ""; previous = null; latency = ({}); refresh(); }
+        else { selectedNetwork = null; customDns = false; secret = ""; password.text = ""; dnsInput.text = ""; }
     }
-    Timer { interval: 3000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
+    Timer { interval: 2000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
+    Timer { interval: 15000; running: menu.visible; repeat: true; onTriggered: menu.probe() }
     Process {
         id: query
         command: ["python3", menu.helper, "status"]
@@ -39,81 +61,189 @@ ThemedPopup {
             try {
                 var result = JSON.parse(snapshot.text);
                 if (result.error) menu.message = result.error;
-                else menu.devices = result.devices;
+                else {
+                    menu.devices = result.devices;
+                    if (menu.device) {
+                        var next = menu.device.details;
+                        if (menu.previous && next.sampled > menu.previous.sampled) {
+                            menu.downloadRate = Math.max(0, (next.rx - menu.previous.rx) / (next.sampled - menu.previous.sampled));
+                            menu.uploadRate = Math.max(0, (next.tx - menu.previous.tx) / (next.sampled - menu.previous.sampled));
+                        }
+                        menu.previous = next;
+                        if (menu.latency.ping === undefined) menu.probe();
+                    }
+                }
             } catch (e) { menu.message = "WiFi unavailable"; }
         }
     }
     Process {
         id: operation
         stdinEnabled: true
-        onStarted: { write(JSON.stringify({password: menu.secret}) + "\n"); menu.secret = ""; }
-        stdout: StdioCollector { id: actionOutput }
+        onStarted: { write(JSON.stringify({password: menu.secret, servers: menu.dnsServers}) + "\n"); menu.secret = ""; menu.dnsServers = ""; }
+        stdout: StdioCollector { id: operationOutput }
         onExited: {
-            try { var result = JSON.parse(actionOutput.text); menu.message = result.error || ""; }
+            try { var result = JSON.parse(operationOutput.text); menu.message = result.error || ""; }
             catch (e) { menu.message = "Could not complete request"; }
             menu.refresh();
         }
     }
-    Column {
+    Process {
+        id: pingQuery
+        stdout: StdioCollector { id: pingOutput }
+        onExited: { try { menu.latency = JSON.parse(pingOutput.text); } catch (e) {} }
+    }
+    Item {
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 12
-        Text { text: "WiFi"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 22; font.bold: true }
-        Text { visible: operation.running || menu.message !== "" || menu.devices.length === 0; width: parent.width; text: operation.running ? "Connecting / updating..." : menu.message || "No WiFi adapter"; wrapMode: Text.Wrap; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+        anchors.margins: 18
         Column {
-            visible: menu.selectedNetwork !== null
+            id: wifiHeaderContent
             width: parent.width
-            spacing: 8
-            Text { width: parent.width; elide: Text.ElideRight; text: menu.selectedNetwork ? menu.selectedNetwork.name : ""; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-            TextField {
-                id: password
+            spacing: 14
+            Item {
                 width: parent.width
-                placeholderText: "Password"
-                echoMode: TextInput.Password
-                color: menu.foreground
-                placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.6)
-                background: Rectangle { radius: 6; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: password.activeFocus ? menu.accent : "transparent" }
-                onAccepted: connectButton.clicked()
-                HoverHandler { cursorShape: Qt.IBeamCursor }
+                height: 42
+                Text { anchors.verticalCenter: parent.verticalCenter; text: menu.connected ? "󰤨" : "󰤮"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 24 }
+                Column {
+                    x: 36
+                    width: parent.width - 156
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: menu.connected ? menu.connected.name : "WiFi"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
+                    Text { text: menu.busy ? "UPDATING..." : menu.device ? String(menu.device.state).toUpperCase() : "NO ADAPTER"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                }
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 12
+                    PanelButton {
+                        id: scanButton
+                        text: "󰑓"; icon: true; height: 32; foreground: menu.foreground
+                        available: !!menu.device && menu.device.powered && !menu.busy && !menu.device.scanning
+                        onClicked: menu.act("scan", menu.device.path)
+                        HoverHandler { id: scanHover }
+                        BarTooltip { target: scanButton; hovered: scanHover.hovered; text: "Scan"; foreground: menu.foreground; background: menu.background }
+                    }
+                    PanelSwitch { checked: !!menu.device && menu.device.powered; enabled: !!menu.device && !menu.busy; foreground: menu.foreground; accent: menu.accent; onClicked: menu.act("power", menu.device.path, checked ? "true" : "false") }
+                }
             }
-            Row {
-                spacing: 8
-                PanelButton { id: connectButton; text: "Connect"; width: 90; foreground: menu.foreground; available: !menu.busy && password.text.length > 0; onClicked: { if (!available) return; menu.secret = password.text; menu.act("connect", menu.selectedNetwork.path); menu.selectedNetwork = null; password.text = ""; } }
-                PanelButton { text: "Cancel"; width: 80; foreground: menu.foreground; onClicked: { menu.selectedNetwork = null; password.text = ""; } }
+            Column {
+                width: parent.width
+                spacing: 6
+                Repeater {
+                    model: [
+                        ["Ping", menu.latency.ping != null ? Math.round(menu.latency.ping) + " ms" : "--", "Packet Loss", menu.latency.loss != null ? menu.latency.loss + "%" : "--"],
+                        ["Receiving", menu.bytes(menu.downloadRate) + "/s", "Sending", menu.bytes(menu.uploadRate) + "/s"],
+                        ["Downloaded", menu.bytes(menu.details.rx), "Uploaded", menu.bytes(menu.details.tx)],
+                        ["IP Address", menu.details.ip || "--", "Gateway", menu.details.gateway || "--"]
+                    ]
+                    Item {
+                        required property var modelData
+                        width: wifiHeaderContent.width; height: 16
+                        Text { text: parent.modelData[0]; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { x: 70; width: 125; horizontalAlignment: Text.AlignRight; text: parent.modelData[1]; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { x: 210; text: parent.modelData[2]; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { anchors.right: parent.right; text: parent.modelData[3]; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                    }
+                }
             }
+            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Item {
+                width: parent.width; height: 16
+                Text { text: "WI-FI BAND: " + (menu.details.band || "--"); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { anchors.right: parent.right; text: menu.details.automatic === false ? "PINNED" : "AUTOMATIC"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+            }
+            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Column {
+                width: parent.width; spacing: 10
+                Text { text: "DNS PROVIDER"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Row {
+                    width: parent.width; spacing: 6
+                    Repeater {
+                        model: ["DHCP", "Cloudflare", "Google", "Custom"]
+                        PanelButton {
+                            required property string modelData
+                            width: (wifiHeaderContent.width - 18) / 4; height: 32; radius: 4
+                            text: modelData; foreground: menu.foreground; outlined: true
+                            selected: menu.details.dns === modelData
+                            available: !!menu.device && !menu.busy
+                            onClicked: { if (modelData === "Custom") { menu.selectedNetwork = null; password.text = ""; menu.customDns = true; dnsInput.forceActiveFocus(); } else menu.act("dns", menu.device.name, modelData); }
+                        }
+                    }
+                }
+            }
+            Column {
+                visible: menu.customDns; width: parent.width; spacing: 6
+                TextField {
+                    id: dnsInput; width: parent.width; placeholderText: "DNS addresses"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+                    placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
+                    background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: dnsInput.activeFocus ? menu.accent : "transparent" }
+                    HoverHandler { cursorShape: Qt.IBeamCursor }
+                    onAccepted: dnsSave.clicked()
+                }
+                Row {
+                    spacing: 6
+                    PanelButton { id: dnsSave; text: "Apply"; foreground: menu.foreground; available: !menu.busy && dnsInput.text.trim() !== ""; onClicked: { if (!available) return; menu.dnsServers = dnsInput.text; menu.act("dns", menu.device.name, "Custom"); menu.customDns = false; } }
+                    PanelButton { text: "Cancel"; foreground: menu.foreground; onClicked: menu.customDns = false }
+                }
+            }
+            Column {
+                visible: menu.selectedNetwork !== null; width: parent.width; spacing: 6
+                Text { width: parent.width; elide: Text.ElideRight; text: menu.selectedNetwork ? menu.selectedNetwork.name : ""; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                TextField {
+                    id: password; width: parent.width; placeholderText: "Password"; echoMode: TextInput.Password; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+                    placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
+                    background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: password.activeFocus ? menu.accent : "transparent" }
+                    HoverHandler { cursorShape: Qt.IBeamCursor }
+                    onAccepted: connectButton.clicked()
+                }
+                Row {
+                    spacing: 6
+                    PanelButton { id: connectButton; text: "Connect"; width: 90; foreground: menu.foreground; available: !menu.busy && password.text.length > 0; onClicked: { if (!available) return; menu.secret = password.text; menu.act("connect", menu.selectedNetwork.path); menu.selectedNetwork = null; password.text = ""; } }
+                    PanelButton { text: "Cancel"; foreground: menu.foreground; onClicked: { menu.selectedNetwork = null; password.text = ""; } }
+                }
+            }
+            Text { visible: menu.message !== ""; width: parent.width; text: menu.message; wrapMode: Text.Wrap; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
         }
         Flickable {
+            anchors.top: wifiHeaderContent.bottom
+            anchors.topMargin: 14
+            anchors.bottom: parent.bottom
             width: parent.width
-            height: Math.max(80, menu.height - y - 24)
-            contentHeight: adapters.height
+            contentHeight: networks.height
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             Column {
-                id: adapters
+                id: networks
                 width: parent.width
-                spacing: 16
+                spacing: 14
                 Repeater {
-                    model: menu.devices
+                    model: menu.groups
                     Column {
-                        id: adapter
                         required property var modelData
-                        width: adapters.width
-                        spacing: 8
-                        Row {
-                            width: parent.width
-                            spacing: 8
-                            Text { width: 120; height: 40; verticalAlignment: Text.AlignVCenter; text: adapter.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-                            PanelSwitch { checked: adapter.modelData.powered; enabled: !menu.busy; foreground: menu.foreground; accent: menu.accent; onClicked: menu.act("power", adapter.modelData.path, checked ? "true" : "false") }
-                            PanelButton { text: adapter.modelData.scanning ? "..." : "Scan"; foreground: menu.foreground; available: adapter.modelData.powered && !adapter.modelData.scanning && !menu.busy; onClicked: menu.act("scan", adapter.modelData.path) }
-                        }
+                        width: networks.width; spacing: 6
+                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { visible: parent.modelData.networks.length === 0; text: menu.device && menu.device.scanning ? "Scanning..." : "No networks"; color: menu.foreground; opacity: 0.5; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                         Repeater {
-                            model: adapter.modelData.networks
-                            Column {
+                            model: parent.modelData.networks
+                            Rectangle {
+                                id: network
                                 required property var modelData
-                                width: adapter.width
-                                spacing: 4
-                                PanelButton { width: parent.width; height: 42; foreground: menu.foreground; available: !menu.busy; text: (parent.modelData.connected ? "✓  " : "") + parent.modelData.name + "  ·  " + Math.round(parent.modelData.strength) + "%" + (parent.modelData.type === "open" ? "" : "  󰌾"); onClicked: menu.choose(parent.modelData) }
-                                PanelButton { visible: parent.modelData.connected; text: "Disconnect"; width: 120; height: 32; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", adapter.modelData.path) }
+                                width: networks.width; height: 44; radius: 4
+                                color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, modelData.connected ? 0.18 : networkMouse.containsMouse ? 0.1 : 0.04)
+                                border.width: modelData.connected ? 0 : 1
+                                border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.15)
+                                activeFocusOnTab: true
+                                Keys.onReturnPressed: if (!menu.busy) menu.choose(modelData)
+                                Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "󰤨"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
+                                Column {
+                                    x: 36; width: parent.width - 70; anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                                    Text { visible: network.modelData.connected; text: "Connected"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                                }
+                                Text { anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: network.modelData.type === "open" ? "" : "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
+                                MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
+                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected ? "Disconnect" : Math.round(network.modelData.strength) + "% · Connect"; foreground: menu.foreground; background: menu.background }
                             }
                         }
                     }

@@ -6,6 +6,8 @@ Rectangle {
     required property string text
     property bool available: true
     property bool icon: false
+    property bool outlined: false
+    property bool selected: false
     signal clicked()
     activeFocusOnTab: true
     enabled: available
@@ -15,7 +17,9 @@ Rectangle {
     width: icon ? 34 : 68
     height: 40
     radius: 7
-    color: Qt.rgba(foreground.r, foreground.g, foreground.b, mouse.containsMouse ? 0.16 : 0.08)
+    color: Qt.rgba(foreground.r, foreground.g, foreground.b, selected ? 0.18 : mouse.containsMouse ? 0.16 : outlined ? 0 : 0.08)
+    border.width: outlined ? 1 : 0
+    border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
     opacity: available ? 1 : 0.45
     Text {
         anchors.centerIn: parent

@@ -338,6 +338,7 @@ ShellRoot {
 
                             AiUsageMenu {
                                 id: aiMenu
+                                maximumHeight: bar.screen.height - 70
                                 target: aiIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
@@ -766,7 +767,7 @@ ShellRoot {
         property bool hasNotifications: false
 
         function refresh() {
-            if (process.running)
+            if (notificationEvents.running || process.running)
                 return ;
 
             process.command = ["bash", "-lc", "$HOME/.config/quickshell/desktop-bar/scripts/notifications-status.sh"];
@@ -788,6 +789,17 @@ ShellRoot {
                 notifications.tooltip = "Notifications unavailable";
                 notifications.hasNotifications = false;
             }
+        }
+
+        function subscription(raw) {
+            try {
+                var data = JSON.parse(raw);
+                var count = Number(data.text || 0);
+                var icons = {none: "󰂜", notification: "󱅫", "dnd-none": "󰪓", "dnd-notification": "󰂠", "inhibited-none": "󰪑", "inhibited-notification": "󰂛", "dnd-inhibited-none": "󰪑", "dnd-inhibited-notification": "󰂛"};
+                notifications.text = icons[data.alt] || (count > 0 ? "󱅫" : "󰂜");
+                notifications.hasNotifications = count > 0;
+                notifications.tooltip = count > 0 ? count + " notifications" : "No notifications";
+            } catch (e) {}
         }
 
         width: 28
@@ -860,6 +872,15 @@ ShellRoot {
             }
 
         }
+
+        Process {
+            id: notificationEvents
+            command: ["swaync-client", "-swb"]
+            running: true
+            stdout: SplitParser { onRead: data => notifications.subscription(data) }
+            onExited: reconnectEvents.restart()
+        }
+        Timer { id: reconnectEvents; interval: 2000; onTriggered: notificationEvents.running = true }
 
         Behavior on color {
             ColorAnimation {

@@ -1,93 +1,109 @@
 import QtQuick
-import QtQuick.Controls.Basic
 import Quickshell
 import Quickshell.Bluetooth
 
 ThemedPopup {
     id: menu
     implicitWidth: 440
-    implicitHeight: 480
+    implicitHeight: Math.min(480, Math.max(220, groups.height + 94))
+    property var adapter: Bluetooth.defaultAdapter
     property var scanningAdapter: null
+    readonly property var sections: [
+        {title: "CONNECTED", devices: adapter ? adapter.devices.values.filter(d => d.connected) : []},
+        {title: "KNOWN DEVICES", devices: adapter ? adapter.devices.values.filter(d => !d.connected && d.paired) : []},
+        {title: "SCANNED DEVICES", devices: adapter ? adapter.devices.values.filter(d => !d.connected && !d.paired) : []}
+    ]
+    function scan() {
+        if (!adapter) return;
+        if (scanningAdapter) { scanningAdapter.discovering = false; scanningAdapter = null; }
+        else { scanningAdapter = adapter; adapter.discovering = true; scanTimer.restart(); }
+    }
     onVisibleChanged: if (!visible && scanningAdapter) {
         scanningAdapter.discovering = false;
         scanningAdapter = null;
     }
     Timer {
+        id: scanTimer
         interval: 20000
-        running: menu.scanningAdapter !== null
-        onTriggered: { menu.scanningAdapter.discovering = false; menu.scanningAdapter = null; }
+        onTriggered: if (menu.scanningAdapter) { menu.scanningAdapter.discovering = false; menu.scanningAdapter = null; }
     }
-    Column {
+    Item {
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 12
-        Text { text: "Bluetooth"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 22; font.bold: true }
-        Text { visible: Bluetooth.adapters.values.length === 0; text: "No Bluetooth adapter"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-        Flickable {
+        anchors.margins: 18
+        Item {
+            id: header
             width: parent.width
-            height: menu.height - y - 24
-            contentHeight: adapters.height
+            height: 40
+            Text { anchors.verticalCenter: parent.verticalCenter; text: "Bluetooth"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 20; font.bold: true }
+            Row {
+                anchors.right: parent.right
+                spacing: 8
+                PanelButton { text: menu.scanningAdapter ? "Stop" : "Scan"; foreground: menu.foreground; available: !!menu.adapter && menu.adapter.enabled; onClicked: menu.scan() }
+                PanelSwitch { checked: !!menu.adapter && menu.adapter.enabled; enabled: !!menu.adapter; foreground: menu.foreground; accent: menu.accent; onClicked: menu.adapter.enabled = checked }
+            }
+        }
+        Flickable {
+            anchors.top: header.bottom
+            anchors.topMargin: 18
+            anchors.bottom: parent.bottom
+            width: parent.width
+            contentHeight: groups.height
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             Column {
-                id: adapters
+                id: groups
                 width: parent.width
-                spacing: 16
+                spacing: 20
+                Text { visible: !menu.adapter || !menu.adapter.enabled; text: menu.adapter ? "Bluetooth is off" : "No Bluetooth adapter"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
                 Repeater {
-                    model: Bluetooth.adapters.values
+                    model: menu.sections
                     Column {
-                        id: adapter
                         required property var modelData
-                        width: adapters.width
+                        width: groups.width
                         spacing: 8
-                        Row {
-                            spacing: 8
-                            Text { width: 150; height: 40; verticalAlignment: Text.AlignVCenter; text: adapter.modelData.name; elide: Text.ElideRight; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-                            PanelSwitch { checked: adapter.modelData.enabled; foreground: menu.foreground; accent: menu.accent; onClicked: adapter.modelData.enabled = checked }
-                            PanelButton {
-                                text: adapter.modelData.discovering ? "Stop" : "Scan"
-                                foreground: menu.foreground
-                                available: adapter.modelData.enabled
-                                onClicked: {
-                                    if (adapter.modelData.discovering) {
-                                        adapter.modelData.discovering = false;
-                                        if (menu.scanningAdapter === adapter.modelData) menu.scanningAdapter = null;
-                                    } else {
-                                        if (menu.scanningAdapter) menu.scanningAdapter.discovering = false;
-                                        menu.scanningAdapter = adapter.modelData;
-                                        adapter.modelData.discovering = true;
-                                    }
-                                }
-                            }
-                        }
+                        Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { visible: parent.modelData.devices.length === 0; text: parent.modelData.title === "SCANNED DEVICES" && menu.scanningAdapter ? "Scanning..." : "No devices"; color: menu.foreground; opacity: 0.55; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                         Repeater {
-                            model: adapter.modelData.devices.values
-                            Column {
+                            model: parent.modelData.devices
+                            Item {
                                 id: device
                                 required property var modelData
                                 property bool confirmingForget: false
-                                width: adapter.width
-                                spacing: 6
-                                Text { width: parent.width; elide: Text.ElideRight; text: (device.modelData.connected ? "✓  " : "") + device.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14; font.bold: device.modelData.connected }
-                                Text { width: parent.width; text: BluetoothDeviceState.toString(device.modelData.state) + (device.modelData.batteryAvailable ? " · " + Math.round(device.modelData.battery * 100) + "% battery" : ""); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                                width: groups.width
+                                height: 56
+                                Rectangle { anchors.fill: parent; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, device.modelData.connected ? 0.12 : 0.04) }
+                                Text { x: 8; anchors.verticalCenter: parent.verticalCenter; text: device.modelData.connected ? "󰂱" : "󰂯"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 18 }
+                                Column {
+                                    x: 34
+                                    width: Math.max(0, actions.x - x - 8)
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 4
+                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: device.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                                    Text { width: parent.width; elide: Text.ElideRight; text: BluetoothDeviceState.toString(device.modelData.state) + (device.modelData.batteryAvailable ? " · " + Math.round(device.modelData.battery * 100) + "%" : ""); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                                }
                                 Row {
-                                    spacing: 8
+                                    id: actions
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 8
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 6
                                     PanelButton {
-                                        width: 120
-                                        text: device.modelData.pairing ? "Cancel" : device.modelData.connected ? "Disconnect" : device.modelData.paired ? "Connect" : "Pair"
+                                        width: 94
+                                        height: 32
+                                        text: device.confirmingForget ? "Cancel" : device.modelData.pairing ? "Cancel" : device.modelData.connected ? "Disconnect" : device.modelData.paired ? "Connect" : "Pair"
                                         foreground: menu.foreground
-                                        available: adapter.modelData.enabled
+                                        available: !!menu.adapter && menu.adapter.enabled
                                         onClicked: {
-                                            if (device.modelData.pairing) device.modelData.cancelPair();
+                                            if (device.confirmingForget) device.confirmingForget = false;
+                                            else if (device.modelData.pairing) device.modelData.cancelPair();
                                             else if (device.modelData.connected) device.modelData.disconnect();
                                             else if (device.modelData.paired) device.modelData.connect();
                                             else device.modelData.pair();
                                         }
                                     }
-                                    PanelButton { visible: device.modelData.paired; width: 120; text: device.confirmingForget ? "Confirm" : "Forget"; foreground: menu.foreground; onClicked: { if (device.confirmingForget) device.modelData.forget(); else device.confirmingForget = true; } }
-                                    PanelButton { visible: device.confirmingForget; text: "Cancel"; foreground: menu.foreground; onClicked: device.confirmingForget = false }
+                                    PanelButton { visible: device.modelData.paired; width: 74; height: 32; text: device.confirmingForget ? "Confirm" : "Forget"; foreground: menu.foreground; onClicked: { if (device.confirmingForget) device.modelData.forget(); else device.confirmingForget = true; } }
                                 }
-                                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.1) }
                             }
                         }
                     }

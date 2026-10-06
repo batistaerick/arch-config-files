@@ -19,42 +19,5 @@
       "app-name": ".*"
     }
   },
-  "widgets": ["buttons-grid", "mpris", "volume", "slider#brightness", "title", "notifications"],
-  "widget-config": {
-    "mpris": {
-      "blacklist": ["playerctld"],
-      "show-album-art": "never",
-      "loop-carousel": true,
-      "autohide": true
-    },
-    "volume": {
-      "label": "",
-      "empty-list-label": "No active audio"
-    },
-    "slider#brightness": {
-      "label": "󰃠",
-      "cmd_getter": "/home/erick/.config/swaync/scripts/brightness-get.sh",
-      "cmd_setter": "/home/erick/.config/swaync/scripts/brightness-set.sh $value",
-      "min": 0,
-      "max": 100,
-      "min_limit": 10,
-      "max_limit": 100
-    },
-    "buttons-grid": {
-      "buttons-per-row": 2,
-      "actions": [
-        {
-          "label": "󰤨  Wi-Fi",
-          "command": "/home/erick/.config/wofi/scripts/actions/toggle-setup-window.sh setup-wifi kitty --class setup-wifi -e impala"
-        },
-        {
-          "label": "  Bluetooth",
-          "type": "toggle",
-          "active": true,
-          "command": "/home/erick/.config/swaync/scripts/bluetooth-power.sh toggle",
-          "update-command": "/home/erick/.config/swaync/scripts/bluetooth-power.sh status"
-        }
-      ]
-    }
-  }
+  "widgets": ["title", "notifications"]
 }

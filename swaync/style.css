@@ -136,7 +136,7 @@ trough {
     0 12px 35px 0 rgba(0, 0, 0, 0.42),
     inset 0 0 0 1px rgba(56, 65, 52, 0.42);
   border-radius: 4px;
-  background: rgba(24, 35, 31, 0.42);
+  background: #111c18;
   color: #c1c497;
   padding: 14px;
 }

@@ -4,15 +4,30 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 560
-    implicitHeight: 680
+    implicitWidth: 440
+    property int maximumHeight: 1000
+    implicitHeight: Math.min(maximumHeight, Math.max(650,
+        content.implicitHeight + 36 + hero.height + 10 + tabs.height + 16 + footer.implicitHeight + 16 + 2))
     property var usage: ({providers: []})
+    property var statistics: ({})
+    property string selectedProvider: "Claude"
+    readonly property var provider: (usage.providers || []).find(p => p.name === selectedProvider) || {name: selectedProvider, windows: []}
+    readonly property var stats: statistics[selectedProvider] || {days: [], models: []}
     property bool freshReceived: false
     property string status: "Checking usage..."
+    onSelectedProviderChanged: contentViewport.contentY = 0
+    function tokens(value) {
+        if (value >= 1000000000) return (value / 1000000000).toFixed(1) + "B";
+        if (value >= 1000000) return (value / 1000000).toFixed(1) + "M";
+        if (value >= 1000) return (value / 1000).toFixed(1) + "K";
+        return String(value || 0);
+    }
+    function peak(rows) { return Math.max(1, ...rows.map(r => Number(r.tokens))); }
     function refresh() {
         if (!query.running) {
             status = "Updating...";
             query.running = true;
+            if (!statsQuery.running) statsQuery.running = true;
         }
     }
     function resetLabel(timestamp) {
@@ -49,114 +64,144 @@ ThemedPopup {
             } catch (e) { menu.status = "Could not update usage. Try refreshing."; }
         }
     }
+    Process {
+        id: statsQuery
+        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/ai-local-stats.py"]
+        stdout: StdioCollector { id: statsOutput }
+        onExited: { try { menu.statistics = JSON.parse(statsOutput.text); } catch (e) {} }
+    }
     Item {
         anchors.fill: parent
-        anchors.margins: 24
-        Text {
-            text: "AI usage"
-            color: menu.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 22
-            font.bold: true
+        anchors.margins: 18
+        Item {
+            id: hero
+            width: parent.width
+            height: 40
+            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.selectedProvider === "Claude" ? "󰚩" : ""; color: menu.accent; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 27 }
+            Column {
+                x: 38
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 4
+                Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : "Codex"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; font.bold: true }
+                Text { text: "AI USAGE"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+            }
+            PanelButton {
+                id: refreshButton
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                text: "󰑓"; icon: true; height: 32
+                available: !query.running
+                foreground: menu.foreground
+                onClicked: menu.refresh()
+                HoverHandler { id: refreshHover }
+                BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: "Refresh"; foreground: menu.foreground; background: menu.background }
+            }
         }
-        PanelButton {
-            id: refreshButton
-            anchors.right: parent.right
-            text: "󰑓"
-            icon: true
-            height: 34
-            available: !query.running
-            foreground: menu.foreground
-            onClicked: menu.refresh()
-            BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: "Refresh"; foreground: menu.foreground; background: menu.background }
-            HoverHandler { id: refreshHover }
+        Row {
+            id: tabs
+            anchors.top: hero.bottom
+            anchors.topMargin: 10
+            width: parent.width
+            spacing: 6
+            Repeater {
+                model: ["Claude", "Codex"]
+                PanelButton {
+                    required property string modelData
+                    width: (tabs.width - tabs.spacing) / 2
+                    height: 32
+                    radius: 4
+                    text: modelData === "Claude" ? "Claude Code" : modelData
+                    outlined: true
+                    selected: menu.selectedProvider === modelData
+                    foreground: menu.foreground
+                    onClicked: menu.selectedProvider = modelData
+                }
+            }
         }
         Flickable {
-            y: 54
+            id: contentViewport
+            anchors.top: tabs.bottom
+            anchors.topMargin: 16
+            anchors.bottom: footer.top
+            anchors.bottomMargin: 16
             width: parent.width
-            height: parent.height - 84
-            contentHeight: providers.implicitHeight
+            contentHeight: content.height
+            interactive: contentHeight > height
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             Column {
-                id: providers
+                id: content
                 width: parent.width
-                spacing: 0
+                spacing: 14
+                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Text { text: "LIMITS"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { visible: !!menu.provider.error; width: parent.width; text: menu.provider.error || ""; wrapMode: Text.Wrap; color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
                 Repeater {
-                    model: menu.usage.providers || []
+                    model: menu.provider.windows || []
                     Column {
-                        id: provider
+                        id: limit
                         required property var modelData
-                        required property int index
-                        width: providers.width
-                        spacing: 10
+                        readonly property real used: Math.max(0, Math.min(100, Number(modelData.used)))
+                        width: content.width
+                        spacing: 7
                         Item {
-                            visible: provider.index > 0
-                            width: parent.width
-                            height: 49
-                            Rectangle { y: 24; width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08) }
+                            width: parent.width; height: 17
+                            Text { text: limit.modelData.label === "5h window" ? "Session" : limit.modelData.label; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                            Text { anchors.right: parent.right; text: Math.round(limit.used) + "% used"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                         }
-                        Row {
-                            spacing: 10
-                            height: 24
-                            Text { height: 24; verticalAlignment: Text.AlignVCenter; text: provider.modelData.name === "Codex" ? "" : "󰚩"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 19 }
-                            Text { height: 24; verticalAlignment: Text.AlignVCenter; text: provider.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 17; font.bold: true }
+                        Rectangle {
+                            width: parent.width; height: 6; radius: 3
+                            color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
+                            Rectangle { width: parent.width * limit.used / 100; height: 6; radius: 3; color: menu.foreground }
                         }
-                        Text {
-                            visible: !!provider.modelData.error
-                            width: parent.width
-                            text: provider.modelData.error || ""
-                            wrapMode: Text.Wrap
-                            color: menu.foreground
-                            opacity: 0.72
-                            font.family: "JetBrainsMono Nerd Font"
-                            font.pixelSize: 12
-                        }
-                        Repeater {
-                            model: provider.modelData.windows
-                            Column {
-                                id: limit
-                                required property var modelData
-                                readonly property real used: Math.max(0, Math.min(100, Number(modelData.used)))
-                                width: provider.width
-                                spacing: 10
-                                Item {
-                                    width: parent.width
-                                    height: 20
-                                    Text { text: limit.modelData.label; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-                                    Text { anchors.right: parent.right; text: Math.round(100 - limit.used) + "% left"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13 }
-                                }
-                                Rectangle {
-                                    id: usageTrack
-                                    width: parent.width
-                                    height: 6
-                                    radius: 3
-                                    color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
-                                    Rectangle { width: parent.width * limit.used / 100; height: 6; radius: 3; color: menu.foreground }
-                                    HoverHandler { id: meterHover }
-                                    BarTooltip { target: usageTrack; hovered: meterHover.hovered; text: limit.used + "% used"; foreground: menu.foreground; background: menu.background }
-                                }
-                                Text {
-                                    visible: !!limit.modelData.reset
-                                    text: limit.modelData.reset ? menu.resetLabel(limit.modelData.reset) : ""
-                                    color: menu.foreground
-                                    opacity: 0.72
-                                    font.family: "JetBrainsMono Nerd Font"
-                                    font.pixelSize: 12
-                                }
+                        Text { visible: !!limit.modelData.reset; width: parent.width; elide: Text.ElideRight; text: limit.modelData.reset ? menu.resetLabel(limit.modelData.reset) : ""; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                    }
+                }
+                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Text { text: "TOKENS BY DAY"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { visible: statsQuery.running && menu.stats.days.length === 0; text: "Reading local sessions..."; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                Column {
+                    width: parent.width
+                    spacing: 8
+                    Repeater {
+                        model: menu.stats.days
+                        Item {
+                            required property var modelData
+                            width: content.width
+                            height: 16
+                            Text { width: 48; text: parent.modelData.date === Qt.formatDate(new Date(), "yyyy-MM-dd") ? "Today" : Qt.formatDate(new Date(parent.modelData.date + "T12:00:00"), "ddd"); color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Rectangle {
+                                x: 54; anchors.verticalCenter: parent.verticalCenter; width: parent.width - 124; height: 4; radius: 2
+                                color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
+                                Rectangle { width: parent.width * parent.parent.modelData.tokens / menu.peak(menu.stats.days); height: 4; radius: 2; color: menu.foreground; opacity: 0.7 }
                             }
+                            Text { anchors.right: parent.right; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                        }
+                    }
+                }
+                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Text { text: "TOKENS BY MODEL"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { visible: !statsQuery.running && menu.stats.models.length === 0; text: "No local token history"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                Column {
+                    width: parent.width
+                    spacing: 6
+                    Repeater {
+                        model: menu.stats.models
+                        Rectangle {
+                            required property var modelData
+                            width: content.width
+                            height: 28
+                            radius: 4
+                            clip: true
+                            color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.04)
+                            Rectangle { width: parent.width * parent.modelData.tokens / menu.peak(menu.stats.models); height: parent.height; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.14) }
+                            Text { x: 8; width: parent.width - 88; anchors.verticalCenter: parent.verticalCenter; text: parent.modelData.name; elide: Text.ElideRight; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Text { anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                         }
                     }
                 }
             }
         }
-        Text {
-            anchors.bottom: parent.bottom
-            text: menu.status
-            color: menu.foreground
-            opacity: 0.72
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
-        }
+        Text { id: footer; anchors.bottom: parent.bottom; width: parent.width; elide: Text.ElideRight; text: menu.status; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
     }
 }

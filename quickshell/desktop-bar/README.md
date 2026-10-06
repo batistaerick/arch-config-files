@@ -13,7 +13,15 @@ outside click or Escape, not pointer movement or focus loss. Calendar and Weathe
 stay top-center; AI Usage stays on the right. Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,
-and five-minute updates while open. Weather retains the 15-minute refresh,
+and five-minute updates while open. Claude and Codex have separate provider tabs;
+limit percentages show usage consumed. Local CLI transcripts provide seven days
+of token totals and all-time model totals, including cached input tokens.
+These charts describe this computer's session history, not account-wide billing.
+Only model names, dates, and counts are cached in `~/.cache/desktop-ai-local-stats`;
+conversation content is not copied into the cache. Streamed/repeated usage events
+are deduplicated, and unchanged files reuse their cached summaries.
+The popup grows to fit its content up to the available screen height.
+Weather retains the 15-minute refresh,
 debounced city search, country-based units, and smaller alternate temperature.
 City overrides last only until the popup closes; the bar's default is unchanged.
 Escape cancels city search first, then closes Weather. Buttons support Tab/Enter.
@@ -28,13 +36,30 @@ Bar tooltips follow the current theme's background and foreground colors.
 WiFi and Bluetooth open themed native popups on the right. Outside clicks,
 Escape, or hiding the status icons dismiss them; pointer movement does not.
 WiFi retains the existing iwd service and uses its D-Bus API for adapter power,
-scanning, connection, and disconnection. Passwords are passed through stdin,
+scanning, connection, and disconnection. The compact panel separates remembered
+networks from other networks and shows latency, packet loss, live transfer rates,
+interface transfer totals, IP/gateway, and the current WiFi band. Transfer totals
+cover the interface's lifetime since boot, not a billing period. Ping probes use
+two packets to 1.1.1.1 on opening and every 15 seconds while visible.
+DNS buttons configure systemd-resolved's current per-interface settings through
+its standard polkit authorization prompt. Overrides are runtime-only and may
+reset on reconnection/reboot; DHCP restores the network service's DNS settings.
+Custom DNS addresses are validated before any privileged command is invoked.
+Band selection remains managed by iwd; no unsupported band controls are shown.
+Passwords are passed through stdin,
 not command-line arguments. Enterprise network configuration remains available
 through the existing Walker WiFi tool. Bluetooth uses Quickshell's BlueZ service
 for power, discovery, pairing, connecting, and forgetting devices (with confirmation).
-The existing Blueman agent handles any pairing-code confirmation dialogs.
+Bluetooth groups connected, known, and scanned devices separately; row actions
+stay beside the device, with power and Scan in the panel header. The adapter's
+machine name is not displayed. The existing Blueman agent handles any pairing-code confirmation dialogs.
 Discovery started by the popup stops after 20 seconds or when it closes.
 These popups do not change network services or require new packages.
+
+SwayNC contains only the title/clear control and notifications. Its opaque
+background follows the current theme, including light themes. The bar bell uses
+SwayNC's native event subscription to update immediately when notifications are
+added/cleared, with polling retained as a fallback if the subscription stops.
 
 Click GPU, CPU, or RAM to open the shared hardware popup. It refreshes every
 two seconds while visible and closes on an outside click or Escape. CPU load,

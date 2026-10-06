@@ -12,6 +12,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 from panel_position import keep_top_on_resize
+from panel_grab import dismiss_on_outside_click
 from panel_theme import install_panel_css
 
 APP_ID = "dev.local.AiUsagePanel"
@@ -94,6 +95,7 @@ class UsagePanel(Adw.Application):
             self.render(data)
         except (OSError, ValueError, KeyError):
             pass
+        dismiss_on_outside_click(self.window)
         self.window.present()
         keep_top_on_resize(self.window, APP_ID)
         self.refresh()

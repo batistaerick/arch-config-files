@@ -6,6 +6,8 @@ PopupWindow {
     required property Item target
     required property bool hovered
     required property string text
+    required property color background
+    required property color foreground
     property bool ready: false
 
     visible: hovered && ready && text !== ""
@@ -34,13 +36,13 @@ PopupWindow {
     Rectangle {
         anchors.fill: parent
         radius: 4
-        color: "#181824"
-        border.color: "#515162"
+        color: tip.background
+        border.color: Qt.rgba(tip.foreground.r, tip.foreground.g, tip.foreground.b, 0.18)
         Text {
             id: label
             anchors.centerIn: parent
             text: tip.text
-            color: "#ffffff"
+            color: tip.foreground
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
         }

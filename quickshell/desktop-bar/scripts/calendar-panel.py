@@ -4,6 +4,7 @@ import calendar
 import datetime as dt
 import sys
 from panel_position import keep_top_on_resize
+from panel_grab import dismiss_on_outside_click
 
 import gi
 
@@ -40,6 +41,7 @@ class CalendarPanel(Adw.Application):
         key.connect("key-pressed", self.on_key_pressed)
         self.window.add_controller(key)
 
+        dismiss_on_outside_click(self.window)
         self.window.present()
         keep_top_on_resize(self.window, APP_ID)
 

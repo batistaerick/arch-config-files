@@ -9,6 +9,7 @@ import tempfile
 import urllib.parse
 import urllib.request
 from panel_position import keep_top_on_resize
+from panel_grab import dismiss_on_outside_click
 from pathlib import Path
 
 import gi
@@ -52,6 +53,7 @@ class WeatherPanel(Adw.Application):
         self.window.add_controller(key)
 
         GLib.timeout_add_seconds(900, self.refresh)
+        dismiss_on_outside_click(self.window)
         self.window.present()
         keep_top_on_resize(self.window, APP_ID)
 
@@ -81,6 +83,11 @@ class WeatherPanel(Adw.Application):
         .hero-unit {
           font-size: 20px;
           color: #ffffff;
+        }
+
+        .alternate-temp {
+          font-size: 12px;
+          opacity: 0.72;
         }
 
         .location {
@@ -194,12 +201,21 @@ class WeatherPanel(Adw.Application):
         temp_row.append(temp)
         self.widgets["temp"] = temp
 
+        units = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        units.set_valign(Gtk.Align.CENTER)
+        temp_row.append(units)
+
         unit = Gtk.Label(label="")
         unit.add_css_class("hero-unit")
-        unit.set_valign(Gtk.Align.START)
-        unit.set_margin_top(10)
-        temp_row.append(unit)
+        unit.set_halign(Gtk.Align.START)
+        units.append(unit)
         self.widgets["unit"] = unit
+
+        alternate = Gtk.Label(label="")
+        alternate.add_css_class("alternate-temp")
+        alternate.set_halign(Gtk.Align.START)
+        units.append(alternate)
+        self.widgets["alternate"] = alternate
 
         right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         right.set_hexpand(True)
@@ -435,6 +451,17 @@ class WeatherPanel(Adw.Application):
         self.widgets["icon"].set_label(icon)
         self.widgets["temp"].set_label(number)
         self.widgets["unit"].set_label(unit)
+        alternate = ""
+        try:
+            value = float(number)
+            if unit == "°F":
+                alternate = f"{round((value - 32) * 5 / 9)}°C"
+            elif unit == "°C":
+                alternate = f"{round(value * 9 / 5 + 32)}°F"
+        except ValueError:
+            pass
+        self.widgets["alternate"].set_label(alternate)
+        self.widgets["alternate"].set_visible(bool(alternate))
         self.widgets["location"].set_label(str(data.get("location", "Weather")).upper())
         self.widgets["condition"].set_label(str(data.get("condition", "")))
         self.widgets["feels"].set_label(str(data.get("feels", "--")))

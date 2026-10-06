@@ -248,6 +248,25 @@ ShellRoot {
                             }
 
                             StatusIcon {
+                                id: keyboardIcon
+                                icon: "󰌌"
+                                iconSize: 18
+                                tooltip: "Keyboard"
+                                open: shell.statusOpen
+                                clickable: true
+                                onClicked: keyboardMenu.visible = !keyboardMenu.visible
+                                onOpenChanged: if (!open) keyboardMenu.visible = false
+                            }
+
+                            KeyboardLayoutMenu {
+                                id: keyboardMenu
+                                target: keyboardIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
+                            }
+
+                            StatusIcon {
                                 icon: "󱜙"
                                 iconSize: 18
                                 tooltip: "AI Usage"
@@ -402,6 +421,8 @@ ShellRoot {
         }
 
         BarTooltip {
+            background: shell.workspaceMenuBg
+            foreground: shell.fg
             target: item
             hovered: iconMouse.containsMouse && item.open
             text: item.tooltip
@@ -490,6 +511,8 @@ ShellRoot {
         }
 
         BarTooltip {
+            background: shell.workspaceMenuBg
+            foreground: shell.fg
             target: item
             hovered: commandMouse.containsMouse && item.open
             text: item.hoverLabel
@@ -609,6 +632,8 @@ ShellRoot {
         }
 
         BarTooltip {
+            background: shell.workspaceMenuBg
+            foreground: shell.fg
             target: weather
             hovered: weatherMouse.containsMouse
             text: "Weather"
@@ -719,6 +744,8 @@ ShellRoot {
         }
 
         BarTooltip {
+            background: shell.workspaceMenuBg
+            foreground: shell.fg
             target: notifications
             hovered: mouse.containsMouse
             text: "Notifications"
@@ -788,6 +815,8 @@ ShellRoot {
         }
 
         BarTooltip {
+            background: shell.workspaceMenuBg
+            foreground: shell.fg
             target: clock
             hovered: mouse.containsMouse
             text: "Calendar"

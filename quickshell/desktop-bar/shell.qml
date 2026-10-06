@@ -18,6 +18,7 @@ ShellRoot {
     property string workspaceStyle: "Numbers"
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
+    readonly property var desktopApplications: DesktopEntries.applications.values
 
     Process {
         id: saveWorkspaceStyle
@@ -66,6 +67,21 @@ ShellRoot {
     function workspaceLabel(index) {
         if (workspaceStyle === "Glyph") return workspaceActive(index + 1) ? "✦" : "✧";
         return String(index + 1);
+    }
+
+    function workspaceApps(workspaceId) {
+        var names = [];
+        for (var window of Hyprland.toplevels.values) {
+            if (!window.workspace || window.workspace.id !== workspaceId) continue;
+            var info = window.lastIpcObject;
+            if (info.mapped === false) continue;
+            var appId = (window.wayland && window.wayland.appId) || info.class || info.initialClass || "";
+            var entry = desktopApplications.find(app => app.id === appId || app.startupClass === appId)
+                || DesktopEntries.heuristicLookup(appId);
+            var name = entry ? entry.name : appId;
+            if (name && names.indexOf(name) === -1) names.push(name);
+        }
+        return names.join("\n");
     }
 
     function targetScreens() {
@@ -129,6 +145,7 @@ ShellRoot {
 
                                 BarButton {
                                     text: shell.workspaceLabel(index)
+                                    tooltip: active ? "" : shell.workspaceApps(index + 1)
                                     visualStyle: shell.workspaceStyle
                                     active: shell.workspaceActive(index + 1)
                                     width: 23
@@ -443,10 +460,19 @@ ShellRoot {
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
+            onEntered: Hyprland.refreshToplevels()
             onClicked: function(event) {
                 if (event.button === Qt.RightButton) button.rightClicked();
                 else button.clicked();
             }
+        }
+
+        BarTooltip {
+            target: button
+            hovered: mouse.containsMouse && !button.active
+            text: button.tooltip
+            foreground: shell.fg
+            background: shell.workspaceMenuBg
         }
 
         Behavior on color {
@@ -815,7 +841,7 @@ ShellRoot {
         width: 28
         height: 24
         radius: 7
-        color: mouse.containsMouse ? shell.hoverBg : "transparent"
+        color: "transparent"
         Component.onCompleted: refresh()
 
         Text {

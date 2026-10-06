@@ -12,8 +12,8 @@ PopupWindow {
 
     visible: hovered && ready && text !== ""
     color: "transparent"
-    implicitWidth: label.implicitWidth + 18
-    implicitHeight: 28
+    implicitWidth: Math.min(360, label.implicitWidth + 18)
+    implicitHeight: label.implicitHeight + 12
     anchor.item: target
     anchor.rect.x: (target.width - implicitWidth) / 2
     anchor.rect.y: target.height + 6
@@ -41,6 +41,9 @@ PopupWindow {
         Text {
             id: label
             anchors.centerIn: parent
+            width: Math.min(342, implicitWidth)
+            wrapMode: Text.Wrap
+            textFormat: Text.PlainText
             text: tip.text
             color: tip.foreground
             font.family: "JetBrainsMono Nerd Font"

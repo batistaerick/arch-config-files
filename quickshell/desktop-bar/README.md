@@ -47,6 +47,8 @@ player or when there is insufficient space beside the hardware indicators.
 
 WiFi and Bluetooth open themed native popups on the right. Outside clicks,
 Escape, or hiding the status icons dismiss them; pointer movement does not.
+Inactive workspace tooltips list their open applications by display name, with
+duplicates omitted. Current and empty workspaces show no tooltip.
 WiFi retains the existing iwd service and uses its D-Bus API for adapter power,
 scanning, connection, and disconnection. The compact panel separates remembered
 networks from other networks and shows latency, packet loss, live transfer rates,

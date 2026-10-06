@@ -103,6 +103,38 @@ class WeatherPanel(Adw.Application):
           border: none;
         }
 
+        window button.city-control {
+          border-radius: 7px;
+          border: none;
+          box-shadow: none;
+          background-image: none;
+          background: rgba(205, 214, 244, 0.08);
+          color: #cdd6f4;
+        }
+
+        window button.city-control:hover {
+          background: rgba(205, 214, 244, 0.16);
+        }
+
+        window entry.city-search {
+          border-radius: 7px;
+          border: 1px solid rgba(205, 214, 244, 0.12);
+          box-shadow: none;
+          background-image: none;
+          background: rgba(205, 214, 244, 0.08);
+          color: #cdd6f4;
+          caret-color: #cdd6f4;
+        }
+
+        window entry.city-search:focus-within {
+          border-color: {{accent}};
+          outline-color: {{accent}};
+        }
+
+        window entry.city-search image {
+          color: rgba(205, 214, 244, 0.72);
+        }
+
         .condition {
           font-size: 12px;
           font-weight: 700;
@@ -188,11 +220,14 @@ class WeatherPanel(Adw.Application):
 
         search_row = Gtk.Box(spacing=6)
         self.city_entry = Gtk.SearchEntry()
+        self.city_entry.add_css_class("city-search")
         self.city_entry.set_placeholder_text("Search city")
         self.city_entry.set_hexpand(True)
         self.city_entry.connect("search-changed", self.queue_city_search)
         search_row.append(self.city_entry)
         cancel = Gtk.Button.new_from_icon_name("window-close-symbolic")
+        cancel.add_css_class("city-control")
+        cancel.set_cursor_from_name("pointer")
         cancel.set_tooltip_text("Cancel city search")
         cancel.connect("clicked", lambda *_: self.cancel_city_search())
         search_row.append(cancel)
@@ -328,6 +363,7 @@ class WeatherPanel(Adw.Application):
                 continue
             label = ", ".join(filter(None, [city["name"], city.get("admin1"), city.get("country")]))
             button = Gtk.Button(label=label)
+            button.add_css_class("city-control")
             button.set_cursor_from_name("pointer")
             button.connect("clicked", self.pick_city, city)
             self.city_results.append(button)

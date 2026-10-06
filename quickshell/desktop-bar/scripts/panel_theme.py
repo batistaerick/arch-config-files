@@ -58,6 +58,7 @@ def install_panel_css(css):
                 Adw.ColorScheme.FORCE_LIGHT if colors["light"] else Adw.ColorScheme.FORCE_DARK,
             )
             tokens = {
+                "{{accent}}": colors["accent"],
                 "rgba(24, 24, 36, 0.94)": colors["background"],
                 "rgba(205, 214, 244, 0.72)": colors["muted"],
                 "rgba(205, 214, 244, 0.58)": colors["faint"],

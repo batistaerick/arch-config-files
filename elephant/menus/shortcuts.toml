@@ -91,10 +91,16 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/wallpaper/next.sh" }
 
 [[entries]]
 text = "Wallpaper Picker"
-subtext = ">"
+subtext = "SUPER + Ctrl + N"
 keywords = ["SUPER", "Ctrl", "N"]
 icon = "🖻"
-submenu = "wallpaper"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh wallpaper" }
+
+[[entries]]
+text = "Theme Picker"
+subtext = "SUPER + Ctrl + Shift + N"
+icon = "󰏘"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh theme" }
 
 [[entries]]
 text = "Toggle Desktop Bar"

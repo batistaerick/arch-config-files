@@ -76,6 +76,7 @@ options="󰌌  Launchers
   SUPER + Alt + Print       Decode QR from selection
   SUPER + Shift + N         Next wallpaper
   SUPER + Ctrl + N          Wallpaper picker
+  SUPER + Ctrl + Shift + N  Theme picker
   SUPER + Shift + Space     Toggle desktop bar
   SUPER + N                 Notification center
   SUPER + =                 Color picker
@@ -309,7 +310,10 @@ case "$chosen" in
     "$ACTIONS_DIR/wallpaper/next.sh"
     ;;
   "  SUPER + Ctrl + N"*)
-    walker --provider menus:wallpaper
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh" wallpaper
+    ;;
+  "  SUPER + Ctrl + Shift + N"*)
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh" theme
     ;;
   "  SUPER + Shift + Space"*)
     "$ACTIONS_DIR/toggle/desktop-bar.sh"

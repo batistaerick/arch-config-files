@@ -13,6 +13,11 @@ Imported from upstream revision `f6561e2ceae33f26e5e660742a5df2f725cbe514`.
 - Super+M locks with the selected design. Hyprlock remains the safety fallback.
 - Preferences: `~/.config/lockscreen/selected`.
 
+Idle locking uses the same launcher through `hypr/hypridle.conf`: lock after
+15 minutes, screen off after 30 minutes, and suspend after 60 minutes. Hypridle
+must be restarted after editing that config; reloading Hyprland alone does not
+replace the running daemon's lock command. Design selections need no restart.
+
 Dependencies: `quickshell`, `qt6-declarative`, `qt6-5compat`, `hyprlock`, and
 `python`. Animated video designs also need `qt6-multimedia` and
 `qt6-multimedia-ffmpeg`. Keep Hyprlock installed: its PAM configuration is used

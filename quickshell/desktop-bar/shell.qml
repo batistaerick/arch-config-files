@@ -304,11 +304,22 @@ ShellRoot {
                             }
 
                             StatusIcon {
+                                id: aiIcon
                                 icon: "󱜙"
                                 iconSize: 18
                                 tooltip: "AI Usage"
                                 open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.AiUsagePanel python3 $HOME/.config/quickshell/desktop-bar/scripts/ai-usage-panel.py"
+                                clickable: true
+                                onClicked: aiMenu.visible = !aiMenu.visible
+                                onOpenChanged: if (!open) aiMenu.visible = false
+                            }
+
+                            AiUsageMenu {
+                                id: aiMenu
+                                target: aiIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
                             }
 
                         }
@@ -323,13 +334,32 @@ ShellRoot {
                     ClockButton {
                         id: centerInfo
                         anchors.centerIn: parent
-                        onClicked: shell.run("$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.CalendarPanel $HOME/.config/quickshell/desktop-bar/scripts/calendar-panel.py")
+                        onClicked: calendarMenu.visible = !calendarMenu.visible
                     }
 
                     WeatherWidget {
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
+                        onClicked: weatherMenu.visible = !weatherMenu.visible
+                    }
+
+                    CalendarMenu {
+                        id: calendarMenu
+                        target: centerInfo
+                        centered: true
+                        accent: shell.activeBg
+                        foreground: shell.fg
+                        background: shell.workspaceMenuBg
+                    }
+
+                    WeatherMenu {
+                        id: weatherMenu
+                        target: centerInfo
+                        centered: true
+                        accent: shell.activeBg
+                        foreground: shell.fg
+                        background: shell.workspaceMenuBg
                     }
 
                 }
@@ -602,6 +632,7 @@ ShellRoot {
 
     component WeatherWidget: Item {
         id: weather
+        signal clicked()
 
         property string text: "󰖐"
         property string location: ""
@@ -670,7 +701,7 @@ ShellRoot {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: shell.run("$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh dev.local.WeatherPanel $HOME/.config/quickshell/desktop-bar/scripts/weather-panel.py")
+            onClicked: weather.clicked()
         }
 
         BarTooltip {

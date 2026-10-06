@@ -8,15 +8,20 @@ The menu includes examples; the checkmark identifies the current selection.
 The choice is saved in `workspace-style.json`. Selected workspace colors follow
 the current theme's accent.
 
-Calendar, Weather, and AI Usage dismiss on an outside click, not on pointer
-movement or focus loss. A small native helper uses the same Hyprland focus-grab
-protocol as the workspace popup, retaining the panels' GTK layouts and controls.
-Sources and the licensed protocol XML are in `scripts/native/`; the shared
-library is built into `~/.cache/desktop-bar-native`, never into the backup.
-Build dependencies are `gcc`, `pkgconf`, `wayland`, and `gtk4`. The helper builds
-automatically on first use; `bash scripts/build-panel-grab.sh` prebuilds it.
-On unsupported systems or a failed build, panels remain open until closed
-normally. No focus-loss fallback is used.
+Calendar, Weather, and AI Usage use native Quickshell popups and dismiss on an
+outside click or Escape, not pointer movement or focus loss. Calendar and Weather
+stay top-center; AI Usage stays on the right. Calendar retains its fixed six-row
+grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
+AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,
+and five-minute updates while open. Weather retains the 15-minute refresh,
+debounced city search, country-based units, and smaller alternate temperature.
+City overrides last only until the popup closes; the bar's default is unchanged.
+Escape cancels city search first, then closes Weather. Buttons support Tab/Enter.
+
+The previous GTK panels and their click-outside helper remain available as
+fallback scripts, but bar clicks no longer launch them. The helper's licensed
+sources are in `scripts/native/`, with builds cached in
+`~/.cache/desktop-bar-native` (dependencies: `gcc`, `pkgconf`, `wayland`, `gtk4`).
 
 Bar tooltips follow the current theme's background and foreground colors.
 

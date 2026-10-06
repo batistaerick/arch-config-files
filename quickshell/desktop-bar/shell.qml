@@ -245,18 +245,43 @@ ShellRoot {
                             }
 
                             StatusIcon {
+                                id: volumeIcon
                                 icon: ""
                                 tooltip: "Volume"
                                 open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh org.pulseaudio.pavucontrol pavucontrol"
+                                clickable: true
+                                onClicked: volumeMenu.visible = !volumeMenu.visible
+                                onOpenChanged: if (!open) volumeMenu.visible = false
+                            }
+
+                            AudioMenu {
+                                id: volumeMenu
+                                maximumHeight: bar.screen.height - 70
+                                target: volumeIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
                             }
 
                             StatusIcon {
+                                id: micIcon
                                 icon: "󰍬"
                                 iconSize: 18
                                 tooltip: "Mic"
                                 open: shell.statusOpen
-                                command: "$HOME/.config/quickshell/desktop-bar/scripts/open-panel.sh org.pulseaudio.pavucontrol pavucontrol"
+                                clickable: true
+                                onClicked: micMenu.visible = !micMenu.visible
+                                onOpenChanged: if (!open) micMenu.visible = false
+                            }
+
+                            AudioMenu {
+                                id: micMenu
+                                maximumHeight: bar.screen.height - 70
+                                target: micIcon
+                                microphone: true
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
                             }
 
                             StatusIcon {

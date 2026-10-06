@@ -26,6 +26,14 @@ cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals
 are read locally. GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
 Missing optional telemetry is shown as unavailable. No terminal is launched.
 
+Volume and Mic open themed native PipeWire popups with live volume/gain sliders,
+mute controls, and default output/input device selection. Volume also lists
+playback applications with individual sliders and mute controls. Sliders adjust
+up to 100% without changing existing higher values until moved. Moving the mouse
+away does not dismiss either popup; outside clicks, Escape, or hiding the status
+icons do. Long lists scroll within the available screen height. No settings
+application is launched, and opening Mic does not start audio capture.
+
 The keyboard icon and Walker's System > Keyboard menu share the configured
 layout selector and follow changes made with Alt+Shift. Weather keeps the city's local temperature unit
 as the main reading, with a smaller equivalent in the other unit alongside it.

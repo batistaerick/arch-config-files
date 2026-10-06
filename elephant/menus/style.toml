@@ -17,3 +17,10 @@ subtext = ">"
 keywords = ["background"]
 icon = "🖻"
 submenu = "wallpaper"
+
+[[entries]]
+text = "Lockscreen"
+subtext = ">"
+keywords = ["lock", "screen", "security"]
+icon = "󰌾"
+submenu = "lockscreen"

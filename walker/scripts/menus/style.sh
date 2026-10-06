@@ -4,7 +4,8 @@ MENUS_DIR="$HOME/.config/walker/scripts/menus"
 STYLE_MENUS_DIR="$MENUS_DIR/style"
 
 options="󰸌  Theme
-🖻  Wallpaper"
+🖻  Wallpaper
+󰌾  Lockscreen"
 
 chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Style")
 
@@ -14,5 +15,8 @@ case "$chosen" in
     ;;
   "🖻  Wallpaper")
     "$STYLE_MENUS_DIR/wallpaper.sh"
+    ;;
+  "󰌾  Lockscreen")
+    walker --provider menus:lockscreen
     ;;
 esac

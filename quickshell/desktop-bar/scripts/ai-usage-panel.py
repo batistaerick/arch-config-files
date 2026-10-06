@@ -28,7 +28,7 @@ class UsagePanel(Adw.Application):
 
     def do_activate(self):
         self.window = Adw.ApplicationWindow(application=self, title="AI usage")
-        self.window.set_default_size(560, 520)
+        self.window.set_default_size(560, 680)
         self.window.set_resizable(False)
         install_panel_css("""
           window { background: rgba(24, 24, 36, 0.94); color: #cdd6f4; }

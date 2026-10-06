@@ -120,8 +120,9 @@ Item {
             id: content
             anchors.fill: parent
             focus: true
-            readonly property real previewWidth: Math.min(768, width * 0.55)
-            readonly property real previewHeight: Math.min(475, height * 0.58)
+            readonly property real themeAspect: Math.max(1.3, Math.min(3, width / Math.max(1, height)))
+            readonly property real previewWidth: picker.mode === "theme" ? previewHeight * themeAspect : Math.min(768, width * 0.55)
+            readonly property real previewHeight: picker.mode === "theme" ? Math.min(560, height * 0.58, width * 0.68 / themeAspect) : Math.min(475, height * 0.58)
             readonly property real sliceWidth: Math.min(108, width * 0.08)
             readonly property real step: sliceWidth * 0.74
             Keys.onPressed: function(event) {

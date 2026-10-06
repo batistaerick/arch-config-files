@@ -6,7 +6,7 @@ if pgrep -x hyprlock >/dev/null; then
 fi
 
 if command -v uwsm >/dev/null 2>&1; then
-  uwsm app -- hyprlock >/dev/null 2>&1 &
+  uwsm app -- bash "$HOME/.config/quickshell/lockscreen/scripts/launch.sh" lock >/dev/null 2>&1 &
 else
-  setsid hyprlock >/dev/null 2>&1 &
+  setsid bash "$HOME/.config/quickshell/lockscreen/scripts/launch.sh" lock >/dev/null 2>&1 &
 fi

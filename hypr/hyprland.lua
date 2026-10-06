@@ -477,7 +477,7 @@ local topRightPanelPosition = "top-right"
 floating_window_rule("calendar-manager-float", "^(org.gnome.Calendar)$", { 700, 660 }, topRightPanelPosition)
 floating_window_rule("calendar-panel-float", "^(dev.local.CalendarPanel)$", { 560, 550 }, "top-center")
 floating_window_rule("weather-panel-float", "^(dev.local.WeatherPanel)$", { 560, 250 }, "top-center")
-floating_window_rule("ai-usage-panel-float", "^(dev.local.AiUsagePanel)$", { 560, 520 }, topRightPanelPosition)
+floating_window_rule("ai-usage-panel-float", "^(dev.local.AiUsagePanel)$", { 560, 680 }, topRightPanelPosition)
 floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("system-monitor-float", "^(system-monitor)$", { 1000, 620 }, "top-left")

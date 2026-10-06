@@ -6,12 +6,12 @@ RightPadding=0
 Sorting=type
 
 [General]
-ColorScheme=CatppuccinMochaTeal
+ColorScheme=CatppuccinMochaBlue
 Version=202
 ViewPropsTimestamp=2026,5,4,21,11,55.694
 
 [Icons]
-Theme=Yaru-prussiangreen
+Theme=Yaru-blue
 
 [IconsMode]
 PreviewSize=48
@@ -30,4 +30,4 @@ MenuBar=Disabled
 Plugins=appimagethumbnail,audiothumbnail,glycin-heif,evince,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,glycin-image-rs,jpegthumbnail,glycin-jxl,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,glycin-svg,svgthumbnail,textthumbnail
 
 [UiSettings]
-ColorScheme=CatppuccinMochaTeal
+ColorScheme=CatppuccinMochaBlue

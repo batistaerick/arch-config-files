@@ -34,6 +34,7 @@ options="󰣇  Apps > Search Apps
 󰅩  Development > Cloud > Azure
   Style > Theme
   Style > Wallpaper
+  Style > Lockscreen
 󰔎  Toggle > Screensaver
 󰔎  Toggle > Nightlight
 󰔎  Toggle > Idle Lock
@@ -211,6 +212,9 @@ case "$chosen" in
     ;;
   "  Style > Wallpaper")
     "$STYLE_MENUS_DIR/wallpaper.sh"
+    ;;
+  "  Style > Lockscreen")
+    walker --provider menus:lockscreen
     ;;
   "󰔎  Toggle > Screensaver")
     "$TOGGLE_ACTIONS_DIR/screensaver.sh"

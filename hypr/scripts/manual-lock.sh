@@ -9,12 +9,12 @@ if pgrep -x hyprlock >/dev/null; then
   exit 0
 fi
 
-hyprlock &
+bash "$HOME/.config/quickshell/lockscreen/scripts/launch.sh" lock &
 lock_pid=$!
 
 (
   sleep "$DISPLAY_OFF_AFTER"
-  if pgrep -x hyprlock >/dev/null; then
+  if kill -0 "$lock_pid" 2>/dev/null; then
     hyprctl dispatch dpms off
   fi
 ) &
@@ -22,7 +22,7 @@ display_timer_pid=$!
 
 (
   sleep "$SUSPEND_AFTER"
-  if pgrep -x hyprlock >/dev/null; then
+  if kill -0 "$lock_pid" 2>/dev/null; then
     systemctl suspend
   fi
 ) &

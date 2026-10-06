@@ -6,7 +6,7 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 440
-    implicitHeight: 580
+    implicitHeight: 500
     property var devices: []
     readonly property var device: devices.length ? devices[0] : null
     readonly property var details: device ? device.details : ({})
@@ -18,8 +18,6 @@ ThemedPopup {
     property var selectedNetwork: null
     property string message: ""
     property string secret: ""
-    property string dnsServers: ""
-    property bool customDns: false
     property bool busy: operation ? operation.running : false
     property real downloadRate: 0
     property real uploadRate: 0
@@ -44,12 +42,12 @@ ThemedPopup {
         if (network.connected) { act("disconnect", device.path); return; }
         if (network.type === "8021x") { message = "Configure enterprise credentials in Walker's WiFi tool."; return; }
         if (network.type === "open" || network.known) { secret = ""; act("connect", network.path); }
-        else { customDns = false; selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
+        else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
     }
     function probe() { if (visible && device && device.state === "connected" && !pingQuery.running) { pingQuery.command = ["python3", helper, "probe", device.name]; pingQuery.running = true; } }
     onVisibleChanged: {
         if (visible) { message = ""; previous = null; latency = ({}); refresh(); }
-        else { selectedNetwork = null; customDns = false; secret = ""; password.text = ""; dnsInput.text = ""; }
+        else { selectedNetwork = null; secret = ""; password.text = ""; }
     }
     Timer { interval: 2000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
     Timer { interval: 15000; running: menu.visible; repeat: true; onTriggered: menu.probe() }
@@ -79,7 +77,7 @@ ThemedPopup {
     Process {
         id: operation
         stdinEnabled: true
-        onStarted: { write(JSON.stringify({password: menu.secret, servers: menu.dnsServers}) + "\n"); menu.secret = ""; menu.dnsServers = ""; }
+        onStarted: { write(JSON.stringify({password: menu.secret}) + "\n"); menu.secret = ""; }
         stdout: StdioCollector { id: operationOutput }
         onExited: {
             try { var result = JSON.parse(operationOutput.text); menu.message = result.error || ""; }
@@ -151,40 +149,6 @@ ThemedPopup {
                 width: parent.width; height: 16
                 Text { text: "WI-FI BAND: " + (menu.details.band || "--"); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
                 Text { anchors.right: parent.right; text: menu.details.automatic === false ? "PINNED" : "AUTOMATIC"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-            }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-            Column {
-                width: parent.width; spacing: 10
-                Text { text: "DNS PROVIDER"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                Row {
-                    width: parent.width; spacing: 6
-                    Repeater {
-                        model: ["DHCP", "Cloudflare", "Google", "Custom"]
-                        PanelButton {
-                            required property string modelData
-                            width: (wifiHeaderContent.width - 18) / 4; height: 32; radius: 4
-                            text: modelData; foreground: menu.foreground; outlined: true
-                            selected: menu.details.dns === modelData
-                            available: !!menu.device && !menu.busy
-                            onClicked: { if (modelData === "Custom") { menu.selectedNetwork = null; password.text = ""; menu.customDns = true; dnsInput.forceActiveFocus(); } else menu.act("dns", menu.device.name, modelData); }
-                        }
-                    }
-                }
-            }
-            Column {
-                visible: menu.customDns; width: parent.width; spacing: 6
-                TextField {
-                    id: dnsInput; width: parent.width; placeholderText: "DNS addresses"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
-                    placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
-                    background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: dnsInput.activeFocus ? menu.accent : "transparent" }
-                    HoverHandler { cursorShape: Qt.IBeamCursor }
-                    onAccepted: dnsSave.clicked()
-                }
-                Row {
-                    spacing: 6
-                    PanelButton { id: dnsSave; text: "Apply"; foreground: menu.foreground; available: !menu.busy && dnsInput.text.trim() !== ""; onClicked: { if (!available) return; menu.dnsServers = dnsInput.text; menu.act("dns", menu.device.name, "Custom"); menu.customDns = false; } }
-                    PanelButton { text: "Cancel"; foreground: menu.foreground; onClicked: menu.customDns = false }
-                }
             }
             Column {
                 visible: menu.selectedNetwork !== null; width: parent.width; spacing: 6

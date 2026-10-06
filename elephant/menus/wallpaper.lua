@@ -34,6 +34,7 @@ function GetEntries()
                 PreviewType = "file",
                 Actions = {
                     open = home .. "/.config/walker/scripts/actions/wallpaper/apply.sh " .. shell_quote(path),
+                    wallpaper_preview = "bash " .. shell_quote(home .. "/.config/quickshell/desktop-bar/scripts/appearance-picker.sh") .. " wallpaper",
                 },
             })
         end

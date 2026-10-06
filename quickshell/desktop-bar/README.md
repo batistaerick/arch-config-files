@@ -53,10 +53,6 @@ networks from other networks and shows latency, packet loss, live transfer rates
 interface transfer totals, IP/gateway, and the current WiFi band. Transfer totals
 cover the interface's lifetime since boot, not a billing period. Ping probes use
 two packets to 1.1.1.1 on opening and every 15 seconds while visible.
-DNS buttons configure systemd-resolved's current per-interface settings through
-its standard polkit authorization prompt. Overrides are runtime-only and may
-reset on reconnection/reboot; DHCP restores the network service's DNS settings.
-Custom DNS addresses are validated before any privileged command is invoked.
 Band selection remains managed by iwd; no unsupported band controls are shown.
 Passwords are passed through stdin,
 not command-line arguments. Enterprise network configuration remains available

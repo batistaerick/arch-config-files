@@ -35,6 +35,7 @@ options="󰣇  Apps > Search Apps
   Style > Theme
   Style > Wallpaper
   Style > Lockscreen
+  Style > Workspaces
 󰔎  Toggle > Screensaver
 󰔎  Toggle > Nightlight
 󰔎  Toggle > Idle Lock
@@ -215,6 +216,9 @@ case "$chosen" in
     ;;
   "  Style > Lockscreen")
     walker --provider menus:lockscreen
+    ;;
+  "  Style > Workspaces")
+    walker --provider menus:workspaces
     ;;
   "󰔎  Toggle > Screensaver")
     "$TOGGLE_ACTIONS_DIR/screensaver.sh"

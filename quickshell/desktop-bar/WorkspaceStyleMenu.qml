@@ -14,7 +14,7 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: 240
-    implicitHeight: 188
+    implicitHeight: 115
     anchor.item: target
     anchor.rect.y: target.height + 8
     anchor.edges: Edges.Top | Edges.Left
@@ -32,7 +32,6 @@ PopupWindow {
         interval: 100
         onTriggered: if (menu.visible) grab.active = true
     }
-    FontLoader { id: kanjiFont; source: "fonts/NotoSansJP.ttf" }
 
     HyprlandFocusGrab {
         id: grab
@@ -52,7 +51,7 @@ PopupWindow {
             anchors.margins: 6
             spacing: 2
             Repeater {
-                model: ["Numbers", "Glyph", "Kanji", "Aurora", "Pacman"]
+                model: ["Numbers", "Glyph", "Dots"]
                 Rectangle {
                     required property string modelData
                     width: 228
@@ -69,42 +68,35 @@ PopupWindow {
                         font.pixelSize: 13
                     }
                     Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 96
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: modelData !== "Pacman"
+                        visible: modelData !== "Dots"
                         text: {
                             if (modelData === "Numbers") return "1 2 3 4";
                             if (modelData === "Glyph") return "✦ ✧ · ·";
-                            if (modelData === "Kanji") return "一 二 三 四";
                             return "━ · · ·";
                         }
                         color: menu.accent
-                        font.family: modelData === "Kanji" ? kanjiFont.name : "JetBrainsMono Nerd Font"
+                        font.family: "JetBrainsMono Nerd Font"
                         font.pixelSize: 13
+                        font.bold: true
                     }
-                    Canvas {
-                        visible: parent.modelData === "Pacman"
-                        anchors.left: parent.left
-                        anchors.leftMargin: 96
+                    Row {
+                        visible: parent.modelData === "Dots"
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 80
-                        height: 16
-                        property color ink: menu.accent
-                        onInkChanged: requestPaint()
-                        onPaint: {
-                            var ctx = getContext("2d");
-                            ctx.clearRect(0, 0, width, height);
-                            ctx.fillStyle = ink;
-                            ctx.beginPath();
-                            ctx.moveTo(8, 8);
-                            ctx.arc(8, 8, 7, Math.PI / 5, Math.PI * 9 / 5);
-                            ctx.closePath();
-                            ctx.fill();
-                            for (var x = 29; x < 80; x += 20) {
-                                ctx.beginPath();
-                                ctx.arc(x, 8, 2, 0, Math.PI * 2);
-                                ctx.fill();
+                        spacing: 7
+                        Repeater {
+                            model: 4
+                            Rectangle {
+                                required property int index
+                                width: index === 3 ? 17 : 6
+                                height: 6
+                                radius: 3
+                                color: menu.accent
+                                opacity: index === 3 ? 1 : 0.65
                             }
                         }
                     }

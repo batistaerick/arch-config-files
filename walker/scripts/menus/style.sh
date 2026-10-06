@@ -5,7 +5,8 @@ STYLE_MENUS_DIR="$MENUS_DIR/style"
 
 options="󰸌  Theme
 🖻  Wallpaper
-󰌾  Lockscreen"
+󰌾  Lockscreen
+󰍹  Workspaces"
 
 chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Style")
 
@@ -18,5 +19,8 @@ case "$chosen" in
     ;;
   "󰌾  Lockscreen")
     walker --provider menus:lockscreen
+    ;;
+  "󰍹  Workspaces")
+    walker --provider menus:workspaces
     ;;
 esac

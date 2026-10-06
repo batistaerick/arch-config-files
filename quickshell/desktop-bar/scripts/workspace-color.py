@@ -21,7 +21,9 @@ try:
     style = json.loads((Path.home() / '.config/quickshell/desktop-bar/workspace-style.json').read_text()).get('style', 'Numbers')
 except (OSError, ValueError, AttributeError):
     style = 'Numbers'
-if style not in ('Numbers', 'Glyph', 'Kanji', 'Aurora', 'Pacman'):
+if style == 'Aurora':
+    style = 'Dots'
+if style not in ('Numbers', 'Glyph', 'Dots'):
     style = 'Numbers'
 print(json.dumps({'background': accent, 'foreground': '#000000' if luminance > 0.179 else '#ffffff',
                   'style': style, 'menuBackground': palette.get('background', '#181824'),

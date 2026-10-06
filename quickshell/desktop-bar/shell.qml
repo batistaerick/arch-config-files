@@ -18,7 +18,6 @@ ShellRoot {
     property string workspaceStyle: "Numbers"
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
-    FontLoader { id: kanjiFont; source: "fonts/NotoSansJP.ttf" }
 
     Process {
         id: saveWorkspaceStyle
@@ -62,7 +61,6 @@ ShellRoot {
 
     function workspaceLabel(index) {
         if (workspaceStyle === "Glyph") return workspaceActive(index + 1) ? "✦" : "✧";
-        if (workspaceStyle === "Kanji") return ["一", "二", "三", "四"][index];
         return String(index + 1);
     }
 
@@ -299,15 +297,16 @@ ShellRoot {
         width: 24
         height: buttonHeight
         radius: cornerRadius
-        color: active ? shell.activeBg : (mouse.containsMouse ? shell.hoverBg : "transparent")
+        color: visualStyle === "Numbers" ? (active ? shell.activeBg : (mouse.containsMouse ? shell.hoverBg : "transparent")) : "transparent"
 
         Text {
-            visible: button.visualStyle !== "Pacman" && button.visualStyle !== "Aurora"
+            visible: button.visualStyle !== "Dots"
             anchors.fill: parent
             text: button.text
-            color: button.active ? shell.activeFg : "#ffffff"
-            font.family: button.visualStyle === "Kanji" ? kanjiFont.name : "JetBrainsMono Nerd Font"
-            font.pixelSize: button.fontSize
+            color: button.visualStyle === "Glyph" ? shell.activeBg : (button.active ? shell.activeFg : "#ffffff")
+            opacity: button.visualStyle === "Glyph" && !button.active ? 0.65 : 1
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: button.visualStyle === "Glyph" ? 19 : button.fontSize
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
@@ -315,45 +314,25 @@ ShellRoot {
         }
 
         Rectangle {
-            visible: button.visualStyle === "Aurora"
+            visible: button.visualStyle === "Dots"
             anchors.centerIn: parent
-            width: button.active ? 17 : 5
-            height: button.active ? 3 : 5
-            radius: 3
-            color: button.active ? shell.activeFg : shell.activeBg
-            opacity: button.active ? 1 : 0.5
+            width: button.active ? 22 : 12
+            height: 12
+            radius: 6
+            color: Qt.rgba(shell.activeBg.r, shell.activeBg.g, shell.activeBg.b, button.active ? 0.16 : 0.08)
+            Rectangle {
+                anchors.centerIn: parent
+                width: button.active ? 17 : 6
+                height: 6
+                radius: 3
+                color: shell.activeBg
+                opacity: button.active ? 1 : 0.65
+                Behavior on width { NumberAnimation { duration: 140 } }
+            }
             Behavior on width { NumberAnimation { duration: 140 } }
             Behavior on height { NumberAnimation { duration: 140 } }
         }
 
-        Canvas {
-            id: pacman
-            visible: button.visualStyle === "Pacman"
-            anchors.centerIn: parent
-            width: 16
-            height: 16
-            onVisibleChanged: requestPaint()
-            onPaint: {
-                var ctx = getContext("2d");
-                ctx.clearRect(0, 0, width, height);
-                ctx.fillStyle = button.active ? shell.activeFg : "#ffffff";
-                ctx.beginPath();
-                if (button.active) {
-                    ctx.moveTo(8, 8);
-                    ctx.arc(8, 8, 7, Math.PI / 5, Math.PI * 9 / 5);
-                    ctx.closePath();
-                } else ctx.arc(8, 8, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            Connections {
-                target: button
-                function onActiveChanged() { pacman.requestPaint(); }
-            }
-            Connections {
-                target: shell
-                function onActiveFgChanged() { pacman.requestPaint(); }
-            }
-        }
 
         MouseArea {
             id: mouse

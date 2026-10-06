@@ -24,3 +24,10 @@ subtext = ">"
 keywords = ["lock", "screen", "security"]
 icon = "󰌾"
 submenu = "lockscreen"
+
+[[entries]]
+text = "Workspaces"
+subtext = ">"
+keywords = ["numbers", "glyph", "dots", "bar"]
+icon = "󰍹"
+submenu = "workspaces"

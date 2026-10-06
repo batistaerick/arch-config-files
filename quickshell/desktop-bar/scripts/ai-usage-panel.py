@@ -35,6 +35,18 @@ class UsagePanel(Adw.Application):
           .heading { font-size: 22px; font-weight: bold; }
           .provider { font-size: 17px; font-weight: bold; }
           .provider-icon { font-family: "JetBrainsMono Nerd Font"; font-size: 19px; }
+          window button.refresh-button {
+            min-width: 32px;
+            min-height: 32px;
+            border-radius: 7px;
+            border: none;
+            box-shadow: none;
+            background-image: none;
+            background: rgba(205, 214, 244, 0.08);
+            color: #cdd6f4;
+          }
+          window button.refresh-button:hover { background: rgba(205, 214, 244, 0.16); }
+          window button.refresh-button:disabled { opacity: 0.45; }
           window progressbar.usage-meter trough,
           window progressbar.usage-meter trough progress {
             min-height: 6px;
@@ -59,6 +71,8 @@ class UsagePanel(Adw.Application):
         title.add_css_class("heading")
         header.append(title)
         self.refresh_button = Gtk.Button(icon_name="view-refresh-symbolic", tooltip_text="Refresh usage")
+        self.refresh_button.add_css_class("refresh-button")
+        self.refresh_button.set_valign(Gtk.Align.CENTER)
         self.refresh_button.set_cursor_from_name("pointer")
         self.refresh_button.connect("clicked", lambda _: self.refresh())
         header.append(self.refresh_button)
@@ -143,9 +157,12 @@ class UsagePanel(Adw.Application):
             heading = Gtk.Box(spacing=10)
             icon = Gtk.Label(label={"Codex": "", "Claude": "󰚩"}.get(provider["name"], "󰚩"))
             icon.add_css_class("provider-icon")
+            icon.set_valign(Gtk.Align.CENTER)
+            icon.set_margin_bottom(4)
             heading.append(icon)
             name = Gtk.Label(label=provider["name"], xalign=0)
             name.add_css_class("provider")
+            name.set_valign(Gtk.Align.CENTER)
             heading.append(name)
             section.append(heading)
             if provider.get("error"):

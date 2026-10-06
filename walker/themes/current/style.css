@@ -7,6 +7,8 @@
 @define-color selected_fg_color #111C18;
 @define-color error_bg_color #FF5345;
 @define-color error_fg_color #111C18;
+@define-color workspace_selected_fg_color #000000;
+@import url("workspace-examples.css");
 
 * {
   all: unset;

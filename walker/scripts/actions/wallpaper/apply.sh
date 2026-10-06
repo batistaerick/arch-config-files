@@ -18,5 +18,3 @@ printf '%s\n' "$wallpaper" > "$cache_path"
 for monitor in $(hyprctl monitors -j | jq -r '.[].name'); do
   hyprctl hyprpaper wallpaper "$monitor,$wallpaper" || true
 done
-
-notify-send "Wallpaper changed" "$(basename "$wallpaper")"

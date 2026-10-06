@@ -63,6 +63,7 @@ selection_background="${selection_background:-$accent}"
 error_background="${error_background:-$accent}"
 color0="${color0:-$background}"
 color8="${color8:-$color0}"
+workspace_selected_foreground="$(python3 "$HOME/.config/quickshell/desktop-bar/scripts/workspace-color.py" | jq -r '.foreground')"
 
 if is_light_mode; then
   window_alpha="0.92"
@@ -88,6 +89,8 @@ cat > "$CURRENT_FILE" <<EOF
 @define-color selected_fg_color $selection_foreground;
 @define-color error_bg_color $error_background;
 @define-color error_fg_color $selection_foreground;
+@define-color workspace_selected_fg_color $workspace_selected_foreground;
+@import url("workspace-examples.css");
 
 * {
   all: unset;

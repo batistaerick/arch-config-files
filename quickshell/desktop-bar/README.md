@@ -20,8 +20,8 @@ normally. No focus-loss fallback is used.
 
 Bar tooltips follow the current theme's background and foreground colors.
 
-The keyboard icon opens the configured layout selector and follows layout
-changes made with Alt+Shift. Weather keeps the city's local temperature unit
+The keyboard icon and Walker's System > Keyboard menu share the configured
+layout selector and follow changes made with Alt+Shift. Weather keeps the city's local temperature unit
 as the main reading, with a smaller equivalent in the other unit alongside it.
 
 Install Quickshell:

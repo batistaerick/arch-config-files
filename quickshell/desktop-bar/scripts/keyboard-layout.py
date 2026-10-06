@@ -54,10 +54,14 @@ def main():
             if (device.get('layout'), device.get('variant')) == (keyboard.get('layout'), keyboard.get('variant')):
                 subprocess.run(['hyprctl', 'switchxkblayout', device['name'], str(index)],
                                check=True, capture_output=True, timeout=3)
+    elif len(sys.argv) == 2 and sys.argv[1] == 'list':
+        active = keyboard.get('active_layout_index', 0)
+        for entry in entries:
+            print(f"{entry['index']}\t{entry['label']}\t{int(entry['index'] == active)}")
     elif len(sys.argv) == 1:
         print(json.dumps({'layouts': entries, 'active': keyboard.get('active_layout_index', 0)}))
     else:
-        raise SystemExit('Usage: keyboard-layout.py [select INDEX]')
+        raise SystemExit('Usage: keyboard-layout.py [list | select INDEX]')
 
 
 if __name__ == '__main__':

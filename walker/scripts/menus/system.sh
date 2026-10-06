@@ -6,6 +6,7 @@ ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 options="  Audio
   WiFi
   Bluetooth
+󰌌  Keyboard
   Dotfiles
   Update
 󰃢  Cleanup
@@ -25,6 +26,9 @@ case "$chosen" in
     ;;
   "  Bluetooth")
     blueman-manager
+    ;;
+  "󰌌  Keyboard")
+    walker --provider menus:keyboard
     ;;
   "  Dotfiles")
     code "$HOME/.config" &

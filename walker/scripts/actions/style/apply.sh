@@ -99,6 +99,4 @@ fi
 
 if (( ${#failed_modules[@]} )); then
   notify-send "Theme applied with warnings" "$THEME_NAME: failed modules: ${failed_modules[*]}"
-else
-  notify-send "Theme applied" "$THEME_NAME"
 fi

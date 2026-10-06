@@ -21,6 +21,13 @@ icon = ""
 actions = { "open" = "blueman-manager" }
 
 [[entries]]
+text = "Keyboard"
+subtext = ">"
+keywords = ["layout", "language", "input", "alt shift"]
+icon = "󰌌"
+submenu = "keyboard"
+
+[[entries]]
 text = "Dotfiles"
 keywords = ["config"]
 icon = ""

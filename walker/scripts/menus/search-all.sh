@@ -58,6 +58,7 @@ options="󰣇  Apps > Search Apps
   System > Audio
   System > WiFi
   System > Bluetooth
+  System > Keyboard
   System > Dotfiles
   System > Update
   System > Update > Pacman
@@ -285,6 +286,9 @@ case "$chosen" in
     ;;
   "  System > Bluetooth")
     open_setup_window "blueman-manager" "blueman-manager"
+    ;;
+  "  System > Keyboard")
+    walker --provider menus:keyboard
     ;;
   "  System > Dotfiles")
     code "$HOME/.config" &

@@ -28,13 +28,21 @@ case "${1:-}" in
     chosen="󰚩  Claude Code > Resume by Name"
     ;;
   *)
-    options="  Codex > New
+    provider="$(printf '%s\n' '󰚩  Claude' '  Codex' | "$WALKER_DMENU" --dmenu --no-sort --cache-file /dev/null --prompt="AI")"
+    case "$provider" in
+      '  Codex')
+        options="  Codex > New
   Codex > Resume Picker
-  Codex > Resume by Name or ID
-󰚩  Claude Code > New
+  Codex > Resume by Name or ID"
+        ;;
+      '󰚩  Claude')
+        options="󰚩  Claude Code > New
 󰚩  Claude Code > New Named
 󰚩  Claude Code > Resume Picker
 󰚩  Claude Code > Resume by Name"
+        ;;
+      *) exit 0 ;;
+    esac
 
     chosen="$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool")"
     ;;
@@ -43,7 +51,7 @@ esac
 [[ -z "$chosen" ]] && exit 0
 
 if [ ! -d "$DEV_DIR" ]; then
-  notify-send "AI Tools" "$DEV_DIR does not exist"
+  notify-send "AI" "$DEV_DIR does not exist"
   exit 0
 fi
 

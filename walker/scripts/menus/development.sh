@@ -3,20 +3,16 @@
 MENUS_DIR="$HOME/.config/walker/scripts/menus"
 ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 
-options="󰐊  Start Doola Setup
-  VS Code
+options="  VS Code
   LazyVim
   LazyVim Commands
-  AI Tools
+  AI
 󰨇  Grafana Logs
   Cloud"
 
 chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Development")
 
 case "$chosen" in
-  "󰐊  Start Doola Setup")
-    "$ACTIONS_DIR/development/start-doola-setup.sh"
-    ;;
   "  VS Code")
     BACK_MENU="$MENUS_DIR/development.sh" "$ACTIONS_DIR/development/open-project.sh" vscode
     ;;
@@ -26,7 +22,7 @@ case "$chosen" in
   "  LazyVim Commands")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/vim.sh"
     ;;
-  "  AI Tools")
+  "  AI")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"
     ;;
   "󰨇  Grafana Logs")

@@ -47,6 +47,17 @@
       </object>
     </child>
     <child>
+      <object class="GtkLabel" id="ItemSubtext">
+        <style>
+          <class name="item-subtext"></class>
+        </style>
+        <property name="wrap">false</property>
+        <property name="valign">center</property>
+        <property name="xalign">1</property>
+        <property name="yalign">0.5</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkLabel" id="QuickActivation">
         <style>
           <class name="item-quick-activation"></class>

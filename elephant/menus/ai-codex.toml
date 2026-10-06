@@ -1,0 +1,23 @@
+name = "ai-codex"
+name_pretty = "Codex"
+parent = "ai-tools"
+icon = ""
+fixed_order = true
+
+[[entries]]
+text = "New"
+keywords = ["codex"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-new" }
+
+[[entries]]
+text = "Resume Picker"
+keywords = ["codex", "resume"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-picker" }
+
+[[entries]]
+text = "Resume by Name or ID"
+keywords = ["codex", "resume"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-name" }

@@ -2,6 +2,12 @@
 
 This is a first-pass Quickshell bar preview.
 
+Right-click a workspace to choose Numbers, Glyph, Kanji, Aurora, or Pacman.
+The menu includes examples; the checkmark identifies the current selection.
+The choice is saved in `workspace-style.json`. Selected workspace colors follow
+the current theme's accent. Kanji uses the bundled Noto Sans JP font, licensed
+under the SIL Open Font License (see `fonts/LICENSE-NotoSansJP`).
+
 Install Quickshell:
 
 ```sh

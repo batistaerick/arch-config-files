@@ -19,14 +19,14 @@ options="󰣇  Apps > Search Apps
 󰅩  Development
 󰅩  Development > VS Code
 󰅩  Development > LazyVim
-󰅩  Development > AI Tools
-󰅩  Development > AI Tools > Codex > New
-󰅩  Development > AI Tools > Codex > Resume Picker
-󰅩  Development > AI Tools > Codex > Resume by Name or ID
-󰅩  Development > AI Tools > Claude Code > New
-󰅩  Development > AI Tools > Claude Code > New Named
-󰅩  Development > AI Tools > Claude Code > Resume Picker
-󰅩  Development > AI Tools > Claude Code > Resume by Name
+󰅩  Development > AI
+󰅩  Development > AI > Codex > New
+󰅩  Development > AI > Codex > Resume Picker
+󰅩  Development > AI > Codex > Resume by Name or ID
+󰅩  Development > AI > Claude > New
+󰅩  Development > AI > Claude > New Named
+󰅩  Development > AI > Claude > Resume Picker
+󰅩  Development > AI > Claude > Resume by Name
 󰅩  Development > Grafana Logs
 󰅩  Development > Cloud
 󰅩  Development > Cloud > AWS
@@ -166,28 +166,28 @@ case "$chosen" in
   "󰅩  Development > LazyVim")
     BACK_MENU="$MENUS_DIR/search-all.sh" "$DEVELOPMENT_ACTIONS_DIR/open-project.sh" nvim
     ;;
-  "󰅩  Development > AI Tools")
+  "󰅩  Development > AI")
     BACK_MENU="$MENUS_DIR/development.sh" "$MENUS_DIR/ai-tools.sh"
     ;;
-  "󰅩  Development > AI Tools > Codex > New")
+  "󰅩  Development > AI > Codex > New")
     run_ai_tool codex new
     ;;
-  "󰅩  Development > AI Tools > Codex > Resume Picker")
+  "󰅩  Development > AI > Codex > Resume Picker")
     run_ai_tool codex resume-picker
     ;;
-  "󰅩  Development > AI Tools > Codex > Resume by Name or ID")
+  "󰅩  Development > AI > Codex > Resume by Name or ID")
     run_ai_tool codex resume-name
     ;;
-  "󰅩  Development > AI Tools > Claude Code > New")
+  "󰅩  Development > AI > Claude > New")
     run_ai_tool claude new
     ;;
-  "󰅩  Development > AI Tools > Claude Code > New Named")
+  "󰅩  Development > AI > Claude > New Named")
     run_ai_tool claude new-named
     ;;
-  "󰅩  Development > AI Tools > Claude Code > Resume Picker")
+  "󰅩  Development > AI > Claude > Resume Picker")
     run_ai_tool claude resume-picker
     ;;
-  "󰅩  Development > AI Tools > Claude Code > Resume by Name")
+  "󰅩  Development > AI > Claude > Resume by Name")
     run_ai_tool claude resume-name
     ;;
   "󰅩  Development > Grafana Logs")

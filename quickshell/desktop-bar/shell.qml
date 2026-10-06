@@ -37,6 +37,7 @@ ShellRoot {
                     if (!saveWorkspaceStyle.running) shell.workspaceStyle = palette.style;
                     shell.workspaceMenuBg = palette.menuBackground;
                     shell.workspaceMenuFg = palette.menuForeground;
+                    shell.fg = palette.menuForeground;
                 } catch (e) {}
             }
         }
@@ -157,7 +158,7 @@ ShellRoot {
                         Row {
                             Layout.alignment: Qt.AlignVCenter
                             Layout.leftMargin: 12
-                            spacing: 6
+                            spacing: 2
 
                             StatusCommand {
                                 script: "$HOME/.config/quickshell/desktop-bar/scripts/gpu-usage.sh"
@@ -303,8 +304,7 @@ ShellRoot {
             visible: button.visualStyle !== "Dots"
             anchors.fill: parent
             text: button.text
-            color: button.visualStyle === "Glyph" ? shell.activeBg : (button.active ? shell.activeFg : "#ffffff")
-            opacity: button.visualStyle === "Glyph" && !button.active ? 0.65 : 1
+            color: button.active ? (button.visualStyle === "Glyph" ? shell.activeBg : shell.activeFg) : shell.fg
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: button.visualStyle === "Glyph" ? 19 : button.fontSize
             font.bold: true
@@ -319,14 +319,13 @@ ShellRoot {
             width: button.active ? 22 : 12
             height: 12
             radius: 6
-            color: Qt.rgba(shell.activeBg.r, shell.activeBg.g, shell.activeBg.b, button.active ? 0.16 : 0.08)
+            color: button.active ? Qt.rgba(shell.activeBg.r, shell.activeBg.g, shell.activeBg.b, 0.16) : Qt.rgba(shell.fg.r, shell.fg.g, shell.fg.b, 0.08)
             Rectangle {
                 anchors.centerIn: parent
                 width: button.active ? 17 : 6
                 height: 6
                 radius: 3
-                color: shell.activeBg
-                opacity: button.active ? 1 : 0.65
+                color: button.active ? shell.activeBg : shell.fg
                 Behavior on width { NumberAnimation { duration: 140 } }
             }
             Behavior on width { NumberAnimation { duration: 140 } }
@@ -597,15 +596,24 @@ ShellRoot {
         height: 24
         Component.onCompleted: refresh()
 
-        Text {
+        Row {
             id: label
-
             anchors.centerIn: parent
-            text: weather.text
-            color: "#ffffff"
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 14
-            font.bold: true
+            spacing: 3
+            Text {
+                text: weather.text.split(" ")[0]
+                color: "#ffffff"
+                font.family: "JetBrainsMono Nerd Font"
+                font.pixelSize: 14
+                font.bold: true
+            }
+            Text {
+                text: weather.temp || (weather.text.indexOf(" ") >= 0 ? weather.text.slice(weather.text.indexOf(" ") + 1).trim() : "")
+                color: "#ffffff"
+                font.family: "JetBrainsMono Nerd Font"
+                font.pixelSize: 14
+                font.bold: true
+            }
         }
 
         MouseArea {

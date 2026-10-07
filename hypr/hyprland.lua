@@ -25,6 +25,11 @@ end
 
 local is_laptop = has_internal_display()
 local has_hdmi = has_connected_output("HDMI-A-1")
+local portable_config = io.open(os.getenv("HOME") .. "/.config/hypr/portable.mode", "r")
+local portable_mode = portable_config ~= nil
+if portable_config then
+	portable_config:close()
+end
 
 -------------
 -- Themes --
@@ -72,7 +77,9 @@ end
 -- Monitors --
 --------------
 
-if is_laptop then
+if portable_mode then
+	hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+elseif is_laptop then
 	hl.monitor({
 		output = "eDP-1",
 		mode = "1920x1080@60",
@@ -418,21 +425,23 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- Windows And Workspaces --
 ----------------------------
 
-if is_laptop then
-	for i = 1, 4 do
-		hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
-	end
-elseif has_hdmi then
-	-- Main monitor
-	hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
-	hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
+if not portable_mode then
+	if is_laptop then
+		for i = 1, 4 do
+			hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
+		end
+	elseif has_hdmi then
+		-- Main monitor
+		hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
+		hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
 
-	-- Secondary monitor
-	hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1" })
-	hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
-else
-	for i = 1, 4 do
-		hl.workspace_rule({ workspace = tostring(i), monitor = "DP-3" })
+		-- Secondary monitor
+		hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1" })
+		hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
+	else
+		for i = 1, 4 do
+			hl.workspace_rule({ workspace = tostring(i), monitor = "DP-3" })
+		end
 	end
 end
 

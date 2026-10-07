@@ -12,7 +12,7 @@ source $ZSH/oh-my-zsh.sh
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-[[ -f /home/erick/.dart-cli-completion/zsh-config.zsh ]] && . /home/erick/.dart-cli-completion/zsh-config.zsh || true
+[[ -f "$HOME/.dart-cli-completion/zsh-config.zsh" ]] && . "$HOME/.dart-cli-completion/zsh-config.zsh" || true
 
 export LS_COLORS=$(cat ~/.ls_colors)
 
@@ -76,3 +76,6 @@ fifs() {
 }
 
 export PATH="$HOME/.local/bin:$PATH"
+
+alias ls='eza --icons=auto --group-directories-first'
+alias ll='eza -la --icons=auto --group-directories-first --git'

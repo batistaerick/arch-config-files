@@ -1,0 +1,14 @@
+# Packages used by the desktop but not in the official Arch repositories.
+walker
+elephant-bin
+elephant-desktopapplications-bin
+elephant-menus-bin
+elephant-providerlist-bin
+elephant-websearch-bin
+visual-studio-code-bin
+1password
+google-chrome
+bibata-cursor-theme
+yaru-icon-theme
+obs-cmd
+kvantum-theme-catppuccin-git

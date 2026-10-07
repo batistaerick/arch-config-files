@@ -4,6 +4,27 @@ This repository backs up a customized Arch Linux desktop. It is not an Omarchy
 installation. Preserve the existing design and workflows rather than replacing
 them with upstream defaults.
 
+## Engineering Practices
+
+- Keep changes small and cohesive. Read neighboring code before adding a new
+  component or helper; reuse existing patterns and shared style APIs.
+- Avoid duplicated behavior and duplicated theme constants. Put reusable
+  logic in one owner module and update its callers, but do not create an
+  abstraction merely to eliminate a few clear lines.
+- Prefer descriptive names, simple control flow, explicit errors, and data
+  formats with real parsers. Avoid hidden side effects and hardcoded user paths.
+- Keep generated files and their generators synchronized. Validate both the
+  immediate result and what a later theme change or reboot will regenerate.
+- Add focused tests for new behavior and regressions; run syntax/lint checks
+  for every edited script. Do not claim untested hardware behavior as verified.
+- Keep external packages and installers in `distro/` manifests rather than
+  scattering installation commands across unrelated desktop scripts. Package
+  lists should distinguish official, AUR, and hardware-specific dependencies.
+- Fresh-install code must not assume a particular username, monitor, GPU,
+  locale, account, or disk layout. Never bundle secrets or migrate live caches.
+- Do not overwrite existing user configs or start/restart services during a
+  repository audit. Installer actions belong on a new target system only.
+
 ## Working With Live Configs
 
 - On the owner's machine, the active configuration is under `$HOME/.config`.

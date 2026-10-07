@@ -14,8 +14,8 @@ Item {
     readonly property string title: player ? [player.trackArtist, player.trackTitle].filter(Boolean).join(" - ") || player.identity : ""
     property real pulse: 0
 
-    visible: player !== null && availableWidth >= 140
-    width: visible ? controls.width + 28 + Math.max(0, Math.min(260, availableWidth) - controls.width - 28) * 0.75 : 0
+    visible: player !== null && availableWidth >= controls.width + 20
+    width: visible ? controls.width + 20 : 0
     height: 24
 
     Row {
@@ -42,62 +42,24 @@ Item {
         }
     }
     Item {
-        id: titleViewport
-        anchors.left: controls.right
-        anchors.leftMargin: 6
-        anchors.right: playbackIndicator.left
-        anchors.rightMargin: 8
-        height: parent.height
-        clip: true
-        readonly property bool scrolling: trackLabel.implicitWidth > width
-        Row {
-            id: ticker
-            height: parent.height
-            spacing: 24
-            Text {
-                id: trackLabel
-                height: parent.height
-                verticalAlignment: Text.AlignVCenter
-                text: media.title
-                textFormat: Text.PlainText
-                color: media.foreground
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 12
-                onTextChanged: { ticker.x = 0; if (titleMouse.containsMouse && titleViewport.scrolling) marquee.restart(); }
-            }
-            Text {
-                visible: titleViewport.scrolling
-                height: parent.height
-                verticalAlignment: Text.AlignVCenter
-                text: media.title
-                textFormat: Text.PlainText
-                color: media.foreground
-                font: trackLabel.font
-            }
-        }
-        SequentialAnimation {
-            id: marquee
-            running: media.visible && titleViewport.scrolling && titleMouse.containsMouse
-            loops: Animation.Infinite
-            PauseAnimation { duration: 1300 }
-            NumberAnimation { target: ticker; property: "x"; from: 0; to: -(trackLabel.implicitWidth + ticker.spacing); duration: Math.max(1000, (trackLabel.implicitWidth + ticker.spacing) / 28 * 1000) }
-            PropertyAction { target: ticker; property: "x"; value: 0 }
-            onStopped: ticker.x = 0
-        }
-        MouseArea {
-            id: titleMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.LeftButton
-            cursorShape: media.player && media.player.canRaise ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: if (media.player && media.player.canRaise) media.player.raise()
-        }
-    }
-    Item {
         id: playbackIndicator
         anchors.right: parent.right
         width: 14
         height: parent.height
+        MouseArea {
+            id: indicatorMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: media.player && media.player.canRaise ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: if (media.player && media.player.canRaise) media.player.raise()
+        }
+        BarTooltip {
+            target: playbackIndicator
+            hovered: indicatorMouse.containsMouse
+            text: media.title
+            foreground: media.foreground
+            background: media.background
+        }
         Row {
             anchors.centerIn: parent
             height: 14

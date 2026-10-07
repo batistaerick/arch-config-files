@@ -25,9 +25,10 @@ Rectangle {
     border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
     opacity: available ? 1 : 0.45
     Text {
-        anchors.verticalCenter: parent.verticalCenter
-        x: button.leadingIcon !== "" ? 34 : 8
-        width: parent.width - x - 8
+        x: button.icon ? 0 : button.leadingIcon !== "" ? 34 : 8
+        width: button.icon ? parent.width : parent.width - x - 8
+        height: parent.height
+        verticalAlignment: Text.AlignVCenter
         horizontalAlignment: button.textAlignment
         elide: Text.ElideRight
         text: button.text

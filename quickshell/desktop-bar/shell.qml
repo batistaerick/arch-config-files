@@ -443,6 +443,7 @@ ShellRoot {
 
                     WeatherMenu {
                         id: weatherMenu
+                        defaultWeatherData: barWeather.latestData
                         target: centerInfo
                         centered: true
                         accent: shell.activeBg
@@ -753,6 +754,7 @@ ShellRoot {
         property string wind: ""
         property string humidity: ""
         property string forecast: ""
+        property var latestData: ({})
         property int dataRevision: 0
         property int requestedRevision: 0
 
@@ -767,6 +769,7 @@ ShellRoot {
 
         function updateData(data) {
             dataRevision++;
+            latestData = data;
             weather.text = String(data.text || weather.text);
             weather.location = String(data.location || "");
             weather.condition = String(data.condition || "");

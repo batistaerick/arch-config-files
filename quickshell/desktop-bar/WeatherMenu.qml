@@ -9,6 +9,7 @@ ThemedPopup {
     implicitHeight: 250 + (results.visible ? results.height + 14 : 0)
     keyTarget: weatherContent
     property var weatherData: ({})
+    property var defaultWeatherData: ({})
     property var city: null
     property bool searching: false
     property var cities: []
@@ -42,7 +43,7 @@ ThemedPopup {
     function restoreDefault() {
         city = null;
         cancelSearch();
-        weatherData = {};
+        weatherData = defaultWeatherData;
         refresh();
     }
     function forecastIcon(code) {
@@ -60,7 +61,7 @@ ThemedPopup {
     onVisibleChanged: {
         if (visible) {
             city = null;
-            weatherData = {};
+            weatherData = defaultWeatherData;
             refresh();
         } else {
             city = null;
@@ -91,7 +92,10 @@ ThemedPopup {
                 if (code !== 0) throw new Error("weather unavailable");
                 menu.weatherData = JSON.parse(weatherOutput.text);
                 if (menu.city === null) menu.defaultWeatherUpdated(menu.weatherData);
-            } catch (e) { menu.weatherData = {temp: "--", condition: "Unavailable", location: menu.city ? menu.city.name : "Weather"}; }
+            } catch (e) {
+                if (menu.city === null && menu.weatherData.temp) return;
+                menu.weatherData = {temp: "--", condition: "Unavailable", location: menu.city ? menu.city.name : "Weather"};
+            }
         }
     }
     Process {

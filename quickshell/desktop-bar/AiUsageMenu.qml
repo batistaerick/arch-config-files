@@ -83,7 +83,7 @@ ThemedPopup {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
                 Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : "Codex"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; font.bold: true }
-                Text { text: "AI USAGE"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { text: (menu.provider.plan || "Plan unavailable").toUpperCase(); color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
             }
             PanelButton {
                 id: refreshButton

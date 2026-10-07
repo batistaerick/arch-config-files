@@ -76,7 +76,8 @@ def codex_usage():
                 if len(buckets) > 1:
                     label = f"{bucket_id} · {label}"
                 windows.append({"label": label, "used": window["usedPercent"], "reset": window.get("resetsAt")})
-        return {"name": "Codex", "windows": windows}
+        plan = next((bucket.get("planType") for bucket in buckets.values() if bucket.get("planType")), None)
+        return {"name": "Codex", "windows": windows, "plan": plan}
     finally:
         proc.terminate()
         try:
@@ -117,7 +118,14 @@ def claude_usage():
         if isinstance(reset, str):
             reset = dt.datetime.fromisoformat(reset.replace("Z", "+00:00")).timestamp()
         windows.append({"label": label, "used": window["utilization"], "reset": reset})
-    return {"name": "Claude", "windows": windows}
+    account = credentials.get("claudeAiOauth", {})
+    tier = account.get("rateLimitTier", "")
+    plan = account.get("subscriptionType")
+    if "20x" in tier:
+        plan = "Max 20x"
+    elif "5x" in tier:
+        plan = "Max 5x"
+    return {"name": "Claude", "windows": windows, "plan": plan}
 
 
 def collect():

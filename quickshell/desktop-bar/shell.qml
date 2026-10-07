@@ -360,6 +360,27 @@ ShellRoot {
                             }
 
                             StatusIcon {
+                                id: obsIcon
+                                icon: "󰑋"
+                                imageIcon: Quickshell.iconPath("com.obsproject.Studio")
+                                iconSize: 18
+                                tooltip: "OBS Studio"
+                                open: shell.statusOpen
+                                clickable: true
+                                rightClickable: true
+                                onClicked: obsMenu.visible = !obsMenu.visible
+                                onOpenChanged: if (!open) obsMenu.visible = false
+                            }
+
+                            ObsMenu {
+                                id: obsMenu
+                                target: obsIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
+                            }
+
+                            StatusIcon {
                                 id: aiIcon
                                 icon: "󱜙"
                                 iconSize: 18
@@ -505,11 +526,13 @@ ShellRoot {
         id: item
 
         property string icon: ""
+        property string imageIcon: ""
         property string tooltip: ""
         property string detail: ""
         property string command: ""
         property bool open: true
         property bool clickable: false
+        property bool rightClickable: false
         property int iconSize: 15
         property int glyphOffsetY: 0
         property int slotWidth: 28
@@ -531,11 +554,21 @@ ShellRoot {
 
             Text {
                 text: item.icon
+                visible: item.imageIcon === ""
                 y: item.glyphOffsetY
                 color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: item.iconSize
                 font.bold: true
+            }
+
+            Image {
+                visible: item.imageIcon !== ""
+                source: item.imageIcon
+                width: item.iconSize
+                height: item.iconSize
+                sourceSize.width: item.iconSize
+                sourceSize.height: item.iconSize
             }
 
             Text {
@@ -553,6 +586,7 @@ ShellRoot {
             id: iconMouse
             anchors.fill: parent
             enabled: item.open && (item.clickable || item.command !== "")
+            acceptedButtons: item.rightClickable ? Qt.LeftButton | Qt.RightButton : Qt.LeftButton
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: {

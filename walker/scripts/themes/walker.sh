@@ -65,6 +65,17 @@ color0="${color0:-$background}"
 color8="${color8:-$color0}"
 workspace_selected_foreground="$(python3 "$HOME/.config/quickshell/desktop-bar/scripts/workspace-color.py" | jq -r '.foreground')"
 
+ai_assets="$HOME/.config/quickshell/desktop-bar/assets/ai"
+hex="${foreground#\#}"
+if (( 0x${hex:0:2} + 0x${hex:2:2} + 0x${hex:4:2} > 384 )); then
+  codex_mark="$ai_assets/OpenAI-white-monoblossom.svg"
+else
+  codex_mark="$ai_assets/OpenAI-black-monoblossom.svg"
+fi
+if [[ -f "$codex_mark" ]]; then
+  cp "$codex_mark" "$WALKER_THEME_DIR/codex.svg"
+fi
+
 if is_light_mode; then
   window_alpha="0.92"
   input_alpha="0.76"
@@ -79,14 +90,20 @@ else
   shadow_alpha="0.34"
 fi
 
+selection_colors="$(python3 "$(dirname "${BASH_SOURCE[0]}")/selection-colors.py" "$CURRENT_DIR")"
+row_background="$(jq -r '.background' <<< "$selection_colors")"
+row_foreground="$(jq -r '.foreground' <<< "$selection_colors")"
+current_row_foreground="$(jq -r '.current' <<< "$selection_colors")"
+
 cat > "$CURRENT_FILE" <<EOF
 @define-color window_bg_color $(rgba "$background" "$window_alpha");
 @define-color base_bg_color $background;
 @define-color input_bg_color $(rgba "$color0" "$input_alpha");
 @define-color accent_bg_color $accent;
 @define-color theme_fg_color $foreground;
-@define-color selected_bg_color $(rgba "$color8" "$selected_alpha");
-@define-color selected_fg_color $selection_foreground;
+@define-color selected_bg_color $row_background;
+@define-color selected_fg_color $row_foreground;
+@define-color current_selected_fg_color $current_row_foreground;
 @define-color error_bg_color $error_background;
 @define-color error_fg_color $selection_foreground;
 @define-color workspace_selected_fg_color $workspace_selected_foreground;
@@ -275,6 +292,13 @@ row:selected .item-image {
 
 .current:not(.calc) .item-image-text {
   color: @accent_bg_color;
+}
+
+child:selected .current:not(.calc) .item-text,
+row:selected .current:not(.calc) .item-text,
+child:selected .current:not(.calc) .item-image-text,
+row:selected .current:not(.calc) .item-image-text {
+  color: @current_selected_fg_color;
 }
 
 .preview-content.archlinuxpkgs,

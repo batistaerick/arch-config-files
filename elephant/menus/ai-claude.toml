@@ -1,29 +1,29 @@
 name = "ai-claude"
 name_pretty = "Claude"
 parent = "ai-tools"
-icon = "󰚩"
+icon = "claude-brand"
 fixed_order = true
 
 [[entries]]
 text = "New"
 keywords = ["claude"]
-icon = "󰚩"
+icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-new" }
 
 [[entries]]
 text = "New Named"
 keywords = ["claude"]
-icon = "󰚩"
+icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-new-named" }
 
 [[entries]]
 text = "Resume Picker"
 keywords = ["claude", "resume"]
-icon = "󰚩"
+icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-picker" }
 
 [[entries]]
 text = "Resume by Name"
 keywords = ["claude", "resume"]
-icon = "󰚩"
+icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-name" }

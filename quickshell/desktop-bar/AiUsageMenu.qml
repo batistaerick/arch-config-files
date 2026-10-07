@@ -78,7 +78,23 @@ ThemedPopup {
             id: hero
             width: parent.width
             height: 40
-            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.selectedProvider === "Claude" ? "󰚩" : ""; color: menu.accent; font.family: PanelStyle.fontFamily; font.pixelSize: 27 }
+            Item {
+                width: 30
+                height: 30
+                anchors.verticalCenter: parent.verticalCenter
+                Image {
+                    anchors.centerIn: parent
+                    width: menu.selectedProvider === "Claude" ? 28 : 40
+                    height: width
+                    sourceSize.width: width * 2
+                    sourceSize.height: height * 2
+                    fillMode: Image.PreserveAspectFit
+                    source: menu.selectedProvider === "Claude" ? "assets/ai/claude.svg"
+                        : menu.foreground.r + menu.foreground.g + menu.foreground.b > 1.5
+                            ? "assets/ai/OpenAI-white-monoblossom.svg"
+                            : "assets/ai/OpenAI-black-monoblossom.svg"
+                }
+            }
             Column {
                 x: 38
                 anchors.verticalCenter: parent.verticalCenter

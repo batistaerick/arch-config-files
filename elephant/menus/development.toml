@@ -8,7 +8,7 @@ fixed_order = true
 text = "AI"
 subtext = ">"
 keywords = ["codex", "claude"]
-icon = ""
+icon = "󱜙"
 submenu = "ai-tools"
 
 [[entries]]

@@ -1,17 +1,17 @@
 name = "ai-tools"
 name_pretty = "AI"
 parent = "development"
-icon = ""
+icon = "󱜙"
 fixed_order = true
 
 [[entries]]
 text = "Claude"
 subtext = ">"
-icon = "󰚩"
+icon = "claude-brand"
 submenu = "ai-claude"
 
 [[entries]]
 text = "Codex"
 subtext = ">"
-icon = ""
+icon = "codex-brand"
 submenu = "ai-codex"

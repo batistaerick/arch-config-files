@@ -57,10 +57,19 @@ PopupWindow {
                 Rectangle {
                     id: choiceRow
                     required property string modelData
+                    required property int index
                     width: 228
                     height: 33
                     radius: 4
                     color: mouse.containsMouse ? Qt.alpha(menu.accent, 0.18) : "transparent"
+                    Rectangle {
+                        visible: choiceRow.index > 0
+                        x: 8
+                        y: -2
+                        width: parent.width - 16
+                        height: 1
+                        color: Qt.alpha(menu.foreground, 0.12)
+                    }
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 32

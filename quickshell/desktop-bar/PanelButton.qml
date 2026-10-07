@@ -7,6 +7,7 @@ Rectangle {
     required property string text
     property bool available: true
     property bool icon: false
+    property real iconOffsetX: 0
     property bool outlined: false
     property bool selected: false
     property string leadingIcon: ""
@@ -25,7 +26,7 @@ Rectangle {
     border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
     opacity: available ? 1 : 0.45
     Text {
-        x: button.icon ? 0 : button.leadingIcon !== "" ? 34 : 8
+        x: button.icon ? button.iconOffsetX : button.leadingIcon !== "" ? 34 : 8
         width: button.icon ? parent.width : parent.width - x - 8
         height: parent.height
         verticalAlignment: Text.AlignVCenter

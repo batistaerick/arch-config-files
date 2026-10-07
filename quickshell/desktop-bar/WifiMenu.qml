@@ -254,6 +254,7 @@ ThemedPopup {
                                         id: disconnectButton
                                         visible: network.modelData.connected
                                         text: "󰖪"; icon: true; width: 32; height: 30
+                                        iconOffsetX: -2
                                         foreground: menu.foreground; available: !menu.busy
                                         Accessible.name: "Disconnect"
                                         onClicked: menu.act("disconnect", menu.device.path)

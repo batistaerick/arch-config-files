@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -19,7 +20,7 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: 440
-    implicitHeight: content.implicitHeight + 32
+    implicitHeight: content.implicitHeight + PanelStyle.padding * 2
     anchor.item: target
     anchor.rect.x: 0
     anchor.rect.y: target.height + 8
@@ -52,23 +53,23 @@ PopupWindow {
     }
     Rectangle {
         anchors.fill: parent
-        radius: 6
+        radius: PanelStyle.cornerRadius
         color: menu.background
         border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.18)
         focus: true
         Keys.onEscapePressed: menu.visible = false
         Column {
             id: content
-            x: 16
-            y: 16
-            width: parent.width - 32
+            x: PanelStyle.padding
+            y: PanelStyle.padding
+            width: parent.width - PanelStyle.padding * 2
             spacing: 14
             Text {
                 visible: menu.sections.length === 0 || menu.error !== ""
                 text: menu.error || "Loading..."
                 color: menu.foreground
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 13
+                font.family: PanelStyle.fontFamily
+                font.pixelSize: PanelStyle.controlSize
             }
             Repeater {
                 model: menu.sections
@@ -90,8 +91,8 @@ PopupWindow {
                             width: parent.width - 70
                             text: section.modelData.title
                             color: menu.foreground
-                            font.family: "JetBrainsMono Nerd Font"
-                            font.pixelSize: 15
+                            font.family: PanelStyle.fontFamily
+                            font.pixelSize: PanelStyle.headingSize
                             font.bold: true
                         }
                         Text {
@@ -99,8 +100,8 @@ PopupWindow {
                             horizontalAlignment: Text.AlignRight
                             text: section.modelData.usage === null ? "--" : section.modelData.usage + "%"
                             color: menu.foreground
-                            font.family: "JetBrainsMono Nerd Font"
-                            font.pixelSize: 13
+                            font.family: PanelStyle.fontFamily
+                            font.pixelSize: PanelStyle.controlSize
                         }
                     }
                     Text {
@@ -109,8 +110,8 @@ PopupWindow {
                         elide: Text.ElideRight
                         color: menu.foreground
                         opacity: 0.72
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
+                        font.family: PanelStyle.fontFamily
+                        font.pixelSize: PanelStyle.bodySize
                     }
                     Rectangle {
                         width: parent.width
@@ -134,8 +135,8 @@ PopupWindow {
                                 text: parent.modelData[0]
                                 color: menu.foreground
                                 opacity: 0.65
-                                font.family: "JetBrainsMono Nerd Font"
-                                font.pixelSize: 11
+                                font.family: PanelStyle.fontFamily
+                                font.pixelSize: PanelStyle.secondarySize
                             }
                             Text {
                                 width: parent.width * 0.5
@@ -143,8 +144,8 @@ PopupWindow {
                                 text: parent.modelData[1]
                                 elide: Text.ElideRight
                                 color: menu.foreground
-                                font.family: "JetBrainsMono Nerd Font"
-                                font.pixelSize: 11
+                                font.family: PanelStyle.fontFamily
+                                font.pixelSize: PanelStyle.secondarySize
                             }
                         }
                     }

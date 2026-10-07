@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 
 Rectangle {
     id: button
@@ -16,7 +17,7 @@ Rectangle {
     Keys.onSpacePressed: if (available) clicked()
     width: icon ? 34 : 68
     height: 40
-    radius: 7
+    radius: PanelStyle.controlRadius
     color: Qt.rgba(foreground.r, foreground.g, foreground.b, selected ? 0.18 : mouse.containsMouse ? 0.16 : outlined ? 0 : 0.08)
     border.width: outlined ? 1 : 0
     border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
@@ -28,8 +29,8 @@ Rectangle {
         elide: Text.ElideRight
         text: button.text
         color: button.foreground
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: button.icon ? 18 : 13
+        font.family: PanelStyle.fontFamily
+        font.pixelSize: button.icon ? 18 : PanelStyle.controlSize
     }
     MouseArea {
         id: mouse

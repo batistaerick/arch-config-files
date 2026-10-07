@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
@@ -18,7 +19,7 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: 400
-    implicitHeight: Math.min(content.implicitHeight + 32, maximumHeight)
+    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2, maximumHeight)
     anchor.item: target
     anchor.rect.x: target.width - implicitWidth
     anchor.rect.y: target.height + 8
@@ -37,14 +38,14 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        radius: 6
+        radius: PanelStyle.cornerRadius
         color: menu.background
         border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.18)
         focus: true
         Keys.onEscapePressed: menu.visible = false
         Flickable {
             anchors.fill: parent
-            anchors.margins: 16
+            anchors.margins: PanelStyle.padding
             contentHeight: content.implicitHeight
             clip: true
             boundsBehavior: Flickable.StopAtBounds
@@ -55,8 +56,8 @@ PopupWindow {
                 Text {
                     text: menu.microphone ? "Microphone" : "Volume"
                     color: menu.foreground
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 16
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.headingSize
                     font.bold: true
                 }
                 AudioLevelControl {
@@ -77,8 +78,8 @@ PopupWindow {
                     text: menu.microphone ? "Input device" : "Output device"
                     color: menu.foreground
                     opacity: 0.65
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 11
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.secondarySize
                 }
                 Column {
                     width: parent.width
@@ -97,8 +98,8 @@ PopupWindow {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: menu.currentNode === device.modelData ? "" : ""
                                 color: menu.accent
-                                font.family: "JetBrainsMono Nerd Font"
-                                font.pixelSize: 13
+                                font.family: PanelStyle.fontFamily
+                                font.pixelSize: PanelStyle.controlSize
                             }
                             Text {
                                 x: 28
@@ -107,8 +108,8 @@ PopupWindow {
                                 text: device.modelData.description || device.modelData.nickname || device.modelData.name
                                 elide: Text.ElideRight
                                 color: menu.foreground
-                                font.family: "JetBrainsMono Nerd Font"
-                                font.pixelSize: 12
+                                font.family: PanelStyle.fontFamily
+                                font.pixelSize: PanelStyle.bodySize
                             }
                             MouseArea {
                                 id: deviceMouse
@@ -126,8 +127,8 @@ PopupWindow {
                         visible: menu.devices.length === 0
                         text: "No devices available"
                         color: menu.foreground
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
+                        font.family: PanelStyle.fontFamily
+                        font.pixelSize: PanelStyle.bodySize
                     }
                 }
                 Rectangle {
@@ -141,8 +142,8 @@ PopupWindow {
                     text: "Applications"
                     color: menu.foreground
                     opacity: 0.65
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 11
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.secondarySize
                 }
                 Repeater {
                     model: menu.streams
@@ -160,8 +161,8 @@ PopupWindow {
                     text: "No playback applications"
                     color: menu.foreground
                     opacity: 0.65
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.bodySize
                 }
             }
         }

@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Io
 
@@ -72,18 +73,18 @@ ThemedPopup {
     }
     Item {
         anchors.fill: parent
-        anchors.margins: 18
+        anchors.margins: PanelStyle.padding
         Item {
             id: hero
             width: parent.width
             height: 40
-            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.selectedProvider === "Claude" ? "󰚩" : ""; color: menu.accent; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 27 }
+            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.selectedProvider === "Claude" ? "󰚩" : ""; color: menu.accent; font.family: PanelStyle.fontFamily; font.pixelSize: 27 }
             Column {
                 x: 38
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
-                Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : "Codex"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 15; font.bold: true }
-                Text { text: (menu.provider.plan || "Plan unavailable").toUpperCase(); color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : "Codex"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
+                Text { text: (menu.provider.plan || "Plan unavailable").toUpperCase(); color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             }
             PanelButton {
                 id: refreshButton
@@ -134,8 +135,8 @@ ThemedPopup {
                 width: parent.width
                 spacing: 14
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-                Text { text: "LIMITS"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                Text { visible: !!menu.provider.error; width: parent.width; text: menu.provider.error || ""; wrapMode: Text.Wrap; color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                Text { text: "LIMITS"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text { visible: !!menu.provider.error; width: parent.width; text: menu.provider.error || ""; wrapMode: Text.Wrap; color: menu.foreground; opacity: 0.7; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                 Repeater {
                     model: menu.provider.windows || []
                     Column {
@@ -146,20 +147,20 @@ ThemedPopup {
                         spacing: 7
                         Item {
                             width: parent.width; height: 17
-                            Text { text: limit.modelData.label === "5h window" ? "Session" : limit.modelData.label; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
-                            Text { anchors.right: parent.right; text: Math.round(limit.used) + "% used"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Text { text: limit.modelData.label === "5h window" ? "Session" : limit.modelData.label; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                            Text { anchors.right: parent.right; text: Math.round(limit.used) + "% used"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         }
                         Rectangle {
                             width: parent.width; height: 6; radius: 3
                             color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
                             Rectangle { width: parent.width * limit.used / 100; height: 6; radius: 3; color: menu.foreground }
                         }
-                        Text { visible: !!limit.modelData.reset; width: parent.width; elide: Text.ElideRight; text: limit.modelData.reset ? menu.resetLabel(limit.modelData.reset) : ""; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { visible: !!limit.modelData.reset; width: parent.width; elide: Text.ElideRight; text: limit.modelData.reset ? menu.resetLabel(limit.modelData.reset) : ""; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                     }
                 }
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-                Text { text: "TOKENS BY DAY"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                Text { visible: statsQuery.running && menu.stats.days.length === 0; text: "Reading local sessions..."; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                Text { text: "TOKENS BY DAY"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text { visible: statsQuery.running && menu.stats.days.length === 0; text: "Reading local sessions..."; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                 Column {
                     width: parent.width
                     spacing: 8
@@ -169,19 +170,19 @@ ThemedPopup {
                             required property var modelData
                             width: content.width
                             height: 16
-                            Text { width: 48; text: parent.modelData.date === Qt.formatDate(new Date(), "yyyy-MM-dd") ? "Today" : Qt.formatDate(new Date(parent.modelData.date + "T12:00:00"), "ddd"); color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Text { width: 48; text: parent.modelData.date === Qt.formatDate(new Date(), "yyyy-MM-dd") ? "Today" : Qt.formatDate(new Date(parent.modelData.date + "T12:00:00"), "ddd"); color: menu.foreground; opacity: 0.7; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                             Rectangle {
                                 x: 54; anchors.verticalCenter: parent.verticalCenter; width: parent.width - 124; height: 4; radius: 2
                                 color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
                                 Rectangle { width: parent.width * parent.parent.modelData.tokens / menu.peak(menu.stats.days); height: 4; radius: 2; color: menu.foreground; opacity: 0.7 }
                             }
-                            Text { anchors.right: parent.right; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; opacity: 0.7; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Text { anchors.right: parent.right; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; opacity: 0.7; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         }
                     }
                 }
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-                Text { text: "TOKENS BY MODEL"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                Text { visible: !statsQuery.running && menu.stats.models.length === 0; text: "No local token history"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                Text { text: "TOKENS BY MODEL"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text { visible: !statsQuery.running && menu.stats.models.length === 0; text: "No local token history"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                 Column {
                     width: parent.width
                     spacing: 6
@@ -195,13 +196,13 @@ ThemedPopup {
                             clip: true
                             color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.04)
                             Rectangle { width: parent.width * parent.modelData.tokens / menu.peak(menu.stats.models); height: parent.height; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.14) }
-                            Text { x: 8; width: parent.width - 88; anchors.verticalCenter: parent.verticalCenter; text: parent.modelData.name; elide: Text.ElideRight; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
-                            Text { anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                            Text { x: 8; width: parent.width - 88; anchors.verticalCenter: parent.verticalCenter; text: parent.modelData.name; elide: Text.ElideRight; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
+                            Text { anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         }
                     }
                 }
             }
         }
-        Text { id: footer; anchors.bottom: parent.bottom; width: parent.width; elide: Text.ElideRight; text: menu.status; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+        Text { id: footer; anchors.bottom: parent.bottom; width: parent.width; elide: Text.ElideRight; text: menu.status; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
     }
 }

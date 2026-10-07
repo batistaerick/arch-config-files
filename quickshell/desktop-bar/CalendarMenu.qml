@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 
 ThemedPopup {
     id: menu
@@ -51,7 +52,7 @@ ThemedPopup {
                 verticalAlignment: Text.AlignVCenter
                 text: "󰃭"
                 color: menu.foreground
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: 42
             }
             Column {
@@ -60,7 +61,7 @@ ThemedPopup {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: menu.viewYear === menu.today.getFullYear() && menu.viewMonth === menu.today.getMonth() ? Qt.formatDate(menu.today, "MMMM d") : Qt.formatDate(menu.firstDay, "MMMM yyyy")
                     color: menu.foreground
-                    font.family: "JetBrainsMono Nerd Font"
+                    font.family: PanelStyle.fontFamily
                     font.pixelSize: 34
                     font.bold: true
                 }
@@ -68,8 +69,8 @@ ThemedPopup {
                     text: (Qt.formatDate(menu.today, "dddd") + " · WEEK " + menu.isoWeek(menu.today) + " · " + menu.today.getFullYear()).toUpperCase()
                     color: menu.foreground
                     opacity: 0.72
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.bodySize
                     font.bold: true
                 }
             }
@@ -98,7 +99,7 @@ ThemedPopup {
                         text: parent.row === 0 ? ["W", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"][parent.column] : parent.column === 0 ? String(menu.isoWeek(parent.day)).padStart(2, "0") : parent.day.getDate()
                         color: parent.isToday ? menu.background : menu.foreground
                         opacity: parent.isToday ? 1 : parent.row === 0 || parent.column === 0 ? 0.58 : parent.day.getMonth() !== menu.viewMonth ? 0.32 : 1
-                        font.family: "JetBrainsMono Nerd Font"
+                        font.family: PanelStyle.fontFamily
                         font.pixelSize: parent.row === 0 || parent.column === 0 ? 11 : 13
                         font.bold: true
                     }
@@ -119,8 +120,8 @@ ThemedPopup {
             height: 28
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 22
-            Text { text: "YEAR"; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
-            Text { anchors.right: parent.right; text: Math.round(menu.yearProgress * 100) + "%"; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+            Text { text: "YEAR"; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+            Text { anchors.right: parent.right; text: Math.round(menu.yearProgress * 100) + "%"; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
             Rectangle {
                 y: 22
                 width: parent.width

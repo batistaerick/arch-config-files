@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import QtQuick.Controls.Basic as Controls
 import Quickshell.Services.Pipewire
 
@@ -20,8 +21,8 @@ Column {
         text: control.name
         elide: Text.ElideRight
         color: control.foreground
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 12
+        font.family: PanelStyle.fontFamily
+        font.pixelSize: PanelStyle.bodySize
     }
     Row {
         width: parent.width
@@ -34,7 +35,7 @@ Column {
             Text {
                 anchors.centerIn: parent
                 text: control.microphone ? (control.node && control.node.audio.muted ? "󰍭" : "󰍬") : (control.node && control.node.audio.muted ? "󰖁" : "")
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: 18
                 color: control.foreground
             }
@@ -101,8 +102,8 @@ Column {
             verticalAlignment: Text.AlignVCenter
             text: control.node ? Math.round(control.node.audio.volume * 100) + "%" : "--"
             color: control.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
+            font.family: PanelStyle.fontFamily
+            font.pixelSize: PanelStyle.bodySize
         }
     }
 }

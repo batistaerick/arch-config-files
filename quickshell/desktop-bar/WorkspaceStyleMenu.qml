@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Hyprland
 
@@ -44,7 +45,7 @@ PopupWindow {
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: menu.visible = false
-        radius: 6
+        radius: PanelStyle.cornerRadius
         color: menu.background
         border.color: Qt.alpha(menu.foreground, 0.18)
         Column {
@@ -66,8 +67,8 @@ PopupWindow {
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData
                         color: menu.foreground
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 13
+                        font.family: PanelStyle.fontFamily
+                        font.pixelSize: PanelStyle.controlSize
                     }
                     Row {
                         anchors.right: parent.right
@@ -95,8 +96,8 @@ PopupWindow {
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData === menu.currentStyle ? "" : ""
                         color: menu.accent
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 13
+                        font.family: PanelStyle.fontFamily
+                        font.pixelSize: PanelStyle.controlSize
                     }
                     MouseArea {
                         id: mouse

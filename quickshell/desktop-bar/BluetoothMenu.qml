@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Bluetooth
 
@@ -29,12 +30,12 @@ ThemedPopup {
     }
     Item {
         anchors.fill: parent
-        anchors.margins: 18
+        anchors.margins: PanelStyle.padding
         Item {
             id: header
             width: parent.width
             height: 40
-            Text { anchors.verticalCenter: parent.verticalCenter; text: "Bluetooth"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 20; font.bold: true }
+            Text { anchors.verticalCenter: parent.verticalCenter; text: "Bluetooth"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
             Row {
                 anchors.right: parent.right
                 spacing: 8
@@ -54,7 +55,7 @@ ThemedPopup {
                 id: groups
                 width: parent.width
                 spacing: 20
-                Text { visible: !menu.adapter || !menu.adapter.enabled; text: menu.adapter ? "Bluetooth is off" : "No Bluetooth adapter"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                Text { visible: !menu.adapter || !menu.adapter.enabled; text: menu.adapter ? "Bluetooth is off" : "No Bluetooth adapter"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                 Repeater {
                     model: menu.sections
                     Column {
@@ -62,8 +63,8 @@ ThemedPopup {
                         width: groups.width
                         spacing: 8
                         Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                        Text { visible: parent.modelData.devices.length === 0; text: parent.modelData.title === "SCANNED DEVICES" && menu.scanningAdapter ? "Scanning..." : "No devices"; color: menu.foreground; opacity: 0.55; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { visible: parent.modelData.devices.length === 0; text: parent.modelData.title === "SCANNED DEVICES" && menu.scanningAdapter ? "Scanning..." : "No devices"; color: menu.foreground; opacity: 0.55; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         Repeater {
                             model: parent.modelData.devices
                             Item {
@@ -71,16 +72,16 @@ ThemedPopup {
                                 required property var modelData
                                 property bool confirmingForget: false
                                 width: groups.width
-                                height: 56
-                                Rectangle { anchors.fill: parent; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, device.modelData.connected ? 0.12 : 0.04) }
-                                Text { x: 8; anchors.verticalCenter: parent.verticalCenter; text: device.modelData.connected ? "󰂱" : "󰂯"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 18 }
+                                height: 44
+                                Rectangle { anchors.fill: parent; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, device.modelData.connected ? 0.18 : 0.04) }
+                                Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: device.modelData.connected ? "󰂱" : "󰂯"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 18 }
                                 Column {
-                                    x: 34
+                                    x: 36
                                     width: Math.max(0, actions.x - x - 8)
                                     anchors.verticalCenter: parent.verticalCenter
                                     spacing: 4
-                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: device.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
-                                    Text { width: parent.width; elide: Text.ElideRight; text: BluetoothDeviceState.toString(device.modelData.state) + (device.modelData.batteryAvailable ? " · " + Math.round(device.modelData.battery * 100) + "%" : ""); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: device.modelData.name; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                                    Text { width: parent.width; elide: Text.ElideRight; text: BluetoothDeviceState.toString(device.modelData.state) + (device.modelData.batteryAvailable ? " · " + Math.round(device.modelData.battery * 100) + "%" : ""); color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                                 }
                                 Row {
                                     id: actions

@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import QtQuick.Controls.Basic
 import Quickshell
 import Quickshell.Io
@@ -120,7 +121,7 @@ ThemedPopup {
     }
     Item {
         anchors.fill: parent
-        anchors.margins: 18
+        anchors.margins: PanelStyle.padding
         Column {
             id: wifiHeaderContent
             visible: !menu.sharing
@@ -129,14 +130,14 @@ ThemedPopup {
             Item {
                 width: parent.width
                 height: 42
-                Text { anchors.verticalCenter: parent.verticalCenter; text: menu.connected ? "󰤨" : "󰤮"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 24 }
+                Text { anchors.verticalCenter: parent.verticalCenter; text: menu.connected ? "󰤨" : "󰤮"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 24 }
                 Column {
                     x: 36
                     width: parent.width - 202
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
-                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: menu.connected ? menu.connected.name : "WiFi"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
-                    Text { text: menu.busy ? "UPDATING..." : menu.device ? String(menu.device.state).toUpperCase() : "NO ADAPTER"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: menu.connected ? menu.connected.name : "WiFi"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
+                    Text { text: menu.busy ? "UPDATING..." : menu.device ? String(menu.device.state).toUpperCase() : "NO ADAPTER"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 }
                 Row {
                     anchors.right: parent.right
@@ -174,24 +175,24 @@ ThemedPopup {
                     Item {
                         required property var modelData
                         width: wifiHeaderContent.width; height: 16
-                        Text { text: parent.modelData[0]; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                        Text { x: 70; width: 125; horizontalAlignment: Text.AlignRight; text: parent.modelData[1]; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                        Text { x: 210; text: parent.modelData[2]; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                        Text { anchors.right: parent.right; text: parent.modelData[3]; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                        Text { text: parent.modelData[0]; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { x: 70; width: 125; horizontalAlignment: Text.AlignRight; text: parent.modelData[1]; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { x: 210; text: parent.modelData[2]; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { anchors.right: parent.right; text: parent.modelData[3]; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                     }
                 }
             }
             Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
             Item {
                 width: parent.width; height: 16
-                Text { text: "WI-FI BAND: " + (menu.details.band || "--"); color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                Text { anchors.right: parent.right; text: menu.details.automatic === false ? "PINNED" : "AUTOMATIC"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                Text { text: "WI-FI BAND: " + (menu.details.band || "--"); color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text { anchors.right: parent.right; text: menu.details.automatic === false ? "PINNED" : "AUTOMATIC"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             }
             Column {
                 visible: menu.selectedNetwork !== null; width: parent.width; spacing: 6
-                Text { width: parent.width; elide: Text.ElideRight; text: menu.selectedNetwork ? menu.selectedNetwork.name : ""; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                Text { width: parent.width; elide: Text.ElideRight; text: menu.selectedNetwork ? menu.selectedNetwork.name : ""; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                 TextField {
-                    id: password; width: parent.width; placeholderText: "Password"; echoMode: TextInput.Password; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12
+                    id: password; width: parent.width; placeholderText: "Password"; echoMode: TextInput.Password; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                     placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
                     background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: password.activeFocus ? menu.accent : "transparent" }
                     HoverHandler { cursorShape: Qt.IBeamCursor }
@@ -203,7 +204,7 @@ ThemedPopup {
                     PanelButton { text: "Cancel"; foreground: menu.foreground; onClicked: { menu.selectedNetwork = null; password.text = ""; } }
                 }
             }
-            Text { visible: menu.message !== ""; width: parent.width; text: menu.message; wrapMode: Text.Wrap; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+            Text { visible: menu.message !== ""; width: parent.width; text: menu.message; wrapMode: Text.Wrap; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
             Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
         }
         Flickable {
@@ -224,8 +225,8 @@ ThemedPopup {
                     Column {
                         required property var modelData
                         width: networks.width; spacing: 6
-                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
-                        Text { visible: parent.modelData.networks.length === 0; text: menu.device && menu.device.scanning ? "Scanning..." : "No networks"; color: menu.foreground; opacity: 0.5; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                        Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { visible: parent.modelData.networks.length === 0; text: menu.device && menu.device.scanning ? "Scanning..." : "No networks"; color: menu.foreground; opacity: 0.5; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         Repeater {
                             model: parent.modelData.networks
                             Rectangle {
@@ -237,18 +238,18 @@ ThemedPopup {
                                 border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.15)
                                 activeFocusOnTab: true
                                 Keys.onReturnPressed: if (!menu.busy) menu.choose(modelData)
-                                Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "󰤨"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
+                                Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "󰤨"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize }
                                 Column {
                                     x: 36; width: parent.width - networkActions.width - 52; anchors.verticalCenter: parent.verticalCenter; spacing: 2
-                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
-                                    Text { visible: network.modelData.connected || network.modelData.available === false; text: network.modelData.connected ? "Connected" : "Offline"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                                    Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                                    Text { visible: network.modelData.connected || network.modelData.available === false; text: network.modelData.connected ? "Connected" : "Offline"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                                 }
                                 MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy && !network.modelData.connected && network.modelData.available !== false; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
                                 Row {
                                     id: networkActions
                                     anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; spacing: 8
-                                    Text { visible: network.modelData.available !== false; anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
-                                    Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
+                                    Text { visible: network.modelData.available !== false; anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
+                                    Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: 14 }
                                     PanelButton { visible: network.modelData.connected; text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
                                     PanelButton {
                                         visible: network.modelData.known && !network.modelData.connected
@@ -276,13 +277,14 @@ ThemedPopup {
             spacing: 14
             Row {
                 width: parent.width; spacing: 8
-                Text { width: parent.width - 42; anchors.verticalCenter: parent.verticalCenter; text: menu.shareNetwork ? menu.shareNetwork.name : ""; elide: Text.ElideRight; textFormat: Text.PlainText; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
+                Text { width: parent.width - 42; anchors.verticalCenter: parent.verticalCenter; text: menu.shareNetwork ? menu.shareNetwork.name : ""; elide: Text.ElideRight; textFormat: Text.PlainText; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize }
                 PanelButton { text: "×"; width: 34; height: 34; foreground: menu.foreground; onClicked: menu.closeShare() }
             }
             TextField {
                 id: qrPassword
                 visible: menu.qrImage === "" && menu.shareNetwork && menu.shareNetwork.type !== "open"
                 width: parent.width; placeholderText: "WiFi password"; echoMode: TextInput.Password
+                font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                 color: menu.foreground; placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
                 background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: qrPassword.activeFocus ? menu.accent : "transparent" }
                 HoverHandler { cursorShape: Qt.IBeamCursor }
@@ -290,7 +292,7 @@ ThemedPopup {
             }
             PanelButton { visible: qrPassword.visible; text: "Show QR"; width: 100; foreground: menu.foreground; available: qrPassword.text.length > 0 && !qrQuery.running; onClicked: menu.generateQr() }
             Image { visible: menu.qrImage !== ""; anchors.horizontalCenter: parent.horizontalCenter; width: 300; height: 300; source: menu.qrImage; fillMode: Image.PreserveAspectFit; smooth: false }
-            Text { width: parent.width; text: menu.qrError; visible: text !== ""; color: menu.foreground; wrapMode: Text.Wrap; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+            Text { width: parent.width; text: menu.qrError; visible: text !== ""; color: menu.foreground; wrapMode: Text.Wrap; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
         }
     }
 }

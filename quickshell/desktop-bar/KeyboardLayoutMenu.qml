@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import QtQuick.Controls.Basic
 import Quickshell
 import Quickshell.Io
@@ -85,8 +86,8 @@ ThemedPopup {
             placeholderText: "Search layouts..."
             color: menu.foreground
             placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
+            font.family: PanelStyle.fontFamily
+            font.pixelSize: PanelStyle.bodySize
             background: Rectangle {
                 radius: 4
                 color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08)
@@ -126,8 +127,8 @@ ThemedPopup {
                     anchors.verticalCenter: parent.verticalCenter
                     text: !menu.adding && entryRow.modelData.index === menu.activeLayout ? "" : ""
                     color: menu.accent
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.controlSize
                 }
                 Text {
                     x: menu.adding ? 8 : 30
@@ -137,8 +138,8 @@ ThemedPopup {
                     textFormat: Text.PlainText
                     elide: Text.ElideRight
                     color: menu.foreground
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 13
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.controlSize
                 }
                 MouseArea {
                     id: mouse
@@ -157,8 +158,8 @@ ThemedPopup {
                 visible: choices.count === 0
                 text: menu.adding ? (catalog.running ? "Loading..." : "No layouts found") : "Loading..."
                 color: menu.foreground
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 12
+                font.family: PanelStyle.fontFamily
+                font.pixelSize: PanelStyle.bodySize
             }
         }
         Text {
@@ -170,8 +171,8 @@ ThemedPopup {
             text: menu.error
             wrapMode: Text.Wrap
             color: menu.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 11
+            font.family: PanelStyle.fontFamily
+            font.pixelSize: PanelStyle.secondarySize
         }
         PanelButton {
             id: footer

@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Io
 
@@ -124,13 +125,13 @@ ThemedPopup {
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 12
-                    Text { width: 76; horizontalAlignment: Text.AlignHCenter; text: String(menu.weatherData.text || "󰖐").split(" ")[0]; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 64 }
-                    Text { text: menu.temperature; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 56; font.bold: true }
+                    Text { width: 76; horizontalAlignment: Text.AlignHCenter; text: String(menu.weatherData.text || "󰖐").split(" ")[0]; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 64 }
+                    Text { text: menu.temperature; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 56; font.bold: true }
                     Column {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 5
-                        Text { text: menu.unit; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 20 }
-                        Text { text: menu.alternate; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                        Text { text: menu.unit; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 20 }
+                        Text { text: menu.alternate; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                     }
                 }
                 Column {
@@ -145,8 +146,8 @@ ThemedPopup {
                             visible: !menu.searching
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
-                            Text { text: "󰍎"; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
-                            Text { width: menu.city ? 192 : 228; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true }
+                            Text { text: "󰍎"; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: 14 }
+                            Text { width: menu.city ? 192 : 228; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize; font.bold: true }
                         }
                         MouseArea {
                             id: cityMouse
@@ -161,10 +162,10 @@ ThemedPopup {
                             visible: menu.searching
                             width: parent.width - 36
                             height: 30
-                            radius: 7
+                            radius: PanelStyle.controlRadius
                             color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08)
                             border.color: cityInput.activeFocus ? menu.accent : Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
-                            Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "Search city"; visible: cityInput.text === ""; color: menu.foreground; opacity: 0.58; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                            Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "Search city"; visible: cityInput.text === ""; color: menu.foreground; opacity: 0.58; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                             TextInput {
                                 id: cityInput
                                 HoverHandler { cursorShape: Qt.IBeamCursor }
@@ -176,15 +177,15 @@ ThemedPopup {
                                 color: menu.foreground
                                 selectionColor: menu.accent
                                 selectedTextColor: menu.background
-                                font.family: "JetBrainsMono Nerd Font"
-                                font.pixelSize: 12
+                                font.family: PanelStyle.fontFamily
+                                font.pixelSize: PanelStyle.bodySize
                                 onTextChanged: { menu.cities = []; menu.searchError = ""; debounce.restart(); }
                                 Keys.onEscapePressed: menu.cancelSearch()
                             }
                         }
                         PanelButton { visible: menu.searching || menu.city !== null; anchors.right: parent.right; width: 30; height: 30; text: "×"; foreground: menu.foreground; onClicked: menu.restoreDefault() }
                     }
-                    Text { text: menu.weatherData.condition || ""; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true }
+                    Text { text: menu.weatherData.condition || ""; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize; font.bold: true }
                     Row {
                         spacing: 25
                         Repeater {
@@ -192,8 +193,8 @@ ThemedPopup {
                             Column {
                                 required property var modelData
                                 spacing: 5
-                                Text { text: parent.modelData.label; color: menu.foreground; opacity: 0.58; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10; font.bold: true }
-                                Text { text: menu.weatherData[parent.modelData.key] || "--"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13; font.bold: true }
+                                Text { text: parent.modelData.label; color: menu.foreground; opacity: 0.58; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize; font.bold: true }
+                                Text { text: menu.weatherData[parent.modelData.key] || "--"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.controlSize; font.bold: true }
                             }
                         }
                     }
@@ -215,7 +216,7 @@ ThemedPopup {
                         onClicked: menu.selectCity(modelData)
                     }
                 }
-                Text { visible: menu.searchError !== ""; text: menu.searchError; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
+                Text { visible: menu.searchError !== ""; text: menu.searchError; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
             }
             Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
             Row {
@@ -230,11 +231,11 @@ ThemedPopup {
                         Row {
                             anchors.centerIn: parent
                             spacing: 14
-                            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.forecastIcon(String(parent.parent.day.icon || "")); color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 28 }
+                            Text { anchors.verticalCenter: parent.verticalCenter; text: menu.forecastIcon(String(parent.parent.day.icon || "")); color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 28 }
                             Column {
                                 spacing: 2
-                                Text { text: parent.parent.parent.day.day || ""; color: menu.foreground; opacity: 0.58; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10; font.bold: true }
-                                Text { text: (parent.parent.parent.day.high || "--") + "°  " + (parent.parent.parent.day.low || "--") + "°"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 13; font.bold: true }
+                                Text { text: parent.parent.parent.day.day || ""; color: menu.foreground; opacity: 0.58; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize; font.bold: true }
+                                Text { text: (parent.parent.parent.day.high || "--") + "°  " + (parent.parent.parent.day.low || "--") + "°"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.controlSize; font.bold: true }
                             }
                         }
                     }

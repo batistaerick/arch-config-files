@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Hyprland
 
@@ -39,7 +40,7 @@ PopupWindow {
         Rectangle {
             anchors.fill: parent
             color: popup.background
-            radius: 6
+            radius: PanelStyle.cornerRadius
             border.color: Qt.rgba(popup.foreground.r, popup.foreground.g, popup.foreground.b, 0.18)
             Item {
                 id: body

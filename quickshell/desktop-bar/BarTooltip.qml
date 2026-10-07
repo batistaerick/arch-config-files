@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 
 PopupWindow {
@@ -46,8 +47,8 @@ PopupWindow {
             textFormat: Text.PlainText
             text: tip.text
             color: tip.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
+            font.family: PanelStyle.fontFamily
+            font.pixelSize: PanelStyle.bodySize
         }
     }
 }

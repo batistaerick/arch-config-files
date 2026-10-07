@@ -1,11 +1,12 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Io
 
 ThemedPopup {
     id: menu
     implicitWidth: 300
-    implicitHeight: content.implicitHeight + 32
+    implicitHeight: content.implicitHeight + PanelStyle.padding * 2
     property string status: ""
     function run(action) {
         if (command.running) return;
@@ -20,9 +21,9 @@ ThemedPopup {
     }
     Column {
         id: content
-        x: 16; y: 16; width: parent.width - 32
+        x: PanelStyle.padding; y: PanelStyle.padding; width: parent.width - PanelStyle.padding * 2
         spacing: 8
-        Text { text: "OBS Studio"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16; font.bold: true }
+        Text { text: "OBS Studio"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
         Repeater {
             model: [
                 {label: "Open OBS", action: "open"},
@@ -42,6 +43,6 @@ ThemedPopup {
                 onClicked: menu.run(modelData.action)
             }
         }
-        Text { width: content.width; visible: text !== ""; text: menu.status; wrapMode: Text.Wrap; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+        Text { width: content.width; visible: text !== ""; text: menu.status; wrapMode: Text.Wrap; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
     }
 }

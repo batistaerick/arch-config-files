@@ -17,6 +17,7 @@ ThemedPopup {
     property string requestedCity: ""
     property string requestedSearch: ""
     signal defaultWeatherUpdated(var data)
+    readonly property bool loading: weatherQuery.running
     readonly property string temperature: String(weatherData.temp || "--").split("°")[0]
     readonly property string unit: String(weatherData.temp || "").indexOf("°") >= 0 ? "°" + String(weatherData.temp).split("°")[1] : ""
     readonly property string alternate: isFinite(Number(temperature)) && temperature !== "" ? unit === "°F" ? Math.round((Number(temperature) - 32) * 5 / 9) + "°C" : unit === "°C" ? Math.round(Number(temperature) * 9 / 5 + 32) + "°F" : "" : ""
@@ -153,12 +154,12 @@ ThemedPopup {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
                             Text { text: "󰍎"; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: 14 }
-                            Text { width: menu.city ? 192 : 228; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize; font.bold: true }
+                            Text { width: cityMouse.width - 22; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize; font.bold: true }
                         }
                         MouseArea {
                             id: cityMouse
                             hoverEnabled: true
-                            width: menu.city ? parent.width - 36 : parent.width
+                            width: parent.width - cityControls.width - 6
                             height: parent.height
                             enabled: !menu.searching
                             cursorShape: Qt.PointingHandCursor
@@ -166,7 +167,7 @@ ThemedPopup {
                         }
                         Rectangle {
                             visible: menu.searching
-                            width: parent.width - 36
+                            width: parent.width - cityControls.width - 6
                             height: 30
                             radius: PanelStyle.controlRadius
                             color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08)
@@ -189,7 +190,39 @@ ThemedPopup {
                                 Keys.onEscapePressed: menu.cancelSearch()
                             }
                         }
-                        PanelButton { visible: menu.searching || menu.city !== null; anchors.right: parent.right; width: 30; height: 30; text: "×"; foreground: menu.foreground; onClicked: menu.restoreDefault() }
+                        Row {
+                            id: cityControls
+                            anchors.right: parent.right
+                            spacing: 6
+                            PanelButton {
+                                id: refreshButton
+                                width: 30
+                                height: 30
+                                icon: true
+                                text: menu.loading ? "" : "󰑐"
+                                foreground: menu.foreground
+                                available: !menu.loading
+                                onClicked: menu.refresh()
+                                Text {
+                                    anchors.centerIn: parent
+                                    visible: menu.loading
+                                    text: "󰑐"
+                                    color: menu.foreground
+                                    font.family: PanelStyle.fontFamily
+                                    font.pixelSize: 18
+                                    RotationAnimator on rotation {
+                                        from: 0
+                                        to: 360
+                                        duration: 900
+                                        loops: Animation.Infinite
+                                        running: menu.visible && menu.loading
+                                    }
+                                }
+                                HoverHandler { id: refreshHover }
+                                BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: menu.loading ? "Updating" : "Refresh"; foreground: menu.foreground; background: menu.background }
+                            }
+                            PanelButton { visible: menu.searching || menu.city !== null; width: 30; height: 30; text: "×"; foreground: menu.foreground; onClicked: menu.restoreDefault() }
+                        }
                     }
                     Text { text: menu.weatherData.condition || ""; color: menu.foreground; opacity: 0.72; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize; font.bold: true }
                     Row {

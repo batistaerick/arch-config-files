@@ -40,7 +40,7 @@ them with upstream defaults.
 
 - Read `quickshell/desktop-bar/PanelStyle.js` and its README before styling panels.
   Use the shared font, text roles, padding, and corner radii. Utility headings are
-  16 px, body/control text 12 px, and captions 10-11 px. Calendar dates, weather
+  18 px, body/control text 14 px, and captions 12-13 px. Calendar dates, weather
   temperatures, and glyphs have intentional size exceptions.
 - Panel backgrounds are opaque current-theme colors, not hardcoded black or a
   generic light/dark palette. Maintain both light and dark theme support.

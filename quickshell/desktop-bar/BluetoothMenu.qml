@@ -90,9 +90,13 @@ ThemedPopup {
                                     anchors.verticalCenter: parent.verticalCenter
                                     spacing: 6
                                     PanelButton {
-                                        width: 94
-                                        height: 32
-                                        text: device.confirmingForget ? "Cancel" : device.modelData.pairing ? "Cancel" : device.modelData.connected ? "Disconnect" : device.modelData.paired ? "Connect" : "Pair"
+                                        id: connectionButton
+                                        readonly property string actionLabel: device.confirmingForget || device.modelData.pairing ? "Cancel" : device.modelData.connected ? "Disconnect" : device.modelData.paired ? "Connect" : "Pair"
+                                        width: 32
+                                        height: 30
+                                        icon: true
+                                        text: device.confirmingForget || device.modelData.pairing ? "" : device.modelData.connected ? "󰂲" : device.modelData.paired ? "󰂱" : "󰂯"
+                                        Accessible.name: actionLabel
                                         foreground: menu.foreground
                                         available: !!menu.adapter && menu.adapter.enabled
                                         onClicked: {
@@ -102,8 +106,20 @@ ThemedPopup {
                                             else if (device.modelData.paired) device.modelData.connect();
                                             else device.modelData.pair();
                                         }
+                                        HoverHandler { id: connectionHover }
+                                        BarTooltip { target: connectionButton; hovered: connectionHover.hovered; text: connectionButton.actionLabel; foreground: menu.foreground; background: menu.background }
                                     }
-                                    PanelButton { visible: device.modelData.paired; width: 74; height: 32; text: device.confirmingForget ? "Confirm" : "Forget"; foreground: menu.foreground; onClicked: { if (device.confirmingForget) device.modelData.forget(); else device.confirmingForget = true; } }
+                                    PanelButton {
+                                        id: forgetButton
+                                        visible: device.modelData.paired
+                                        width: 32; height: 30; icon: true
+                                        text: device.confirmingForget ? "" : "󰆴"
+                                        Accessible.name: device.confirmingForget ? "Confirm removal" : "Remove"
+                                        foreground: menu.foreground
+                                        onClicked: { if (device.confirmingForget) device.modelData.forget(); else device.confirmingForget = true; }
+                                        HoverHandler { id: forgetHover }
+                                        BarTooltip { target: forgetButton; hovered: forgetHover.hovered; text: device.confirmingForget ? "Confirm removal" : "Remove"; foreground: menu.foreground; background: menu.background }
+                                    }
                                 }
                             }
                         }

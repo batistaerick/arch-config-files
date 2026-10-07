@@ -250,11 +250,22 @@ ThemedPopup {
                                     anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; spacing: 8
                                     Text { visible: network.modelData.available !== false; anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                                     Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: 14 }
-                                    PanelButton { visible: network.modelData.connected; text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
                                     PanelButton {
+                                        id: disconnectButton
+                                        visible: network.modelData.connected
+                                        text: "󰖪"; icon: true; width: 32; height: 30
+                                        foreground: menu.foreground; available: !menu.busy
+                                        Accessible.name: "Disconnect"
+                                        onClicked: menu.act("disconnect", menu.device.path)
+                                        HoverHandler { id: disconnectHover }
+                                        BarTooltip { target: disconnectButton; hovered: disconnectHover.hovered; text: "Disconnect"; foreground: menu.foreground; background: menu.background }
+                                    }
+                                    PanelButton {
+                                        id: removeButton
                                         visible: network.modelData.known && !network.modelData.connected
-                                        text: menu.pendingRemoval === network.modelData.knownPath ? "Confirm" : "Remove"
-                                        width: 76; height: 30; foreground: menu.foreground
+                                        text: menu.pendingRemoval === network.modelData.knownPath ? "" : "󰆴"
+                                        icon: true; width: 32; height: 30; foreground: menu.foreground
+                                        Accessible.name: menu.pendingRemoval === network.modelData.knownPath ? "Confirm removal" : "Remove"
                                         available: !menu.busy && !!network.modelData.knownPath
                                         onClicked: {
                                             if (menu.pendingRemoval === network.modelData.knownPath) {
@@ -262,9 +273,11 @@ ThemedPopup {
                                                 menu.pendingRemoval = "";
                                             } else menu.pendingRemoval = network.modelData.knownPath;
                                         }
+                                        HoverHandler { id: removeHover }
+                                        BarTooltip { target: removeButton; hovered: removeHover.hovered; text: menu.pendingRemoval === network.modelData.knownPath ? "Confirm removal" : "Remove"; foreground: menu.foreground; background: menu.background }
                                     }
                                 }
-                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected || network.modelData.available === false ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
+                                BarTooltip { target: network; hovered: networkMouse.containsMouse && !removeHover.hovered; text: network.modelData.connected || network.modelData.available === false ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
                             }
                         }
                     }

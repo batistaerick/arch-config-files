@@ -159,11 +159,19 @@ ThemedPopup {
                         MouseArea {
                             id: cityMouse
                             hoverEnabled: true
+                            hoverEnabled: true
                             width: parent.width - cityControls.width - 6
                             height: parent.height
                             enabled: !menu.searching
                             cursorShape: Qt.PointingHandCursor
                             onClicked: { menu.searching = true; cityInput.text = ""; cityInput.forceActiveFocus(); }
+                        }
+                        BarTooltip {
+                            target: cityMouse
+                            hovered: cityMouse.containsMouse && !menu.searching
+                            text: String(menu.weatherData.location || "Weather")
+                            foreground: menu.foreground
+                            background: menu.background
                         }
                         Rectangle {
                             visible: menu.searching

@@ -41,18 +41,29 @@ normalize_theme_name() {
 }
 
 theme_options() {
+  local category="$1"
+  local label
   while IFS= read -r theme; do
-    if [[ -n "$current_theme" && "$theme" == "$current_theme" ]]; then
-      printf '<span foreground="%s" weight="bold" style="italic">%s</span>\n' "$accent" "$(pango_escape "$theme")"
+    if [[ -f "$THEMES_DIR/$theme/light.mode" ]]; then
+      [[ "$category" == "Light" ]] || continue
     else
-      printf '%s\n' "$theme"
+      [[ "$category" == "Dark" ]] || continue
+    fi
+    label="$(printf '%s\n' "${theme//-/ }" | awk '{for (i=1; i<=NF; i++) $i=toupper(substr($i,1,1)) substr($i,2); print}')"
+    if [[ -n "$current_theme" && "$theme" == "$current_theme" ]]; then
+      printf '<span foreground="%s" weight="bold" style="italic">%s</span>\n' "$accent" "$(pango_escape "$label")"
+    else
+      printf '%s\n' "$label"
     fi
   done < <(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
 }
 
+category="$($HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Theme" <<< $'Dark\nLight')"
+[[ "$category" == "Dark" || "$category" == "Light" ]] || exit 0
+
 chosen="$(
-  theme_options |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --allow-markup --parse-search --cache-file /dev/null --prompt="Theme"
+  theme_options "$category" |
+    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --allow-markup --parse-search --cache-file /dev/null --prompt="$category themes"
 )"
 
 [ -z "$chosen" ] && exit 0

@@ -32,13 +32,33 @@ def read_current(name):
         return ""
 
 entries = []
-if mode == "theme":
+if mode.startswith("theme"):
     current = read_current("current-theme")
-    for directory in sorted((config / "themes").iterdir()):
-        image = directory / "preview.png"
-        if directory.is_dir() and image.is_file():
-            entries.append({"name": directory.name, "value": directory.name,
-                            "image": image.as_uri(), "current": directory.name == current})
+    directories = [directory for directory in sorted((config / "themes").iterdir())
+                   if directory.is_dir() and (directory / "preview.png").is_file()]
+    def is_light(directory):
+        return (directory / "light.mode").is_file()
+
+    if mode in {"theme", "theme-category"}:
+        for category, light in (("Dark", False), ("Light", True)):
+            matching = [directory for directory in directories if is_light(directory) == light]
+            if not matching:
+                continue
+            representative = next((directory for directory in matching if directory.name == current), None)
+            if representative is None:
+                preferred = "catppuccin-latte" if light else "catppuccin"
+                representative = next((directory for directory in matching if directory.name == preferred), matching[0])
+            entries.append({"name": category, "value": category.lower(),
+                            "image": (representative / "preview.png").as_uri(),
+                            "current": representative.name == current})
+    elif mode in {"theme-dark", "theme-light"}:
+        light = mode == "theme-light"
+        for directory in directories:
+            if is_light(directory) == light:
+                entries.append({"name": directory.name.replace("-", " ").replace("_", " ").title(),
+                                "value": directory.name,
+                                "image": (directory / "preview.png").as_uri(),
+                                "current": directory.name == current})
 else:
     current = read_current("current-wallpaper")
     directory = config / "theme/current/backgrounds"

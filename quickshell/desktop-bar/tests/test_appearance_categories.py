@@ -1,0 +1,46 @@
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts/appearance-items.py"
+
+
+class AppearanceCategoryTests(unittest.TestCase):
+    def test_theme_categories_and_filters(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            themes = home / ".config/themes"
+            for name, light in (("dark-a", False), ("dark-b", False), ("light-a", True)):
+                theme = themes / name
+                theme.mkdir(parents=True)
+                (theme / "preview.png").touch()
+                if light:
+                    (theme / "light.mode").touch()
+            cache = home / ".cache"
+            cache.mkdir()
+            (cache / "current-theme").write_text("dark-b\n")
+
+            def load(mode):
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), mode],
+                    env={**os.environ, "HOME": str(home), "XDG_CACHE_HOME": str(cache)},
+                    capture_output=True, text=True, check=True,
+                )
+                return json.loads(result.stdout)["items"]
+
+            categories = load("theme-category")
+            self.assertEqual([item["name"] for item in categories], ["Dark", "Light"])
+            self.assertEqual([item["current"] for item in categories], [True, False])
+            self.assertTrue(categories[0]["image"].endswith("/dark-b/preview.png"))
+            self.assertEqual([item["name"] for item in load("theme-dark")], ["Dark A", "Dark B"])
+            self.assertEqual([item["value"] for item in load("theme-dark")], ["dark-a", "dark-b"])
+            self.assertEqual([item["name"] for item in load("theme-light")], ["Light A"])
+
+
+if __name__ == "__main__":
+    unittest.main()

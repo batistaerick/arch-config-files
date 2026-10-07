@@ -1,0 +1,17 @@
+name = "theme"
+name_pretty = "Theme"
+parent = "style"
+icon = "󰸌"
+fixed_order = true
+
+[[entries]]
+text = "Dark"
+subtext = ">"
+icon = "󰖔"
+submenu = "theme-dark"
+
+[[entries]]
+text = "Light"
+subtext = ">"
+icon = "󰖙"
+submenu = "theme-light"

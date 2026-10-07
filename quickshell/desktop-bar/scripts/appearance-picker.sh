@@ -3,7 +3,7 @@ set -euo pipefail
 
 mode="${1:-wallpaper}"
 case "$mode" in
-  wallpaper|theme) ;;
+  wallpaper|theme|theme-dark|theme-light) ;;
   *) exit 2 ;;
 esac
 

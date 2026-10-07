@@ -18,7 +18,7 @@ Item {
     function open(kind, screen) {
         if (loader.running)
             return;
-        mode = kind;
+        mode = kind === "theme" ? "theme-category" : kind;
         targetScreen = screen;
         items = [];
         error = "";
@@ -35,10 +35,21 @@ Item {
     function apply() {
         if (!items.length || applyProcess.running)
             return;
-        var script = mode === "theme" ? "style/apply.sh" : "wallpaper/apply.sh";
+        if (mode === "theme-category") {
+            open("theme-" + items[selectedIndex].value, targetScreen);
+            return;
+        }
+        var script = mode.startsWith("theme-") ? "style/apply.sh" : "wallpaper/apply.sh";
         applyProcess.command = [Quickshell.env("HOME") + "/.config/walker/scripts/actions/" + script, items[selectedIndex].value];
         opened = false;
         applyProcess.running = true;
+    }
+
+    function back() {
+        if (mode === "theme-dark" || mode === "theme-light")
+            open("theme", targetScreen);
+        else
+            opened = false;
     }
 
     Process {
@@ -71,7 +82,7 @@ Item {
     IpcHandler {
         target: "appearance"
         function show(kind: string): void {
-            picker.open(kind === "theme" ? "theme" : "wallpaper", Quickshell.screens[0]);
+            picker.open(kind.startsWith("theme") ? kind : "wallpaper", Quickshell.screens[0]);
         }
         function close(): void { picker.opened = false; }
         function next(): void { picker.navigate(1); }
@@ -121,12 +132,12 @@ Item {
             anchors.fill: parent
             focus: true
             readonly property real themeAspect: Math.max(1.3, Math.min(3, width / Math.max(1, height)))
-            readonly property real previewWidth: picker.mode === "theme" ? previewHeight * themeAspect : Math.min(768, width * 0.55)
-            readonly property real previewHeight: picker.mode === "theme" ? Math.min(560, height * 0.58, width * 0.68 / themeAspect) : Math.min(475, height * 0.58)
+            readonly property real previewWidth: picker.mode !== "wallpaper" ? previewHeight * themeAspect : Math.min(768, width * 0.55)
+            readonly property real previewHeight: picker.mode !== "wallpaper" ? Math.min(560, height * 0.58, width * 0.68 / themeAspect) : Math.min(475, height * 0.58)
             readonly property real sliceWidth: Math.min(108, width * 0.08)
             readonly property real step: sliceWidth * 0.74
             Keys.onPressed: function(event) {
-                if (event.key === Qt.Key_Escape) picker.opened = false;
+                if (event.key === Qt.Key_Escape || event.key === Qt.Key_Backspace) picker.back();
                 else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) picker.apply();
                 else if (event.key === Qt.Key_Left || event.key === Qt.Key_H) picker.navigate(-1);
                 else if (event.key === Qt.Key_Right || event.key === Qt.Key_L || event.key === Qt.Key_Tab) picker.navigate(1);
@@ -134,8 +145,69 @@ Item {
                 event.accepted = true;
             }
 
+            Row {
+                id: categoryRow
+                visible: picker.mode === "theme-category"
+                anchors.centerIn: parent
+                width: Math.min(content.width * 0.86, 1680)
+                spacing: Math.min(36, content.width * 0.03)
+                readonly property real cardWidth: (width - spacing) / 2
+                readonly property real cardHeight: Math.min(content.height * 0.55, cardWidth / 2.15)
+                height: cardHeight + 42
+
+                Repeater {
+                    model: picker.mode === "theme-category" ? picker.items : []
+                    delegate: Item {
+                        id: categoryTile
+                        required property int index
+                        required property var modelData
+                        width: categoryRow.cardWidth
+                        height: categoryRow.height
+
+                        Rectangle {
+                            width: parent.width
+                            height: categoryRow.cardHeight
+                            radius: 4
+                            color: "#202024"
+                            border.color: categoryTile.index === picker.selectedIndex ? picker.accent : "#66ffffff"
+                            border.width: categoryTile.index === picker.selectedIndex ? 3 : 1
+
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                source: categoryTile.modelData.image
+                                sourceSize.width: Math.ceil(categoryRow.cardWidth)
+                                sourceSize.height: Math.ceil(categoryRow.cardHeight)
+                                fillMode: Image.PreserveAspectFit
+                                asynchronous: true
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    picker.selectedIndex = categoryTile.index;
+                                    picker.apply();
+                                }
+                            }
+                        }
+
+                        Text {
+                            anchors.top: parent.top
+                            anchors.topMargin: categoryRow.cardHeight + 12
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: categoryTile.modelData.name
+                            color: picker.foreground
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 18
+                            font.bold: true
+                        }
+                    }
+                }
+            }
+
             Repeater {
-                model: picker.items
+                model: picker.mode === "theme-category" ? [] : picker.items
                 delegate: Item {
                     id: tile
                     required property int index
@@ -175,7 +247,7 @@ Item {
                             sourceSize.height: Math.ceil(content.previewHeight)
                             asynchronous: true
                             cache: false
-                            fillMode: picker.mode === "theme" && tile.selected ? Image.PreserveAspectFit : Image.PreserveAspectCrop
+                            fillMode: picker.mode !== "wallpaper" && tile.selected ? Image.PreserveAspectFit : Image.PreserveAspectCrop
                         }
                         Rectangle { anchors.fill: parent; color: tile.selected ? "transparent" : "#70000000" }
                     }
@@ -198,7 +270,7 @@ Item {
             }
 
             Text {
-                visible: picker.mode === "theme" || !picker.items[picker.selectedIndex]
+                visible: (picker.mode !== "wallpaper" && picker.mode !== "theme-category") || !picker.items[picker.selectedIndex]
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: (content.height + content.previewHeight) / 2 - 4
                 width: content.previewWidth

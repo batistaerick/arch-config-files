@@ -14,8 +14,16 @@ def run(*command):
 
 
 def backlight():
-    devices = sorted(Path('/sys/class/backlight').glob('*'))
-    return devices[0] if devices else None
+    devices = []
+    for device in Path('/sys/class/backlight').glob('*'):
+        try:
+            if int((device / 'max_brightness').read_text()) <= 0:
+                continue
+            kind = (device / 'type').read_text().strip()
+        except (OSError, ValueError):
+            continue
+        devices.append(({'raw': 0, 'platform': 1, 'firmware': 2}.get(kind, 3), device.name, device))
+    return min(devices)[2] if devices else None
 
 
 def status():

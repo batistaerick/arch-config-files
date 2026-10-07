@@ -81,6 +81,9 @@ Missing optional telemetry is shown as unavailable. No terminal is launched.
 Brightness opens a themed native slider. It uses the laptop backlight when
 present and DDC monitor controls otherwise. The SwayOSD overlay for volume and
 brightness is generated from the current theme when styles change.
+For an Arch installation image, include `brightnessctl` for direct laptop
+backlight control and `ddcutil` for external monitors. The control chooses a
+usable native backlight before DDC; chassis type is not used to select it.
 
 Volume and Mic open themed native PipeWire popups with live volume/gain sliders,
 mute controls, and default output/input device selection. Volume also lists

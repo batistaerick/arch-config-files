@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -11,6 +12,17 @@ spec.loader.exec_module(brightness)
 
 
 class BrightnessTests(unittest.TestCase):
+    def test_native_backlight_preferred_over_firmware_entry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, kind in [('acpi_video0', 'firmware'), ('intel_backlight', 'raw')]:
+                device = root / name
+                device.mkdir()
+                (device / 'type').write_text(kind)
+                (device / 'max_brightness').write_text('1000')
+            with patch.object(brightness, 'Path', return_value=SimpleNamespace(glob=root.glob)):
+                self.assertEqual(brightness.backlight().name, 'intel_backlight')
+
     def test_ddc_status_normalizes_monitor_range(self):
         with patch.object(brightness, 'backlight', return_value=None), \
                 patch.object(brightness.shutil, 'which', return_value='/usr/bin/ddcutil'), \

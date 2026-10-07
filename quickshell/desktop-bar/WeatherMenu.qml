@@ -37,6 +37,12 @@ ThemedPopup {
         cancelSearch();
         refresh();
     }
+    function restoreDefault() {
+        city = null;
+        cancelSearch();
+        weatherData = {};
+        refresh();
+    }
     function forecastIcon(code) {
         // Keep the existing panel's forecast glyph mapping.
         if (code === "113") return "󰖙";
@@ -140,12 +146,13 @@ ThemedPopup {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
                             Text { text: "󰍎"; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
-                            Text { width: 228; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true }
+                            Text { width: menu.city ? 192 : 228; text: String(menu.weatherData.location || "Weather").toUpperCase(); elide: Text.ElideRight; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true }
                         }
                         MouseArea {
                             id: cityMouse
                             hoverEnabled: true
-                            anchors.fill: parent
+                            width: menu.city ? parent.width - 36 : parent.width
+                            height: parent.height
                             enabled: !menu.searching
                             cursorShape: Qt.PointingHandCursor
                             onClicked: { menu.searching = true; cityInput.text = ""; cityInput.forceActiveFocus(); }
@@ -175,7 +182,7 @@ ThemedPopup {
                                 Keys.onEscapePressed: menu.cancelSearch()
                             }
                         }
-                        PanelButton { visible: menu.searching; anchors.right: parent.right; width: 30; height: 30; text: "×"; foreground: menu.foreground; onClicked: menu.cancelSearch() }
+                        PanelButton { visible: menu.searching || menu.city !== null; anchors.right: parent.right; width: 30; height: 30; text: "×"; foreground: menu.foreground; onClicked: menu.restoreDefault() }
                     }
                     Text { text: menu.weatherData.condition || ""; color: menu.foreground; opacity: 0.72; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12; font.bold: true }
                     Row {

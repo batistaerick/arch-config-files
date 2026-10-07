@@ -15,7 +15,7 @@ Item {
     property real pulse: 0
 
     visible: player !== null && availableWidth >= 140
-    width: visible ? Math.min(260, availableWidth) : 0
+    width: visible ? controls.width + 28 + Math.max(0, Math.min(260, availableWidth) - controls.width - 28) * 0.75 : 0
     height: 24
 
     Row {

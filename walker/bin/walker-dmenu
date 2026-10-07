@@ -75,7 +75,7 @@ if [ "$input_only" = true ]; then
 fi
 
 if [ "$dmenu" = false ] && [ -n "$provider" ]; then
-  exec walker --provider "$provider" "${args[@]}"
+  exec "$HOME/.config/walker/bin/walker" --provider "$provider" "${args[@]}"
 fi
 
-exec walker "${args[@]}"
+exec "$HOME/.config/walker/bin/walker" "${args[@]}"

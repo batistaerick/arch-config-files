@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# GTK's empty background-effect region otherwise overrides compositor blur.
+export GDK_WAYLAND_DISABLE="${GDK_WAYLAND_DISABLE:+$GDK_WAYLAND_DISABLE,}ext_background_effect_manager_v1"
+exec /usr/bin/walker "$@"

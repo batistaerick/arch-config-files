@@ -358,7 +358,7 @@ hl.bind(mainMod .. " + ALT + l", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menusDir .. "/search.sh"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(menusDir .. "/shortcuts.sh"))
 hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd(menusDir .. "/vim.sh"))
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("walker --provider menus:main"))
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("$HOME/.config/walker/bin/walker --provider menus:main"))
 hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("bash $HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh wallpaper"))
 hl.bind(mainMod .. " + CTRL + SHIFT + N", hl.dsp.exec_cmd("bash $HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh theme"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(actionsDir .. "/search/google.sh"))
@@ -539,7 +539,13 @@ hl.window_rule({
 
 -- Layer rules
 blurred_layer("desktop-bar", 0.2)
-blurred_layer("walker", 0.8)
+hl.layer_rule({
+	name = "walker-blur",
+	match = { namespace = "walker" },
+	blur = true,
+	blur_popups = true,
+	ignore_alpha = 0.8,
+})
 blurred_layer("swaync-control-center", 0.4)
 blurred_layer("swaync-notification-window", 0.4)
 blurred_layer("swayosd", 0.3)

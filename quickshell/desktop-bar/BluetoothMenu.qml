@@ -39,7 +39,25 @@ ThemedPopup {
             Row {
                 anchors.right: parent.right
                 spacing: 8
-                PanelButton { text: menu.scanningAdapter ? "Stop" : "Scan"; foreground: menu.foreground; available: !!menu.adapter && menu.adapter.enabled; onClicked: menu.scan() }
+                PanelButton {
+                    id: scanButton
+                    text: "󰑓"; icon: true
+                    loading: !!menu.scanningAdapter
+                    foreground: menu.foreground
+                    available: !!menu.adapter && menu.adapter.enabled
+                    onClicked: menu.scan()
+                    HoverHandler { id: scanHover }
+                    BarTooltip { target: scanButton; hovered: scanHover.hovered; text: scanButton.loading ? "Scanning" : "Scan"; foreground: menu.foreground; background: menu.background }
+                }
+                PanelButton {
+                    id: stopScanButton
+                    visible: !!menu.scanningAdapter
+                    text: "󰓛"; icon: true
+                    foreground: menu.foreground
+                    onClicked: menu.scan()
+                    HoverHandler { id: stopScanHover }
+                    BarTooltip { target: stopScanButton; hovered: stopScanHover.hovered; text: "Stop scan"; foreground: menu.foreground; background: menu.background }
+                }
                 PanelSwitch { checked: !!menu.adapter && menu.adapter.enabled; enabled: !!menu.adapter; foreground: menu.foreground; accent: menu.accent; onClicked: menu.adapter.enabled = checked }
             }
         }

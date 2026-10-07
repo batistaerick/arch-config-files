@@ -154,10 +154,11 @@ ThemedPopup {
                     PanelButton {
                         id: scanButton
                         text: "󰑓"; icon: true; height: 32; foreground: menu.foreground
+                        loading: query.running || (!!menu.device && menu.device.scanning) || (operation.running && operation.command[2] === "scan")
                         available: !!menu.device && menu.device.powered && !menu.busy && !menu.device.scanning
                         onClicked: menu.act("scan", menu.device.path)
                         HoverHandler { id: scanHover }
-                        BarTooltip { target: scanButton; hovered: scanHover.hovered; text: "Scan"; foreground: menu.foreground; background: menu.background }
+                        BarTooltip { target: scanButton; hovered: scanHover.hovered; text: scanButton.loading ? "Updating" : "Scan"; foreground: menu.foreground; background: menu.background }
                     }
                     PanelSwitch { checked: !!menu.device && menu.device.powered; enabled: !!menu.device && !menu.busy; foreground: menu.foreground; accent: menu.accent; onClicked: menu.act("power", menu.device.path, checked ? "true" : "false") }
                 }

@@ -15,6 +15,7 @@ ThemedPopup {
     readonly property var provider: (usage.providers || []).find(p => p.name === selectedProvider) || {name: selectedProvider, windows: []}
     readonly property var stats: statistics[selectedProvider] || {days: [], models: []}
     property bool freshReceived: false
+    readonly property bool loading: query.running || statsQuery.running
     property string status: "Checking usage..."
     onSelectedProviderChanged: contentViewport.contentY = 0
     function tokens(value) {
@@ -25,7 +26,7 @@ ThemedPopup {
     }
     function peak(rows) { return Math.max(1, ...rows.map(r => Number(r.tokens))); }
     function refresh() {
-        if (!query.running) {
+        if (!loading) {
             status = "Updating...";
             query.running = true;
             if (!statsQuery.running) statsQuery.running = true;
@@ -107,11 +108,11 @@ ThemedPopup {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 text: "󰑓"; icon: true; height: 32
-                available: !query.running
+                loading: menu.loading
                 foreground: menu.foreground
                 onClicked: menu.refresh()
                 HoverHandler { id: refreshHover }
-                BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: "Refresh"; foreground: menu.foreground; background: menu.background }
+                BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: menu.loading ? "Updating" : "Refresh"; foreground: menu.foreground; background: menu.background }
             }
         }
         Row {

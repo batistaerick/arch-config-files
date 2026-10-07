@@ -159,7 +159,6 @@ ThemedPopup {
                         MouseArea {
                             id: cityMouse
                             hoverEnabled: true
-                            hoverEnabled: true
                             width: parent.width - cityControls.width - 6
                             height: parent.height
                             enabled: !menu.searching
@@ -207,25 +206,10 @@ ThemedPopup {
                                 width: 30
                                 height: 30
                                 icon: true
-                                text: menu.loading ? "" : "󰑐"
+                                text: "󰑐"
                                 foreground: menu.foreground
-                                available: !menu.loading
+                                loading: menu.loading
                                 onClicked: menu.refresh()
-                                Text {
-                                    anchors.centerIn: parent
-                                    visible: menu.loading
-                                    text: "󰑐"
-                                    color: menu.foreground
-                                    font.family: PanelStyle.fontFamily
-                                    font.pixelSize: 18
-                                    RotationAnimator on rotation {
-                                        from: 0
-                                        to: 360
-                                        duration: 900
-                                        loops: Animation.Infinite
-                                        running: menu.visible && menu.loading
-                                    }
-                                }
                                 HoverHandler { id: refreshHover }
                                 BarTooltip { target: refreshButton; hovered: refreshHover.hovered; text: menu.loading ? "Updating" : "Refresh"; foreground: menu.foreground; background: menu.background }
                             }

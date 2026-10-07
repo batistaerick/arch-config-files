@@ -19,6 +19,7 @@ ThemedPopup {
     property var selectedNetwork: null
     property string message: ""
     property string secret: ""
+    property string pendingRemoval: ""
     property bool sharing: false
     property var shareNetwork: null
     property string qrImage: ""
@@ -62,7 +63,7 @@ ThemedPopup {
     function probe() { if (visible && device && device.state === "connected" && !pingQuery.running) { pingQuery.command = ["python3", helper, "probe", device.name]; pingQuery.running = true; } }
     onVisibleChanged: {
         if (visible) { message = ""; previous = null; latency = ({}); refresh(); }
-        else { selectedNetwork = null; secret = ""; password.text = ""; closeShare(); }
+        else { selectedNetwork = null; secret = ""; pendingRemoval = ""; password.text = ""; closeShare(); }
     }
     Timer { interval: 2000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
     Timer { interval: 15000; running: menu.visible; repeat: true; onTriggered: menu.probe() }
@@ -249,6 +250,18 @@ ThemedPopup {
                                     Text { visible: network.modelData.available !== false; anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                                     Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
                                     PanelButton { visible: network.modelData.connected; text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
+                                    PanelButton {
+                                        visible: network.modelData.known && !network.modelData.connected
+                                        text: menu.pendingRemoval === network.modelData.knownPath ? "Confirm" : "Remove"
+                                        width: 76; height: 30; foreground: menu.foreground
+                                        available: !menu.busy && !!network.modelData.knownPath
+                                        onClicked: {
+                                            if (menu.pendingRemoval === network.modelData.knownPath) {
+                                                menu.act("forget", network.modelData.knownPath);
+                                                menu.pendingRemoval = "";
+                                            } else menu.pendingRemoval = network.modelData.knownPath;
+                                        }
+                                    }
                                 }
                                 BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected || network.modelData.available === false ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
                             }

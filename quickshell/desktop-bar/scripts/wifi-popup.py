@@ -22,18 +22,20 @@ def call(path, interface, method, parameters=None):
 def merge_known(networks, objects):
     result = [dict(network, available=True) for network in networks]
     visible = {(network["name"], network["type"]) for network in result}
-    saved = [interfaces[PREFIX + "KnownNetwork"] for interfaces in objects.values()
+    saved = [dict(interfaces[PREFIX + "KnownNetwork"], path=path) for path, interfaces in objects.items()
              if PREFIX + "KnownNetwork" in interfaces]
+    saved_paths = {(network.get("Name"), network.get("Type")): network["path"] for network in saved}
     saved_keys = {(network.get("Name"), network.get("Type")) for network in saved}
     for network in result:
         network["known"] = network["known"] or (network["name"], network["type"]) in saved_keys
+        network["knownPath"] = saved_paths.get((network["name"], network["type"]), "")
     for network in sorted(saved, key=lambda item: item.get("Name", "").casefold()):
         key = (network.get("Name"), network.get("Type"))
         if key in visible:
             continue
         result.append({"path": "", "name": network.get("Name", "Hidden network"),
                        "type": network.get("Type", ""), "known": True,
-                       "connected": False, "available": False, "strength": None})
+                       "connected": False, "available": False, "strength": None, "knownPath": network["path"]})
     return result
 
 
@@ -145,6 +147,8 @@ def main():
         connect(path, request.get("password", ""))
     elif action in ("scan", "disconnect"):
         call(path, PREFIX + "Station", action.capitalize())
+    elif action == "forget":
+        call(path, PREFIX + "KnownNetwork", "Forget")
     elif action == "power":
         call(path, "org.freedesktop.DBus.Properties", "Set",
              GLib.Variant("(ssv)", (PREFIX + "Device", "Powered", GLib.Variant("b", sys.argv[3] == "true"))))

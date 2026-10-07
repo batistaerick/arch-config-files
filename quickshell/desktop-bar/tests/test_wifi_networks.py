@@ -16,6 +16,7 @@ class KnownNetworkTests(unittest.TestCase):
         self.assertTrue(row["known"])
         self.assertFalse(row["available"])
         self.assertIsNone(row["strength"])
+        self.assertEqual(row["knownPath"], "/known")
 
     def test_visible_saved_network_is_not_duplicated(self):
         visible = [{"name": "Hotspot", "type": "psk", "known": False, "connected": True, "strength": 80, "path": "/network"}]
@@ -23,6 +24,7 @@ class KnownNetworkTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertTrue(rows[0]["known"])
         self.assertTrue(rows[0]["available"])
+        self.assertEqual(rows[0]["knownPath"], "/known")
         self.assertFalse(visible[0]["known"])
 
     def test_same_ssid_different_security_is_distinct(self):

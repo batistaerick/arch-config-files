@@ -361,7 +361,7 @@ ShellRoot {
 
                             StatusIcon {
                                 id: obsIcon
-                                icon: "󰑋"
+                                icon: "󰻂"
                                 iconSize: 20
                                 tooltip: "OBS Studio"
                                 open: shell.statusOpen

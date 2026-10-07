@@ -39,7 +39,7 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/search/google.sh" }
 text = "Clipboard History"
 subtext = "SUPER + Ctrl + V"
 icon = ""
-actions = { "open" = "sh -c 'cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 500 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl'" }
+actions = { "open" = "$HOME/.config/walker/bin/walker --provider menus:clipboard --width 850" }
 
 [[entries]]
 text = "Fuzzy Find Files"

@@ -25,6 +25,7 @@ quick_activate = []
 
 [providers.actions]
 fallback = [
+  { action = "clipboard_paste", label = "Paste", bind = "Return", default = true, after = "Close" },
   { action = "lockscreen_apply", label = "Select", bind = "Return", default = true, after = "Close" },
   { action = "lockscreen_preview", label = "Preview", bind = "ctrl p", after = "Close" },
   { action = "theme_apply", label = "Apply", bind = "Return", default = true, after = "Close" },

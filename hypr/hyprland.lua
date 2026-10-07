@@ -304,7 +304,7 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("sleep 0.08; wtype -M ctrl v -m ctrl"
 hl.bind(
 	mainMod .. " + CTRL + V",
 	hl.dsp.exec_cmd(
-		"cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl"
+		"$HOME/.config/walker/bin/walker --provider menus:clipboard --width 850"
 	)
 )
 

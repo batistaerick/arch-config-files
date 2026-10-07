@@ -145,7 +145,7 @@ case "$chosen" in
     wtype -M ctrl v -m ctrl
     ;;
   "  SUPER + Ctrl + V"*)
-    cliphist list | $HOME/.config/walker/bin/walker-dmenu --dmenu --width 1000 | cliphist decode | wl-copy && wtype -M ctrl v -m ctrl
+    "$HOME/.config/walker/bin/walker" --provider menus:clipboard --width 850
     ;;
   "  SUPER + P"*)
     kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$' &

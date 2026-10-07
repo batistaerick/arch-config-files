@@ -18,6 +18,20 @@ ThemedPopup {
     property var selectedNetwork: null
     property string message: ""
     property string secret: ""
+    property bool sharing: false
+    property var shareNetwork: null
+    property string qrImage: ""
+    property string qrError: ""
+    property string qrSecret: ""
+    function closeShare() { sharing = false; qrImage = ""; qrSecret = ""; qrPassword.text = ""; shareNetwork = null; }
+    function generateQr() { if (!qrQuery.running && shareNetwork) { qrSecret = qrPassword.text; qrQuery.running = true; } }
+    function openShare() {
+        shareNetwork = connected;
+        qrImage = ""; qrError = ""; qrPassword.text = "";
+        sharing = true;
+        if (shareNetwork.type === "open") generateQr();
+        else qrPassword.forceActiveFocus();
+    }
     property bool busy: operation ? operation.running : false
     property real downloadRate: 0
     property real uploadRate: 0
@@ -39,7 +53,7 @@ ThemedPopup {
         operation.running = true;
     }
     function choose(network) {
-        if (network.connected) { act("disconnect", device.path); return; }
+        if (network.connected) return;
         if (network.type === "8021x") { message = "Enterprise credentials require impala or your network configuration."; return; }
         if (network.type === "open" || network.known) { secret = ""; act("connect", network.path); }
         else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
@@ -47,7 +61,7 @@ ThemedPopup {
     function probe() { if (visible && device && device.state === "connected" && !pingQuery.running) { pingQuery.command = ["python3", helper, "probe", device.name]; pingQuery.running = true; } }
     onVisibleChanged: {
         if (visible) { message = ""; previous = null; latency = ({}); refresh(); }
-        else { selectedNetwork = null; secret = ""; password.text = ""; }
+        else { selectedNetwork = null; secret = ""; password.text = ""; closeShare(); }
     }
     Timer { interval: 2000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
     Timer { interval: 15000; running: menu.visible; repeat: true; onTriggered: menu.probe() }
@@ -86,6 +100,18 @@ ThemedPopup {
         }
     }
     Process {
+        id: qrQuery
+        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/wifi-qr.py"]
+        stdinEnabled: true
+        onStarted: { write(JSON.stringify({network: menu.shareNetwork, password: menu.qrSecret}) + "\n"); menu.qrSecret = ""; qrPassword.text = ""; }
+        stdout: StdioCollector { id: qrOutput }
+        onExited: {
+            if (!menu.sharing) return;
+            try { var result = JSON.parse(qrOutput.text); menu.qrImage = result.image || ""; menu.qrError = result.error || ""; }
+            catch (e) { menu.qrError = "Could not generate QR code"; }
+        }
+    }
+    Process {
         id: pingQuery
         stdout: StdioCollector { id: pingOutput }
         onExited: { try { menu.latency = JSON.parse(pingOutput.text); } catch (e) {} }
@@ -95,6 +121,7 @@ ThemedPopup {
         anchors.margins: 18
         Column {
             id: wifiHeaderContent
+            visible: !menu.sharing
             width: parent.width
             spacing: 14
             Item {
@@ -103,7 +130,7 @@ ThemedPopup {
                 Text { anchors.verticalCenter: parent.verticalCenter; text: menu.connected ? "󰤨" : "󰤮"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 24 }
                 Column {
                     x: 36
-                    width: parent.width - 156
+                    width: parent.width - 202
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
                     Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: menu.connected ? menu.connected.name : "WiFi"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
@@ -113,6 +140,14 @@ ThemedPopup {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 12
+                    PanelButton {
+                        id: qrButton
+                        text: "󰐲"; icon: true; height: 32; foreground: menu.foreground
+                        available: !!menu.connected && ["open", "psk"].indexOf(menu.connected.type) >= 0 && !qrQuery.running
+                        onClicked: menu.openShare()
+                        HoverHandler { id: qrHover }
+                        BarTooltip { target: qrButton; hovered: qrHover.hovered; text: "Share WiFi"; foreground: menu.foreground; background: menu.background }
+                    }
                     PanelButton {
                         id: scanButton
                         text: "󰑓"; icon: true; height: 32; foreground: menu.foreground
@@ -170,6 +205,7 @@ ThemedPopup {
             Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
         }
         Flickable {
+            visible: !menu.sharing
             anchors.top: wifiHeaderContent.bottom
             anchors.topMargin: 14
             anchors.bottom: parent.bottom
@@ -201,18 +237,46 @@ ThemedPopup {
                                 Keys.onReturnPressed: if (!menu.busy) menu.choose(modelData)
                                 Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "󰤨"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
                                 Column {
-                                    x: 36; width: parent.width - 70; anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                                    x: 36; width: parent.width - (network.modelData.connected ? 208 : 70); anchors.verticalCenter: parent.verticalCenter; spacing: 2
                                     Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
                                     Text { visible: network.modelData.connected; text: "Connected"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
                                 }
-                                Text { anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: network.modelData.type === "open" ? "" : "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
-                                MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
-                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected ? "Disconnect" : Math.round(network.modelData.strength) + "% · Connect"; foreground: menu.foreground; background: menu.background }
+                                Text { visible: !network.modelData.connected; anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: network.modelData.type === "open" ? "" : "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
+                                MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy && !network.modelData.connected; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
+                                Row {
+                                    visible: network.modelData.connected
+                                    anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; spacing: 8
+                                    Text { anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                                    PanelButton { text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
+                                }
+                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
                             }
                         }
                     }
                 }
             }
+        }
+        Column {
+            visible: menu.sharing
+            width: parent.width
+            spacing: 14
+            Row {
+                width: parent.width; spacing: 8
+                Text { width: parent.width - 42; anchors.verticalCenter: parent.verticalCenter; text: menu.shareNetwork ? menu.shareNetwork.name : ""; elide: Text.ElideRight; textFormat: Text.PlainText; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
+                PanelButton { text: "×"; width: 34; height: 34; foreground: menu.foreground; onClicked: menu.closeShare() }
+            }
+            TextField {
+                id: qrPassword
+                visible: menu.qrImage === "" && menu.shareNetwork && menu.shareNetwork.type !== "open"
+                width: parent.width; placeholderText: "WiFi password"; echoMode: TextInput.Password
+                color: menu.foreground; placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
+                background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: qrPassword.activeFocus ? menu.accent : "transparent" }
+                HoverHandler { cursorShape: Qt.IBeamCursor }
+                onAccepted: if (text.length > 0) menu.generateQr()
+            }
+            PanelButton { visible: qrPassword.visible; text: "Show QR"; width: 100; foreground: menu.foreground; available: qrPassword.text.length > 0 && !qrQuery.running; onClicked: menu.generateQr() }
+            Image { visible: menu.qrImage !== ""; anchors.horizontalCenter: parent.horizontalCenter; width: 300; height: 300; source: menu.qrImage; fillMode: Image.PreserveAspectFit; smooth: false }
+            Text { width: parent.width; text: menu.qrError; visible: text !== ""; color: menu.foreground; wrapMode: Text.Wrap; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
         }
     }
 }

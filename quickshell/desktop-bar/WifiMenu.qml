@@ -237,17 +237,17 @@ ThemedPopup {
                                 Keys.onReturnPressed: if (!menu.busy) menu.choose(modelData)
                                 Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: "󰤨"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 16 }
                                 Column {
-                                    x: 36; width: parent.width - (network.modelData.connected ? 208 : 70); anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                                    x: 36; width: parent.width - networkActions.width - 52; anchors.verticalCenter: parent.verticalCenter; spacing: 2
                                     Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
                                     Text { visible: network.modelData.connected; text: "Connected"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
                                 }
-                                Text { visible: !network.modelData.connected; anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: network.modelData.type === "open" ? "" : "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
                                 MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy && !network.modelData.connected; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
                                 Row {
-                                    visible: network.modelData.connected
+                                    id: networkActions
                                     anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; spacing: 8
                                     Text { anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
-                                    PanelButton { text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
+                                    Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
+                                    PanelButton { visible: network.modelData.connected; text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
                                 }
                                 BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
                             }

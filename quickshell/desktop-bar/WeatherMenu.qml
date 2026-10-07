@@ -15,6 +15,7 @@ ThemedPopup {
     property string searchError: ""
     property string requestedCity: ""
     property string requestedSearch: ""
+    signal defaultWeatherUpdated(var data)
     readonly property string temperature: String(weatherData.temp || "--").split("°")[0]
     readonly property string unit: String(weatherData.temp || "").indexOf("°") >= 0 ? "°" + String(weatherData.temp).split("°")[1] : ""
     readonly property string alternate: isFinite(Number(temperature)) && temperature !== "" ? unit === "°F" ? Math.round((Number(temperature) - 32) * 5 / 9) + "°C" : unit === "°C" ? Math.round(Number(temperature) * 9 / 5 + 32) + "°F" : "" : ""
@@ -89,6 +90,7 @@ ThemedPopup {
             try {
                 if (code !== 0) throw new Error("weather unavailable");
                 menu.weatherData = JSON.parse(weatherOutput.text);
+                if (menu.city === null) menu.defaultWeatherUpdated(menu.weatherData);
             } catch (e) { menu.weatherData = {temp: "--", condition: "Unavailable", location: menu.city ? menu.city.name : "Weather"}; }
         }
     }

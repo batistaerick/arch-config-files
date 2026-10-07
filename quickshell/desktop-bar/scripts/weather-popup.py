@@ -13,6 +13,7 @@ import urllib.request
 def weather(city):
     with tempfile.TemporaryDirectory(prefix='weather-popup-') as directory:
         environment = os.environ.copy()
+        environment['WEATHER_FORCE_REFRESH'] = '1'
         if city:
             state = Path(directory) / 'location.json'
             state.write_text(json.dumps({

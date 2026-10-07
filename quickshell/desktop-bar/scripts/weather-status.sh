@@ -61,7 +61,7 @@ cache_is_fresh() {
   [[ "$source" == "$cache_source" ]]
 }
 
-if cache_is_fresh; then
+if [[ "${WEATHER_FORCE_REFRESH:-0}" != "1" ]] && cache_is_fresh; then
   cat "$cache_file"
   exit 0
 fi

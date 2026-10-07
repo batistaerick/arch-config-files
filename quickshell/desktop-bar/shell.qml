@@ -425,6 +425,7 @@ ShellRoot {
                     }
 
                     WeatherWidget {
+                        id: barWeather
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
@@ -447,6 +448,7 @@ ShellRoot {
                         accent: shell.activeBg
                         foreground: shell.fg
                         background: shell.workspaceMenuBg
+                        onDefaultWeatherUpdated: function(data) { barWeather.updateData(data); }
                     }
 
                 }
@@ -751,30 +753,40 @@ ShellRoot {
         property string wind: ""
         property string humidity: ""
         property string forecast: ""
+        property int dataRevision: 0
+        property int requestedRevision: 0
 
         function refresh() {
             if (process.running)
                 return ;
 
             process.command = ["bash", "-lc", "$HOME/.config/quickshell/desktop-bar/scripts/weather-status.sh"];
+            requestedRevision = dataRevision;
             process.running = true;
         }
 
+        function updateData(data) {
+            dataRevision++;
+            weather.text = String(data.text || weather.text);
+            weather.location = String(data.location || "");
+            weather.condition = String(data.condition || "");
+            weather.temp = String(data.temp || "");
+            weather.feels = String(data.feels || "");
+            weather.wind = String(data.wind || "");
+            weather.humidity = String(data.humidity || "");
+            weather.forecast = String(data.forecast || "");
+        }
+
         function parse(raw) {
+            // A panel refresh may have supplied newer data during this request.
+            if (requestedRevision !== dataRevision) return;
             var value = String(raw || "").trim();
             if (value === "")
                 return ;
 
             try {
                 var data = JSON.parse(value.split("\n").pop());
-                weather.text = String(data.text || weather.text);
-                weather.location = String(data.location || "");
-                weather.condition = String(data.condition || "");
-                weather.temp = String(data.temp || "");
-                weather.feels = String(data.feels || "");
-                weather.wind = String(data.wind || "");
-                weather.humidity = String(data.humidity || "");
-                weather.forecast = String(data.forecast || "");
+                weather.updateData(data);
             } catch (e) {
                 weather.text = "󰖐";
                 weather.condition = "Weather unavailable";

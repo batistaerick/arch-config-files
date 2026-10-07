@@ -362,8 +362,7 @@ ShellRoot {
                             StatusIcon {
                                 id: obsIcon
                                 icon: "󰑋"
-                                imageIcon: Quickshell.iconPath("com.obsproject.Studio")
-                                iconSize: 14
+                                iconSize: 20
                                 tooltip: "OBS Studio"
                                 open: shell.statusOpen
                                 clickable: true

@@ -121,12 +121,12 @@ ShellRoot {
                 IpcHandler {
                     target: "panels"
                     function close(): void {
-                        for (var panel of [wifiMenu, bluetoothMenu, volumeMenu, micMenu,
+                        for (var panel of [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
                                 keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu])
                             panel.visible = false;
                     }
                     function show(kind: string): void {
-                        var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, volume: volumeMenu,
+                        var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, volume: volumeMenu,
                             mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu};
                         if (!panels[kind]) return;
@@ -295,6 +295,24 @@ ShellRoot {
                             BluetoothMenu {
                                 id: bluetoothMenu
                                 target: shell.statusOpen ? bluetoothIcon : notificationIcon
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
+                            }
+
+                            StatusIcon {
+                                id: brightnessIcon
+                                icon: "󰃟"
+                                tooltip: "Brightness"
+                                open: shell.statusOpen
+                                clickable: true
+                                onClicked: brightnessMenu.visible = !brightnessMenu.visible
+                                onOpenChanged: if (!open) brightnessMenu.visible = false
+                            }
+
+                            BrightnessMenu {
+                                id: brightnessMenu
+                                target: shell.statusOpen ? brightnessIcon : notificationIcon
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg

@@ -1,6 +1,7 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
 import QtQuick.Controls.Basic as Controls
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 
 Column {
@@ -14,6 +15,12 @@ Column {
     property string name: node ? (node.properties["application.name"] || node.description || node.nickname || node.name) : "No device available"
     spacing: 6
     PwObjectTracker { objects: [control.node] }
+    Process { id: volumeOsd; command: ["swayosd-client", "--custom-icon", "audio-volume-high-symbolic", "--custom-progress", "0"] }
+    function showVolumeOsd(value) {
+        if (volumeOsd.running) return;
+        volumeOsd.command = ["swayosd-client", "--custom-icon", control.microphone ? "microphone-sensitivity-high-symbolic" : "audio-volume-high-symbolic", "--custom-progress", String(value)];
+        volumeOsd.running = true;
+    }
 
     Text {
         visible: control.showName
@@ -70,7 +77,10 @@ Column {
                 when: !slider.pressed
             }
             onMoved: {
-                if (control.node) control.node.audio.volume = value;
+                if (control.node) {
+                    control.node.audio.volume = value;
+                    control.showVolumeOsd(value);
+                }
             }
             background: Rectangle {
                 x: slider.leftPadding

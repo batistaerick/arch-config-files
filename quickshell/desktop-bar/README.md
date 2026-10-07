@@ -78,6 +78,10 @@ cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals
 are read locally. GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
 Missing optional telemetry is shown as unavailable. No terminal is launched.
 
+Brightness opens a themed native slider. It uses the laptop backlight when
+present and DDC monitor controls otherwise. The SwayOSD overlay for volume and
+brightness is generated from the current theme when styles change.
+
 Volume and Mic open themed native PipeWire popups with live volume/gain sliders,
 mute controls, and default output/input device selection. Volume also lists
 playback applications with individual sliders and mute controls. Sliders adjust

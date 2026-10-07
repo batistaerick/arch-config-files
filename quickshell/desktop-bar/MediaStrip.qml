@@ -98,7 +98,7 @@ Item {
             color: media.foreground
             opacity: control.available ? 1 : 0.4
             font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 13
+            font.pixelSize: 15
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }

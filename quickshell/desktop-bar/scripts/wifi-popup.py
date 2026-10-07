@@ -19,6 +19,24 @@ def call(path, interface, method, parameters=None):
                          Gio.DBusCallFlags.NONE, 10000, None).unpack()
 
 
+def merge_known(networks, objects):
+    result = [dict(network, available=True) for network in networks]
+    visible = {(network["name"], network["type"]) for network in result}
+    saved = [interfaces[PREFIX + "KnownNetwork"] for interfaces in objects.values()
+             if PREFIX + "KnownNetwork" in interfaces]
+    saved_keys = {(network.get("Name"), network.get("Type")) for network in saved}
+    for network in result:
+        network["known"] = network["known"] or (network["name"], network["type"]) in saved_keys
+    for network in sorted(saved, key=lambda item: item.get("Name", "").casefold()):
+        key = (network.get("Name"), network.get("Type"))
+        if key in visible:
+            continue
+        result.append({"path": "", "name": network.get("Name", "Hidden network"),
+                       "type": network.get("Type", ""), "known": True,
+                       "connected": False, "available": False, "strength": None})
+    return result
+
+
 def snapshot():
     objects = call("/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects")[0]
     devices = []
@@ -35,6 +53,7 @@ def snapshot():
                                  "type": network.get("Type", ""), "known": bool(network.get("KnownNetwork")),
                                  "connected": station.get("ConnectedNetwork") == network_path,
                                  "strength": max(0, min(100, 2 * (strength / 100 + 100)))})
+        networks = merge_known(networks, objects)
         details = telemetry(device["Name"])
         details["automatic"] = not station.get("Affinities")
         if station.get("State") == "connected":

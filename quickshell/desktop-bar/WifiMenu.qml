@@ -12,7 +12,8 @@ ThemedPopup {
     readonly property var details: device ? device.details : ({})
     readonly property var connected: device ? device.networks.find(n => n.connected) : null
     readonly property var groups: [
-        {title: "KNOWN NETWORKS", networks: device ? device.networks.filter(n => n.known || n.connected) : []},
+        {title: "CONNECTED", networks: device ? device.networks.filter(n => n.connected) : []},
+        {title: "KNOWN NETWORKS", networks: device ? device.networks.filter(n => n.known && !n.connected) : []},
         {title: "OTHER NETWORKS", networks: device ? device.networks.filter(n => !n.known && !n.connected) : []}
     ]
     property var selectedNetwork: null
@@ -53,7 +54,7 @@ ThemedPopup {
         operation.running = true;
     }
     function choose(network) {
-        if (network.connected) return;
+        if (network.connected || network.available === false) return;
         if (network.type === "8021x") { message = "Enterprise credentials require impala or your network configuration."; return; }
         if (network.type === "open" || network.known) { secret = ""; act("connect", network.path); }
         else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
@@ -239,17 +240,17 @@ ThemedPopup {
                                 Column {
                                     x: 36; width: parent.width - networkActions.width - 52; anchors.verticalCenter: parent.verticalCenter; spacing: 2
                                     Text { width: parent.width; elide: Text.ElideRight; textFormat: Text.PlainText; text: network.modelData.name; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 12 }
-                                    Text { visible: network.modelData.connected; text: "Connected"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
+                                    Text { visible: network.modelData.connected || network.modelData.available === false; text: network.modelData.connected ? "Connected" : "Offline"; color: menu.foreground; opacity: 0.6; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 10 }
                                 }
-                                MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy && !network.modelData.connected; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
+                                MouseArea { id: networkMouse; anchors.fill: parent; hoverEnabled: true; enabled: !menu.busy && !network.modelData.connected && network.modelData.available !== false; cursorShape: Qt.PointingHandCursor; onClicked: menu.choose(network.modelData) }
                                 Row {
                                     id: networkActions
                                     anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; spacing: 8
-                                    Text { anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
+                                    Text { visible: network.modelData.available !== false; anchors.verticalCenter: parent.verticalCenter; text: Math.round(network.modelData.strength) + "%"; color: menu.foreground; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 11 }
                                     Text { visible: network.modelData.type !== "open"; anchors.verticalCenter: parent.verticalCenter; text: "󰌾"; color: menu.foreground; opacity: 0.65; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14 }
                                     PanelButton { visible: network.modelData.connected; text: "Disconnect"; width: 98; height: 30; foreground: menu.foreground; available: !menu.busy; onClicked: menu.act("disconnect", menu.device.path) }
                                 }
-                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
+                                BarTooltip { target: network; hovered: networkMouse.containsMouse; text: network.modelData.connected || network.modelData.available === false ? "" : "Connect"; foreground: menu.foreground; background: menu.background }
                             }
                         }
                     }

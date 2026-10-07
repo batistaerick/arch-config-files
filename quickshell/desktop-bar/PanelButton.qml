@@ -9,6 +9,8 @@ Rectangle {
     property bool icon: false
     property bool outlined: false
     property bool selected: false
+    property string leadingIcon: ""
+    property int textAlignment: Text.AlignHCenter
     signal clicked()
     activeFocusOnTab: true
     enabled: available
@@ -23,14 +25,26 @@ Rectangle {
     border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
     opacity: available ? 1 : 0.45
     Text {
-        anchors.centerIn: parent
-        width: parent.width - 16
-        horizontalAlignment: Text.AlignHCenter
+        anchors.verticalCenter: parent.verticalCenter
+        x: button.leadingIcon !== "" ? 34 : 8
+        width: parent.width - x - 8
+        horizontalAlignment: button.textAlignment
         elide: Text.ElideRight
         text: button.text
         color: button.foreground
         font.family: PanelStyle.fontFamily
         font.pixelSize: button.icon ? 18 : PanelStyle.controlSize
+    }
+    Text {
+        visible: button.leadingIcon !== ""
+        x: 8
+        width: 18
+        anchors.verticalCenter: parent.verticalCenter
+        horizontalAlignment: Text.AlignHCenter
+        text: button.leadingIcon
+        color: button.foreground
+        font.family: PanelStyle.fontFamily
+        font.pixelSize: 16
     }
     MouseArea {
         id: mouse

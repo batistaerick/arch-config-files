@@ -5,7 +5,7 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 300
+    implicitWidth: 260
     implicitHeight: content.implicitHeight + PanelStyle.padding * 2
     property string status: ""
     function run(action) {
@@ -22,22 +22,25 @@ ThemedPopup {
     Column {
         id: content
         x: PanelStyle.padding; y: PanelStyle.padding; width: parent.width - PanelStyle.padding * 2
-        spacing: 8
+        spacing: 4
         Text { text: "OBS Studio"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
         Repeater {
             model: [
-                {label: "Open OBS", action: "open"},
-                {label: "Start recording", action: "record"},
-                {label: "Stop recording", action: "stop"},
-                {label: "Pause recording", action: "pause"},
-                {label: "Resume recording", action: "resume"},
-                {label: "Start streaming", action: "stream"},
-                {label: "Stop streaming", action: "stop-stream"}
+                {label: "Open OBS", icon: "󰻂", action: "open"},
+                {label: "Start recording", icon: "󰑋", action: "record"},
+                {label: "Stop recording", icon: "󰓛", action: "stop"},
+                {label: "Pause recording", icon: "󰏤", action: "pause"},
+                {label: "Resume recording", icon: "󰐊", action: "resume"},
+                {label: "Start streaming", icon: "󰐌", action: "stream"},
+                {label: "Stop streaming", icon: "󰓛", action: "stop-stream"}
             ]
             PanelButton {
                 required property var modelData
                 width: content.width
+                height: 32
                 text: modelData.label
+                leadingIcon: modelData.icon
+                textAlignment: Text.AlignLeft
                 foreground: menu.foreground
                 available: !command.running
                 onClicked: menu.run(modelData.action)

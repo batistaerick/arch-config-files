@@ -68,6 +68,10 @@ mkdir -p "$HOME/.config" "$HOME/.cache" "$HOME/.local/bin"
 for item in "${config_dirs[@]}" "${config_files[@]}"; do
   cp -a -- "$repo_root/$item" "$HOME/.config/$item"
 done
+mkdir -p "$HOME/.config/systemd/user"
+cp -a -- "$repo_root/systemd/user/." "$HOME/.config/systemd/user/"
+systemctl --user daemon-reload
+systemctl --user enable --now nightlight-auto.timer
 mkdir -p "$HOME/.config/theme/current" "$HOME/.config/hypr/themes"
 cp -a -- "$repo_root/themes/catppuccin/." "$HOME/.config/theme/current/"
 printf 'catppuccin\n' > "$HOME/.cache/current-theme"

@@ -1,30 +1,10 @@
 #!/usr/bin/env bash
 
-ON_TEMP=4000
-STATE_FILE="$HOME/.cache/nightlight-enabled"
+set -euo pipefail
 
-start_hyprsunset() {
-  if pgrep -x hyprsunset >/dev/null; then
-    return
-  fi
-
-  if command -v uwsm >/dev/null 2>&1; then
-    uwsm app -- hyprsunset >/dev/null 2>&1 &
-  else
-    setsid hyprsunset >/dev/null 2>&1 &
-  fi
-
-  sleep 1
-}
-
-start_hyprsunset
-
-if [[ -f "$STATE_FILE" ]]; then
-  hyprctl hyprsunset identity
-  rm -f "$STATE_FILE"
-  notify-send -u low "  Daylight screen temperature"
+result="$(python3 "$HOME/.config/walker/scripts/actions/toggle/nightlight.py" toggle)"
+if [[ "$(jq -r '.enabled' <<< "$result")" == "true" ]]; then
+  notify-send -u low "  Nightlight enabled"
 else
-  hyprctl hyprsunset temperature "$ON_TEMP"
-  touch "$STATE_FILE"
-  notify-send -u low "  Nightlight screen temperature"
+  notify-send -u low "  Nightlight disabled"
 fi

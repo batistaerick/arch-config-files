@@ -21,6 +21,8 @@ the graphical desktop and AUR packages are installed on the target system by
   explicit driver choice because older cards require a different driver.
 - Steam, GameMode, Gamescope, MangoHud, 32-bit graphics libraries, and
   `lib32-systemd` for Steam networking with systemd-networkd.
+- FFmpeg, Qt Multimedia's FFmpeg backend, and GStreamer with base/good/bad/
+  ugly/libav plugins for common audio and video formats, including MP4.
 - Repository config directories: Quickshell bar/lockscreen, Hyprland, Walker,
   Elephant, themes and wallpapers, Neovim/LazyVim, notifications, and app styles.
 - `HOME_FILES`: Zsh, Powerlevel10k, terminal colors and the Walker launcher link.
@@ -89,6 +91,7 @@ Working name ideas: **Vela** (navigation), **Mica** (layered visual system), or
 References: [Archiso](https://wiki.archlinux.org/title/Archiso),
 [GPU drivers](https://wiki.archlinux.org/title/Graphics_processing_unit),
 [Steam](https://wiki.archlinux.org/title/Steam),
+[GStreamer](https://wiki.archlinux.org/title/GStreamer),
 [NVIDIA](https://wiki.archlinux.org/title/NVIDIA),
 [Hyprland monitor rules](https://wiki.hypr.land/configuring/core/monitors/),
 [Claude Code setup](https://code.claude.com/docs/en/setup),

@@ -20,8 +20,12 @@ gnome-characters
 gnome-control-center
 gnome-online-accounts
 gnome-themes-extra
+gstreamer
 gst-libav
 gst-plugin-pipewire
+gst-plugins-base
+gst-plugins-good
+gst-plugins-bad
 gst-plugins-ugly
 gvfs-mtp
 gvfs-smb

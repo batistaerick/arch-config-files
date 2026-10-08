@@ -3,5 +3,3 @@ __pycache__/
 *.log
 distro/build/
 distro/out/
-waybar/.status-icons.css
-waybar/.toggle-fade.css

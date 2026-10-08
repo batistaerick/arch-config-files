@@ -66,11 +66,7 @@ fi
 # Reload Hyprland after theme/env files are copied
 hyprctl reload || true
 
-# Restart file managers so they inherit new theme/env
-if pgrep -x nautilus >/dev/null; then
-  nautilus -q 2>/dev/null || true
-fi
-
+# Restart Dolphin so it inherits the new theme/env
 if pgrep -x dolphin >/dev/null; then
   kquitapp6 dolphin 2>/dev/null || pkill dolphin || true
 fi

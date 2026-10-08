@@ -31,6 +31,15 @@ def read_current(name):
     except OSError:
         return ""
 
+def display_name(directory):
+    try:
+        label = (directory / "display-name").read_text().strip()
+        if label:
+            return label
+    except OSError:
+        pass
+    return directory.name.replace("-", " ").replace("_", " ").title()
+
 entries = []
 if mode.startswith("theme"):
     current = read_current("current-theme")
@@ -55,7 +64,7 @@ if mode.startswith("theme"):
         light = mode == "theme-light"
         for directory in directories:
             if is_light(directory) == light:
-                entries.append({"name": directory.name.replace("-", " ").replace("_", " ").title(),
+                entries.append({"name": display_name(directory),
                                 "value": directory.name,
                                 "image": (directory / "preview.png").as_uri(),
                                 "current": directory.name == current})

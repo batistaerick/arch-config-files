@@ -14,6 +14,12 @@ local function current_theme()
 end
 
 local function display_name(name)
+    local file = io.open(themes_dir .. "/" .. name .. "/display-name", "r")
+    if file then
+        local label = file:read("*a"):match("^%s*(.-)%s*$")
+        file:close()
+        if label ~= "" then return label end
+    end
     return (name:gsub("[-_]", " "):gsub("(%a)([%w]*)", function(first, rest)
         return first:upper() .. rest
     end))

@@ -40,6 +40,13 @@ class AppearanceCategoryTests(unittest.TestCase):
             self.assertEqual([item["name"] for item in load("theme-dark")], ["Dark A", "Dark B"])
             self.assertEqual([item["value"] for item in load("theme-dark")], ["dark-a", "dark-b"])
             self.assertEqual([item["name"] for item in load("theme-light")], ["Light A"])
+            (themes / "dark-b/display-name").write_text("Moonveil\n")
+            renamed = load("theme-dark")[1]
+            self.assertEqual(renamed["name"], "Moonveil")
+            self.assertEqual(renamed["value"], "dark-b")
+            self.assertTrue(renamed["current"])
+            (themes / "dark-b/display-name").write_text("\n")
+            self.assertEqual(load("theme-dark")[1]["name"], "Dark B")
 
 
 if __name__ == "__main__":

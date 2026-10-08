@@ -8,11 +8,13 @@ Rectangle {
     property bool available: true
     property bool loading: false
     property bool icon: false
+    property bool compactIconBackground: false
     property real iconOffsetX: 0
     property bool outlined: false
     property bool selected: false
     property string leadingIcon: ""
     property int textAlignment: Text.AlignHCenter
+    readonly property color fillColor: Qt.rgba(foreground.r, foreground.g, foreground.b, selected ? 0.18 : mouse.containsMouse ? 0.16 : outlined ? 0 : 0.08)
     signal clicked()
     activeFocusOnTab: true
     enabled: available && !loading
@@ -22,10 +24,20 @@ Rectangle {
     width: icon ? 34 : 68
     height: 40
     radius: PanelStyle.controlRadius
-    color: Qt.rgba(foreground.r, foreground.g, foreground.b, selected ? 0.18 : mouse.containsMouse ? 0.16 : outlined ? 0 : 0.08)
-    border.width: outlined ? 1 : 0
+    color: icon && compactIconBackground ? "transparent" : fillColor
+    border.width: outlined && !(icon && compactIconBackground) ? 1 : 0
     border.color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.3)
     opacity: available && !loading ? 1 : 0.45
+    Rectangle {
+        visible: button.icon && button.compactIconBackground
+        anchors.centerIn: parent
+        width: 28
+        height: Math.min(28, button.height)
+        radius: PanelStyle.controlRadius
+        color: button.fillColor
+        border.width: button.outlined ? 1 : 0
+        border.color: Qt.rgba(button.foreground.r, button.foreground.g, button.foreground.b, 0.3)
+    }
     Text {
         visible: !button.loading
         x: button.icon ? button.iconOffsetX : button.leadingIcon !== "" ? 34 : 8

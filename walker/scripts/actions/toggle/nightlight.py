@@ -99,6 +99,8 @@ def save_schedule(start, end):
     valid_time(end)
     if start == end:
         raise ValueError("Start and end times must differ")
+    if SCHEDULE_FILE.is_file() and TIMER_OVERRIDE.is_file() and schedule() == {"start": start, "end": end}:
+        return
     override = ("[Timer]\nOnCalendar=\n"
                 f"OnCalendar=*-*-* {start}:00\nOnCalendar=*-*-* {end}:00\n")
     save_text(TIMER_OVERRIDE, override)
@@ -136,9 +138,10 @@ def apply():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("status", "apply", "toggle", "set", "schedule"))
+    parser.add_argument("action", choices=("status", "apply", "toggle", "set", "schedule", "configure"))
     parser.add_argument("value", nargs="?")
     parser.add_argument("end", nargs="?")
+    parser.add_argument("configured_mode", nargs="?")
     args = parser.parse_args()
     if args.action == "status":
         print(json.dumps(status()))
@@ -147,15 +150,19 @@ def main():
         parser.error("set requires auto, on, or off")
     if args.action == "schedule" and (args.value is None or args.end is None):
         parser.error("schedule requires START and END in HH:MM format")
+    if args.action == "configure" and (args.value is None or args.end is None or args.configured_mode not in MODES):
+        parser.error("configure requires START END and auto, on, or off")
 
     STATE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
     with (STATE_DIR / "lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.action == "set":
             save_mode(args.value)
-        elif args.action == "schedule":
+        elif args.action in ("schedule", "configure"):
             try:
                 save_schedule(args.value, args.end)
+                if args.action == "configure":
+                    save_mode(args.configured_mode)
             except (ValueError, subprocess.CalledProcessError) as error:
                 print(str(error), file=sys.stderr)
                 return 1

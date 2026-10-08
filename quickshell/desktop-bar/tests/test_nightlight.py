@@ -45,10 +45,25 @@ class NightlightTests(unittest.TestCase):
                 self.assertEqual(run.call_count, 2)
                 run.assert_any_call(["systemctl", "--user", "daemon-reload"], check=True)
                 run.assert_any_call(["systemctl", "--user", "restart", "nightlight-auto.timer"], check=True)
+                nightlight.save_schedule("19:45", "07:30")
+                self.assertEqual(run.call_count, 2)
                 with self.assertRaises(ValueError):
                     nightlight.save_schedule("12:00", "12:00")
                 with self.assertRaises(ValueError):
                     nightlight.save_schedule("25:00", "09:00")
+
+    def test_configure_saves_schedule_and_mode_together(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.object(nightlight, "STATE_DIR", root), \
+                    patch.object(nightlight, "MODE_FILE", root / "mode"), \
+                    patch.object(nightlight, "save_schedule") as save_schedule, \
+                    patch.object(nightlight, "apply", return_value={}), \
+                    patch("sys.argv", ["nightlight.py", "configure", "19:00", "08:00", "auto"]), \
+                    patch("builtins.print"):
+                self.assertEqual(nightlight.main(), 0)
+                save_schedule.assert_called_once_with("19:00", "08:00")
+                self.assertEqual(nightlight.mode(), "auto")
 
     def test_mode_is_saved_outside_cache(self):
         with tempfile.TemporaryDirectory() as directory:

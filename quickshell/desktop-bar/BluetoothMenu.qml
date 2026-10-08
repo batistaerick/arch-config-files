@@ -41,7 +41,7 @@ ThemedPopup {
                 spacing: 8
                 PanelButton {
                     id: scanButton
-                    text: "󰑓"; icon: true
+                    text: "󰑓"; icon: true; compactIconBackground: true
                     loading: !!menu.scanningAdapter
                     foreground: menu.foreground
                     available: !!menu.adapter && menu.adapter.enabled
@@ -52,7 +52,7 @@ ThemedPopup {
                 PanelButton {
                     id: stopScanButton
                     visible: !!menu.scanningAdapter
-                    text: "󰓛"; icon: true
+                    text: "󰓛"; icon: true; compactIconBackground: true
                     foreground: menu.foreground
                     onClicked: menu.scan()
                     HoverHandler { id: stopScanHover }

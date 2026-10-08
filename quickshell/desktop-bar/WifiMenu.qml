@@ -145,7 +145,7 @@ ThemedPopup {
                     spacing: 12
                     PanelButton {
                         id: qrButton
-                        text: "󰐲"; icon: true; height: 32; foreground: menu.foreground
+                        text: "󰐲"; icon: true; compactIconBackground: true; height: 32; foreground: menu.foreground
                         available: !!menu.connected && ["open", "psk"].indexOf(menu.connected.type) >= 0 && !qrQuery.running
                         onClicked: menu.openShare()
                         HoverHandler { id: qrHover }
@@ -153,12 +153,12 @@ ThemedPopup {
                     }
                     PanelButton {
                         id: scanButton
-                        text: "󰑓"; icon: true; height: 32; foreground: menu.foreground
-                        loading: query.running || (!!menu.device && menu.device.scanning) || (operation.running && operation.command[2] === "scan")
+                        text: "󰑓"; icon: true; compactIconBackground: true; height: 32; foreground: menu.foreground
+                        loading: operation.running && operation.command[2] === "scan"
                         available: !!menu.device && menu.device.powered && !menu.busy && !menu.device.scanning
                         onClicked: menu.act("scan", menu.device.path)
                         HoverHandler { id: scanHover }
-                        BarTooltip { target: scanButton; hovered: scanHover.hovered; text: scanButton.loading ? "Updating" : "Scan"; foreground: menu.foreground; background: menu.background }
+                        BarTooltip { target: scanButton; hovered: scanHover.hovered; text: "Scan"; foreground: menu.foreground; background: menu.background }
                     }
                     PanelSwitch { checked: !!menu.device && menu.device.powered; enabled: !!menu.device && !menu.busy; foreground: menu.foreground; accent: menu.accent; onClicked: menu.act("power", menu.device.path, checked ? "true" : "false") }
                 }

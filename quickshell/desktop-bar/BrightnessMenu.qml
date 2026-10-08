@@ -7,7 +7,7 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 400
-    implicitHeight: 336 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
+    implicitHeight: 284 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
@@ -42,6 +42,7 @@ ThemedPopup {
     }
     function setNightlight(mode) {
         if (nightOperation.running) return;
+        if (scheduleDirty) { configureNightlight(mode); return; }
         nightlightError = "";
         nightOperation.command = ["python3", nightlightHelper, "set", mode];
         nightOperation.running = true;
@@ -61,20 +62,28 @@ ThemedPopup {
         startField.text = displayTime(nightlight.start || "18:00");
         endField.text = displayTime(nightlight.end || "09:00");
     }
-    function saveSchedule() {
+    function configureNightlight(mode) {
         let start = parseTime(startField.text);
         let end = parseTime(endField.text);
-        if (!start || !end || start === end || nightOperation.running) return;
+        if (!start || !end || start === end) {
+            nightlightError = "Enter two different valid times";
+            return;
+        }
+        if (nightOperation.running) return;
         nightlightError = "";
-        nightOperation.command = ["python3", nightlightHelper, "schedule", start, end];
+        nightOperation.command = ["python3", nightlightHelper, "configure", start, end, mode];
         nightOperation.running = true;
     }
     onVisibleChanged: {
         if (visible) { refresh(); refreshNightlight(); refreshDisplays(); }
-        else { editingSchedule = false; scheduleDirty = false; }
+        else {
+            editingSchedule = false;
+            if (scheduleDirty) scheduleSettle.restart();
+        }
     }
     Timer { interval: 3000; repeat: true; running: menu.visible; onTriggered: { menu.refresh(); menu.refreshNightlight(); } }
     Timer { interval: 6000; repeat: true; running: menu.visible; onTriggered: menu.refreshDisplays() }
+    Timer { id: scheduleSettle; interval: 650; onTriggered: if (menu.scheduleDirty && !nightOperation.running) menu.configureNightlight(menu.nightlight.mode) }
     Timer { id: settle; interval: 80; onTriggered: menu.applyValue(Math.round(slider.value)) }
     Process {
         id: query
@@ -127,9 +136,11 @@ ThemedPopup {
             else {
                 try {
                     menu.nightlight = JSON.parse(nightOperationOutput.text);
-                    if (nightOperation.command[2] === "schedule") menu.editingSchedule = false;
-                    menu.scheduleDirty = false;
-                    menu.syncSchedule();
+                    let command = nightOperation.command;
+                    let changedDuringRequest = command[2] === "configure" &&
+                        (menu.parseTime(startField.text) !== command[3] || menu.parseTime(endField.text) !== command[4]);
+                    if (changedDuringRequest) scheduleSettle.restart();
+                    else { menu.scheduleDirty = false; menu.syncSchedule(); }
                 }
                 catch (e) { menu.nightlightError = "Nightlight status unavailable"; }
             }
@@ -192,24 +203,12 @@ ThemedPopup {
             Row {
                 width: parent.width
                 height: 40
-                Text { width: parent.width - 52; height: parent.height; verticalAlignment: Text.AlignVCenter; text: "Nightlight"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
-                PanelSwitch {
-                    checked: menu.nightlight.enabled
-                    enabled: menu.nightlight.available && !nightOperation.running
-                    foreground: menu.foreground
-                    accent: menu.accent
-                    onClicked: menu.setNightlight(checked ? "on" : "off")
-                }
-            }
-            Row {
-                width: parent.width
-                height: 40
                 Column {
-                    width: parent.width - 94
+                    width: parent.width - 88
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
-                    Text { text: "Automatic"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
-                    Text { width: parent.width; elide: Text.ElideRight; text: menu.displayTime(menu.nightlight.start || "18:00") + " - " + menu.displayTime(menu.nightlight.end || "09:00"); color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { text: "Nightlight"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                    Text { width: parent.width; elide: Text.ElideRight; text: menu.nightlight.mode === "auto" ? "Automatic · " + menu.displayTime(menu.nightlight.start || "18:00") + " - " + menu.displayTime(menu.nightlight.end || "09:00") : "Manual"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 }
                 PanelButton {
                     id: editButton
@@ -221,17 +220,21 @@ ThemedPopup {
                     foreground: menu.foreground
                     available: menu.nightlight.available
                     selected: menu.editingSchedule
-                    onClicked: { menu.scheduleDirty = false; menu.syncSchedule(); menu.editingSchedule = !menu.editingSchedule; }
+                    onClicked: {
+                        if (menu.editingSchedule && menu.scheduleDirty) scheduleSettle.restart();
+                        if (!menu.editingSchedule) menu.syncSchedule();
+                        menu.editingSchedule = !menu.editingSchedule;
+                    }
                     HoverHandler { id: editHover }
                     BarTooltip { target: editButton; hovered: editHover.hovered; text: "Edit schedule"; background: menu.background; foreground: menu.foreground }
                 }
                 Item { width: 8; height: 1 }
                 PanelSwitch {
-                    checked: menu.nightlight.mode === "auto"
+                    checked: menu.nightlight.enabled
                     enabled: menu.nightlight.available && !nightOperation.running
                     foreground: menu.foreground
                     accent: menu.accent
-                    onClicked: menu.setNightlight(checked ? "auto" : (menu.nightlight.enabled ? "on" : "off"))
+                    onClicked: menu.setNightlight(checked ? "on" : "off")
                 }
             }
             Column {
@@ -243,8 +246,9 @@ ThemedPopup {
                     width: parent.width
                     height: 16
                     spacing: 8
-                    Text { width: (parent.width - 126) / 2; height: parent.height; text: "Start"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
-                    Text { width: (parent.width - 126) / 2; height: parent.height; text: "End"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { width: (parent.width - 68) / 2; height: parent.height; text: "Start"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { width: (parent.width - 68) / 2; height: parent.height; text: "End"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { width: 52; height: parent.height; text: "Auto"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 }
                 Row {
                     width: parent.width
@@ -252,42 +256,37 @@ ThemedPopup {
                     spacing: 8
                     Controls.TextField {
                         id: startField
-                        width: (parent.width - 126) / 2
+                        width: (parent.width - 68) / 2
                         height: parent.height
                         color: menu.foreground
                         font.family: PanelStyle.fontFamily
                         font.pixelSize: PanelStyle.bodySize
                         selectByMouse: true
-                        onTextEdited: menu.scheduleDirty = true
+                        onTextEdited: { menu.scheduleDirty = true; scheduleSettle.restart(); }
                         HoverHandler { cursorShape: Qt.IBeamCursor }
                         background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.width: 1; border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.2) }
                     }
                     Controls.TextField {
                         id: endField
-                        width: (parent.width - 126) / 2
+                        width: (parent.width - 68) / 2
                         height: parent.height
                         color: menu.foreground
                         font.family: PanelStyle.fontFamily
                         font.pixelSize: PanelStyle.bodySize
                         selectByMouse: true
-                        onTextEdited: menu.scheduleDirty = true
+                        onTextEdited: { menu.scheduleDirty = true; scheduleSettle.restart(); }
                         HoverHandler { cursorShape: Qt.IBeamCursor }
                         background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.width: 1; border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.2) }
                     }
-                    PanelButton {
-                        text: "Save"
+                    PanelSwitch {
+                        checked: menu.nightlight.mode === "auto"
+                        enabled: menu.nightlight.available && !nightOperation.running
                         foreground: menu.foreground
-                        available: menu.nightlight.available && menu.scheduleDirty && menu.parseTime(startField.text) !== "" && menu.parseTime(endField.text) !== "" && menu.parseTime(startField.text) !== menu.parseTime(endField.text) && !nightOperation.running
-                        onClicked: menu.saveSchedule()
-                    }
-                    PanelButton {
-                        id: cancelButton
-                        icon: true
-                        text: "󰅖"
-                        foreground: menu.foreground
-                        onClicked: { menu.editingSchedule = false; menu.scheduleDirty = false; menu.syncSchedule(); }
-                        HoverHandler { id: cancelHover }
-                        BarTooltip { target: cancelButton; hovered: cancelHover.hovered; text: "Cancel"; background: menu.background; foreground: menu.foreground }
+                        accent: menu.accent
+                        onClicked: {
+                            scheduleSettle.stop();
+                            menu.configureNightlight(checked ? "auto" : (menu.nightlight.enabled ? "on" : "off"));
+                        }
                     }
                 }
             }

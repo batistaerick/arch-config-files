@@ -81,6 +81,8 @@ Missing optional telemetry is shown as unavailable. No terminal is launched.
 Display opens a themed native panel with brightness, Nightlight, and active
 monitor names, resolutions, and refresh rates. Display modes are read-only;
 changing them live could conflict with the saved Hyprland monitor layout.
+The Nightlight editor saves valid time changes automatically; its Auto switch
+enables or disables the schedule, while the main switch remains a manual override.
 Brightness uses the laptop backlight when present and the first DDC monitor
 otherwise. The SwayOSD overlay for volume and
 brightness is generated from the current theme when styles change.

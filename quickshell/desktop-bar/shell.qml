@@ -456,7 +456,7 @@ ShellRoot {
                         VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: micMenu.visible = !micMenu.visible }
                         VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: keyboardMenu.visible = !keyboardMenu.visible }
                         VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
-                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.visible = !obsMenu.visible }
+                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.visible = !obsMenu.visible }
                         VerticalBarIcon {
                             icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
                             onClicked: shell.run("swaync-client -t -sw")
@@ -770,7 +770,7 @@ ShellRoot {
                             StatusIcon {
                                 id: obsIcon
                                 icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"
-                                iconSize: 16
+                                iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16
                                 tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"
                                 open: shell.statusOpen
                                 clickable: true
@@ -1223,10 +1223,12 @@ ShellRoot {
             }
             Item {
                 visible: weather.recording
-                width: 10
+                width: 22
                 height: label.height
                 Rectangle {
-                    anchors.centerIn: parent
+                    anchors.right: parent.right
+                    anchors.rightMargin: 2
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 6
                     height: 6
                     radius: 3

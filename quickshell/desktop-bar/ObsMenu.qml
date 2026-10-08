@@ -18,7 +18,7 @@ ThemedPopup {
     signal captureStarting()
     readonly property bool busy: pendingAction !== ""
     property var obsState: ({ready: false, recording: false, paused: false, streaming: false})
-    readonly property bool controlsReady: obsState.ready && !busy && !optionWriter.running
+    readonly property bool controlsReady: obsState.ready && !busy
 
     function refresh() {
         if (busy && !awaitingState) return;
@@ -32,9 +32,12 @@ ThemedPopup {
         preparingStart = action === "record" || action === "stream";
         if (preparingStart) editing = false;
         awaitingState = false;
-        actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", preparingStart ? "prepare" : action];
-        actionProcess.running = true;
         query.running = false;
+        if (!optionWriter.running) beginAction();
+    }
+    function beginAction() {
+        actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", preparingStart ? "prepare" : pendingAction];
+        actionProcess.running = true;
     }
     function loadOptions() {
         if (!optionQuery.running && !optionWriter.running) optionQuery.running = true;
@@ -81,8 +84,13 @@ ThemedPopup {
                 menu.actionError = optionResult.text.trim() || "Could not save recording settings";
                 menu.status = menu.actionError;
                 menu.pendingOptionChanges = ({});
+                menu.pendingAction = "";
+                menu.preparingStart = false;
                 menu.loadOptions();
-            } else menu.writeNextOption();
+            } else {
+                menu.writeNextOption();
+                if (!optionWriter.running && menu.busy) menu.beginAction();
+            }
         }
     }
     Timer { interval: 2000; repeat: true; running: true; onTriggered: menu.refresh() }
@@ -160,7 +168,7 @@ ThemedPopup {
                 height: 34
                 text: "󰏫"
                 foreground: menu.foreground
-                available: !menu.busy && !optionWriter.running
+                available: !menu.busy
                 onClicked: menu.editing = !menu.editing
                 HoverHandler { id: editHover }
                 BarTooltip { target: editButton; hovered: editHover.hovered; text: "Recording options"; foreground: menu.foreground; background: menu.background }

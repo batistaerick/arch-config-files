@@ -1,5 +1,6 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
+import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -10,6 +11,8 @@ PopupWindow {
     required property color accent
     required property color foreground
     required property color background
+    property string barEdge: "top"
+    property int maximumHeight: 900
     property var sections: []
     property string error: ""
 
@@ -20,10 +23,10 @@ PopupWindow {
     visible: false
     color: "transparent"
     implicitWidth: 440
-    implicitHeight: content.implicitHeight + PanelStyle.padding * 2
+    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2, maximumHeight)
     anchor.item: target
-    anchor.rect.x: 0
-    anchor.rect.y: target.height + 8
+    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, "left")
+    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
     anchor.edges: Edges.Top | Edges.Left
     anchor.gravity: Edges.Bottom | Edges.Right
     anchor.adjustment: PopupAdjustment.Slide
@@ -58,94 +61,100 @@ PopupWindow {
         border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.18)
         focus: true
         Keys.onEscapePressed: menu.visible = false
-        Column {
-            id: content
-            x: PanelStyle.padding
-            y: PanelStyle.padding
-            width: parent.width - PanelStyle.padding * 2
-            spacing: 14
-            Text {
-                visible: menu.sections.length === 0 || menu.error !== ""
-                text: menu.error || "Loading..."
-                color: menu.foreground
-                font.family: PanelStyle.fontFamily
-                font.pixelSize: PanelStyle.controlSize
-            }
-            Repeater {
-                model: menu.sections
-                Column {
-                    id: section
-                    required property var modelData
-                    required property int index
-                    width: content.width
-                    spacing: 7
-                    Rectangle {
-                        visible: section.index > 0
-                        width: parent.width
-                        height: 1
-                        color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
-                    }
-                    Row {
-                        width: parent.width
-                        Text {
-                            width: parent.width - 70
-                            text: section.modelData.title
-                            color: menu.foreground
-                            font.family: PanelStyle.fontFamily
-                            font.pixelSize: PanelStyle.headingSize
-                            font.bold: true
-                        }
-                        Text {
-                            width: 70
-                            horizontalAlignment: Text.AlignRight
-                            text: section.modelData.usage === null ? "--" : section.modelData.usage + "%"
-                            color: menu.foreground
-                            font.family: PanelStyle.fontFamily
-                            font.pixelSize: PanelStyle.controlSize
-                        }
-                    }
-                    Text {
-                        width: parent.width
-                        text: section.modelData.name
-                        elide: Text.ElideRight
-                        color: menu.foreground
-                        opacity: 0.72
-                        font.family: PanelStyle.fontFamily
-                        font.pixelSize: PanelStyle.bodySize
-                    }
-                    Rectangle {
-                        width: parent.width
-                        height: 5
-                        radius: 3
-                        color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
+        Flickable {
+            anchors.fill: parent
+            anchors.margins: PanelStyle.padding
+            contentHeight: content.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            Column {
+                id: content
+                width: parent.width
+                spacing: 14
+                Text {
+                    visible: menu.sections.length === 0 || menu.error !== ""
+                    text: menu.error || "Loading..."
+                    color: menu.foreground
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.controlSize
+                }
+                Repeater {
+                    model: menu.sections
+                    Column {
+                        id: section
+                        required property var modelData
+                        required property int index
+                        width: content.width
+                        spacing: 7
                         Rectangle {
-                            width: parent.width * Math.max(0, Math.min(100, section.modelData.usage || 0)) / 100
-                            height: parent.height
-                            radius: 3
-                            color: menu.foreground
+                            visible: section.index > 0
+                            width: parent.width
+                            height: 1
+                            color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
                         }
-                    }
-                    Repeater {
-                        model: section.modelData.rows
                         Row {
-                            required property var modelData
-                            width: section.width
+                            width: parent.width
                             Text {
-                                width: parent.width * 0.5
-                                text: parent.modelData[0]
+                                width: parent.width - 70
+                                text: section.modelData.title
                                 color: menu.foreground
-                                opacity: 0.65
                                 font.family: PanelStyle.fontFamily
-                                font.pixelSize: PanelStyle.secondarySize
+                                font.pixelSize: PanelStyle.headingSize
+                                font.bold: true
                             }
                             Text {
-                                width: parent.width * 0.5
+                                width: 70
                                 horizontalAlignment: Text.AlignRight
-                                text: parent.modelData[1]
-                                elide: Text.ElideRight
+                                text: section.modelData.usage === null ? "--" : section.modelData.usage + "%"
                                 color: menu.foreground
                                 font.family: PanelStyle.fontFamily
-                                font.pixelSize: PanelStyle.secondarySize
+                                font.pixelSize: PanelStyle.controlSize
+                            }
+                        }
+                        Text {
+                            width: parent.width
+                            text: section.modelData.name
+                            elide: Text.ElideRight
+                            color: menu.foreground
+                            opacity: 0.72
+                            font.family: PanelStyle.fontFamily
+                            font.pixelSize: PanelStyle.bodySize
+                        }
+                        Rectangle {
+                            visible: section.modelData.usage !== null
+                            width: parent.width
+                            height: visible ? 5 : 0
+                            radius: 3
+                            color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
+                            Rectangle {
+                                width: parent.width * Math.max(0, Math.min(100, section.modelData.usage || 0)) / 100
+                                height: parent.height
+                                radius: 3
+                                color: menu.foreground
+                            }
+                        }
+                        Repeater {
+                            model: section.modelData.rows
+                            Row {
+                                required property var modelData
+                                width: section.width
+                                Text {
+                                    width: parent.width * 0.5
+                                    text: parent.modelData[0]
+                                    color: menu.foreground
+                                    opacity: 0.65
+                                    font.family: PanelStyle.fontFamily
+                                    font.pixelSize: PanelStyle.secondarySize
+                                }
+                                Text {
+                                    width: parent.width * 0.5
+                                    horizontalAlignment: Text.AlignRight
+                                    text: parent.modelData[1]
+                                    elide: Text.ElideRight
+                                    color: menu.foreground
+                                    font.family: PanelStyle.fontFamily
+                                    font.pixelSize: PanelStyle.secondarySize
+                                }
                             }
                         }
                     }

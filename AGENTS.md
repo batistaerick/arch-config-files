@@ -77,9 +77,16 @@ them with upstream defaults.
   disconnected, fall back to an available one. Existing installations prefer
   HDMI until a choice is saved; fresh portable installs prefer the largest
   active display. Do not commit a machine-specific primary-display file.
-- Hardware popups open top-left; calendar/weather open top-center; right-hand
-  controls open top-right. Preserve the common offset below the bar and existing
-  window-border alignment. Growing content must not move panels above the bar.
+- Hardware and AI Usage icons sit after the workspaces and open on the left;
+  calendar/weather open centered; other controls open on the right. Popups open
+  inward from the selected bar edge and retain the common 8 px offset.
+  Hardware uses one icon, with CPU/GPU/RAM and only the root-drive Storage data
+  inside the popup. Growing content must stay within the usable screen.
+- Empty-bar double-left-click toggles transparency, double-right-click toggles
+  one/three sections, and left drag changes the screen edge. These settings
+  persist in `bar-settings.json` and also appear under Style > Desktop Bar.
+  Split sections touch the screen edge with rounded exposed corners; only the
+  middle section gets extra gesture padding. Gaps must pass clicks through.
 - Popups close on outside click or Escape, not merely when the pointer leaves.
   Prefer native popups over floating Hyprland windows for bar controls.
 - Keep the right-side icon group hidden by default, with its manual toggle and

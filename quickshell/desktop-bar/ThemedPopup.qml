@@ -1,5 +1,6 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
+import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 
@@ -10,13 +11,15 @@ PopupWindow {
     required property color background
     required property color accent
     property bool centered: false
+    property bool leftAligned: false
+    property string barEdge: "top"
     property Item keyTarget: body
     default property alias panelContent: body.data
     visible: false
     color: "transparent"
     anchor.item: target
-    anchor.rect.x: centered ? (target.width - implicitWidth) / 2 : target.width - implicitWidth
-    anchor.rect.y: target.height + 8
+    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, centered ? "center" : leftAligned ? "left" : "right")
+    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
     anchor.edges: Edges.Top | Edges.Left
     anchor.gravity: Edges.Bottom | Edges.Right
     anchor.adjustment: PopupAdjustment.Slide

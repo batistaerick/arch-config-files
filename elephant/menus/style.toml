@@ -31,3 +31,10 @@ subtext = ">"
 keywords = ["numbers", "glyph", "dots", "bar"]
 icon = "󰍹"
 submenu = "workspaces"
+
+[[entries]]
+text = "Desktop Bar"
+subtext = ">"
+keywords = ["quickshell", "bar", "transparent", "split", "position"]
+icon = "󰍜"
+submenu = "bar"

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read a compact hardware snapshot without sharing the bar's CPU sample cache."""
+"""Read a compact CPU, GPU, RAM, and installation-storage snapshot."""
 import csv
 import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import time
 
@@ -88,5 +89,37 @@ def gpu():
                      ['Power / limit', f'{number(power, "W")} / {number(limit, "W")}']]}
 
 
+def storage():
+    try:
+        devices = json.loads(query(['lsblk', '-J', '-b', '-o', 'NAME,TYPE,SIZE,MODEL,ROTA,MOUNTPOINTS']))['blockdevices']
+    except (ValueError, KeyError, TypeError):
+        devices = []
+
+    def hosts_root(device):
+        return '/' in (device.get('mountpoints') or []) or any(
+            hosts_root(child) for child in device.get('children', []))
+
+    device = next((device for device in devices if device.get('type') == 'disk' and hosts_root(device)), None)
+    rows = []
+    name = 'Arch installation · /'
+    if device:
+        name = device.get('name', '')
+        kind = 'HDD' if device.get('rota') else ('NVMe SSD' if name.startswith('nvme') else 'SSD')
+        capacity = f'{int(device.get("size") or 0) / 1024 ** 3:.1f} GiB'
+        rows = [['Type / device', f'{kind} · {name}'], ['Capacity', capacity]]
+        name = (device.get('model') or name).strip()
+    usage = None
+    try:
+        stats = shutil.disk_usage('/')
+        usage = round(100 * stats.used / max(1, stats.total))
+        rows.extend([
+            ['Used / total', f'{stats.used / 1024 ** 3:.1f} / {stats.total / 1024 ** 3:.1f} GiB'],
+            ['Free', f'{stats.free / 1024 ** 3:.1f} GiB'],
+        ])
+    except OSError:
+        rows.append(['Status', 'Usage unavailable'])
+    return [{'title': 'Storage', 'name': name, 'usage': usage, 'rows': rows}]
+
+
 if __name__ == '__main__':
-    print(json.dumps({'sections': [cpu(), gpu(), memory()]}))
+    print(json.dumps({'sections': [cpu(), gpu(), memory(), *storage()]}))

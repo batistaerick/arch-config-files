@@ -1,0 +1,26 @@
+name = "bar"
+name_pretty = "Desktop Bar"
+parent = "style"
+icon = "󰍜"
+fixed_order = true
+
+[[entries]]
+text = "Appearance"
+subtext = ">"
+icon = "󰏘"
+keywords = ["transparent", "theme", "solid", "color"]
+submenu = "bar-appearance"
+
+[[entries]]
+text = "Layout"
+subtext = ">"
+icon = "󰕰"
+keywords = ["unified", "split", "sections"]
+submenu = "bar-layout"
+
+[[entries]]
+text = "Position"
+subtext = ">"
+icon = "󰆾"
+keywords = ["top", "bottom", "left", "right", "edge"]
+submenu = "bar-position"

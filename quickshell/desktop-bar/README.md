@@ -2,6 +2,20 @@
 
 The desktop bar and its native popups follow the current theme.
 
+Double-left-click empty bar space to switch between the current transparent
+background and opaque theme color. Double-right-click empty space to switch
+between one bar and three sections. Split sections touch the screen edge with
+rounded exposed corners; only the middle section has extra gesture padding.
+Gaps between sections pass clicks through to the desktop.
+Drag empty bar space toward top, bottom, left, or right to change its edge; a
+preview highlights the destination. The choices persist in `bar-settings.json`.
+Walker exposes the same settings under Style > Desktop Bar > Appearance,
+Layout, and Position. Learn > Mouse Gestures also lists these gestures and
+the desktop wallpaper/theme double clicks. Left/right bars use upright compact
+controls, with the time/date centered and popups opening inward.
+Hardware and AI Usage sit together after the workspaces; right-hand controls
+retain their manual show/hide toggle.
+
 Right-click a workspace to choose Numbers, Glyph, or Dots, or use Walker's
 Style > Workspaces menu. Both selectors share the same saved preference.
 The menu includes examples; the checkmark identifies the current selection.
@@ -10,7 +24,9 @@ the current theme's accent.
 
 Calendar, Weather, and AI Usage use native Quickshell popups and dismiss on an
 outside click or Escape, not pointer movement or focus loss. Calendar and Weather
-stay top-center; AI Usage stays on the right. Calendar retains its fixed six-row
+stay centered on horizontal bars; AI Usage opens beside its left-hand icon.
+Panels open above bottom bars and inward from vertical bars.
+Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,
 and five-minute updates while open. Claude and Codex have separate provider tabs;
@@ -33,10 +49,9 @@ It uses native MPRIS players (excluding the duplicate playerctld proxy), prefers
 a playing player, and retains a paused player's title.
 Meeting apps and recognized meeting-page URLs/titles are excluded, including
 Google Meet, Zoom, Teams, and Webex. Previous, play/pause, and
-next controls respect the player's capabilities. Long titles scroll only while
-hovered within a fixed-width strip and reset on pointer exit, without a title
-tooltip. Clicking the title raises players
-that support it. The animated bars indicate playback, not an audio spectrum.
+next controls respect the player's capabilities. The animated indicator shows
+the song title on hover and raises players that support it when clicked.
+The animated bars indicate playback, not an audio spectrum.
 No media daemon or audio capture is started. The strip hides without an eligible
 player or when there is insufficient space beside the hardware indicators.
 
@@ -72,10 +87,13 @@ background follows the current theme, including light themes. The bar bell uses
 SwayNC's native event subscription to update immediately when notifications are
 added/cleared, with polling retained as a fallback if the subscription stops.
 
-Click GPU, CPU, or RAM to open the shared hardware popup. It refreshes every
+Click the Hardware icon to open the shared CPU/GPU/RAM/Storage popup. It refreshes every
 two seconds while visible and closes on an outside click or Escape. CPU load,
 cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals
-are read locally. GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
+are read locally. Storage identifies only the drive backing `/`, including
+encrypted device stacks, and shows installation used/free space. Other drives
+are omitted, and Btrfs subvolume mounts are not counted repeatedly.
+GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
 Missing optional telemetry is shown as unavailable. No terminal is launched.
 
 Display opens a themed native panel with brightness, Nightlight, and active

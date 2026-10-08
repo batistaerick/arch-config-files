@@ -1,5 +1,6 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
+import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
@@ -10,6 +11,7 @@ PopupWindow {
     required property color accent
     required property color foreground
     required property color background
+    property string barEdge: "top"
     property bool microphone: false
     property int maximumHeight: 700
     readonly property PwNode currentNode: microphone ? Pipewire.defaultAudioSource : Pipewire.defaultAudioSink
@@ -21,8 +23,8 @@ PopupWindow {
     implicitWidth: 400
     implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2, maximumHeight)
     anchor.item: target
-    anchor.rect.x: target.width - implicitWidth
-    anchor.rect.y: target.height + 8
+    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, "right")
+    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
     anchor.edges: Edges.Top | Edges.Left
     anchor.gravity: Edges.Bottom | Edges.Right
     anchor.adjustment: PopupAdjustment.Slide

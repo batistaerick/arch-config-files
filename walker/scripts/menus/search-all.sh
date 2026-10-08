@@ -36,6 +36,8 @@ options="󰣇  Apps > Search Apps
   Style > Wallpaper
   Style > Lockscreen
   Style > Workspaces
+  Style > Desktop Bar
+󰧑  Learn > Mouse Gestures
 󰔎  Toggle > Screensaver
 󰔎  Toggle > Nightlight
 󰔎  Toggle > Idle Lock
@@ -225,6 +227,12 @@ case "$chosen" in
     ;;
   "  Style > Workspaces")
     walker --provider menus:workspaces
+    ;;
+  "  Style > Desktop Bar")
+    "$HOME/.config/walker/bin/walker" --provider menus:bar
+    ;;
+  "󰧑  Learn > Mouse Gestures")
+    "$MENUS_DIR/mouse-gestures.sh"
     ;;
   "󰔎  Toggle > Screensaver")
     "$TOGGLE_ACTIONS_DIR/screensaver.sh"

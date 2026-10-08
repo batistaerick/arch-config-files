@@ -11,6 +11,12 @@ icon = "󰌌"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/shortcuts.sh" }
 
 [[entries]]
+text = "Mouse Gestures"
+keywords = ["mouse", "click", "double", "drag", "wallpaper", "theme", "bar"]
+icon = "󰍽"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/mouse-gestures.sh" }
+
+[[entries]]
 text = "LazyVim Commands"
 keywords = ["lazyvim", "vim", "nvim", "neovim", "commands"]
 icon = ""

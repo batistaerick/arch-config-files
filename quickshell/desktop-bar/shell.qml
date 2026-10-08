@@ -21,7 +21,86 @@ ShellRoot {
     property string workspaceStyle: "Numbers"
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
+    property string barAppearance: "transparent"
+    property string barLayout: "unified"
+    property string barEdge: "top"
+    property bool settingsDirty: false
+    property string dragCandidate: ""
+    readonly property bool verticalBar: barEdge === "left" || barEdge === "right"
     readonly property var desktopApplications: DesktopEntries.applications.values
+
+    function barBackground() {
+        return barAppearance === "solid" ? workspaceMenuBg : bg;
+    }
+
+    function barDoubleClick(button) {
+        if (button === Qt.LeftButton) updateBarSetting("appearance", barAppearance === "solid" ? "transparent" : "solid");
+        else if (button === Qt.RightButton) updateBarSetting("layout", barLayout === "split" ? "unified" : "split");
+    }
+
+    function updateBarSetting(key, value) {
+        var choices = {appearance: ["transparent", "solid"], layout: ["unified", "split"], edge: ["top", "bottom", "left", "right"]};
+        if (!choices[key] || choices[key].indexOf(value) === -1) return;
+        if (key === "appearance") barAppearance = value;
+        else if (key === "layout") barLayout = value;
+        else barEdge = value;
+        settingsDirty = true;
+        settingsSaveDelay.restart();
+    }
+
+    IpcHandler {
+        target: "bar"
+        function update(key: string, value: string): void { shell.updateBarSetting(key, value) }
+        function toggle(kind: string): void {
+            if (kind === "appearance") shell.updateBarSetting(kind, shell.barAppearance === "solid" ? "transparent" : "solid");
+            else if (kind === "layout") shell.updateBarSetting(kind, shell.barLayout === "split" ? "unified" : "split");
+        }
+    }
+
+    Process {
+        id: barSettingsQuery
+        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py", "status"]
+        running: true
+        stdout: StdioCollector { id: barSettingsOutput }
+        onExited: function(code) {
+            if (code !== 0 || shell.settingsDirty || saveBarSettings.running) return;
+            try {
+                var settings = JSON.parse(barSettingsOutput.text);
+                shell.barAppearance = settings.appearance;
+                shell.barLayout = settings.layout;
+                shell.barEdge = settings.edge;
+            } catch (e) {}
+        }
+    }
+
+    Timer {
+        interval: 2000
+        running: true
+        repeat: true
+        onTriggered: if (!barSettingsQuery.running && !saveBarSettings.running) barSettingsQuery.running = true
+    }
+
+    Timer {
+        id: settingsSaveDelay
+        interval: 100
+        onTriggered: shell.persistBarSettings()
+    }
+
+    function persistBarSettings() {
+        if (saveBarSettings.running) return;
+        settingsDirty = false;
+        saveBarSettings.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py",
+            "set-all", barAppearance, barLayout, barEdge];
+        saveBarSettings.running = true;
+    }
+
+    Process {
+        id: saveBarSettings
+        onExited: {
+            if (shell.settingsDirty) shell.persistBarSettings();
+            else if (!barSettingsQuery.running) barSettingsQuery.running = true;
+        }
+    }
 
     Process {
         id: saveWorkspaceStyle
@@ -165,11 +244,25 @@ ShellRoot {
                 required property var modelData
 
                 screen: modelData
-                implicitHeight: shell.barHeight
+                implicitWidth: shell.verticalBar ? 60 : modelData.width
+                implicitHeight: shell.verticalBar ? modelData.height : shell.barHeight
                 color: "transparent"
                 exclusionMode: ExclusionMode.Auto
                 WlrLayershell.namespace: "desktop-bar"
                 WlrLayershell.layer: WlrLayer.Top
+                mask: shell.barLayout === "split" ? splitInput : null
+
+                Region {
+                    id: splitInput
+                    width: 0
+                    height: 0
+                    Region { x: leftBackground.x; y: leftBackground.y; width: shell.verticalBar ? 0 : leftBackground.width; height: shell.verticalBar ? 0 : leftBackground.height }
+                    Region { x: middleBackground.x; y: middleBackground.y; width: shell.verticalBar ? 0 : middleBackground.width; height: shell.verticalBar ? 0 : middleBackground.height }
+                    Region { x: rightBackground.x; y: rightBackground.y; width: shell.verticalBar ? 0 : rightBackground.width; height: shell.verticalBar ? 0 : rightBackground.height }
+                    Region { x: verticalStartBackground.x; y: verticalStartBackground.y; width: shell.verticalBar ? verticalStartBackground.width : 0; height: shell.verticalBar ? verticalStartBackground.height : 0 }
+                    Region { x: verticalMiddleBackground.x; y: verticalMiddleBackground.y; width: shell.verticalBar ? verticalMiddleBackground.width : 0; height: shell.verticalBar ? verticalMiddleBackground.height : 0 }
+                    Region { x: verticalEndBackground.x; y: verticalEndBackground.y; width: shell.verticalBar ? verticalEndBackground.width : 0; height: shell.verticalBar ? verticalEndBackground.height : 0 }
+                }
 
                 IpcHandler {
                     target: "panels"
@@ -189,14 +282,227 @@ ShellRoot {
                 }
 
                 anchors {
-                    top: true
-                    left: true
-                    right: true
+                    top: shell.barEdge === "top" || shell.verticalBar
+                    bottom: shell.barEdge === "bottom" || shell.verticalBar
+                    left: shell.barEdge === "top" || shell.barEdge === "bottom" || shell.barEdge === "left"
+                    right: shell.barEdge === "top" || shell.barEdge === "bottom" || shell.barEdge === "right"
+                }
+
+                PanelWindow {
+                    screen: bar.screen
+                    visible: shell.dragCandidate !== ""
+                    color: "transparent"
+                    exclusionMode: ExclusionMode.Ignore
+                    WlrLayershell.namespace: "desktop-bar-edge-preview"
+                    WlrLayershell.layer: WlrLayer.Overlay
+                    mask: Region {}
+                    anchors { top: true; bottom: true; left: true; right: true }
+                    Rectangle {
+                        readonly property bool vertical: shell.dragCandidate === "left" || shell.dragCandidate === "right"
+                        x: shell.dragCandidate === "right" ? parent.width - width : 0
+                        y: shell.dragCandidate === "bottom" ? parent.height - height : 0
+                        width: vertical ? 60 : parent.width
+                        height: vertical ? parent.height : shell.barHeight
+                        radius: 6
+                        color: Qt.alpha(shell.workspaceMenuBg, 0.65)
+                        border.width: 1
+                        border.color: shell.activeBg
+                    }
                 }
 
                 Rectangle {
+                    id: verticalSurface
                     anchors.fill: parent
-                    color: shell.bg
+                    visible: shell.verticalBar
+                    color: shell.barLayout === "unified" ? shell.barBackground() : "transparent"
+
+                    BarSection {
+                        id: verticalStartBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: 0; y: 0; width: parent.width
+                        height: verticalStart.y + verticalStart.height + 6
+                    }
+                    BarSection {
+                        id: verticalMiddleBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: 0; y: verticalMiddle.y - (mediaStrip.player ? 83 : 6); width: parent.width
+                        height: verticalMiddle.height + 33 + (mediaStrip.player ? 83 : 6)
+                    }
+                    BarSection {
+                        id: verticalEndBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: 0; y: verticalEnd.y - 6; width: parent.width
+                        height: parent.height - y
+                    }
+                    BarGestureArea {
+                        anchors.fill: parent
+                        hostWindow: bar
+                        edge: shell.barEdge
+                        onCandidateChanged: shell.dragCandidate = candidate
+                        onDoubleTapped: function(button) { shell.barDoubleClick(button) }
+                        onDropped: function(edge) { shell.updateBarSetting("edge", edge) }
+                    }
+
+                    Column {
+                        id: verticalStart
+                        y: 8
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 9
+                        Column {
+                            id: verticalWorkspaces
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 3
+                            Repeater {
+                                model: 4
+                                BarButton {
+                                    text: shell.workspaceLabel(index)
+                                    tooltip: active ? "" : shell.workspaceApps(index + 1)
+                                    visualStyle: shell.workspaceStyle
+                                    active: shell.workspaceActive(index + 1)
+                                    width: 23; buttonHeight: 20; fontSize: 14; cornerRadius: 6; textOffsetY: -1
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
+                                    onRightClicked: workspaceMenu.visible = !workspaceMenu.visible
+                                }
+                            }
+                        }
+                        Column {
+                            id: verticalHardware
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 2
+                            VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; tooltip: "Hardware"; open: true; clickable: true; onClicked: hardwareMenu.visible = !hardwareMenu.visible }
+                            VerticalBarIcon { id: verticalAiIcon; icon: "󱜙"; iconSize: 18; tooltip: "AI Usage"; open: true; clickable: true; onClicked: aiMenu.visible = !aiMenu.visible }
+                        }
+                    }
+
+                    Item {
+                        id: verticalMiddle
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: 40
+                        Column {
+                            anchors.bottom: verticalCalendarIcon.top
+                            anchors.bottomMargin: 3
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 2
+                            visible: mediaStrip.player !== null
+                            VerticalBarIcon {
+                                icon: "󰒮"; tooltip: "Previous"; open: true
+                                clickable: !!mediaStrip.player && mediaStrip.player.canGoPrevious
+                                onClicked: mediaStrip.player.previous()
+                            }
+                            VerticalBarIcon {
+                                icon: mediaStrip.playing ? "󰏤" : "󰐊"; tooltip: mediaStrip.title; open: true
+                                clickable: !!mediaStrip.player && mediaStrip.player.canTogglePlaying
+                                onClicked: mediaStrip.player.togglePlaying()
+                            }
+                            VerticalBarIcon {
+                                icon: "󰒭"; tooltip: "Next"; open: true
+                                clickable: !!mediaStrip.player && mediaStrip.player.canGoNext
+                                onClicked: mediaStrip.player.next()
+                            }
+                        }
+                        ClockButton {
+                            id: verticalCalendarIcon
+                            anchors.centerIn: parent
+                            compact: true
+                            onClicked: calendarMenu.visible = !calendarMenu.visible
+                        }
+                        VerticalBarIcon {
+                            id: verticalWeatherIcon
+                            anchors.top: verticalCalendarIcon.bottom
+                            anchors.topMargin: 3
+                            icon: barWeather.text.split(" ")[0]; tooltip: "Weather"; open: true; clickable: true
+                            onClicked: weatherMenu.visible = !weatherMenu.visible
+                        }
+                    }
+
+                    Column {
+                        id: verticalEnd
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 8
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 2
+                        VerticalBarIcon {
+                            icon: shell.statusOpen ? "⌄" : "⌃"
+                            tooltip: shell.statusOpen ? "Hide icons" : "Show icons"
+                            open: true; clickable: true
+                            onClicked: shell.statusOpen = !shell.statusOpen
+                        }
+                        StatusCommand {
+                            id: verticalWifiIcon
+                            script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
+                            hoverLabel: "WiFi"; fontSize: 16; interval: 3000
+                            open: shell.statusOpen; height: open ? 24 : 0; fixedWidth: 56; clickable: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            onClicked: wifiMenu.visible = !wifiMenu.visible
+                        }
+                        VerticalBarIcon { id: verticalBluetoothIcon; icon: "󰂯"; tooltip: "Bluetooth"; open: shell.statusOpen; clickable: true; onClicked: bluetoothMenu.visible = !bluetoothMenu.visible }
+                        VerticalBarIcon { id: verticalDisplayIcon; icon: "󰍹"; tooltip: "Display"; open: shell.statusOpen; clickable: true; onClicked: brightnessMenu.visible = !brightnessMenu.visible }
+                        VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: volumeMenu.visible = !volumeMenu.visible }
+                        VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: micMenu.visible = !micMenu.visible }
+                        VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: keyboardMenu.visible = !keyboardMenu.visible }
+                        VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
+                        VerticalBarIcon { id: verticalObsIcon; icon: "󰻂"; tooltip: "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.visible = !obsMenu.visible }
+                        VerticalBarIcon {
+                            icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
+                            onClicked: shell.run("swaync-client -t -sw")
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id: surface
+                    anchors.fill: parent
+                    visible: !shell.verticalBar
+                    color: shell.barLayout === "unified" ? shell.barBackground() : "transparent"
+
+                    BarSection {
+                        id: leftBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: 0
+                        y: 0
+                        width: hardwareStatus.x + hardwareStatus.width + 11
+                        height: parent.height
+                    }
+                    BarSection {
+                        id: middleBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: mediaStrip.visible ? mediaStrip.x - 18 : centerInfo.x - 18
+                        y: 0
+                        width: barWeather.x + barWeather.width + 18 - x
+                        height: parent.height
+                    }
+                    BarSection {
+                        id: rightBackground
+                        edge: shell.barEdge
+                        background: shell.barBackground()
+                        visible: shell.barLayout === "split"
+                        x: rightSide.x - 9
+                        y: 0
+                        width: parent.width - x
+                        height: parent.height
+                    }
+
+                    BarGestureArea {
+                        id: barGestures
+                        anchors.fill: parent
+                        hostWindow: bar
+                        edge: shell.barEdge
+                        onCandidateChanged: shell.dragCandidate = candidate
+                        onDoubleTapped: function(button) { shell.barDoubleClick(button) }
+                        onDropped: function(edge) { shell.updateBarSetting("edge", edge) }
+                    }
 
                     RowLayout {
                         anchors.fill: parent
@@ -231,7 +537,8 @@ ShellRoot {
 
                             WorkspaceStyleMenu {
                                 id: workspaceMenu
-                                target: workspaces
+                                target: shell.verticalBar ? verticalWorkspaces : workspaces
+                                barEdge: shell.barEdge
                                 currentStyle: shell.workspaceStyle
                                 accent: shell.activeBg
                                 foreground: shell.workspaceMenuFg
@@ -250,39 +557,45 @@ ShellRoot {
                             id: hardwareStatus
                             Layout.alignment: Qt.AlignVCenter
                             Layout.leftMargin: 12
-                            spacing: 2
+                            spacing: 6
 
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/gpu-usage.sh"
-                                fixedWidth: 56
-                                interval: 5000
+                            StatusIcon {
+                                id: hardwareIcon
+                                icon: "󰍛"
+                                iconSize: 16
+                                tooltip: "Hardware"
                                 open: true
                                 clickable: true
                                 onClicked: hardwareMenu.visible = !hardwareMenu.visible
                             }
 
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/cpu-status.sh"
-                                fixedWidth: 56
-                                interval: 2000
+                            StatusIcon {
+                                id: aiIcon
+                                icon: "󱜙"
+                                iconSize: 18
+                                tooltip: "AI Usage"
                                 open: true
                                 clickable: true
-                                onClicked: hardwareMenu.visible = !hardwareMenu.visible
-                            }
-
-                            StatusCommand {
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/memory-status.sh"
-                                fixedWidth: 56
-                                interval: 5000
-                                open: true
-                                clickable: true
-                                onClicked: hardwareMenu.visible = !hardwareMenu.visible
+                                onClicked: aiMenu.visible = !aiMenu.visible
                             }
                         }
 
                         SystemMonitorMenu {
                             id: hardwareMenu
-                            target: hardwareStatus
+                            maximumHeight: bar.screen.height - 70
+                            target: shell.verticalBar ? verticalHardwareIcon : hardwareIcon
+                            barEdge: shell.barEdge
+                            accent: shell.activeBg
+                            foreground: shell.fg
+                            background: shell.workspaceMenuBg
+                        }
+
+                        AiUsageMenu {
+                            id: aiMenu
+                            maximumHeight: bar.screen.height - 70
+                            leftAligned: true
+                            target: shell.verticalBar ? verticalAiIcon : aiIcon
+                            barEdge: shell.barEdge
                             accent: shell.activeBg
                             foreground: shell.fg
                             background: shell.workspaceMenuBg
@@ -329,7 +642,8 @@ ShellRoot {
 
                             WifiMenu {
                                 id: wifiMenu
-                                target: shell.statusOpen ? wifiIcon : notificationIcon
+                                target: shell.verticalBar ? verticalWifiIcon : (shell.statusOpen ? wifiIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -347,7 +661,8 @@ ShellRoot {
 
                             BluetoothMenu {
                                 id: bluetoothMenu
-                                target: shell.statusOpen ? bluetoothIcon : notificationIcon
+                                target: shell.verticalBar ? verticalBluetoothIcon : (shell.statusOpen ? bluetoothIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -365,7 +680,8 @@ ShellRoot {
 
                             BrightnessMenu {
                                 id: brightnessMenu
-                                target: shell.statusOpen ? brightnessIcon : notificationIcon
+                                target: shell.verticalBar ? verticalDisplayIcon : (shell.statusOpen ? brightnessIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -385,7 +701,8 @@ ShellRoot {
                             AudioMenu {
                                 id: volumeMenu
                                 maximumHeight: bar.screen.height - 70
-                                target: shell.statusOpen ? volumeIcon : notificationIcon
+                                target: shell.verticalBar ? verticalVolumeIcon : (shell.statusOpen ? volumeIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -405,7 +722,8 @@ ShellRoot {
                             AudioMenu {
                                 id: micMenu
                                 maximumHeight: bar.screen.height - 70
-                                target: shell.statusOpen ? micIcon : notificationIcon
+                                target: shell.verticalBar ? verticalMicIcon : (shell.statusOpen ? micIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 microphone: true
                                 accent: shell.activeBg
                                 foreground: shell.fg
@@ -425,7 +743,8 @@ ShellRoot {
 
                             KeyboardLayoutMenu {
                                 id: keyboardMenu
-                                target: shell.statusOpen ? keyboardIcon : notificationIcon
+                                target: shell.verticalBar ? verticalKeyboardIcon : (shell.statusOpen ? keyboardIcon : notificationIcon)
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -455,27 +774,8 @@ ShellRoot {
 
                             ObsMenu {
                                 id: obsMenu
-                                target: obsIcon
-                                accent: shell.activeBg
-                                foreground: shell.fg
-                                background: shell.workspaceMenuBg
-                            }
-
-                            StatusIcon {
-                                id: aiIcon
-                                icon: "󱜙"
-                                iconSize: 18
-                                tooltip: "AI Usage"
-                                open: shell.statusOpen
-                                clickable: true
-                                onClicked: aiMenu.visible = !aiMenu.visible
-                                onOpenChanged: if (!open) aiMenu.visible = false
-                            }
-
-                            AiUsageMenu {
-                                id: aiMenu
-                                maximumHeight: bar.screen.height - 70
-                                target: shell.statusOpen ? aiIcon : notificationIcon
+                                target: shell.verticalBar ? verticalObsIcon : obsIcon
+                                barEdge: shell.barEdge
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -485,6 +785,7 @@ ShellRoot {
 
                     NotificationWidget {
                         id: notificationIcon
+                        visible: !shell.verticalBar
                         anchors.right: parent.right
                         anchors.rightMargin: 9
                         anchors.verticalCenter: parent.verticalCenter
@@ -516,7 +817,8 @@ ShellRoot {
 
                     CalendarMenu {
                         id: calendarMenu
-                        target: centerInfo
+                        target: shell.verticalBar ? verticalCalendarIcon : centerInfo
+                        barEdge: shell.barEdge
                         centered: true
                         accent: shell.activeBg
                         foreground: shell.fg
@@ -526,7 +828,8 @@ ShellRoot {
                     WeatherMenu {
                         id: weatherMenu
                         defaultWeatherData: barWeather.latestData
-                        target: centerInfo
+                        target: shell.verticalBar ? verticalWeatherIcon : centerInfo
+                        barEdge: shell.barEdge
                         centered: true
                         accent: shell.activeBg
                         foreground: shell.fg
@@ -705,6 +1008,11 @@ ShellRoot {
 
         }
 
+    }
+
+    component VerticalBarIcon: StatusIcon {
+        anchors.horizontalCenter: parent.horizontalCenter
+        height: open ? 24 : 0
     }
 
     component StatusCommand: Item {
@@ -1078,11 +1386,12 @@ ShellRoot {
         id: clock
 
         property date now: new Date()
+        property bool compact: false
 
         signal clicked()
 
-        width: label.implicitWidth + 17
-        height: 24
+        width: compact ? 54 : label.implicitWidth + 17
+        height: compact ? 40 : 24
         radius: 7
         color: "transparent"
 
@@ -1097,10 +1406,11 @@ ShellRoot {
             id: label
 
             anchors.centerIn: parent
-            text: Qt.formatDateTime(clock.now, "ddd MMM dd hh:mm AP")
+            text: Qt.formatDateTime(clock.now, clock.compact ? "hh:mm\nMMM dd" : "ddd MMM dd hh:mm AP")
+            horizontalAlignment: Text.AlignHCenter
             color: shell.fg
             font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 14
+            font.pixelSize: clock.compact ? 12 : 14
             font.bold: true
         }
 

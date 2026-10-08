@@ -15,6 +15,7 @@ ShellRoot {
     property color activeFg: "#11111b"
     property color activeBg: "#cdd6f4"
     property color hoverBg: Qt.rgba(180 / 255, 190 / 255, 254 / 255, 0.15)
+    property bool idleLockEnabled: false
     property string workspaceStyle: "Numbers"
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
@@ -52,6 +53,26 @@ ShellRoot {
         running: true
         repeat: true
         onTriggered: if (!workspacePalette.running) workspacePalette.running = true
+    }
+
+    Process {
+        id: idleLockStatus
+        command: ["pgrep", "-x", "hypridle"]
+        running: true
+        onExited: function(code) { shell.idleLockEnabled = code === 0; }
+    }
+
+    Timer {
+        interval: 1500
+        running: true
+        repeat: true
+        onTriggered: if (!idleLockStatus.running && !toggleIdleLock.running) idleLockStatus.running = true
+    }
+
+    Process {
+        id: toggleIdleLock
+        command: ["bash", Quickshell.env("HOME") + "/.config/walker/scripts/actions/toggle/idle-lock.sh"]
+        onExited: if (!idleLockStatus.running) idleLockStatus.running = true
     }
 
     AppearancePicker {}
@@ -356,6 +377,16 @@ ShellRoot {
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
+                            }
+
+                            StatusIcon {
+                                id: idleLockIcon
+                                icon: shell.idleLockEnabled ? "" : ""
+                                iconSize: 17
+                                tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
+                                open: shell.statusOpen
+                                clickable: true
+                                onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true
                             }
 
                             StatusIcon {

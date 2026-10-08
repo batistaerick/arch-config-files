@@ -12,7 +12,7 @@ ThemedPopup {
     readonly property bool controlsReady: obsState.ready && !actionProcess.running
 
     function refresh() {
-        if (visible && !query.running && !actionProcess.running) query.running = true;
+        if (!query.running && !actionProcess.running) query.running = true;
     }
     function run(action) {
         if (actionProcess.running) return;
@@ -22,7 +22,8 @@ ThemedPopup {
         query.running = false;
     }
     onVisibleChanged: if (visible) refresh()
-    Timer { interval: 2000; repeat: true; running: menu.visible; onTriggered: menu.refresh() }
+    Component.onCompleted: refresh()
+    Timer { interval: 2000; repeat: true; running: true; onTriggered: menu.refresh() }
     Process {
         id: query
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "status"]

@@ -8,6 +8,28 @@ import time
 from urllib.parse import quote
 
 
+def background_window(pid):
+    """Keep a newly launched OBS window off the active workspace if no tray hosts it."""
+    result = subprocess.run(["hyprctl", "-j", "clients"], capture_output=True, text=True, timeout=2)
+    if result.returncode:
+        return
+    for client in json.loads(result.stdout):
+        if client.get("pid") == pid and client.get("class") == "com.obsproject.Studio":
+            subprocess.run(["hyprctl", "dispatch", "movetoworkspacesilent", "special:obs-background,address:" + client["address"]], capture_output=True, timeout=2)
+
+
+def reveal_window():
+    clients = subprocess.run(["hyprctl", "-j", "clients"], capture_output=True, text=True, timeout=2)
+    if clients.returncode == 0:
+        for client in json.loads(clients.stdout):
+            if client.get("class") == "com.obsproject.Studio" and client.get("workspace", {}).get("name") == "special:obs-background":
+                workspace = subprocess.run(["hyprctl", "-j", "activeworkspace"], capture_output=True, text=True, timeout=2)
+                if workspace.returncode == 0:
+                    current = json.loads(workspace.stdout)["id"]
+                    subprocess.run(["hyprctl", "dispatch", "movetoworkspacesilent", f"{current},address:{client['address']}"], capture_output=True, timeout=2)
+    subprocess.run(["hyprctl", "dispatch", "focuswindow", "class:^(com.obsproject.Studio)$"], capture_output=True)
+
+
 def websocket_command():
     config = json.loads((Path.home() / ".config/obs-studio/plugin_config/obs-websocket/config.json").read_text())
     if not config.get("server_enabled"):
@@ -65,15 +87,16 @@ def control(action):
     running = subprocess.run(["pgrep", "-x", "obs"], capture_output=True).returncode == 0
     if action == "open":
         if running:
-            subprocess.run(["hyprctl", "dispatch", "focuswindow", "class:^(com.obsproject.Studio)$"], capture_output=True)
+            reveal_window()
         else:
             subprocess.Popen(["obs"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         return "Opened OBS"
     if not running and action not in ("record", "stream"):
         raise RuntimeError("OBS is not running")
     command = websocket_command()
+    launched = None
     if not running:
-        subprocess.Popen(["obs", "--minimize-to-tray"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        launched = subprocess.Popen(["obs", "--minimize-to-tray"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         for _ in range(30):
             try:
                 if subprocess.run(command + ["info"], capture_output=True, timeout=2).returncode == 0:
@@ -83,6 +106,7 @@ def control(action):
             time.sleep(0.5)
         else:
             raise RuntimeError("OBS did not become ready; check its startup window")
+        background_window(launched.pid)
     result = subprocess.run(command + actions[action], capture_output=True, timeout=8)
     if result.returncode:
         raise RuntimeError("OBS could not apply that command; check its current state")

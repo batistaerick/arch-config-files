@@ -10,6 +10,24 @@ spec.loader.exec_module(obs)
 
 
 class ObsControlTests(unittest.TestCase):
+    def test_background_only_moves_new_obs_window(self):
+        clients = '[{"pid":42,"class":"com.obsproject.Studio","address":"0x123"},{"pid":99,"class":"kitty","address":"0x456"}]'
+        with patch.object(obs.subprocess, "run", side_effect=[
+                SimpleNamespace(returncode=0, stdout=clients), SimpleNamespace(returncode=0)]) as run:
+            obs.background_window(42)
+            self.assertEqual(run.call_args.args[0][-1], "special:obs-background,address:0x123")
+            self.assertEqual(run.call_count, 2)
+
+    def test_open_restores_background_obs_to_current_workspace(self):
+        clients = '[{"class":"com.obsproject.Studio","address":"0x123","workspace":{"name":"special:obs-background"}}]'
+        with patch.object(obs.subprocess, "run", side_effect=[
+                SimpleNamespace(returncode=0, stdout=clients),
+                SimpleNamespace(returncode=0, stdout='{"id":3}'),
+                SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]) as run:
+            obs.reveal_window()
+            self.assertEqual(run.call_args_list[2].args[0][-1], "3,address:0x123")
+            self.assertIn("focuswindow", run.call_args.args[0])
+
     def test_recording_states(self):
         self.assertEqual(obs.parse_status("Recording Status:\n Active: false"), {"active": False, "paused": False})
         self.assertEqual(obs.parse_status("Recording Status:\n Active: true\n Paused: true"), {"active": True, "paused": True})
@@ -54,10 +72,12 @@ class ObsControlTests(unittest.TestCase):
     def test_start_launches_minimized_and_waits_before_recording(self):
         with patch.object(obs.subprocess, "run", side_effect=[SimpleNamespace(returncode=1), SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]) as run, \
                 patch.object(obs.subprocess, "Popen") as launch, \
+                patch.object(obs, "background_window") as hide, \
                 patch.object(Path, "read_text", return_value='{"server_enabled":true,"auth_required":false}'):
             self.assertEqual(obs.control("record"), "Command applied")
             self.assertEqual(launch.call_args.args[0], ["obs", "--minimize-to-tray"])
             self.assertEqual(run.call_args_list[-1].args[0][-2:], ["recording", "start"])
+            hide.assert_called_once_with(launch.return_value.pid)
 
     def test_stop_does_not_launch_obs(self):
         with patch.object(obs.subprocess, "run", return_value=SimpleNamespace(returncode=1)), \

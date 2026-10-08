@@ -424,6 +424,8 @@ ShellRoot {
                             compact: true
                             text: barWeather.text
                             temp: barWeather.temp
+                            recording: obsMenu.obsState.recording
+                            recordingPaused: obsMenu.obsState.paused
                             onClicked: weatherMenu.visible = !weatherMenu.visible
                         }
                     }
@@ -454,7 +456,7 @@ ShellRoot {
                         VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: micMenu.visible = !micMenu.visible }
                         VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: keyboardMenu.visible = !keyboardMenu.visible }
                         VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
-                        VerticalBarIcon { id: verticalObsIcon; icon: "󰻂"; tooltip: "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.visible = !obsMenu.visible }
+                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.visible = !obsMenu.visible }
                         VerticalBarIcon {
                             icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
                             onClicked: shell.run("swaync-client -t -sw")
@@ -767,9 +769,9 @@ ShellRoot {
 
                             StatusIcon {
                                 id: obsIcon
-                                icon: "󰻂"
+                                icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"
                                 iconSize: 16
-                                tooltip: "OBS Studio"
+                                tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"
                                 open: shell.statusOpen
                                 clickable: true
                                 rightClickable: true
@@ -814,6 +816,8 @@ ShellRoot {
 
                     WeatherWidget {
                         id: barWeather
+                        recording: obsMenu.obsState.recording
+                        recordingPaused: obsMenu.obsState.paused
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
@@ -1142,6 +1146,8 @@ ShellRoot {
         signal clicked()
         property bool autoRefresh: true
         property bool compact: false
+        property bool recording: false
+        property bool recordingPaused: false
 
         property string text: "󰖐"
         property string location: ""
@@ -1214,6 +1220,18 @@ ShellRoot {
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
+            }
+            Item {
+                visible: weather.recording
+                width: 10
+                height: label.height
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: weather.recordingPaused ? shell.fg : "#e05c68"
+                }
             }
         }
 

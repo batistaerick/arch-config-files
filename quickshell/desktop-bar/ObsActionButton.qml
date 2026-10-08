@@ -9,9 +9,11 @@ PanelButton {
     required property string glyph
     foreground: controller.foreground
     icon: true
+    compactIconBackground: true
     text: ""
     height: 34
     available: controller.controlsReady
+    loading: controller.pendingAction === action
     onClicked: controller.run(action)
     TextMetrics {
         id: glyphMetrics
@@ -20,6 +22,7 @@ PanelButton {
         font.pixelSize: 18
     }
     Text {
+        visible: !button.loading
         text: button.glyph
         font: glyphMetrics.font
         color: button.foreground

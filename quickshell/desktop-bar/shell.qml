@@ -269,7 +269,7 @@ ShellRoot {
                     target: "panels"
                     function close(): void {
                         for (var panel of [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
-                                keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu])
+                                keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu])
                             panel.visible = false;
                     }
                     function show(kind: string): void {
@@ -426,6 +426,7 @@ ShellRoot {
                             temp: barWeather.temp
                             recording: obsMenu.obsState.recording
                             recordingPaused: obsMenu.obsState.paused
+                            onRecordingClicked: recordingMenu.visible = !recordingMenu.visible
                             onClicked: weatherMenu.visible = !weatherMenu.visible
                         }
                     }
@@ -781,8 +782,20 @@ ShellRoot {
 
                             ObsMenu {
                                 id: obsMenu
+                                onCaptureStarting: recordingMenu.visible = false
                                 target: shell.verticalBar ? verticalObsIcon : obsIcon
                                 barEdge: shell.barEdge
+                                accent: shell.activeBg
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
+                            }
+
+                            RecordingMenu {
+                                id: recordingMenu
+                                controller: obsMenu
+                                target: shell.verticalBar ? verticalWeatherIcon.recordingTarget : barWeather.recordingTarget
+                                barEdge: shell.barEdge
+                                centered: true
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
@@ -818,6 +831,7 @@ ShellRoot {
                         id: barWeather
                         recording: obsMenu.obsState.recording
                         recordingPaused: obsMenu.obsState.paused
+                        onRecordingClicked: recordingMenu.visible = !recordingMenu.visible
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
@@ -1144,6 +1158,8 @@ ShellRoot {
     component WeatherWidget: Item {
         id: weather
         signal clicked()
+        signal recordingClicked()
+        property alias recordingTarget: recordingDot
         property bool autoRefresh: true
         property bool compact: false
         property bool recording: false
@@ -1222,6 +1238,7 @@ ShellRoot {
                 font.bold: true
             }
             Item {
+                id: recordingDot
                 visible: weather.recording
                 width: 22
                 height: label.height
@@ -1234,12 +1251,29 @@ ShellRoot {
                     radius: 3
                     color: weather.recordingPaused ? shell.fg : "#e05c68"
                 }
+                MouseArea {
+                    id: recordingMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: weather.recordingClicked()
+                }
+                BarTooltip {
+                    target: recordingDot
+                    hovered: recordingMouse.containsMouse
+                    text: weather.recordingPaused ? "Recording paused" : "Recording"
+                    foreground: shell.fg
+                    background: shell.workspaceMenuBg
+                }
             }
         }
 
         MouseArea {
             id: weatherMouse
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: weather.recording ? label.x + recordingDot.x - label.spacing : parent.width
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: weather.clicked()

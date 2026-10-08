@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Control the existing OBS instance without changing scenes or profiles."""
 import json
+import configparser
 import os
 from pathlib import Path
 import signal
@@ -8,6 +9,85 @@ import subprocess
 import sys
 import time
 from urllib.parse import quote
+
+
+OPTIONS_FILE = Path.home() / ".config/quickshell/desktop-bar/obs-recording.json"
+
+
+def scene_collection():
+    config = configparser.ConfigParser(interpolation=None)
+    config.read(Path.home() / ".config/obs-studio/user.ini")
+    collection = Path(config.get("Basic", "SceneCollectionFile", fallback="Untitled.json")).name
+    if not collection.endswith(".json"):
+        collection += ".json"
+    try:
+        return json.loads((Path.home() / ".config/obs-studio/basic/scenes" / collection).read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def capture_options():
+    scene = scene_collection()
+    sources = list(scene.get("sources", [])) + [value for value in scene.values() if isinstance(value, dict) and value.get("id")]
+    roles = {
+        "audio": [source for source in sources if source.get("id") in {"pulse_output_capture", "wasapi_output_capture"}],
+        "mic": [source for source in sources if source.get("id") in {"pulse_input_capture", "wasapi_input_capture"}],
+        "webcam": [source for source in sources if source.get("id") in {"v4l2_input", "av_capture_input", "dshow_input"}],
+    }
+    try:
+        saved = json.loads(OPTIONS_FILE.read_text())
+    except (OSError, ValueError):
+        saved = {}
+    if not isinstance(saved, dict):
+        saved = {}
+    result = {}
+    for key, inputs in roles.items():
+        default = any(not source.get("muted", False) for source in inputs) if key != "webcam" else False
+        enabled = saved.get(key) if isinstance(saved.get(key), bool) else default
+        result[key] = {"enabled": enabled, "available": bool(inputs), "sources": [source["name"] for source in inputs]}
+    return result
+
+
+def save_capture_option(key, value):
+    if key not in {"audio", "mic", "webcam"} or value not in {"true", "false"}:
+        raise RuntimeError("Invalid recording option")
+    options = capture_options()
+    if value == "true" and not options[key]["available"]:
+        raise RuntimeError("Configure this source in OBS first")
+    saved = {name: option["enabled"] for name, option in options.items()}
+    saved[key] = value == "true"
+    OPTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    temporary = OPTIONS_FILE.with_suffix(".tmp")
+    temporary.write_text(json.dumps(saved, indent=2) + "\n")
+    temporary.replace(OPTIONS_FILE)
+    return capture_options()
+
+
+def apply_capture_options(command):
+    scene = scene_collection()
+    sources = {source.get("name"): source for source in scene.get("sources", [])}
+    active_scene = sources.get(scene.get("current_scene"), {})
+    visible = {item.get("name") for item in active_scene.get("settings", {}).get("items", []) if item.get("visible", True)}
+    if not any(source.get("id") == "pipewire-screen-capture-source" and name in visible for name, source in sources.items()):
+        raise RuntimeError("Set up full-screen monitor capture in OBS first")
+    options = capture_options()
+    for key in ("audio", "mic"):
+        for name in options[key]["sources"]:
+            result = subprocess.run(command + ["input", "mute", name, "unmute" if options[key]["enabled"] else "mute"], capture_output=True, timeout=3)
+            if result.returncode:
+                raise RuntimeError("Could not apply recording audio settings")
+    cameras = options["webcam"]
+    if cameras["sources"]:
+        current = subprocess.run(command + ["scene", "current"], capture_output=True, text=True, timeout=3)
+        if current.returncode:
+            raise RuntimeError("Could not read the current OBS scene")
+        scene = current.stdout.strip().partition(":")[2].strip()
+        if not scene:
+            raise RuntimeError("Could not read the current OBS scene")
+        for name in cameras["sources"]:
+            result = subprocess.run(command + ["scene-item", "enable" if cameras["enabled"] else "disable", scene, name], capture_output=True, timeout=3)
+            if result.returncode:
+                raise RuntimeError("Could not apply recording webcam settings")
 
 
 def launch_background():
@@ -114,7 +194,7 @@ def control(action):
         directory.mkdir(parents=True, exist_ok=True)
         subprocess.Popen(["xdg-open", str(directory)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         return ""
-    if action not in actions and action != "open":
+    if action not in actions and action not in {"open", "prepare"}:
         raise RuntimeError("Unknown OBS command")
     running = subprocess.run(["pgrep", "-x", "obs"], capture_output=True).returncode == 0
     if action == "open":
@@ -123,7 +203,7 @@ def control(action):
         else:
             subprocess.Popen(["obs"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         return "Opened OBS"
-    if not running and action not in ("record", "stream"):
+    if not running and action not in ("record", "stream", "prepare"):
         raise RuntimeError("OBS is not running")
     command = websocket_command()
     if not running:
@@ -137,6 +217,9 @@ def control(action):
             time.sleep(0.5)
         else:
             raise RuntimeError("OBS did not become ready; check its startup window")
+    if action == "prepare":
+        apply_capture_options(command)
+        return "OBS ready"
     result = subprocess.run(command + actions[action], capture_output=True, timeout=30 if action in {"stop", "stop-stream"} else 8)
     if result.returncode:
         raise RuntimeError("OBS could not apply that command; check its current state")
@@ -147,7 +230,13 @@ def control(action):
 
 if __name__ == "__main__":
     try:
-        print(json.dumps(status()) if sys.argv[1] == "status" else control(sys.argv[1]))
+        action = sys.argv[1]
+        if action == "options":
+            print(json.dumps(capture_options()))
+        elif action == "set-option":
+            print(json.dumps(save_capture_option(sys.argv[2], sys.argv[3])))
+        else:
+            print(json.dumps(status()) if action == "status" else control(action))
     except Exception as error:
         print(str(error) if isinstance(error, RuntimeError) else "Could not control OBS")
         sys.exit(1)

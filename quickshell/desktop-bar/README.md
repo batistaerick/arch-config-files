@@ -2,6 +2,16 @@
 
 The desktop bar and its native popups follow the current theme.
 
+OBS controls share compact icon backgrounds and show loading until actions and
+the resulting status refresh finish. Starting capture first prepares OBS in
+the background, then closes the panel before recording or streaming starts.
+The recording dot has its own tooltip and Pause/Resume + Stop popup.
+Recording options persist in `obs-recording.json`; audio and microphone
+switches affect OBS inputs, not system volume. Webcam requires a configured
+OBS camera source. The active scene must include visible full-screen monitor
+capture. OBS's saved Wayland capture permission still determines the monitor;
+changing the primary display may require selecting it again in OBS.
+
 Double-left-click empty bar space to switch between the current transparent
 background and opaque theme color. Double-right-click empty space to switch
 between one bar and three sections. Split sections touch the screen edge with

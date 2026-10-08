@@ -8,22 +8,67 @@ ThemedPopup {
     implicitWidth: 300
     implicitHeight: content.implicitHeight + PanelStyle.padding * 2
     property string status: ""
+    property string pendingAction: ""
+    property bool preparingStart: false
+    property bool awaitingState: false
+    property bool editing: false
+    property var captureOptions: ({})
+    signal captureStarting()
+    readonly property bool busy: pendingAction !== ""
     property var obsState: ({ready: false, recording: false, paused: false, streaming: false})
-    readonly property bool controlsReady: obsState.ready && !actionProcess.running
+    readonly property bool controlsReady: obsState.ready && !busy && !optionWriter.running
 
     function refresh() {
+        if (busy && !awaitingState) return;
         if (!query.running && !actionProcess.running) query.running = true;
     }
     function run(action) {
-        if (actionProcess.running) return;
+        if (busy) return;
         status = "";
-        actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", action];
+        pendingAction = action;
+        preparingStart = action === "record" || action === "stream";
+        if (preparingStart) editing = false;
+        awaitingState = false;
+        actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", preparingStart ? "prepare" : action];
         actionProcess.running = true;
         query.running = false;
     }
-    onVisibleChanged: if (visible) refresh()
-    Component.onCompleted: refresh()
+    function loadOptions() {
+        if (!optionQuery.running && !optionWriter.running) optionQuery.running = true;
+    }
+    function saveOption(key, enabled) {
+        if (busy || optionWriter.running) return;
+        optionWriter.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "set-option", key, enabled ? "true" : "false"];
+        optionWriter.running = true;
+    }
+    onVisibleChanged: if (visible) { refresh(); loadOptions(); }
+    Component.onCompleted: { refresh(); loadOptions(); }
+    Process {
+        id: optionQuery
+        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "options"]
+        stdout: StdioCollector { id: optionOutput }
+        onExited: function(code) {
+            try { if (code === 0) menu.captureOptions = JSON.parse(optionOutput.text); }
+            catch (error) { menu.status = "Recording settings unavailable"; }
+        }
+    }
+    Process {
+        id: optionWriter
+        stdout: StdioCollector { id: optionResult }
+        onExited: function(code) {
+            if (code !== 0) menu.status = optionResult.text.trim();
+            menu.loadOptions();
+        }
+    }
     Timer { interval: 2000; repeat: true; running: true; onTriggered: menu.refresh() }
+    Timer {
+        id: startDelay
+        interval: 150
+        onTriggered: {
+            actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", menu.pendingAction];
+            actionProcess.running = true;
+        }
+    }
     Process {
         id: query
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "status"]
@@ -38,14 +83,27 @@ ThemedPopup {
                 menu.obsState = {ready: false, recording: false, paused: false, streaming: false};
                 menu.status = "OBS status unavailable";
             }
+            menu.pendingAction = "";
+            menu.awaitingState = false;
         }
     }
     Process {
         id: actionProcess
         stdout: StdioCollector { id: output }
         onExited: function(code) {
-            if (code !== 0) menu.status = output.text.trim();
-            else menu.refresh();
+            if (code !== 0) {
+                menu.status = output.text.trim();
+                menu.pendingAction = "";
+                menu.preparingStart = false;
+            } else if (menu.preparingStart) {
+                menu.preparingStart = false;
+                menu.visible = false;
+                menu.captureStarting();
+                startDelay.restart();
+            } else {
+                menu.awaitingState = true;
+                menu.refresh();
+            }
         }
     }
     Column {
@@ -58,7 +116,7 @@ ThemedPopup {
             width: parent.width
             spacing: 4
             Text {
-                width: parent.width - 76
+                width: parent.width - (editButton.visible ? 114 : 76)
                 height: 34
                 verticalAlignment: Text.AlignVCenter
                 text: "OBS Studio"
@@ -67,8 +125,59 @@ ThemedPopup {
                 font.pixelSize: PanelStyle.headingSize
                 font.bold: true
             }
-            ObsActionButton { controller: menu; action: "folder"; description: "Open recordings"; glyph: "󰉋"; available: !actionProcess.running }
-            ObsActionButton { controller: menu; action: "open"; description: "Open OBS"; glyph: "󰻂"; available: !actionProcess.running }
+            PanelButton {
+                id: editButton
+                visible: !menu.obsState.recording && !menu.obsState.streaming && menu.pendingAction !== "record" && menu.pendingAction !== "stream"
+                icon: true
+                compactIconBackground: true
+                height: 34
+                text: "󰏫"
+                foreground: menu.foreground
+                available: !menu.busy && !optionWriter.running
+                onClicked: menu.editing = !menu.editing
+                HoverHandler { id: editHover }
+                BarTooltip { target: editButton; hovered: editHover.hovered; text: "Recording options"; foreground: menu.foreground; background: menu.background }
+            }
+            ObsActionButton { controller: menu; action: "folder"; description: "Open recordings"; glyph: "󰉋"; available: !menu.busy }
+            ObsActionButton { controller: menu; action: "open"; description: "Open OBS"; glyph: "󰻂"; available: !menu.busy }
+        }
+        Column {
+            width: content.width
+            visible: menu.editing && !menu.obsState.recording && !menu.obsState.streaming
+            spacing: 4
+            Repeater {
+                model: ["audio", "mic", "webcam"]
+                Row {
+                    id: optionRow
+                    required property string modelData
+                    width: content.width
+                    property var option: menu.captureOptions[modelData] || {enabled: false, available: false}
+                    Text {
+                        width: parent.width - 52
+                        height: 40
+                        verticalAlignment: Text.AlignVCenter
+                        text: ({audio: "Desktop audio", mic: "Microphone", webcam: "Webcam"})[optionRow.modelData]
+                        color: menu.foreground
+                        font.family: PanelStyle.fontFamily
+                        font.pixelSize: PanelStyle.controlSize
+                    }
+                    PanelSwitch {
+                        checked: optionRow.option.enabled
+                        enabled: optionRow.option.available && !menu.busy && !optionWriter.running
+                        foreground: menu.foreground
+                        accent: menu.accent
+                        onToggled: menu.saveOption(optionRow.modelData, checked)
+                    }
+                    HoverHandler { id: optionHover }
+                    BarTooltip {
+                        target: optionRow
+                        hovered: optionHover.hovered && !optionRow.option.available
+                        text: "Configure this source in OBS"
+                        foreground: menu.foreground
+                        background: menu.background
+                    }
+                }
+            }
         }
         Repeater {
             model: ["Recording", "Streaming"]

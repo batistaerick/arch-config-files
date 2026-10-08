@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -10,6 +11,49 @@ spec.loader.exec_module(obs)
 
 
 class ObsControlTests(unittest.TestCase):
+    def test_prepare_does_not_start_capture(self):
+        with patch.object(obs.subprocess, "run", side_effect=[SimpleNamespace(returncode=1), SimpleNamespace(returncode=0)]) as run, \
+                patch.object(obs, "websocket_command", return_value=["obs-cmd"]), \
+                patch.object(obs, "launch_background"), patch.object(obs, "apply_capture_options") as apply:
+            self.assertEqual(obs.control("prepare"), "OBS ready")
+            apply.assert_called_once_with(["obs-cmd"])
+            self.assertEqual(run.call_args.args[0], ["obs-cmd", "info"])
+
+    def test_capture_options_persist_without_launching_obs(self):
+        options = {key: {"enabled": False, "available": True, "sources": []} for key in ("audio", "mic", "webcam")}
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(obs, "OPTIONS_FILE", Path(directory) / "options.json"), \
+                patch.object(obs, "capture_options", return_value=options), patch.object(obs.subprocess, "Popen") as launch:
+            obs.save_capture_option("mic", "true")
+            self.assertIn('"mic": true', obs.OPTIONS_FILE.read_text())
+            launch.assert_not_called()
+
+    def test_missing_camera_cannot_be_enabled(self):
+        with patch.object(obs, "capture_options", return_value={"webcam": {"available": False}}):
+            with self.assertRaisesRegex(RuntimeError, "Configure"):
+                obs.save_capture_option("webcam", "true")
+
+    def test_audio_choices_apply_to_obs_not_system_volume(self):
+        options = {"audio": {"enabled": False, "sources": ["Desktop Audio"]},
+                   "mic": {"enabled": True, "sources": ["Mic/Aux"]}, "webcam": {"sources": []}}
+        scene = {"current_scene": "Scene", "sources": [
+            {"name": "Screen", "id": "pipewire-screen-capture-source"},
+            {"name": "Scene", "settings": {"items": [{"name": "Screen", "visible": True}]}}]}
+        with patch.object(obs, "capture_options", return_value=options), patch.object(obs, "scene_collection", return_value=scene), \
+                patch.object(obs.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run:
+            obs.apply_capture_options(["obs-cmd"])
+            self.assertEqual(run.call_args_list[0].args[0], ["obs-cmd", "input", "mute", "Desktop Audio", "mute"])
+            self.assertEqual(run.call_args_list[1].args[0], ["obs-cmd", "input", "mute", "Mic/Aux", "unmute"])
+
+    def test_window_only_scene_is_not_recorded(self):
+        scene = {"current_scene": "Scene", "sources": [
+            {"name": "Window", "id": "pipewire-window-capture-source"},
+            {"name": "Scene", "settings": {"items": [{"name": "Window", "visible": True}]}}]}
+        with patch.object(obs, "scene_collection", return_value=scene), patch.object(obs.subprocess, "run") as run:
+            with self.assertRaisesRegex(RuntimeError, "full-screen"):
+                obs.apply_capture_options(["obs-cmd"])
+            run.assert_not_called()
+
     def test_idle_obs_exits_after_successful_stop(self):
         with patch.object(obs, "status", return_value={"ready": True, "running": True, "recording": False, "streaming": False}), \
                 patch.object(obs.subprocess, "run", side_effect=[SimpleNamespace(returncode=0, stdout="42\n"), SimpleNamespace(returncode=0, stdout="[]")]), \

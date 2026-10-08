@@ -7,6 +7,9 @@ Deferred until a second physical monitor is connected for testing:
 - Preserve display resolution, refresh rate, scale, and color settings.
 - Preview layout changes with confirmation and automatic rollback.
 - Verify layouts and persistent primary selection with both monitors connected.
+- Verify OBS full-screen capture follows the selected primary display. Its
+  Wayland portal permission currently keeps the previously selected monitor;
+  do not silently claim this follows the bar's primary setting.
 
 Primary selection is already implemented in the Display panel and persists
 in the machine-local `hypr/primary-display` file.

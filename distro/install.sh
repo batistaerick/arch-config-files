@@ -89,6 +89,7 @@ if [[ -f "$HOME/.config/theme/current/theme-env.conf" ]]; then
 fi
 touch "$HOME/.config/hypr/portable.mode"
 ln -s -- ../../.config/walker/bin/walker "$HOME/.local/bin/walker"
+install -m 755 -- "$repo_root/HOME_FILES/.local/bin/netflix" "$HOME/.local/bin/netflix"
 icon_source="$repo_root/HOME_FILES/.local/share/icons/hicolor/scalable/apps"
 icon_target="$HOME/.local/share/icons/hicolor/scalable/apps"
 mkdir -p "$icon_target"

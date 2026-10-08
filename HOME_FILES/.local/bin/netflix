@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode="${1:-accelerated}"
+profile="${XDG_CONFIG_HOME:-$HOME/.config}/netflix-chrome"
+flags=(--ozone-platform=x11)
+case "$mode" in
+  accelerated) ;;
+  software)
+    profile="${profile}-software"
+    flags+=(--disable-gpu)
+    ;;
+  *) printf 'Unknown Netflix graphics mode: %s\n' "$mode" >&2; exit 2 ;;
+esac
+
+# Separate profiles keep these graphics flags out of the normal Chrome process.
+exec google-chrome-stable --user-data-dir="$profile" "${flags[@]}" \
+  --class=Netflix --app=https://www.netflix.com/

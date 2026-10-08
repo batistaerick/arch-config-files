@@ -7,6 +7,17 @@ DISTRO = Path(__file__).resolve().parents[1]
 
 
 class InstallManifestTests(unittest.TestCase):
+    def test_netflix_graphics_are_isolated_from_normal_chrome(self):
+        root = DISTRO.parent
+        script = (root / "HOME_FILES/.local/bin/netflix").read_text()
+        self.assertIn('--user-data-dir="$profile"', script)
+        self.assertIn('--ozone-platform=x11', script)
+        self.assertIn('flags+=(--disable-gpu)', script)
+        launcher = configparser.ConfigParser(interpolation=None)
+        launcher.read(root / "HOME_FILES/.local/share/applications/netflix.desktop")
+        self.assertEqual(launcher["Desktop Entry"]["Exec"], "netflix")
+        self.assertEqual(launcher["Desktop Action Software"]["Exec"], "netflix software")
+
     def test_gnome_videos_launcher_uses_scoped_graphics_fix(self):
         root = DISTRO.parent
         launcher = configparser.ConfigParser(interpolation=None)

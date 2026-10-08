@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Netflix
+Comment=Netflix in a dedicated Chrome window
+Exec=netflix
+TryExec=google-chrome-stable
+Icon=google-chrome
+Terminal=false
+Categories=AudioVideo;Video;
+StartupWMClass=Netflix
+Actions=Software;
+
+[Desktop Action Software]
+Name=Netflix (Software Rendering)
+Exec=netflix software

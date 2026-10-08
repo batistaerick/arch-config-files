@@ -381,7 +381,7 @@ ShellRoot {
 
                             StatusIcon {
                                 id: idleLockIcon
-                                icon: shell.idleLockEnabled ? "" : ""
+                                icon: shell.idleLockEnabled ? "󱫗" : "󱫖"
                                 iconSize: 17
                                 tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
                                 open: shell.statusOpen

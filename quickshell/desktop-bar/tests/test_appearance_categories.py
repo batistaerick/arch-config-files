@@ -37,6 +37,14 @@ class AppearanceCategoryTests(unittest.TestCase):
             self.assertEqual([item["name"] for item in categories], ["Dark", "Light"])
             self.assertEqual([item["current"] for item in categories], [True, False])
             self.assertTrue(categories[0]["image"].endswith("/dark-b/preview.png"))
+            assets = home / ".config/quickshell/desktop-bar/assets/appearance"
+            assets.mkdir(parents=True)
+            for name in ("dark", "light"):
+                (assets / f"{name}.jpg").touch()
+            custom_categories = load("theme-category")
+            self.assertEqual([item["image"] for item in custom_categories],
+                             [(assets / f"{name}.jpg").as_uri() for name in ("dark", "light")])
+            self.assertEqual([item["current"] for item in custom_categories], [True, False])
             self.assertEqual([item["name"] for item in load("theme-dark")], ["Dark A", "Dark B"])
             self.assertEqual([item["value"] for item in load("theme-dark")], ["dark-a", "dark-b"])
             self.assertEqual([item["name"] for item in load("theme-light")], ["Light A"])

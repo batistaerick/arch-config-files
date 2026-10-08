@@ -57,8 +57,11 @@ if mode.startswith("theme"):
             if representative is None:
                 preferred = "catppuccin-latte" if light else "catppuccin"
                 representative = next((directory for directory in matching if directory.name == preferred), matching[0])
+            category_image = config / "quickshell/desktop-bar/assets/appearance" / f"{category.lower()}.jpg"
+            if not category_image.is_file():
+                category_image = representative / "preview.png"
             entries.append({"name": category, "value": category.lower(),
-                            "image": (representative / "preview.png").as_uri(),
+                            "image": category_image.as_uri(),
                             "current": representative.name == current})
     elif mode in {"theme-dark", "theme-light"}:
         light = mode == "theme-light"

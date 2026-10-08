@@ -42,7 +42,7 @@ options="󰣇  Apps > Search Apps
 󰔎  Toggle > Nightlight
 󰔎  Toggle > Idle Lock
 󰔎  Toggle > Notifications
-󰔎  Toggle > Top Bar
+󰔎  Toggle > Desktop Bar
   Capture > Screenshot
   Capture > Screenshot Selection
   Capture > Screenshot Full Screen
@@ -246,7 +246,7 @@ case "$chosen" in
   "󰔎  Toggle > Notifications")
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
-  "󰔎  Toggle > Top Bar")
+  "󰔎  Toggle > Desktop Bar")
     "$TOGGLE_ACTIONS_DIR/desktop-bar.sh"
     ;;
   "  Capture > Screenshot")

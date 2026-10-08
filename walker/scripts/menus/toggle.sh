@@ -8,7 +8,7 @@ options="󱄄  Screensaver
 󰔎  Nightlight
 󱫖  Idle Lock
 󰂛  Notifications
-󰍜  Top Bar"
+󰍜  Desktop Bar"
 
 chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Toggle")
 
@@ -25,7 +25,7 @@ case "$chosen" in
   "󰂛  Notifications")
     "$TOGGLE_ACTIONS_DIR/notification-silencing.sh"
     ;;
-  "󰍜  Top Bar")
+  "󰍜  Desktop Bar")
     "$TOGGLE_ACTIONS_DIR/desktop-bar.sh"
     ;;
 esac

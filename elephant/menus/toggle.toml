@@ -25,7 +25,7 @@ icon = "󰂛"
 actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/notification-silencing.sh" }
 
 [[entries]]
-text = "Top Bar"
+text = "Desktop Bar"
 keywords = ["quickshell", "bar"]
 icon = "󰍜"
 actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh" }

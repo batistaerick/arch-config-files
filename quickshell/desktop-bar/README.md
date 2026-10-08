@@ -10,7 +10,8 @@ Gaps between sections pass clicks through to the desktop.
 Drag empty bar space toward top, bottom, left, or right to change its edge; a
 preview highlights the destination. The choices persist in `bar-settings.json`.
 Walker exposes the same settings under Style > Desktop Bar > Appearance,
-Layout, and Position. Learn > Mouse Gestures also lists these gestures and
+Layout, and Position. Appearance also offers None for a fully clear background
+without tint or background blur. Learn > Mouse Gestures also lists these gestures and
 the desktop wallpaper/theme double clicks. Left/right bars use upright compact
 controls, with the time/date centered and popups opening inward.
 Hardware and AI Usage sit together after the workspaces; right-hand controls

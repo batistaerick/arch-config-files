@@ -7,6 +7,7 @@ FixedOrder = true
 local entries = dofile(os.getenv("HOME") .. "/.config/elephant/bar-settings-entries.lua")
 function GetEntries()
     return entries("appearance", {
+        {"None", "none", "󰝣"},
         {"Transparent", "transparent", "󰐾"},
         {"Theme Color", "solid", "󰏘"},
     })

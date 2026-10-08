@@ -12,7 +12,7 @@ import subprocess
 SETTINGS = Path.home() / ".config/quickshell/desktop-bar/bar-settings.json"
 DEFAULTS = {"appearance": "transparent", "layout": "unified", "edge": "top"}
 OPTIONS = {
-    "appearance": {"transparent", "solid"},
+    "appearance": {"none", "transparent", "solid"},
     "layout": {"unified", "split"},
     "edge": {"top", "bottom", "left", "right"},
 }
@@ -64,7 +64,8 @@ def main():
             apply_live(sys.argv[2], sys.argv[3])
         elif len(sys.argv) == 3 and sys.argv[1] == "toggle" and sys.argv[2] in {"appearance", "layout"}:
             key = sys.argv[2]
-            value = next(value for value in OPTIONS[key] if value != read_settings()[key])
+            current = read_settings()[key]
+            value = ("transparent" if current == "solid" else "solid") if key == "appearance" else ("unified" if current == "split" else "split")
             result = save_settings({key: value})
             apply_live(key, value)
         else:

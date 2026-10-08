@@ -30,6 +30,7 @@ ShellRoot {
     readonly property var desktopApplications: DesktopEntries.applications.values
 
     function barBackground() {
+        if (barAppearance === "none") return "transparent";
         return barAppearance === "solid" ? workspaceMenuBg : bg;
     }
 
@@ -39,7 +40,7 @@ ShellRoot {
     }
 
     function updateBarSetting(key, value) {
-        var choices = {appearance: ["transparent", "solid"], layout: ["unified", "split"], edge: ["top", "bottom", "left", "right"]};
+        var choices = {appearance: ["none", "transparent", "solid"], layout: ["unified", "split"], edge: ["top", "bottom", "left", "right"]};
         if (!choices[key] || choices[key].indexOf(value) === -1) return;
         if (key === "appearance") barAppearance = value;
         else if (key === "layout") barLayout = value;

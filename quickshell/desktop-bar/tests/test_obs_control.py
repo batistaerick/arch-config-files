@@ -42,8 +42,26 @@ class ObsControlTests(unittest.TestCase):
         with patch.object(obs, "capture_options", return_value=options), patch.object(obs, "scene_collection", return_value=scene), \
                 patch.object(obs.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run:
             obs.apply_capture_options(["obs-cmd"])
-            self.assertEqual(run.call_args_list[0].args[0], ["obs-cmd", "input", "mute", "Desktop Audio", "mute"])
-            self.assertEqual(run.call_args_list[1].args[0], ["obs-cmd", "input", "mute", "Mic/Aux", "unmute"])
+            self.assertEqual(run.call_args_list[0].args[0], ["obs-cmd", "audio", "mute", "Desktop Audio"])
+            self.assertEqual(run.call_args_list[1].args[0], ["obs-cmd", "audio", "unmute", "Mic/Aux"])
+
+    def test_audio_and_mic_choices_are_independent(self):
+        scene = {"current_scene": "Scene", "sources": [
+            {"name": "Screen", "id": "pipewire-screen-capture-source"},
+            {"name": "Scene", "settings": {"items": [{"name": "Screen"}]}}]}
+        for audio in (False, True):
+            for mic in (False, True):
+                with self.subTest(audio=audio, mic=mic):
+                    options = {"audio": {"enabled": audio, "sources": ["Desktop Audio"]},
+                               "mic": {"enabled": mic, "sources": ["Mic/Aux"]},
+                               "webcam": {"sources": []}}
+                    with patch.object(obs, "capture_options", return_value=options), \
+                            patch.object(obs, "scene_collection", return_value=scene), \
+                            patch.object(obs.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run:
+                        obs.apply_capture_options(["obs-cmd"])
+                        self.assertEqual([call.args[0] for call in run.call_args_list], [
+                            ["obs-cmd", "audio", "unmute" if audio else "mute", "Desktop Audio"],
+                            ["obs-cmd", "audio", "unmute" if mic else "mute", "Mic/Aux"]])
 
     def test_window_only_scene_is_not_recorded(self):
         scene = {"current_scene": "Scene", "sources": [

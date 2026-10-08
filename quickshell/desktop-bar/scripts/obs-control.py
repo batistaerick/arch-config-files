@@ -73,7 +73,7 @@ def apply_capture_options(command):
     options = capture_options()
     for key in ("audio", "mic"):
         for name in options[key]["sources"]:
-            result = subprocess.run(command + ["input", "mute", name, "unmute" if options[key]["enabled"] else "mute"], capture_output=True, timeout=3)
+            result = subprocess.run(command + ["audio", "unmute" if options[key]["enabled"] else "mute", name], capture_output=True, timeout=3)
             if result.returncode:
                 raise RuntimeError("Could not apply recording audio settings")
     cameras = options["webcam"]

@@ -23,3 +23,13 @@ File: backgrounds/02-cloud-viaduct.png
 Prompt:
 
 Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. An elegant abandoned stone viaduct spanning a moonlit sea of clouds, distant islands, silver ferns at foreground edge, soft peach horizon and periwinkle night sky. Original illustrated fantasy environment with clear forms and intricate stone texture. Dark #060B1E #7d82d9 mauve #c89dc1 ice #a3bfd1, restrained luminosity.
+
+## Batch 02: 03-celestial-thread
+
+File: backgrounds/03-celestial-thread.png
+
+Reference-led character/graphic/object direction instead of generic city/nature vistas. Attached contact sheet was a mood, medium and palette reference only; output is a new single composition. Lanczos-upscaled to 3440 x 1440, as in batch 01.
+
+Prompt:
+
+Create ONE new original ultrawide 21:9 desktop wallpaper. The attached contact sheet is ONLY a reference for the theme's visual language, texture, subject category and palette, not an edit target. Do not copy its compositions, characters, logos or writing. Output a single full-bleed artwork, NOT a contact sheet, poster, screenshot or mockup. No lettering, text, signatures, watermarks, logos or border. Avoid city panoramas, mountain landscapes, forests, lakes, sunsets, architecture vistas and generic scenery. Spacious balanced desktop composition. A detailed close view of a vast irregular cosmic nebula made of deep indigo gas, electric blue filaments, pale peach light and small mauve dust clouds, scattered tiny stars. Pure astronomical abstraction across ultrawide frame; no foreground land, buildings, moon disk, planet or landscape. Sophisticated painterly space illustration, deep #060B1E, periwinkle #7d82d9, ice #a3bfd1, peach #ffcead mauve #c89dc1, bright wisps only in small areas, dark calm corners. Inspired by the original cosmic reference.

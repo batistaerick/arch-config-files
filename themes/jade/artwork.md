@@ -23,3 +23,13 @@ File: backgrounds/02-rain-garden.png
 Prompt:
 
 Original desktop wallpaper, stylized-concept illustration. Ultrawide 21:9. A low viewpoint across wet stepping stones in an expansive fern and bamboo garden, an original small circular-roof shelter in the far left distance, gentle rain ripples in a foreground pool, translucent leaves edged by soft dawn light. Hand-painted atmospheric environment with sophisticated layered depth, botanical details, restrained grain. Jade theme colors #111c18 deep forest, #23372b, #509475 greens, muted #c1c497 pale light, #2dd5b7 subtle water accents. Avoid copying existing mountain-moon wallpaper: no moon, no mountain silhouettes. Wide calm negative space and subdued upper edge for desktop bar. No text, brand, characters, watermark, border. One 21:9 wallpaper.
+
+## Batch 02: 03-midnight-study
+
+File: backgrounds/03-midnight-study.png
+
+Reference-led character/graphic/object direction instead of generic city/nature vistas. Attached contact sheet was a mood, medium and palette reference only; output is a new single composition. Lanczos-upscaled to 3440 x 1440, as in batch 01.
+
+Prompt:
+
+Create ONE new original ultrawide 21:9 desktop wallpaper. The attached contact sheet is ONLY a reference for the theme's visual language, texture, subject category and palette, not an edit target. Do not copy its compositions, characters, logos or writing. Output a single full-bleed artwork, NOT a contact sheet, poster, screenshot or mockup. No lettering, text, signatures, watermarks, logos or border. Avoid city panoramas, mountain landscapes, forests, lakes, sunsets, architecture vistas and generic scenery. Spacious balanced desktop composition. Original hand-drawn intimate interior still life: a worn wooden desk at right with a small unmarked analog radio, porcelain tea cup and blank notebook, translucent green paper lantern hanging above; heavy curtains and dark wall extending into spacious empty left side. Cel-painted animation background with clear stylized contours and subtle grain, no view of city or nature, no lettering on objects. Deep Jade #111c18 #23372b, jade #509475, muted #c1c497 warm lantern light and tiny #2dd5b7 reflections. Quiet nighttime warmth inspired by the original shaded-entrance lighting rather than scenery.

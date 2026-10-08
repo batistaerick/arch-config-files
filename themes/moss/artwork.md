@@ -23,3 +23,13 @@ File: backgrounds/02-copper-marsh.png
 Prompt:
 
 Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. An expansive reed marsh at late autumn dusk, leaning birch trunks, distant crumbling brick watchtower, quiet amber mist reflected in dark water. Realistic atmospheric landscape with subtle textures and open center. Moss olive #78824b forest #5f875f bark #685742 rust #b36d43 charcoal #222222.
+
+## Batch 02: 03-the-veil
+
+File: backgrounds/03-the-veil.png
+
+Reference-led character/graphic/object direction instead of generic city/nature vistas. Attached contact sheet was a mood, medium and palette reference only; output is a new single composition. Lanczos-upscaled to 3440 x 1440, as in batch 01.
+
+Prompt:
+
+Create ONE new original ultrawide 21:9 desktop wallpaper. The attached contact sheet is ONLY a reference for the theme's visual language, texture, subject category and palette, not an edit target. Do not copy its compositions, characters, logos or writing. Output a single full-bleed artwork, NOT a contact sheet, poster, screenshot or mockup. No lettering, text, signatures, watermarks, logos or border. Avoid city panoramas, mountain landscapes, forests, lakes, sunsets, architecture vistas and generic scenery. Spacious balanced desktop composition. An original mysterious draped human-like sculpture, fully clothed in heavy olive fabric, face completely covered by flowing folds, one hand holding a small cracked ceramic mask near chest. Figure on right third in a near-black studio void, softly directional museum lighting. Classical oil-paint-like portrait with aged canvas texture and sculptural chiaroscuro, solemn not horror. Charcoal #222222, olive #78824b, bark #685742, rust #b36d43 and pale straw #d7c483. No foliage, ruins or landscapes, preserve the original figurative-art identity.

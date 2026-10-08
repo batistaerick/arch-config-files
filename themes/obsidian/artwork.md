@@ -23,3 +23,13 @@ File: backgrounds/02-black-dunes.png
 Prompt:
 
 Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. Sweeping black volcanic sand dunes with fine wind-carved ridges, softly backlit horizon, isolated dark stone on right third, subtle silver edge highlights. Minimal monochrome realistic landscape, strictly neutral grayscale #000000 #404040 #8d8d8d, no stars, no colored tint.
+
+## Batch 02: 03-folded-silence
+
+File: backgrounds/03-folded-silence.png
+
+Reference-led character/graphic/object direction instead of generic city/nature vistas. Attached contact sheet was a mood, medium and palette reference only; output is a new single composition. Lanczos-upscaled to 3440 x 1440, as in batch 01.
+
+Prompt:
+
+Create ONE new original ultrawide 21:9 desktop wallpaper. The attached contact sheet is ONLY a reference for the theme's visual language, texture, subject category and palette, not an edit target. Do not copy its compositions, characters, logos or writing. Output a single full-bleed artwork, NOT a contact sheet, poster, screenshot or mockup. No lettering, text, signatures, watermarks, logos or border. Avoid city panoramas, mountain landscapes, forests, lakes, sunsets, architecture vistas and generic scenery. Spacious balanced desktop composition. Pure abstract matte-black folded material: an asymmetric curving stack of fine ribbed sculptural layers sweeping from lower left across center and tapering into upper right, deep soft shadows, thin silver edge highlights, subtle natural texture. Strict neutral grayscale #000000 #202020 #404040 #8d8d8d. No architectural room, no dunes, no scenery; close-up abstract surface filling canvas with a calm black upper edge. Sophisticated crisp macro render inspired by layered original references.

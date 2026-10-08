@@ -23,3 +23,13 @@ File: backgrounds/02-rose-courtyard.png
 Prompt:
 
 Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. A tranquil pale stone courtyard with a flowering rose tree, shallow reflection pool, softly curved archways and distant low mauve hills under a bright morning sky. Original refined watercolor and gouache architectural illustration, luminous not dark. Dawn #faf4ed mutedrose #b4637a teal #56949f mauve #907aa9 peach #d7827e.
+
+## Batch 02: 03-paper-play
+
+File: backgrounds/03-paper-play.png
+
+Reference-led character/graphic/object direction instead of generic city/nature vistas. Attached contact sheet was a mood, medium and palette reference only; output is a new single composition. Lanczos-upscaled to 3440 x 1440, as in batch 01.
+
+Prompt:
+
+Create ONE new original ultrawide 21:9 desktop wallpaper. The attached contact sheet is ONLY a reference for the theme's visual language, texture, subject category and palette, not an edit target. Do not copy its compositions, characters, logos or writing. Output a single full-bleed artwork, NOT a contact sheet, poster, screenshot or mockup. No lettering, text, signatures, watermarks, logos or border. Avoid city panoramas, mountain landscapes, forests, lakes, sunsets, architecture vistas and generic scenery. Spacious balanced desktop composition. Light abstract graphic composition made of asymmetrically arranged irregular dusty-rose, muted teal and mauve paper shapes, thin wandering hand-drawn contour lines, sparse short dash patterns and delicate concentric arcs. Full-width balanced original composition, NOT centered logo. Flat 2D screenprint with slight paper texture, Rose Pine Dawn #faf4ed #b4637a #56949f #907aa9 #d7827e, large breathing spaces. Playful refined graphic design, no representational landscape, plants or architecture. Echo the funky-shapes reference.

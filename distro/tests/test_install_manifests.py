@@ -1,4 +1,5 @@
 from pathlib import Path
+import configparser
 import unittest
 
 
@@ -6,6 +7,20 @@ DISTRO = Path(__file__).resolve().parents[1]
 
 
 class InstallManifestTests(unittest.TestCase):
+    def test_gnome_videos_launcher_uses_scoped_graphics_fix(self):
+        root = DISTRO.parent
+        launcher = configparser.ConfigParser(interpolation=None)
+        launcher.read(root / "HOME_FILES/.local/share/applications/org.gnome.Totem.desktop")
+        self.assertEqual(launcher["Desktop Entry"]["Exec"], "env GDK_GL=gles totem %U")
+        self.assertFalse(launcher["Desktop Entry"].getboolean("DBusActivatable"))
+        associations = configparser.ConfigParser(interpolation=None)
+        associations.read(root / "mimeapps.list")
+        self.assertEqual(associations["Default Applications"]["video/mp4"], "org.gnome.Totem.desktop")
+
+    def test_mpv_is_not_installed(self):
+        packages = (DISTRO / "packages.txt").read_text().splitlines()
+        self.assertNotIn("mpv", packages)
+
     def test_common_media_backends_and_steam_are_explicit(self):
         packages = set()
         for filename in ("packages.txt", "apps.txt"):

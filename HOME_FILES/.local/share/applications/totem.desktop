@@ -1,0 +1,6 @@
+[Desktop Entry]
+Exec=env GDK_GL=gles totem %U
+MimeType=video/mp4;
+Name=totem
+NoDisplay=true
+Type=Application

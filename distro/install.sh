@@ -93,6 +93,9 @@ icon_source="$repo_root/HOME_FILES/.local/share/icons/hicolor/scalable/apps"
 icon_target="$HOME/.local/share/icons/hicolor/scalable/apps"
 mkdir -p "$icon_target"
 cp -a -- "$icon_source/." "$icon_target/"
+mkdir -p "$HOME/.local/share/applications"
+cp -a -- "$repo_root/HOME_FILES/.local/share/applications/." "$HOME/.local/share/applications/"
+update-desktop-database "$HOME/.local/share/applications"
 
 if [[ ! -e "$HOME/.zshrc" ]]; then
   git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"

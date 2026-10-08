@@ -4,7 +4,7 @@ image/gif=eog-6.desktop;eog-5.desktop;
 image/png=eog-4.desktop;eog-3.desktop;eog-2.desktop;eog.desktop;
 image/webp=eog-7.desktop;
 text/plain=nvim.desktop;
-video/mp4=mpv.desktop;totem-2.desktop;totem.desktop;
+video/mp4=org.gnome.Totem.desktop;
 
 [Default Applications]
 application/pdf=evince-4.desktop;
@@ -18,7 +18,14 @@ image/webp=eog-7.desktop;
 inode/directory=org.kde.dolphin.desktop
 text/html=google-chrome.desktop
 text/plain=nvim.desktop
-video/mp4=mpv.desktop
+video/mp4=org.gnome.Totem.desktop
+video/x-matroska=org.gnome.Totem.desktop
+video/webm=org.gnome.Totem.desktop
+video/quicktime=org.gnome.Totem.desktop
+video/x-msvideo=org.gnome.Totem.desktop
+video/mpeg=org.gnome.Totem.desktop
+video/ogg=org.gnome.Totem.desktop
+video/x-m4v=org.gnome.Totem.desktop
 x-scheme-handler/about=google-chrome.desktop
 x-scheme-handler/bruno=bruno.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop

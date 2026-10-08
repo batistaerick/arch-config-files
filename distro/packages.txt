@@ -69,7 +69,6 @@ tesseract
 tesseract-data-eng
 cliphist
 imv
-mpv
 obs-studio
 dolphin
 kio-extras

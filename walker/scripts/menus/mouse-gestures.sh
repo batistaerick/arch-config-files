@@ -5,8 +5,7 @@ Desktop: double right-click      Theme carousel
 Bar: double left-click           Transparent / theme color
 Bar: double right-click          One bar / three sections
 Bar: left-click and drag         Move to a screen edge
-Workspace: right-click           Workspace style
-Panel: click outside             Close panel"
+Workspace: right-click           Workspace style"
 
 chosen=$(printf '%s\n' "$options" | "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --cache-file /dev/null --width 780 --prompt="Mouse Gestures")
 case "$chosen" in

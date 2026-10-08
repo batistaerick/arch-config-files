@@ -245,7 +245,7 @@ ShellRoot {
                 required property var modelData
 
                 screen: modelData
-                implicitWidth: shell.verticalBar ? 60 : modelData.width
+                implicitWidth: shell.verticalBar ? Math.max(60, barWeather.width + 8) : modelData.width
                 implicitHeight: shell.verticalBar ? modelData.height : shell.barHeight
                 color: "transparent"
                 exclusionMode: ExclusionMode.Auto
@@ -415,11 +415,14 @@ ShellRoot {
                             compact: true
                             onClicked: calendarMenu.visible = !calendarMenu.visible
                         }
-                        VerticalBarIcon {
+                        WeatherWidget {
                             id: verticalWeatherIcon
                             anchors.top: verticalCalendarIcon.bottom
                             anchors.topMargin: 3
-                            icon: barWeather.text.split(" ")[0]; tooltip: "Weather"; open: true; clickable: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            autoRefresh: false
+                            text: barWeather.text
+                            temp: barWeather.temp
                             onClicked: weatherMenu.visible = !weatherMenu.visible
                         }
                     }
@@ -1136,6 +1139,7 @@ ShellRoot {
     component WeatherWidget: Item {
         id: weather
         signal clicked()
+        property bool autoRefresh: true
 
         property string text: "󰖐"
         property string location: ""
@@ -1189,7 +1193,7 @@ ShellRoot {
 
         width: Math.max(26, label.implicitWidth + 8)
         height: 24
-        Component.onCompleted: refresh()
+        Component.onCompleted: if (autoRefresh) refresh()
 
         Row {
             id: label
@@ -1229,7 +1233,7 @@ ShellRoot {
 
         Timer {
             interval: 900000
-            running: true
+            running: weather.autoRefresh
             repeat: true
             onTriggered: weather.refresh()
         }

@@ -16,6 +16,8 @@ ShellRoot {
     property color activeBg: "#cdd6f4"
     property color hoverBg: Qt.rgba(180 / 255, 190 / 255, 254 / 255, 0.15)
     property bool idleLockEnabled: false
+    property string primaryDisplay: ""
+    property bool portableDisplayMode: false
     property string workspaceStyle: "Numbers"
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
@@ -53,6 +55,28 @@ ShellRoot {
         running: true
         repeat: true
         onTriggered: if (!workspacePalette.running) workspacePalette.running = true
+    }
+
+    Process {
+        id: primaryDisplayQuery
+        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/display-primary.py", "status"]
+        running: true
+        stdout: StdioCollector { id: primaryDisplayOutput }
+        onExited: function(code) {
+            if (code !== 0) return;
+            try {
+                var result = JSON.parse(primaryDisplayOutput.text);
+                shell.primaryDisplay = result.primary || "";
+                shell.portableDisplayMode = !!result.portable;
+            } catch (e) {}
+        }
+    }
+
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: if (!primaryDisplayQuery.running) primaryDisplayQuery.running = true
     }
 
     Process {
@@ -108,18 +132,26 @@ ShellRoot {
     function targetScreens() {
         var screens = Quickshell.screens || [];
         var fallback = null;
+        var largest = null;
         for (var i = 0; i < screens.length; i++) {
             if (!screens[i])
                 continue;
 
-            if (screens[i].name === "HDMI-A-1")
+            if (primaryDisplay && screens[i].name === primaryDisplay)
                 return [screens[i]];
 
-            if (screens[i].name === "DP-3")
+            if (!largest || screens[i].width * screens[i].height > largest.width * largest.height)
+                largest = screens[i];
+
+            if (screens[i].name === "HDMI-A-1")
+                fallback = screens[i];
+            else if (screens[i].name === "DP-3" && (!fallback || fallback.name !== "HDMI-A-1"))
                 fallback = screens[i];
             else if (!fallback)
                 fallback = screens[i];
         }
+        if (portableDisplayMode && largest)
+            return [largest];
         return fallback ? [fallback] : [];
     }
 
@@ -337,6 +369,7 @@ ShellRoot {
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
+                                onPrimarySelected: function(name) { shell.primaryDisplay = name }
                             }
 
                             StatusIcon {

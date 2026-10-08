@@ -72,8 +72,11 @@ them with upstream defaults.
   Changing values must not shift bar items. Match icon sizes visually, not just
   by font size, since glyph shapes differ.
 - The date/time stays exactly screen-centered regardless of neighboring items.
-  The bar prefers HDMI when two monitors are connected and DP when used alone;
-  preserve the existing screen-selection function rather than hardcoding new IDs.
+  The Display panel's connected rows select the bar's primary screen and save
+  it in the machine-local `hypr/primary-display` file. If the chosen display is
+  disconnected, fall back to an available one. Existing installations prefer
+  HDMI until a choice is saved; fresh portable installs prefer the largest
+  active display. Do not commit a machine-specific primary-display file.
 - Hardware popups open top-left; calendar/weather open top-center; right-hand
   controls open top-right. Preserve the common offset below the bar and existing
   window-border alignment. Growing content must not move panels above the bar.

@@ -7,19 +7,23 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 400
-    implicitHeight: 284 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
+    implicitHeight: 284 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0) + (displayError ? 24 : 0)
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
     property int applied: -1
     property var nightlight: ({mode: "auto", enabled: false, available: false})
     property var monitors: []
+    property string primaryDisplay: ""
+    property string displayError: ""
+    signal primarySelected(string name)
     property string nightlightError: ""
     property bool scheduleDirty: false
     property bool editingSchedule: false
     readonly property var timeLocale: Qt.locale()
     readonly property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/brightness.py"
     readonly property string nightlightHelper: Quickshell.env("HOME") + "/.config/walker/scripts/actions/toggle/nightlight.py"
+    readonly property string displayHelper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/display-primary.py"
 
     function refresh() {
         if (!query.running && !operation.running && !slider.pressed && !settle.running) query.running = true;
@@ -38,7 +42,13 @@ ThemedPopup {
         if (!nightQuery.running && !nightOperation.running) nightQuery.running = true;
     }
     function refreshDisplays() {
-        if (!displayQuery.running) displayQuery.running = true;
+        if (!displayQuery.running && !setPrimary.running) displayQuery.running = true;
+    }
+    function selectPrimary(name) {
+        if (setPrimary.running || name === primaryDisplay) return;
+        displayError = "";
+        setPrimary.command = ["python3", displayHelper, "set", name];
+        setPrimary.running = true;
     }
     function setNightlight(mode) {
         if (nightOperation.running) return;
@@ -110,13 +120,31 @@ ThemedPopup {
     Process { id: brightnessOsd; command: ["swayosd-client", "--custom-icon", "display-brightness-symbolic", "--custom-progress", "0"] }
     Process {
         id: displayQuery
-        command: ["hyprctl", "monitors", "-j"]
+        command: ["python3", menu.displayHelper, "status"]
         stdout: StdioCollector { id: displayOutput }
         onExited: {
             try {
                 let result = JSON.parse(displayOutput.text);
-                menu.monitors = Array.isArray(result) ? result : [];
-            } catch (e) { menu.monitors = []; }
+                menu.monitors = result.monitors || [];
+                menu.primaryDisplay = result.primary || "";
+            } catch (e) { menu.displayError = "Display status unavailable"; }
+        }
+    }
+    Process {
+        id: setPrimary
+        stdout: StdioCollector { id: setPrimaryOutput }
+        onExited: function(code) {
+            if (code !== 0) {
+                menu.displayError = "Could not set primary display";
+                menu.refreshDisplays();
+                return;
+            }
+            try {
+                let result = JSON.parse(setPrimaryOutput.text);
+                menu.monitors = result.monitors || [];
+                menu.primaryDisplay = result.primary || "";
+                menu.primarySelected(menu.primaryDisplay);
+            } catch (e) { menu.displayError = "Display status unavailable"; }
         }
     }
     Process {
@@ -300,6 +328,7 @@ ThemedPopup {
             }
             Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
             Text { text: "Displays"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+            Text { visible: menu.displayError !== ""; text: menu.displayError; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             Text {
                 visible: menu.monitors.length === 0
                 height: visible ? 36 : 0
@@ -316,15 +345,21 @@ ThemedPopup {
                     width: content.width
                     height: 36
                     radius: PanelStyle.controlRadius
-                    color: modelData.focused ? Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08) : "transparent"
+                    color: modelData.name === menu.primaryDisplay ? Qt.rgba(menu.accent.r, menu.accent.g, menu.accent.b, 0.16) : (displayHover.hovered ? Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08) : "transparent")
+                    border.width: modelData.name === menu.primaryDisplay ? 1 : 0
+                    border.color: Qt.rgba(menu.accent.r, menu.accent.g, menu.accent.b, 0.35)
+                    HoverHandler { id: displayHover; cursorShape: Qt.PointingHandCursor }
+                    TapHandler { onTapped: menu.selectPrimary(modelData.name) }
+                    BarTooltip { target: parent; hovered: displayHover.hovered; text: modelData.name === menu.primaryDisplay ? "Primary display" : "Make primary"; background: menu.background; foreground: menu.foreground }
                     Row {
                         anchors.fill: parent
                         anchors.leftMargin: 8
                         anchors.rightMargin: 8
                         spacing: 8
                         Text { width: 22; height: parent.height; text: "󰍹"; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 16 }
-                        Text { width: parent.width - 192; height: parent.height; text: modelData.name + (modelData.model ? " · " + modelData.model : ""); elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                        Text { width: parent.width - 224; height: parent.height; text: modelData.name + (modelData.model ? " · " + modelData.model : ""); elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                         Text { width: 146; height: parent.height; text: modelData.width + "×" + modelData.height + " · " + Math.round(modelData.refreshRate) + " Hz"; horizontalAlignment: Text.AlignRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                        Text { width: 16; height: parent.height; text: modelData.name === menu.primaryDisplay ? "󰄬" : ""; verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter; color: menu.accent; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                     }
                 }
             }

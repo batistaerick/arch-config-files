@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from PIL import Image
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts/appearance-items.py"
@@ -40,11 +41,12 @@ class AppearanceCategoryTests(unittest.TestCase):
             assets = home / ".config/quickshell/desktop-bar/assets/appearance"
             assets.mkdir(parents=True)
             for name in ("dark", "light"):
-                (assets / f"{name}.jpg").touch()
+                Image.new("RGB", (320, 180)).save(assets / f"{name}.jpg")
             custom_categories = load("theme-category")
             self.assertEqual([item["image"] for item in custom_categories],
                              [(assets / f"{name}.jpg").as_uri() for name in ("dark", "light")])
             self.assertEqual([item["current"] for item in custom_categories], [True, False])
+            self.assertEqual([item["aspectRatio"] for item in custom_categories], [16 / 9, 16 / 9])
             self.assertEqual([item["name"] for item in load("theme-dark")], ["Dark A", "Dark B"])
             self.assertEqual([item["value"] for item in load("theme-dark")], ["dark-a", "dark-b"])
             self.assertEqual([item["name"] for item in load("theme-light")], ["Light A"])

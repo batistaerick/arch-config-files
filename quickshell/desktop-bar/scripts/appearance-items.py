@@ -60,8 +60,14 @@ if mode.startswith("theme"):
             category_image = config / "quickshell/desktop-bar/assets/appearance" / f"{category.lower()}.jpg"
             if not category_image.is_file():
                 category_image = representative / "preview.png"
+            try:
+                with Image.open(category_image) as image:
+                    aspect_ratio = image.width / image.height
+            except (OSError, ValueError):
+                aspect_ratio = 16 / 9
             entries.append({"name": category, "value": category.lower(),
                             "image": category_image.as_uri(),
+                            "aspectRatio": aspect_ratio,
                             "current": representative.name == current})
     elif mode in {"theme-dark", "theme-light"}:
         light = mode == "theme-light"

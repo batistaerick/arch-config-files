@@ -15,8 +15,9 @@ class InstallManifestTests(unittest.TestCase):
         self.assertIn('flags+=(--disable-gpu)', script)
         launcher = configparser.ConfigParser(interpolation=None)
         launcher.read(root / "HOME_FILES/.local/share/applications/netflix.desktop")
-        self.assertEqual(launcher["Desktop Entry"]["Exec"], "netflix")
-        self.assertEqual(launcher["Desktop Action Software"]["Exec"], "netflix software")
+        self.assertIn('$HOME/.local/bin/netflix', launcher["Desktop Entry"]["Exec"])
+        self.assertIn('$HOME/.local/bin/netflix', launcher["Desktop Action Software"]["Exec"])
+        self.assertTrue(launcher["Desktop Action Software"]["Exec"].endswith(' software"'))
 
     def test_gnome_videos_launcher_uses_scoped_graphics_fix(self):
         root = DISTRO.parent

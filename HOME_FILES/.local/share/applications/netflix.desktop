@@ -2,7 +2,7 @@
 Type=Application
 Name=Netflix
 Comment=Netflix in a dedicated Chrome window
-Exec=netflix
+Exec=sh -c "exec \"\$HOME/.local/bin/netflix\""
 TryExec=google-chrome-stable
 Icon=netflix
 Terminal=false
@@ -12,4 +12,4 @@ Actions=Software;
 
 [Desktop Action Software]
 Name=Netflix (Software Rendering)
-Exec=netflix software
+Exec=sh -c "exec \"\$HOME/.local/bin/netflix\" software"

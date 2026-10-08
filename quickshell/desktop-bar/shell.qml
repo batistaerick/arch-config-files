@@ -421,6 +421,7 @@ ShellRoot {
                             anchors.topMargin: 3
                             anchors.horizontalCenter: parent.horizontalCenter
                             autoRefresh: false
+                            compact: true
                             text: barWeather.text
                             temp: barWeather.temp
                             onClicked: weatherMenu.visible = !weatherMenu.visible
@@ -1140,6 +1141,7 @@ ShellRoot {
         id: weather
         signal clicked()
         property bool autoRefresh: true
+        property bool compact: false
 
         property string text: "󰖐"
         property string location: ""
@@ -1203,14 +1205,14 @@ ShellRoot {
                 text: weather.text.split(" ")[0]
                 color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 14
+                font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
             Text {
                 text: weather.temp || (weather.text.indexOf(" ") >= 0 ? weather.text.slice(weather.text.indexOf(" ") + 1).trim() : "")
                 color: shell.fg
                 font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 14
+                font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
         }

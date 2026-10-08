@@ -15,9 +15,12 @@ the graphical desktop and AUR packages are installed on the target system by
   It includes Steam and other optional apps on purpose, for later review.
 - `aur-packages.txt` and `aur-apps.txt`: AUR desktop and application packages,
   including Walker, Elephant, VS Code, 1Password, and Chrome.
-- `hardware/`: CPU microcode and GPU packages. Intel microcode is installed
-  when an Intel CPU is detected; NVIDIA packages are listed for manual review
-  because GPU generation and driver compatibility vary.
+- `hardware/`: detects CPU vendor and PCI display-controller IDs, then installs
+  matching CPU microcode and 64-/32-bit GPU drivers. AMD and Intel use Mesa and
+  their Vulkan drivers. Virtual GPUs use software Vulkan. NVIDIA needs an
+  explicit driver choice because older cards require a different driver.
+- Steam, GameMode, Gamescope, MangoHud, 32-bit graphics libraries, and
+  `lib32-systemd` for Steam networking with systemd-networkd.
 - Repository config directories: Quickshell bar/lockscreen, Hyprland, Walker,
   Elephant, themes and wallpapers, Neovim/LazyVim, notifications, and app styles.
 - `HOME_FILES`: Zsh, Powerlevel10k, terminal colors and the Walker launcher link.
@@ -38,9 +41,16 @@ the graphical desktop and AUR packages are installed on the target system by
    builds `yay` from AUR, installs AUR apps, installs Claude Code through its
    official installer, and installs Codex CLI via npm. Audit the manifests and
    upstream installers before running them.
+   On a supported NVIDIA Turing-or-newer system, review the GPU model first and
+   use `DISTRO_NVIDIA_DRIVER=open bash distro/install.sh --check` followed by
+   `DISTRO_NVIDIA_DRIVER=open bash distro/install.sh`. On a hybrid machine where
+   only the Intel/AMD GPU should be configured, use `DISTRO_NVIDIA_DRIVER=skip`.
+   Older NVIDIA cards need manual driver selection; the installer intentionally
+   stops instead of guessing. If no supported GPU is detected, it also stops.
 4. Review `/etc/systemd/network` and `/etc/resolv.conf`, then reboot. The
    installer enables iwd, networkd, resolved, Bluetooth, and SDDM for next
-   boot; it does not restart services in the current session. It configures
+   boot; it does not restart those system services in the current session. The
+   user nightlight timer is enabled immediately. It configures
    Zsh as the login shell and installs the selected root-owned SDDM design.
 5. Sign into apps yourself. Open Walker and apply a theme once to generate
    all application-specific styles. LazyVim installs plugins at first Neovim
@@ -77,6 +87,9 @@ Working name ideas: **Vela** (navigation), **Mica** (layered visual system), or
 **Luma** (light and color). No name or branding is baked into the scripts yet.
 
 References: [Archiso](https://wiki.archlinux.org/title/Archiso),
+[GPU drivers](https://wiki.archlinux.org/title/Graphics_processing_unit),
+[Steam](https://wiki.archlinux.org/title/Steam),
+[NVIDIA](https://wiki.archlinux.org/title/NVIDIA),
 [Hyprland monitor rules](https://wiki.hypr.land/configuring/core/monitors/),
 [Claude Code setup](https://code.claude.com/docs/en/setup),
 [Codex CLI](https://developers.openai.com/codex/cli/).

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+hardware_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pci_root="${HARDWARE_SYSFS_ROOT:-/sys/bus/pci/devices}"
+cpuinfo="${HARDWARE_CPUINFO:-/proc/cpuinfo}"
+declare -A found=() packages=()
+declare -a manifests=()
+
+if [[ -r "$cpuinfo" ]]; then
+  if grep -qm1 '^vendor_id[[:space:]]*:[[:space:]]*AuthenticAMD' "$cpuinfo"; then
+    manifests+=(amd.txt)
+  elif grep -qm1 '^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel' "$cpuinfo"; then
+    manifests+=(intel.txt)
+  fi
+fi
+
+shopt -s nullglob
+for device in "$pci_root"/*; do
+  [[ -r "$device/class" && -r "$device/vendor" ]] || continue
+  class="$(<"$device/class")"
+  [[ "$class" == 0x03* ]] || continue
+  vendor="$(<"$device/vendor")"
+  case "${vendor,,}" in
+    0x1002) found[amd]=1 ;;
+    0x8086) found[intel]=1 ;;
+    0x10de) found[nvidia]=1 ;;
+    0x1af4|0x1234|0x80ee|0x15ad|0x1b36|0x1414) found[virtual]=1 ;;
+    *) printf 'Unknown display controller: %s (vendor %s)\n' "$device" "$vendor" >&2 ;;
+  esac
+done
+
+if (( ${#found[@]} == 0 )); then
+  printf 'No supported GPU detected. Review PCI hardware before installing Steam drivers.\n' >&2
+  exit 1
+fi
+if [[ -n ${found[nvidia]:-} ]]; then
+  case "${DISTRO_NVIDIA_DRIVER:-}" in
+    open)
+      manifests+=(nvidia.txt)
+      if [[ -n ${found[intel]:-} || -n ${found[amd]:-} ]]; then
+        manifests+=(nvidia-hybrid.txt)
+      fi
+      ;;
+    skip)
+      if (( ${#found[@]} == 1 )); then
+        printf 'Cannot skip the only detected GPU.\n' >&2
+        exit 1
+      fi
+      ;;
+    *)
+      printf 'NVIDIA GPU detected. Review its generation, then set DISTRO_NVIDIA_DRIVER=open for Turing or newer, or skip if another GPU will drive the desktop. Legacy cards need manual driver selection.\n' >&2
+      exit 1
+      ;;
+  esac
+fi
+
+manifests+=(graphics-common.txt)
+[[ -n ${found[amd]:-} ]] && manifests+=(amd-gpu.txt)
+[[ -n ${found[intel]:-} ]] && manifests+=(intel-gpu.txt)
+[[ -n ${found[virtual]:-} ]] && manifests+=(virtual-gpu.txt)
+
+printf 'Detected GPU vendors: %s\n' "${!found[*]}" >&2
+for manifest in "${manifests[@]}"; do
+  while IFS= read -r package || [[ -n "$package" ]]; do
+    [[ -z "$package" || "$package" == \#* || -n ${packages[$package]:-} ]] && continue
+    packages["$package"]=1
+    printf '%s\n' "$package"
+  done < "$hardware_dir/$manifest"
+done

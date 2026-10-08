@@ -34,6 +34,7 @@ keyd
 kubectl
 libpulse
 lib32-gamemode
+lib32-systemd
 mariadb-clients
 minikube
 nano

@@ -22,6 +22,11 @@ if [[ ${1:-} == --check ]]; then
     [[ -e "$repo_root/$item" ]] || { printf 'Missing source: %s\n' "$item" >&2; exit 1; }
     [[ ! -e "$HOME/.config/$item" ]] || { printf 'Already exists: %s\n' "$HOME/.config/$item" >&2; exit 1; }
   done
+  if ! pacman -Si steam >/dev/null 2>&1; then
+    printf 'Enable [multilib] in /etc/pacman.conf, run sudo pacman -Sy, then retry.\n' >&2
+    exit 1
+  fi
+  bash "$repo_root/distro/hardware/detect.sh" >/dev/null
   [[ ! -e "$HOME/.config/theme/current" ]] || { printf 'Already exists: theme/current\n' >&2; exit 1; }
   printf 'Fresh-install target looks clear for %s. No changes made.\n' "$HOME"
   exit 0
@@ -32,19 +37,14 @@ if [[ $# -ne 0 ]]; then
 fi
 
 "$0" --check
-if ! pacman -Si steam >/dev/null 2>&1; then
-  printf 'Enable [multilib] in /etc/pacman.conf, run sudo pacman -Sy, then retry.\n' >&2
-  exit 1
-fi
+hardware_output="$(bash "$repo_root/distro/hardware/detect.sh")"
+mapfile -t hardware_packages <<< "$hardware_output"
 mapfile -t official < <(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$repo_root/distro/packages.txt")
 mapfile -t apps < <(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$repo_root/distro/apps.txt")
 mapfile -t aur < <(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$repo_root/distro/aur-packages.txt")
 mapfile -t aur_apps < <(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$repo_root/distro/aur-apps.txt")
 
-sudo pacman -Syu --needed -- "${official[@]}" "${apps[@]}"
-if grep -qi 'GenuineIntel' /proc/cpuinfo; then
-  sudo pacman -S --needed -- intel-ucode
-fi
+sudo pacman -Syu --needed -- "${hardware_packages[@]}" "${official[@]}" "${apps[@]}"
 if ! command -v yay >/dev/null; then
   build_dir="$(mktemp -d)"
   trap 'rm -rf -- "$build_dir"' EXIT

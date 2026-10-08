@@ -7,7 +7,7 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 400
-    implicitHeight: 248 + (editingSchedule ? 68 : 0) + (nightlightError ? 24 : 0)
+    implicitHeight: 248 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
@@ -214,20 +214,26 @@ ThemedPopup {
                     onClicked: menu.setNightlight(checked ? "auto" : (menu.nightlight.enabled ? "on" : "off"))
                 }
             }
-            Row {
+            Column {
                 visible: menu.editingSchedule
                 width: parent.width
-                height: visible ? 56 : 0
-                spacing: 8
-                Column {
-                    width: (parent.width - 126) / 2
-                    height: parent.height
-                    spacing: 2
-                    Text { text: "Start"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                height: visible ? 58 : 0
+                spacing: 2
+                Row {
+                    width: parent.width
+                    height: 16
+                    spacing: 8
+                    Text { width: (parent.width - 126) / 2; height: parent.height; text: "Start"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { width: (parent.width - 126) / 2; height: parent.height; text: "End"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                }
+                Row {
+                    width: parent.width
+                    height: 40
+                    spacing: 8
                     Controls.TextField {
                         id: startField
-                        width: parent.width
-                        height: 40
+                        width: (parent.width - 126) / 2
+                        height: parent.height
                         color: menu.foreground
                         font.family: PanelStyle.fontFamily
                         font.pixelSize: PanelStyle.bodySize
@@ -236,16 +242,10 @@ ThemedPopup {
                         HoverHandler { cursorShape: Qt.IBeamCursor }
                         background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.width: 1; border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.2) }
                     }
-                }
-                Column {
-                    width: (parent.width - 126) / 2
-                    height: parent.height
-                    spacing: 2
-                    Text { text: "End"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                     Controls.TextField {
                         id: endField
-                        width: parent.width
-                        height: 40
+                        width: (parent.width - 126) / 2
+                        height: parent.height
                         color: menu.foreground
                         font.family: PanelStyle.fontFamily
                         font.pixelSize: PanelStyle.bodySize
@@ -254,23 +254,21 @@ ThemedPopup {
                         HoverHandler { cursorShape: Qt.IBeamCursor }
                         background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.width: 1; border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.2) }
                     }
-                }
-                PanelButton {
-                    anchors.bottom: parent.bottom
-                    text: "Save"
-                    foreground: menu.foreground
-                    available: menu.nightlight.available && menu.scheduleDirty && menu.parseTime(startField.text) !== "" && menu.parseTime(endField.text) !== "" && menu.parseTime(startField.text) !== menu.parseTime(endField.text) && !nightOperation.running
-                    onClicked: menu.saveSchedule()
-                }
-                PanelButton {
-                    anchors.bottom: parent.bottom
-                    id: cancelButton
-                    icon: true
-                    text: "󰅖"
-                    foreground: menu.foreground
-                    onClicked: { menu.editingSchedule = false; menu.scheduleDirty = false; menu.syncSchedule(); }
-                    HoverHandler { id: cancelHover }
-                    BarTooltip { target: cancelButton; hovered: cancelHover.hovered; text: "Cancel"; background: menu.background; foreground: menu.foreground }
+                    PanelButton {
+                        text: "Save"
+                        foreground: menu.foreground
+                        available: menu.nightlight.available && menu.scheduleDirty && menu.parseTime(startField.text) !== "" && menu.parseTime(endField.text) !== "" && menu.parseTime(startField.text) !== menu.parseTime(endField.text) && !nightOperation.running
+                        onClicked: menu.saveSchedule()
+                    }
+                    PanelButton {
+                        id: cancelButton
+                        icon: true
+                        text: "󰅖"
+                        foreground: menu.foreground
+                        onClicked: { menu.editingSchedule = false; menu.scheduleDirty = false; menu.syncSchedule(); }
+                        HoverHandler { id: cancelHover }
+                        BarTooltip { target: cancelButton; hovered: cancelHover.hovered; text: "Cancel"; background: menu.background; foreground: menu.foreground }
+                    }
                 }
             }
             Text {

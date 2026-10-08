@@ -377,7 +377,7 @@ ShellRoot {
                             id: verticalHardware
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 2
-                            VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; tooltip: "Hardware"; open: true; clickable: true; onClicked: hardwareMenu.visible = !hardwareMenu.visible }
+                            VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; iconSize: 18; tooltip: "Hardware"; open: true; clickable: true; onClicked: hardwareMenu.visible = !hardwareMenu.visible }
                             VerticalBarIcon { id: verticalAiIcon; icon: "󱜙"; iconSize: 18; tooltip: "AI Usage"; open: true; clickable: true; onClicked: aiMenu.visible = !aiMenu.visible }
                         }
                     }
@@ -567,7 +567,7 @@ ShellRoot {
                             StatusIcon {
                                 id: hardwareIcon
                                 icon: "󰍛"
-                                iconSize: 16
+                                iconSize: 18
                                 tooltip: "Hardware"
                                 open: true
                                 clickable: true

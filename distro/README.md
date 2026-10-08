@@ -60,9 +60,12 @@ the graphical desktop and AUR packages are installed on the target system by
    only login path; the lockscreen README has recovery instructions.
 
 The desktop includes a generic monitor mode marker (`hypr/portable.mode`) on
-new installs. It uses `preferred,auto` rather than the original machine's
-output names and resolutions. The backup's original monitor layout remains
-unchanged unless this marker is present.
+new installs. Hyprland reads each connected display's preferred EDID mode
+(resolution and refresh rate) at login and positions outputs automatically,
+rather than copying the original machine's output names and resolutions.
+`preferred` is the safe default, not a guarantee of the highest advertised Hz;
+the Display panel reports the active mode. The backup's original monitor layout
+remains unchanged unless this marker is present.
 
 ## Build installer ISO
 

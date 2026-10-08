@@ -147,7 +147,7 @@ ShellRoot {
                             panel.visible = false;
                     }
                     function show(kind: string): void {
-                        var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, volume: volumeMenu,
+                        var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
                             mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu};
                         if (!panels[kind]) return;
@@ -323,8 +323,8 @@ ShellRoot {
 
                             StatusIcon {
                                 id: brightnessIcon
-                                icon: "󰃟"
-                                tooltip: "Brightness"
+                                icon: "󰍹"
+                                tooltip: "Display"
                                 open: shell.statusOpen
                                 clickable: true
                                 onClicked: brightnessMenu.visible = !brightnessMenu.visible

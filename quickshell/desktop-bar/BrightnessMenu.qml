@@ -7,12 +7,13 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 400
-    implicitHeight: 248 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
+    implicitHeight: 336 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0)
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
     property int applied: -1
     property var nightlight: ({mode: "auto", enabled: false, available: false})
+    property var monitors: []
     property string nightlightError: ""
     property bool scheduleDirty: false
     property bool editingSchedule: false
@@ -35,6 +36,9 @@ ThemedPopup {
     }
     function refreshNightlight() {
         if (!nightQuery.running && !nightOperation.running) nightQuery.running = true;
+    }
+    function refreshDisplays() {
+        if (!displayQuery.running) displayQuery.running = true;
     }
     function setNightlight(mode) {
         if (nightOperation.running) return;
@@ -66,10 +70,11 @@ ThemedPopup {
         nightOperation.running = true;
     }
     onVisibleChanged: {
-        if (visible) { refresh(); refreshNightlight(); }
+        if (visible) { refresh(); refreshNightlight(); refreshDisplays(); }
         else { editingSchedule = false; scheduleDirty = false; }
     }
     Timer { interval: 3000; repeat: true; running: menu.visible; onTriggered: { menu.refresh(); menu.refreshNightlight(); } }
+    Timer { interval: 6000; repeat: true; running: menu.visible; onTriggered: menu.refreshDisplays() }
     Timer { id: settle; interval: 80; onTriggered: menu.applyValue(Math.round(slider.value)) }
     Process {
         id: query
@@ -94,6 +99,17 @@ ThemedPopup {
         }
     }
     Process { id: brightnessOsd; command: ["swayosd-client", "--custom-icon", "display-brightness-symbolic", "--custom-progress", "0"] }
+    Process {
+        id: displayQuery
+        command: ["hyprctl", "monitors", "-j"]
+        stdout: StdioCollector { id: displayOutput }
+        onExited: {
+            try {
+                let result = JSON.parse(displayOutput.text);
+                menu.monitors = Array.isArray(result) ? result : [];
+            } catch (e) { menu.monitors = []; }
+        }
+    }
     Process {
         id: nightQuery
         command: ["python3", menu.nightlightHelper, "status"]
@@ -129,8 +145,12 @@ ThemedPopup {
         Column {
             width: parent.width
             spacing: 12
-            Text { text: "Brightness"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
-            Text { width: parent.width; text: menu.state.name || "Display brightness"; elide: Text.ElideRight; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+            Row {
+                spacing: 8
+                Text { text: "󰍹"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize }
+                Text { text: "Display"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
+            }
+            Text { width: parent.width; text: menu.state.available ? "Brightness" : (menu.state.name || "Brightness unavailable"); elide: Text.ElideRight; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
             Row {
                 width: parent.width
                 spacing: 10
@@ -278,6 +298,36 @@ ThemedPopup {
                 opacity: 0.7
                 font.family: PanelStyle.fontFamily
                 font.pixelSize: PanelStyle.captionSize
+            }
+            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Text { text: "Displays"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+            Text {
+                visible: menu.monitors.length === 0
+                height: visible ? 36 : 0
+                text: "No active displays"
+                color: menu.foreground
+                opacity: 0.65
+                font.family: PanelStyle.fontFamily
+                font.pixelSize: PanelStyle.bodySize
+            }
+            Repeater {
+                model: menu.monitors
+                Rectangle {
+                    required property var modelData
+                    width: content.width
+                    height: 36
+                    radius: PanelStyle.controlRadius
+                    color: modelData.focused ? Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08) : "transparent"
+                    Row {
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        spacing: 8
+                        Text { width: 22; height: parent.height; text: "󰍹"; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 16 }
+                        Text { width: parent.width - 192; height: parent.height; text: modelData.name + (modelData.model ? " · " + modelData.model : ""); elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                        Text { width: 146; height: parent.height; text: modelData.width + "×" + modelData.height + " · " + Math.round(modelData.refreshRate) + " Hz"; horizontalAlignment: Text.AlignRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    }
+                }
             }
         }
     }

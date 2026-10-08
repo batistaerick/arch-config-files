@@ -78,8 +78,11 @@ cores, frequency and temperature, GPU usage, VRAM and power, and RAM/swap totals
 are read locally. GPU telemetry uses `nvidia-smi`; temperatures use `sensors`.
 Missing optional telemetry is shown as unavailable. No terminal is launched.
 
-Brightness opens a themed native slider. It uses the laptop backlight when
-present and DDC monitor controls otherwise. The SwayOSD overlay for volume and
+Display opens a themed native panel with brightness, Nightlight, and active
+monitor names, resolutions, and refresh rates. Display modes are read-only;
+changing them live could conflict with the saved Hyprland monitor layout.
+Brightness uses the laptop backlight when present and the first DDC monitor
+otherwise. The SwayOSD overlay for volume and
 brightness is generated from the current theme when styles change.
 For an Arch installation image, include `brightnessctl` for direct laptop
 backlight control and `ddcutil` for external monitors. The control chooses a

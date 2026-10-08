@@ -21,9 +21,10 @@ icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh bluetooth" }
 
 [[entries]]
-text = "Brightness"
-icon = "󰃟"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh brightness" }
+text = "Display"
+keywords = ["brightness", "nightlight", "monitor", "resolution", "refresh rate"]
+icon = "󰍹"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh display" }
 
 [[entries]]
 text = "Keyboard"

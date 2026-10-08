@@ -81,7 +81,9 @@ def apply_capture_options(command):
         current = subprocess.run(command + ["scene", "current"], capture_output=True, text=True, timeout=3)
         if current.returncode:
             raise RuntimeError("Could not read the current OBS scene")
-        scene = current.stdout.strip().partition(":")[2].strip()
+        scene = next((line.removeprefix("Current scene:").strip()
+                      for line in current.stdout.splitlines()
+                      if line.startswith("Current scene:")), "")
         if not scene:
             raise RuntimeError("Could not read the current OBS scene")
         for name in cameras["sources"]:

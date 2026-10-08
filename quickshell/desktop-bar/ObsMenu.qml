@@ -8,6 +8,7 @@ ThemedPopup {
     implicitWidth: 300
     implicitHeight: content.implicitHeight + PanelStyle.padding * 2
     property string status: ""
+    property string actionError: ""
     property string pendingAction: ""
     property bool preparingStart: false
     property bool awaitingState: false
@@ -25,6 +26,7 @@ ThemedPopup {
     function run(action) {
         if (busy) return;
         status = "";
+        actionError = "";
         pendingAction = action;
         preparingStart = action === "record" || action === "stream";
         if (preparingStart) editing = false;
@@ -78,10 +80,10 @@ ThemedPopup {
             try {
                 if (code !== 0) throw new Error("query failed");
                 menu.obsState = JSON.parse(stateOutput.text);
-                menu.status = menu.obsState.error || "";
+                menu.status = menu.actionError || menu.obsState.error || "";
             } catch (error) {
                 menu.obsState = {ready: false, recording: false, paused: false, streaming: false};
-                menu.status = "OBS status unavailable";
+                menu.status = menu.actionError || "OBS status unavailable";
             }
             menu.pendingAction = "";
             menu.awaitingState = false;
@@ -92,7 +94,9 @@ ThemedPopup {
         stdout: StdioCollector { id: output }
         onExited: function(code) {
             if (code !== 0) {
-                menu.status = output.text.trim();
+                menu.actionError = output.text.trim() || "OBS command failed";
+                menu.status = menu.actionError;
+                menu.visible = true;
                 menu.pendingAction = "";
                 menu.preparingStart = false;
             } else if (menu.preparingStart) {

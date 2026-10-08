@@ -54,6 +54,20 @@ class ObsControlTests(unittest.TestCase):
                 obs.apply_capture_options(["obs-cmd"])
             run.assert_not_called()
 
+    def test_camera_uses_scene_name_without_cli_preamble(self):
+        options = {"audio": {"sources": []}, "mic": {"sources": []},
+                   "webcam": {"enabled": True, "sources": ["Camera"]}}
+        scene = {"current_scene": "Scene", "sources": [
+            {"name": "Screen", "id": "pipewire-screen-capture-source"},
+            {"name": "Scene", "settings": {"items": [{"name": "Screen"}]}}]}
+        with patch.object(obs, "capture_options", return_value=options), \
+                patch.object(obs, "scene_collection", return_value=scene), \
+                patch.object(obs.subprocess, "run", side_effect=[
+                    SimpleNamespace(returncode=0, stdout="Executing: Get current scene\nCurrent scene: Scene\n"),
+                    SimpleNamespace(returncode=0)]) as run:
+            obs.apply_capture_options(["obs-cmd"])
+            self.assertEqual(run.call_args.args[0], ["obs-cmd", "scene-item", "enable", "Scene", "Camera"])
+
     def test_idle_obs_exits_after_successful_stop(self):
         with patch.object(obs, "status", return_value={"ready": True, "running": True, "recording": False, "streaming": False}), \
                 patch.object(obs.subprocess, "run", side_effect=[SimpleNamespace(returncode=0, stdout="42\n"), SimpleNamespace(returncode=0, stdout="[]")]), \

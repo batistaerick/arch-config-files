@@ -66,8 +66,8 @@ ThemedPopup {
                 font.pixelSize: PanelStyle.headingSize
                 font.bold: true
             }
-            ObsActionButton { controller: menu; action: "folder"; description: "Open recordings"; text: "󰉋"; available: !actionProcess.running }
-            ObsActionButton { controller: menu; action: "open"; description: "Open OBS"; text: "󰻂"; available: !actionProcess.running }
+            ObsActionButton { controller: menu; action: "folder"; description: "Open recordings"; glyph: "󰉋"; available: !actionProcess.running }
+            ObsActionButton { controller: menu; action: "open"; description: "Open OBS"; glyph: "󰻂"; available: !actionProcess.running }
         }
         Repeater {
             model: ["Recording", "Streaming"]
@@ -100,13 +100,13 @@ ThemedPopup {
                         visible: section.recording && section.active
                         action: menu.obsState.paused ? "resume" : "pause"
                         description: menu.obsState.paused ? "Resume recording" : "Pause recording"
-                        text: menu.obsState.paused ? "󰐊" : "󰏤"
+                        glyph: menu.obsState.paused ? "󰐊" : "󰏤"
                     }
                     ObsActionButton {
                         controller: menu
                         action: section.recording ? (section.active ? "stop" : "record") : (section.active ? "stop-stream" : "stream")
                         description: (section.active ? "Stop " : "Start ") + section.modelData.toLowerCase()
-                        text: section.active ? "󰓛" : section.recording ? "󰑋" : "󰐌"
+                        glyph: section.active ? "󰓛" : "󰐌"
                     }
                 }
             }

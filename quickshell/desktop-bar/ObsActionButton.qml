@@ -1,15 +1,31 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 
 PanelButton {
     id: button
     required property var controller
     required property string action
     required property string description
+    required property string glyph
     foreground: controller.foreground
     icon: true
+    text: ""
     height: 34
     available: controller.controlsReady
     onClicked: controller.run(action)
+    TextMetrics {
+        id: glyphMetrics
+        text: button.glyph
+        font.family: PanelStyle.fontFamily
+        font.pixelSize: 18
+    }
+    Text {
+        text: button.glyph
+        font: glyphMetrics.font
+        color: button.foreground
+        x: (button.width - glyphMetrics.tightBoundingRect.width) / 2 - glyphMetrics.tightBoundingRect.x
+        y: (button.height - glyphMetrics.tightBoundingRect.height) / 2 - glyphMetrics.tightBoundingRect.y - baselineOffset
+    }
     HoverHandler { id: hover }
     BarTooltip {
         target: button

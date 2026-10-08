@@ -89,7 +89,9 @@ if [[ -f "$HOME/.config/theme/current/theme-env.conf" ]]; then
 fi
 touch "$HOME/.config/hypr/portable.mode"
 ln -s -- ../../.config/walker/bin/walker "$HOME/.local/bin/walker"
-install -m 755 -- "$repo_root/HOME_FILES/.local/bin/netflix" "$HOME/.local/bin/netflix"
+for launcher in streaming-app netflix crunchyroll; do
+  install -m 755 -- "$repo_root/HOME_FILES/.local/bin/$launcher" "$HOME/.local/bin/$launcher"
+done
 icon_source="$repo_root/HOME_FILES/.local/share/icons/hicolor"
 icon_target="$HOME/.local/share/icons/hicolor"
 mkdir -p "$icon_target"

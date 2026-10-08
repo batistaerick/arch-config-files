@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+provider="${1:-}"
+mode="${2:-accelerated}"
+case "$provider" in
+  netflix) name=Netflix; url=https://www.netflix.com/ ;;
+  crunchyroll) name=Crunchyroll; url=https://www.crunchyroll.com/ ;;
+  *) printf 'Unknown streaming provider: %s\n' "$provider" >&2; exit 2 ;;
+esac
+profile="${XDG_CONFIG_HOME:-$HOME/.config}/${provider}-chrome"
+flags=(--ozone-platform=x11)
+case "$mode" in
+  accelerated) ;;
+  software) profile="${profile}-software"; flags+=(--disable-gpu) ;;
+  *) printf 'Unknown graphics mode: %s\n' "$mode" >&2; exit 2 ;;
+esac
+
+# Separate profiles keep these graphics flags out of the normal Chrome process.
+exec google-chrome-stable --user-data-dir="$profile" "${flags[@]}" \
+  --class="$name" --app="$url"

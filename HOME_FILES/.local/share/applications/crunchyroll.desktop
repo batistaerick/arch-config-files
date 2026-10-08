@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Crunchyroll
+Comment=Crunchyroll in a dedicated Chrome window
+Exec=sh -c "exec \"\$HOME/.local/bin/crunchyroll\""
+TryExec=google-chrome-stable
+Icon=crunchyroll
+Terminal=false
+Categories=AudioVideo;Video;
+StartupWMClass=Crunchyroll
+Actions=Software;
+
+[Desktop Action Software]
+Name=Crunchyroll (Software Rendering)
+Exec=sh -c "exec \"\$HOME/.local/bin/crunchyroll\" software"

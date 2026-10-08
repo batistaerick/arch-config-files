@@ -1,5 +1,9 @@
 from pathlib import Path
 import configparser
+import json
+import os
+import subprocess
+import tempfile
 import unittest
 
 
@@ -7,9 +11,28 @@ DISTRO = Path(__file__).resolve().parents[1]
 
 
 class InstallManifestTests(unittest.TestCase):
+    def test_streaming_launchers_build_isolated_commands(self):
+        scripts = DISTRO.parent / "HOME_FILES/.local/bin"
+        with tempfile.TemporaryDirectory() as directory:
+            mock = Path(directory) / "google-chrome-stable"
+            mock.write_text('#!/usr/bin/env python3\nimport json,sys\nprint(json.dumps(sys.argv[1:]))\n')
+            mock.chmod(0o755)
+            env = dict(os.environ, PATH=directory + os.pathsep + os.environ["PATH"], XDG_CONFIG_HOME=directory)
+            for provider in ("netflix", "crunchyroll"):
+                for mode in ("accelerated", "software"):
+                    with self.subTest(provider=provider, mode=mode):
+                        result = subprocess.run([str(scripts / provider), mode], env=env,
+                                                capture_output=True, text=True, check=True)
+                        args = json.loads(result.stdout)
+                        suffix = "-software" if mode == "software" else ""
+                        self.assertIn(f"--user-data-dir={directory}/{provider}-chrome{suffix}", args)
+                        self.assertIn(f"--app=https://www.{provider}.com/", args)
+                        self.assertEqual("--disable-gpu" in args, mode == "software")
+                        self.assertIn("--ozone-platform=x11", args)
+
     def test_netflix_graphics_are_isolated_from_normal_chrome(self):
         root = DISTRO.parent
-        script = (root / "HOME_FILES/.local/bin/netflix").read_text()
+        script = (root / "HOME_FILES/.local/bin/streaming-app").read_text()
         self.assertIn('--user-data-dir="$profile"', script)
         self.assertIn('--ozone-platform=x11', script)
         self.assertIn('flags+=(--disable-gpu)', script)

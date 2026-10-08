@@ -269,13 +269,13 @@ ShellRoot {
                     target: "panels"
                     function close(): void {
                         for (var panel of [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
-                                keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu])
+                                keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu])
                             panel.visible = false;
                     }
                     function show(kind: string): void {
                         var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
                             mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
-                            weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu};
+                            weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu};
                         if (!panels[kind]) return;
                         for (var key in panels) panels[key].visible = false;
                         panels[kind].visible = true;

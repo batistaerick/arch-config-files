@@ -17,10 +17,6 @@ PopupWindow {
     default property alias panelContent: body.data
     visible: false
     color: "transparent"
-    Behavior on implicitHeight {
-        enabled: popup.visible
-        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
-    }
     anchor.item: target
     anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, centered ? "center" : leftAligned ? "left" : "right")
     anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)

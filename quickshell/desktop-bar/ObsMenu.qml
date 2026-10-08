@@ -14,6 +14,7 @@ ThemedPopup {
     property bool awaitingState: false
     property bool editing: false
     property var captureOptions: ({})
+    property var pendingOptionChanges: ({})
     signal captureStarting()
     readonly property bool busy: pendingAction !== ""
     property var obsState: ({ready: false, recording: false, paused: false, streaming: false})
@@ -39,7 +40,24 @@ ThemedPopup {
         if (!optionQuery.running && !optionWriter.running) optionQuery.running = true;
     }
     function saveOption(key, enabled) {
-        if (busy || optionWriter.running) return;
+        if (busy) return;
+        const options = Object.assign({}, captureOptions);
+        options[key] = Object.assign({}, options[key], {enabled: enabled});
+        captureOptions = options;
+        const changes = Object.assign({}, pendingOptionChanges);
+        changes[key] = enabled;
+        pendingOptionChanges = changes;
+        writeNextOption();
+    }
+    function writeNextOption() {
+        if (optionWriter.running) return;
+        const keys = Object.keys(pendingOptionChanges);
+        if (!keys.length) return;
+        const key = keys[0];
+        const enabled = pendingOptionChanges[key];
+        const remaining = Object.assign({}, pendingOptionChanges);
+        delete remaining[key];
+        pendingOptionChanges = remaining;
         optionWriter.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "set-option", key, enabled ? "true" : "false"];
         optionWriter.running = true;
     }
@@ -50,6 +68,7 @@ ThemedPopup {
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "options"]
         stdout: StdioCollector { id: optionOutput }
         onExited: function(code) {
+            if (optionWriter.running || Object.keys(menu.pendingOptionChanges).length) return;
             try { if (code === 0) menu.captureOptions = JSON.parse(optionOutput.text); }
             catch (error) { menu.status = "Recording settings unavailable"; }
         }
@@ -58,8 +77,12 @@ ThemedPopup {
         id: optionWriter
         stdout: StdioCollector { id: optionResult }
         onExited: function(code) {
-            if (code !== 0) menu.status = optionResult.text.trim();
-            menu.loadOptions();
+            if (code !== 0) {
+                menu.actionError = optionResult.text.trim() || "Could not save recording settings";
+                menu.status = menu.actionError;
+                menu.pendingOptionChanges = ({});
+                menu.loadOptions();
+            } else menu.writeNextOption();
         }
     }
     Timer { interval: 2000; repeat: true; running: true; onTriggered: menu.refresh() }
@@ -167,7 +190,7 @@ ThemedPopup {
                     }
                     PanelSwitch {
                         checked: optionRow.option.enabled
-                        enabled: optionRow.option.available && !menu.busy && !optionWriter.running
+                        enabled: optionRow.option.available && !menu.busy
                         foreground: menu.foreground
                         accent: menu.accent
                         onToggled: menu.saveOption(optionRow.modelData, checked)

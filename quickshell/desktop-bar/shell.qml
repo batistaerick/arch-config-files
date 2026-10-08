@@ -380,16 +380,6 @@ ShellRoot {
                             }
 
                             StatusIcon {
-                                id: idleLockIcon
-                                icon: shell.idleLockEnabled ? "󱫗" : "󱫖"
-                                iconSize: 17
-                                tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
-                                open: shell.statusOpen
-                                clickable: true
-                                onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true
-                            }
-
-                            StatusIcon {
                                 id: keyboardIcon
                                 icon: "󰌌"
                                 iconSize: 18
@@ -406,6 +396,16 @@ ShellRoot {
                                 accent: shell.activeBg
                                 foreground: shell.fg
                                 background: shell.workspaceMenuBg
+                            }
+
+                            StatusIcon {
+                                id: idleLockIcon
+                                icon: shell.idleLockEnabled ? "󱫗" : "󱫖"
+                                iconSize: 17
+                                tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
+                                open: shell.statusOpen
+                                clickable: true
+                                onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true
                             }
 
                             StatusIcon {

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import "PanelStyle.js" as PanelStyle
@@ -18,10 +19,22 @@ Rectangle {
     border.width: selected || hover.hovered ? 2 : 1
     border.color: selected || hover.hovered ? accent : Qt.alpha(foreground, 0.2)
     HoverHandler { id: hover }
+    Rectangle {
+        id: roundedDesktopMask
+        x: desktop.x; y: desktop.y
+        width: desktop.width; height: desktop.height
+        radius: Math.max(0, tile.radius - desktop.x)
+        color: "white"
+        antialiasing: true
+        visible: false
+        layer.enabled: true
+    }
     Item {
         id: desktop
         x: 2; y: 2; width: parent.width - 4; height: parent.height - 4
         clip: true
+        layer.enabled: true
+        layer.effect: MultiEffect { maskEnabled: true; maskSource: roundedDesktopMask }
         readonly property var geometry: WorkspaceModel.frame(tile.workspace)
         readonly property real fit: Math.min(width / geometry.width, height / geometry.height)
         Image {

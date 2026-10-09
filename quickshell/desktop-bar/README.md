@@ -32,9 +32,12 @@ screen-centered overview of occupied workspaces only, across monitors, numbered
 1–10. Window captures stay in memory and refresh once per second while open;
 they are never saved to disk. The workspace layout updates without switching
 through desktops. Unsupported captures fall back to application labels. Click
-a tile or press 1–9/0 to switch; Escape, the close icon, or clicking outside the
+a tile or press 1–9/0 to switch; arrows select a tile and Enter switches to it.
+Tiles preserve the workspace monitor's aspect ratio and show its number in the
+top-left corner, without window-count headings. Escape, the close icon, or clicking outside the
 tiles dismisses it. Walker > System > Workspace Overview opens the same view.
 The overlay matches the bar's appearance and uses the usual 320 ms transition.
+The blurred background appears before previews and remains until they finish closing.
 Capture uses Quickshell's
 [ScreencopyView](https://quickshell.org/docs/v0.3.0/types/Quickshell.Wayland/ScreencopyView/)
 and the compositor's window-export protocol, without additional screenshot tools.

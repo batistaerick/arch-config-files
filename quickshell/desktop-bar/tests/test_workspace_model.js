@@ -14,4 +14,15 @@ assert.equal(JSON.stringify(occupied.map(w => [w.id, w.windows.length])), '[[1,1
 const bounds = model.bounds([window(1, {at: [-200, 40], size: [100, 100]}), window(1, {at: [0, 40], size: [200, 100]})]);
 assert.equal(JSON.stringify(bounds), '{"x":-200,"y":40,"width":400,"height":100}');
 assert.equal(model.bounds([]).width, 1);
+const desktop = {windows: [{monitor: {lastIpcObject: {width: 2560, height: 1080, scale: 1, x: -2560, y: 0}}}]};
+assert.equal(JSON.stringify(model.frame(desktop)), '{"x":-2560,"y":0,"width":2560,"height":1080}');
+desktop.windows[0].monitor.lastIpcObject = {width: 3840, height: 2160, scale: 2, transform: 1};
+assert.equal(model.frame(desktop).width, 1080);
+assert.equal(model.frame(desktop).height, 1920);
+assert.equal(model.selection(0, 'left', 2, 3), 0);
+assert.equal(model.selection(0, 'right', 2, 3), 1);
+assert.equal(model.selection(0, 'down', 2, 3), 2);
+assert.equal(model.selection(2, 'up', 2, 3), 0);
+assert.equal(model.selection(2, 'down', 2, 3), 2);
+assert.equal(model.selection(0, 'right', 2, 0), -1);
 console.log('Workspace model: defaults, sequential ceiling, cap, occupied-only groups, geometry passed');

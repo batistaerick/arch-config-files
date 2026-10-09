@@ -18,17 +18,17 @@ Rectangle {
     border.width: selected || hover.hovered ? 2 : 1
     border.color: selected || hover.hovered ? accent : Qt.alpha(foreground, 0.2)
     HoverHandler { id: hover }
-    Row {
-        x: 14; y: 10; spacing: 10
-        Text { text: "Workspace " + tile.workspace.id; color: tile.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
-        Text { anchors.verticalCenter: parent.verticalCenter; text: tile.workspace.windows.length + " windows"; color: tile.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
-    }
     Item {
         id: desktop
-        x: 14; y: 40; width: parent.width - 28; height: parent.height - 54
+        x: 2; y: 2; width: parent.width - 4; height: parent.height - 4
         clip: true
-        readonly property var geometry: WorkspaceModel.bounds(tile.workspace.windows)
+        readonly property var geometry: WorkspaceModel.frame(tile.workspace)
         readonly property real fit: Math.min(width / geometry.width, height / geometry.height)
+        Image {
+            anchors.fill: parent
+            source: "file://" + Quickshell.env("HOME") + "/.cache/current-wallpaper-image"
+            fillMode: Image.PreserveAspectCrop
+        }
         Repeater {
             model: tile.workspace.windows
             Rectangle {
@@ -70,7 +70,22 @@ Rectangle {
             }
         }
     }
+    Rectangle {
+        x: 10; y: 10; z: 10
+        width: numberLabel.implicitWidth + 16; height: 34
+        radius: PanelStyle.controlRadius
+        color: Qt.alpha(tile.background, 0.92)
+        border.width: 1; border.color: Qt.alpha(tile.foreground, 0.3)
+        Text {
+            id: numberLabel
+            anchors.centerIn: parent
+            text: String(tile.workspace.id).padStart(2, "0")
+            color: tile.foreground
+            font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true
+        }
+    }
     MouseArea {
+        z: 20
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: tile.chosen(tile.workspace.id)

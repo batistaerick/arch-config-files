@@ -32,3 +32,22 @@ function bounds(windows) {
         width: Math.max(1, isFinite(maxX - minX) ? maxX - minX : 1),
         height: Math.max(1, isFinite(maxY - minY) ? maxY - minY : 1)};
 }
+
+function frame(workspace) {
+    var monitor = workspace.windows.length ? workspace.windows[0].monitor : null;
+    var info = monitor ? monitor.lastIpcObject || {} : {};
+    var scale = Number(info.scale || (monitor && monitor.scale)) || 1;
+    var width = Number(info.width || (monitor && monitor.width)) || 0;
+    var height = Number(info.height || (monitor && monitor.height)) || 0;
+    if (width > 0 && height > 0) {
+        if ((Number(info.transform) || 0) % 2) { var swap = width; width = height; height = swap; }
+        return {x: Number(info.x) || 0, y: Number(info.y) || 0, width: width / scale, height: height / scale};
+    }
+    return bounds(workspace.windows);
+}
+
+function selection(index, direction, columns, count) {
+    if (!count) return -1;
+    var delta = direction === "left" ? -1 : direction === "right" ? 1 : direction === "up" ? -columns : columns;
+    return Math.max(0, Math.min(count - 1, index + delta));
+}

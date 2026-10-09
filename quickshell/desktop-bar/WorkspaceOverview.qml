@@ -12,6 +12,7 @@ PanelWindow {
     required property color background
     required property color accent
     property bool opened: false
+    property int selectedIndex: 0
     property real revealProgress: opened ? 1 : 0
     readonly property var workspaces: WorkspaceModel.occupied(Hyprland.toplevels.values)
     visible: opened || revealProgress > 0
@@ -21,13 +22,25 @@ PanelWindow {
     WlrLayershell.namespace: "desktop-overview"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    Behavior on revealProgress { NumberAnimation { duration: 320; easing.type: overview.opened ? Easing.OutCubic : Easing.InCubic } }
-    onOpenedChanged: if (opened) Hyprland.refreshToplevels()
+    Behavior on revealProgress { NumberAnimation { id: revealAnimation; duration: 320; easing.type: overview.opened ? Easing.OutCubic : Easing.InCubic } }
+    onOpenedChanged: if (opened) {
+        Hyprland.refreshToplevels();
+        var active = Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0;
+        selectedIndex = Math.max(0, workspaces.findIndex(w => w.id === active));
+        focusDelay.restart();
+    }
+    onWorkspacesChanged: selectedIndex = Math.max(0, Math.min(selectedIndex, workspaces.length - 1))
+    Timer {
+        id: focusDelay
+        interval: 100
+        onTriggered: if (overview.opened && contentLoader.item) contentLoader.item.forceActiveFocus()
+    }
     Timer { interval: 1000; repeat: true; running: overview.opened; onTriggered: Hyprland.refreshToplevels() }
     function choose(id) {
         if (id < 1 || id > 10) return;
         opened = false;
-        Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })");
+        revealAnimation.complete();
+        Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + id + " })"]);
     }
     IpcHandler {
         target: "overview"
@@ -35,22 +48,36 @@ PanelWindow {
         function status(): string { return JSON.stringify({opened: overview.opened, workspaces: overview.workspaces.map(w => ({id: w.id, windows: w.windows.length}))}); }
     }
     Loader {
+        id: contentLoader
+        focus: overview.opened
+        onLoaded: item.forceActiveFocus()
         anchors.fill: parent
         active: overview.visible
         sourceComponent: Component {
             Rectangle {
                 color: overview.background
-                opacity: overview.revealProgress
                 focus: overview.opened
                 Keys.onEscapePressed: overview.opened = false
                 Keys.onPressed: event => {
-                    if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) { overview.choose(event.key - Qt.Key_0); event.accepted = true; }
+                    if (event.key === Qt.Key_Escape) { overview.opened = false; event.accepted = true; }
+                    else if ([Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down].indexOf(event.key) !== -1) {
+                        var direction = event.key === Qt.Key_Left ? "left" : event.key === Qt.Key_Right ? "right" : event.key === Qt.Key_Up ? "up" : "down";
+                        overview.selectedIndex = WorkspaceModel.selection(overview.selectedIndex, direction, grid.columns, overview.workspaces.length);
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                        if (overview.workspaces.length) overview.choose(overview.workspaces[overview.selectedIndex].id);
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Tab) {
+                        overview.selectedIndex = (overview.selectedIndex + 1) % Math.max(1, overview.workspaces.length);
+                        event.accepted = true;
+                    } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) { overview.choose(event.key - Qt.Key_0); event.accepted = true; }
                     else if (event.key === Qt.Key_0) { overview.choose(10); event.accepted = true; }
                 }
                 MouseArea { anchors.fill: parent; onClicked: overview.opened = false }
                 Column {
+                    opacity: overview.revealProgress
                     anchors.centerIn: parent
-                    width: Math.min(parent.width - 96, 1440)
+                    width: Math.max(1, Math.min(parent.width - 96, 2160))
                     spacing: 18
                     scale: 0.96 + overview.revealProgress * 0.04
                     Row {
@@ -64,17 +91,26 @@ PanelWindow {
                         columns: overview.workspaces.length <= 1 ? 1 : overview.workspaces.length <= 4 ? 2 : 3
                         spacing: 18
                         readonly property int rows: Math.max(1, Math.ceil(overview.workspaces.length / columns))
+                        readonly property real cellHeight: Math.max(1, Math.min((overview.height - 150 - (rows - 1) * spacing) / rows,
+                            (width - (columns - 1) * spacing) / columns / Math.max(1, ...overview.workspaces.map(w => { var f = WorkspaceModel.frame(w); return f.width / f.height; }))))
                         Repeater {
                             model: overview.workspaces
-                            WorkspaceOverviewTile {
+                            Item {
                                 required property var modelData
+                                required property int index
                                 width: (grid.width - (grid.columns - 1) * grid.spacing) / grid.columns
-                                height: Math.max(100, Math.min(width * 0.55 + 40, (overview.height - 180 - (grid.rows - 1) * grid.spacing) / grid.rows))
-                                workspace: modelData
-                                foreground: overview.foreground; background: overview.background; accent: overview.accent
-                                capturing: overview.visible
-                                selected: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === modelData.id
-                                onChosen: id => overview.choose(id)
+                                height: grid.cellHeight
+                                readonly property var frame: WorkspaceModel.frame(modelData)
+                                WorkspaceOverviewTile {
+                                    anchors.centerIn: parent
+                                    width: Math.min(parent.width, parent.height * parent.frame.width / parent.frame.height)
+                                    height: width * parent.frame.height / parent.frame.width
+                                    workspace: parent.modelData
+                                    foreground: overview.foreground; background: overview.background; accent: overview.accent
+                                    capturing: overview.visible
+                                    selected: overview.selectedIndex === parent.index
+                                    onChosen: id => overview.choose(id)
+                                }
                             }
                         }
                     }
@@ -85,7 +121,7 @@ PanelWindow {
                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                         color: overview.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                     }
-                    Text { text: "Click a workspace to switch  ·  1–9 / 0 to jump  ·  Esc to close"; color: overview.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                    Text { text: "Arrows to select  ·  Enter to switch  ·  1–9 / 0 to jump  ·  Esc to close"; color: overview.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 }
             }
         }

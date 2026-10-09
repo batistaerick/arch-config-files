@@ -12,7 +12,7 @@ Compared with the local source checkout. Existing themes were left unchanged.
 - graphite: palette differences: cursor, selection_background, color0, color8, color15; neovim.lua: matches; vscode.json: matches.
 - moss: palette differences: cursor, selection_background, color0, color7, color15; neovim.lua: now generated upstream; vscode.json: now generated upstream.
 - nord: palette differences: selection_background, color0, color7, color15; neovim.lua: matches; vscode.json: matches.
-- one-dark-pro: local-only theme.
+- witcher: local-only theme, previously named one-dark-pro; retains the One Dark-derived application palette.
 - jade: palette differences: cursor, selection_foreground, selection_background, color0, color7, color15; neovim.lua: matches; vscode.json: matches.
 - rose-pine: palette differences: cursor, color0, color8; neovim.lua: matches; vscode.json: matches.
 - tokyo-night: palette differences: selection_background, color0, color7, color8, color15; neovim.lua: matches; vscode.json: matches.

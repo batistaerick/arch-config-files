@@ -153,16 +153,18 @@
       "status": "installed"
     },
     {
-      "theme": "one-dark-pro",
+      "theme": "witcher",
       "name": "02-skyfoundry",
       "prompt": "Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. An original fantastical cliffside workshop with tall curved chimneys and suspended walkways above dark clouds, delicate blue crystalline lamps and copper windows, quiet evening sky. Detailed hand-painted adventure environment, no existing castle or franchise. One Dark #282c34 #61afef #c678dd #98c379 #e5c07b #e06c75 accents.",
-      "status": "installed"
+      "status": "archived",
+      "file": "witcher/references/previous-generated/02-skyfoundry.png"
     },
     {
-      "theme": "one-dark-pro",
+      "theme": "witcher",
       "name": "03-orbital-greenhouse",
       "prompt": "Original desktop wallpaper, ultrawide 21:9 horizontal composition suitable for 3440x1440. One full-bleed scene, no text, letters, logos, watermark, frame, collage, UI or existing franchise characters. Calm upper edge for desktop bar, balanced wide composition, fine textures and clearly readable silhouettes. Original arrangement, not a reproduction of a reference artwork. An elegant curved greenhouse on a dark rocky extraterrestrial coast, green plants inside, small cyan utility lights and a violet nebula reflected in tidal pools, broad spacious sky. Cinematic science-fiction landscape, realistic materials, original design. #282c34 charcoal, #61afef blue #c678dd violet #98c379 green #e5c07b warm light.",
-      "status": "installed"
+      "status": "archived",
+      "file": "witcher/references/previous-generated/03-orbital-greenhouse.png"
     },
     {
       "theme": "rose-pine",

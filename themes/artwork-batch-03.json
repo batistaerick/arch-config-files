@@ -51,18 +51,20 @@
       "status": "installed"
     },
     {
-      "theme": "one-dark-pro",
+      "theme": "witcher",
       "name": "04-golden-oath",
       "prompt": "Use case: stylized-concept. Create ONE original full-bleed 21:9 ultrawide desktop wallpaper. Attached contact sheet is reference ONLY for visual language and palette, not an edit target. Stay faithful to its illustration/abstract/portrait identity; invent a new composition. Single artwork, not collage or screenshot. No text, lettering, logos, watermarks, signatures, borders, existing franchise characters, city panoramas, mountain vistas, forest landscapes or generic scenery. Calm upper edge and sophisticated spacious horizontal composition. Theme visual language: Original fantasy character concept illustration, ink #282c34, steel gray #abb2bf, blue #61afef, gold #e5c07b and restrained crimson #e06c75; dramatic crisp silhouettes. New artwork: A solitary masked traveler in a weathered cloak holding a small glowing gold geometric relic in gloved hands, waist-up on right side, cloak edges caught by fine blue rim light, empty charcoal studio void left, fine etched armor details, no franchise character or landscape.",
-      "reference": "one-dark-pro/references/originals/",
-      "status": "installed"
+      "reference": "witcher/references/originals/",
+      "status": "archived",
+      "file": "witcher/references/previous-generated/04-golden-oath.png"
     },
     {
-      "theme": "one-dark-pro",
+      "theme": "witcher",
       "name": "05-ashes-and-steel",
       "prompt": "Use case: stylized-concept. Create ONE original full-bleed 21:9 ultrawide desktop wallpaper. Attached contact sheet is reference ONLY for visual language and palette, not an edit target. Stay faithful to its illustration/abstract/portrait identity; invent a new composition. Single artwork, not collage or screenshot. No text, lettering, logos, watermarks, signatures, borders, existing franchise characters, city panoramas, mountain vistas, forest landscapes or generic scenery. Calm upper edge and sophisticated spacious horizontal composition. Theme visual language: Original fantasy character concept illustration, ink #282c34, steel gray #abb2bf, blue #61afef, gold #e5c07b and restrained crimson #e06c75; dramatic crisp silhouettes. New artwork: An original elegant mechanical raven perched on a broken brass circular device over a slate pedestal, feathers made of brushed dark metal, small crimson eye, gold dust flecks, refined illustrated object study in large dark negative space; not a landscape.",
-      "reference": "one-dark-pro/references/originals/",
-      "status": "installed"
+      "reference": "witcher/references/originals/",
+      "status": "archived",
+      "file": "witcher/references/previous-generated/05-ashes-and-steel.png"
     },
     {
       "theme": "tokyo-night",

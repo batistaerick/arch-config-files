@@ -1,8 +1,8 @@
 # Wallpaper Collection
 
-The collection contains five original AI-generated wallpapers for each of the 19 themes, 95 images total. Batch 01 added 38 images; Batch 02 added 19 reference-led images, emphasizing characters, illustration, still-life and abstraction rather than generic city or nature scenery. Batch 03 added 38 more artworks in the same reference-led direction.
+The collection spans 19 themes, including four Witcher fan-art wallpapers. Batches 01-03 originally generated 95 images; Witcher's four-image replacement brings the historical generated total to 99. Later live wallpaper curation may remove or reorder images independently of the generation manifests.
 
-Batch 02's former 03 images are now numbered 01 and are the defaults when applying a theme. Batch 01's original pair is retained as 02 and 03; Batch 03 occupies 04 and 05. All manifests and theme prompt notes use the current filenames.
+At the end of Batch 03, Batch 02's former 03 images were promoted to 01, Batch 01's original pair became 02 and 03, and Batch 03 occupied 04 and 05. Subsequent user curation may change that order. Witcher now uses its new sunset ride as 01. Historical manifest entries for its archived images include an explicit file path; a previously removed image remains marked removed.
 
 ## Files
 
@@ -12,8 +12,10 @@ Batch 02's former 03 images are now numbered 01 and are the defaults when applyi
 - `artwork-batch.json`: collection manifest and generation/edit prompts.
 - `artwork-batch-02.json`: completed reference-led batch and its generation prompts.
 - `artwork-batch-03.json`: second reference-led round, two artworks per theme, generated with the built-in image tool.
+- `artwork-witcher.json`: four text-free Witcher fan-art wallpapers and prompts.
+- `witcher/references/previous-generated/`: four preserved images from before the theme was renamed from one-dark-pro.
 
-The nine renamed theme folders are afterglow, daylight, graphite, jade, moonveil, moss, obsidian, stillwater, and wisteria. Established palette names remain unchanged. External editor plugin identifiers are upstream names and must not be renamed as local folder names.
+Renamed theme folders include afterglow, daylight, graphite, jade, moonveil, moss, obsidian, stillwater, wisteria, and witcher. Established palette names remain unchanged. External editor plugin identifiers are upstream names and must not be renamed as local folder names.
 
 ## Resolution
 
@@ -27,4 +29,4 @@ Start additional original wallpapers at 06. Use original references for general 
 
 Archival does not change the rights of previous third-party wallpapers; `IMPORT-LICENSE` remains applicable. Retaining reference images does not mean they are cleared for distribution. Review/exclude references before publishing a distributable ISO.
 
-Existing theme screenshot previews and Dark/Light category images were not replaced by this wallpaper batch.
+Witcher's carousel preview uses its new default wallpaper. Other theme screenshot previews and Dark/Light category images remain unchanged. Witcher fan art includes franchise characters and iconography; generation does not establish redistribution clearance. Review it separately before shipping a public ISO.

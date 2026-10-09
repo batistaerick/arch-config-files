@@ -34,6 +34,11 @@ controls, with the time/date centered and popups opening inward.
 Hardware and AI Usage sit together after the workspaces; right-hand controls
 retain their manual show/hide toggle. Both side groups share 24 px icon slots
 and 4 px spacing, with centered alignment on every bar edge.
+The Idle Lock icon opens a themed panel with an automatic idle-lock switch and
+Lock now button. Lock now waits for the panel to close, then uses the existing
+manual-lock flow; idle/display-off/suspend timings are unchanged. The panel is
+available on all bar edges and via `panels show idle`. Walker's existing Toggle
+> Idle Lock action remains a direct toggle.
 
 The Overview icon precedes the workspace markers on every bar edge. It opens a
 screen-centered overview of occupied workspaces only, across monitors, numbered

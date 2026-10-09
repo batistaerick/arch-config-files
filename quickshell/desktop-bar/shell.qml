@@ -192,6 +192,10 @@ ShellRoot {
         command: ["bash", Quickshell.env("HOME") + "/.config/walker/scripts/actions/toggle/idle-lock.sh"]
         onExited: if (!idleLockStatus.running) idleLockStatus.running = true
     }
+    Process {
+        id: manualLock
+        command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/manual-lock.sh"]
+    }
 
     AppearancePicker {}
 
@@ -259,7 +263,7 @@ ShellRoot {
                 required property var modelData
                 readonly property Item stripItem: barContents
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
-                    keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
+                    keyboardMenu, idleLockMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
                 property var pendingPanel: null
                 property bool pendingOverview: false
@@ -342,6 +346,7 @@ ShellRoot {
                     Region { item: volumeMenu.opened ? volumeMenu : null }
                     Region { item: micMenu.opened ? micMenu : null }
                     Region { item: keyboardMenu.opened ? keyboardMenu : null }
+                    Region { item: idleLockMenu.opened ? idleLockMenu : null }
                     Region { item: calendarMenu.opened ? calendarMenu : null }
                     Region { item: weatherMenu.opened ? weatherMenu : null }
                     Region { item: hardwareMenu.opened ? hardwareMenu : null }
@@ -399,7 +404,7 @@ ShellRoot {
                     }
                     function show(kind: string): void {
                         var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
-                            mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
+                            mic: micMenu, keyboard: keyboardMenu, idle: idleLockMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu,
                             workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter};
                         if (kind === "overview") { bar.toggleOverview(); return; }
@@ -590,7 +595,7 @@ ShellRoot {
                         VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(volumeMenu) }
                         VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(micMenu) }
                         VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(keyboardMenu) }
-                        VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
+                        VerticalBarIcon { id: verticalIdleLockIcon; icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(idleLockMenu); onOpenChanged: if (!open) idleLockMenu.opened = false }
                         VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(obsMenu) }
                         VerticalBarIcon {
                             id: verticalNotificationIcon
@@ -919,7 +924,22 @@ ShellRoot {
                                 tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true
+                                onClicked: bar.togglePanel(idleLockMenu)
+                                onOpenChanged: if (!open) idleLockMenu.opened = false
+                            }
+
+                            IdleLockMenu {
+                                id: idleLockMenu
+                                target: shell.verticalBar ? verticalIdleLockIcon : (shell.statusOpen ? idleLockIcon : notificationIcon)
+                                barEdge: shell.barEdge
+                                surfaceColor: shell.barBackground()
+                                foreground: shell.fg
+                                background: shell.workspaceMenuBg
+                                accent: shell.activeBg
+                                idleEnabled: shell.idleLockEnabled
+                                busy: toggleIdleLock.running || manualLock.running
+                                onToggleRequested: if (!toggleIdleLock.running) toggleIdleLock.running = true
+                                onLockRequested: if (!manualLock.running) manualLock.running = true
                             }
 
                             StatusIcon {

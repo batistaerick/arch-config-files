@@ -110,6 +110,9 @@ them with upstream defaults.
   in-memory previews with no saved screenshots. Keep equal left-group spacing
   and centered icon/marker alignment on all bar edges. Right-side controls use
   the same icon-slot dimensions and spacing as the left group.
+  Overview always uses a theme-tinted blurred background, independent of bar
+  appearance. Stagger preview entrances in workspace order, finishing within
+  one second; all Overview dismissal paths must be instant, with no closing effect.
 - Wallpaper/theme changes should not emit success notifications. Preserve both
   Walker selection and the desktop carousel workflows.
 - Theme-generator changes must accompany edits to generated styles so the next

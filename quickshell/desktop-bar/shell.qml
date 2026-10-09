@@ -292,7 +292,7 @@ ShellRoot {
                     id: overview
                     screen: bar.screen
                     foreground: shell.fg
-                    background: shell.barBackground()
+                    background: shell.bg
                     accent: shell.activeBg
                 }
                 function finishPanelSwitch() {

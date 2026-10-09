@@ -14,21 +14,30 @@ PanelWindow {
     property bool opened: false
     property int selectedIndex: 0
     property real revealProgress: opened ? 1 : 0
+    property real entranceElapsed: 0
     readonly property var workspaces: WorkspaceModel.occupied(Hyprland.toplevels.values)
-    visible: opened || revealProgress > 0
+    visible: opened
     color: "transparent"
     anchors { top: true; bottom: true; left: true; right: true }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "desktop-overview"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    Behavior on revealProgress { NumberAnimation { id: revealAnimation; duration: 320; easing.type: overview.opened ? Easing.OutCubic : Easing.InCubic } }
+    Behavior on revealProgress { enabled: overview.opened; NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+    NumberAnimation {
+        id: tileEntrances
+        target: overview; property: "entranceElapsed"
+        from: 0; to: 755; duration: 755
+        easing.type: Easing.Linear
+    }
     onOpenedChanged: if (opened) {
+        entranceElapsed = 0;
+        tileEntrances.restart();
         Hyprland.refreshToplevels();
         var active = Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0;
         selectedIndex = Math.max(0, workspaces.findIndex(w => w.id === active));
         focusDelay.restart();
-    }
+    } else tileEntrances.stop()
     onWorkspacesChanged: selectedIndex = Math.max(0, Math.min(selectedIndex, workspaces.length - 1))
     Timer {
         id: focusDelay
@@ -39,7 +48,6 @@ PanelWindow {
     function choose(id) {
         if (id < 1 || id > 10) return;
         opened = false;
-        revealAnimation.complete();
         Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + id + " })"]);
     }
     IpcHandler {
@@ -79,7 +87,6 @@ PanelWindow {
                     anchors.centerIn: parent
                     width: Math.max(1, Math.min(parent.width - 96, 2160))
                     spacing: 18
-                    scale: 0.96 + overview.revealProgress * 0.04
                     Row {
                         width: parent.width; spacing: 12
                         Text { width: parent.width - 46; height: 34; text: "󰕮  Overview"; color: overview.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true; verticalAlignment: Text.AlignVCenter }
@@ -96,20 +103,27 @@ PanelWindow {
                         Repeater {
                             model: overview.workspaces
                             Item {
+                                id: cell
                                 required property var modelData
                                 required property int index
                                 width: (grid.width - (grid.columns - 1) * grid.spacing) / grid.columns
                                 height: grid.cellHeight
                                 readonly property var frame: WorkspaceModel.frame(modelData)
-                                WorkspaceOverviewTile {
+                                OverviewTileReveal {
                                     anchors.centerIn: parent
                                     width: Math.min(parent.width, parent.height * parent.frame.width / parent.frame.height)
                                     height: width * parent.frame.height / parent.frame.width
-                                    workspace: parent.modelData
-                                    foreground: overview.foreground; background: overview.background; accent: overview.accent
-                                    capturing: overview.visible
-                                    selected: overview.selectedIndex === parent.index
-                                    onChosen: id => overview.choose(id)
+                                    opened: overview.opened
+                                    order: cell.index
+                                    elapsed: overview.entranceElapsed
+                                    WorkspaceOverviewTile {
+                                        anchors.fill: parent
+                                        workspace: cell.modelData
+                                        foreground: overview.foreground; background: overview.background; accent: overview.accent
+                                        capturing: overview.visible
+                                        selected: overview.selectedIndex === cell.index
+                                        onChosen: id => overview.choose(id)
+                                    }
                                 }
                             }
                         }

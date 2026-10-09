@@ -44,8 +44,11 @@ a tile or press 1–9/0 to switch; arrows select a tile and Enter switches to it
 Tiles preserve the workspace monitor's aspect ratio and show its number in the
 top-left corner, without window-count headings. Escape, the close icon, or clicking outside the
 tiles dismisses it. Walker > System > Workspace Overview opens the same view.
-The overlay matches the bar's appearance and uses the usual 320 ms transition.
-The blurred background appears before previews and remains until they finish closing.
+The overlay always uses the theme-tinted Blur background, even with a Theme
+Color bar. Workspace previews enter in order with a 55 ms stagger and a 260 ms
+fade/scale/slide; even ten previews finish in about 755 ms. The blurred background
+appears before previews. All dismissal paths instantly remove the entire overlay:
+workspace selection, Escape, outside click, and the close button.
 Capture uses Quickshell's
 [ScreencopyView](https://quickshell.org/docs/v0.3.0/types/Quickshell.Wayland/ScreencopyView/)
 and the compositor's window-export protocol, without additional screenshot tools.

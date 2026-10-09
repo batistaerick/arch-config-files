@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import "PanelStyle.js" as PanelStyle
+import "NotificationLogic.js" as NotificationLogic
 
 Rectangle {
     id: card
@@ -9,10 +10,15 @@ Rectangle {
     required property color accent
     property bool compact: false
     property bool filled: true
-    // Satty supplies a screenshot preview, not a sender/avatar image.
-    readonly property bool useNotificationImage: notification
-        && !/^satty$/i.test(notification.appName || "")
-        && !/^satty(?:\.desktop)?$/i.test(notification.desktopEntry || "")
+    readonly property bool imageIsPreview: NotificationLogic.imageIsPreview(notification,
+        imageLoader.implicitWidth, imageLoader.implicitHeight)
+    readonly property bool useNotificationImage: notification && !imageIsPreview
+    Image {
+        id: imageLoader
+        visible: false
+        source: card.notification ? card.notification.image : ""
+        asynchronous: true
+    }
     signal activated(int notificationId)
     function invokeAction(action) {
         var id = notification.id;
@@ -115,6 +121,19 @@ Rectangle {
             wrapMode: Text.Wrap
             maximumLineCount: card.compact ? 3 : 12
             elide: Text.ElideRight
+        }
+        Image {
+            objectName: "notificationPreview"
+            source: card.imageIsPreview ? imageLoader.source : ""
+            visible: status === Image.Ready && card.imageIsPreview
+            readonly property real displayScale: Math.min(1,
+                content.width / Math.max(1, implicitWidth),
+                (card.compact ? 128 : 160) / Math.max(1, implicitWidth),
+                (card.compact ? 96 : 120) / Math.max(1, implicitHeight))
+            width: visible ? implicitWidth * displayScale : 0
+            height: visible ? implicitHeight * displayScale : 0
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
         }
         Flow {
             width: parent.width

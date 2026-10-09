@@ -108,6 +108,7 @@ TestCase {
     function test_image_sizes(data) {
         var notification = notice();
         notification.image = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + data.sourceWidth + '" height="' + data.sourceHeight + '"><rect width="100%" height="100%" fill="cyan"/></svg>');
+        notification.appName = "Google Chrome";
         var card = createTemporaryObject(cardComponent, test, {notification: notification, compact: data.compact});
         var image = findChild(card, "notificationImage");
         tryCompare(image, "status", Image.Ready);
@@ -126,6 +127,22 @@ TestCase {
                 {tag: "broken image", image: "file:///nonexistent-eitr-notification-image.png", appIcon: true},
                 {tag: "no icons", image: "", appIcon: false}];
     }
+    function test_body_preview_caps_data() {
+        return [{tag: "center screenshot", appName: "Satty", compact: false, width: 160, height: 90},
+                {tag: "popup screenshot", appName: "Satty", compact: true, width: 128, height: 72},
+                {tag: "other app attachment", appName: "Photo editor", compact: false, width: 160, height: 90}];
+    }
+    function test_body_preview_caps(data) {
+        var notification = notice();
+        notification.appName = data.appName;
+        notification.image = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160"><rect width="100%" height="100%" fill="cyan"/></svg>');
+        var card = createTemporaryObject(cardComponent, test, {notification: notification, compact: data.compact});
+        var preview = findChild(card, "notificationPreview");
+        tryCompare(preview, "status", Image.Ready);
+        compare(preview.width, data.width);
+        compare(preview.height, data.height);
+        verify(!findChild(card, "notificationImage").visible);
+    }
     function test_screenshot_preview_is_not_an_avatar_data() {
         return [{tag: "Satty app name", appName: "Satty", desktopEntry: ""},
                 {tag: "Satty desktop entry", appName: "Screenshot", desktopEntry: "satty.desktop"}];
@@ -138,6 +155,10 @@ TestCase {
         var card = createTemporaryObject(cardComponent, test, {notification: notification});
         compare(findChild(card, "notificationImage").source.toString(), "");
         verify(findChild(card, "notificationFallbackGlyph").visible);
+        var preview = findChild(card, "notificationPreview");
+        tryCompare(preview, "status", Image.Ready);
+        verify(preview.visible);
+        compare(preview.width, 28);
     }
     function test_image_fallback(data) {
         var notification = notice();

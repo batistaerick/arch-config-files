@@ -1,5 +1,16 @@
 .pragma library
 
+function imageIsPreview(notification, width, height) {
+    if (!notification) return false;
+    var identity = (notification.appName || "") + " " + (notification.desktopEntry || "");
+    if (/\b(satty|flameshot|spectacle|shutter|swappy|screenshot)\b/i.test(identity)) return true;
+    var category = notification.hints ? notification.hints.category || "" : "";
+    // Chat/browser images commonly identify the sender, even when not square.
+    if (/^(im|email)(\.|$)/i.test(category)
+        || /\b(slack|discord|telegram|signal|whatsapp|chrome|chromium|firefox|brave)\b/i.test(identity)) return false;
+    return width > 0 && height > 0 && Math.max(width / height, height / width) > 1.2;
+}
+
 function ignored(appName) {
     return /^(kitty|terminal)$/i.test(appName || "");
 }

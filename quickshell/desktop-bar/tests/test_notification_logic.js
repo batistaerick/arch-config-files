@@ -8,6 +8,14 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, '../NotificationLogic.js'),
 assert.equal(logic.ignored('Kitty'), true);
 assert.equal(logic.ignored('Terminal'), true);
 assert.equal(logic.ignored('Slack'), false);
+assert.equal(logic.imageIsPreview({appName: 'Satty'}, 100, 100), true);
+assert.equal(logic.imageIsPreview({desktopEntry: 'org.kde.spectacle'}, 100, 100), true);
+assert.equal(logic.imageIsPreview({appName: 'Google Chrome'}, 80, 120), false);
+assert.equal(logic.imageIsPreview({appName: 'Slack'}, 1920, 1080), false);
+assert.equal(logic.imageIsPreview({appName: 'Other', hints: {category: 'im.received'}}, 80, 120), false);
+assert.equal(logic.imageIsPreview({appName: 'Other'}, 1920, 1080), true);
+assert.equal(logic.imageIsPreview({appName: 'Other'}, 64, 64), false);
+assert.equal(logic.imageIsPreview(null, 0, 0), false);
 assert.equal(logic.popupDuration({urgency: 2, expireTimeout: 5}), 0);
 assert.equal(logic.popupDuration({urgency: 1, expireTimeout: 0}), 0);
 assert.equal(logic.popupDuration({urgency: 1, expireTimeout: 2000}), 2000);

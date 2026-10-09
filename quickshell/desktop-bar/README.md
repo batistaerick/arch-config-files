@@ -150,8 +150,12 @@ Quickshell owns the desktop notification server. The bell and SUPER+N open its
 grouped notification center using the same DockPanel and PanelSurface as the
 other controls. Cards use the notification image as their 28 px header icon,
 falling back to the app icon (then a bell) if it is absent or cannot load.
-Satty screenshot previews are excluded from the avatar slot and use its app icon instead.
-Images are not repeated below the message, and the app name is not repeated. Each
+Screenshot tools (including Satty) show a body preview instead, keeping the app
+icon in the header. Other non-chat apps use body previews for non-square images;
+chat/browser images remain header avatars. Previews preserve native size up to
+160×120 px in the center or 128×96 px in popups. Image roles are inferred because
+apps do not consistently label avatars versus attachments.
+Images are never duplicated, and the app name is not repeated. Each
 app group shows its count and starts with its newest notification over a visual
 stack of up to three cards (one front card and two backing layers). The arrow
 reveals the full group and collapses it back to the stack; the three-card limit

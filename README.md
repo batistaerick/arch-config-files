@@ -26,6 +26,10 @@ desktop. Review the installation guide before using it on a new machine.
 
 ## Getting started
 
+For pre-release Apple Silicon testing, see the
+[temporary Mac VM guide](distro/MAC-VM-TESTING.md). Remove that guide and this link
+after installation and release validation is complete.
+
 Read [the installation guide](distro/README.md), including its hardware caveats
 and current limitations. The installer is intended for a **new Arch installation**,
 as a normal user with sudo access, not an existing configured desktop. It refuses

@@ -51,6 +51,10 @@ the graphical desktop and AUR packages are installed on the target system by
 
 ## Install on a new machine
 
+For Apple Silicon Macs, follow the [temporary VM testing guide](MAC-VM-TESTING.md).
+It uses x86_64 emulation, not a supported ARM port. Remove that guide and this
+link once installation and release testing is complete.
+
 1. Install a supported x86_64 Arch system with a normal user and sudo access.
    Choose partitioning, encryption, boot loader, locale, timezone and user name
    during the normal Arch install. This repo does not make those decisions or

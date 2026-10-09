@@ -326,9 +326,9 @@ ShellRoot {
                 exclusionMode: ExclusionMode.Normal
                 exclusiveZone: shell.barVisible ? (shell.verticalBar ? barContents.width : shell.barHeight) : 0
                 WlrLayershell.namespace: "desktop-bar"
-                // Panels must stay above native application popups and receive
-                // their clicks; the idle bar retains normal Top-layer behavior.
-                WlrLayershell.layer: panelOpen ? WlrLayer.Overlay : WlrLayer.Top
+                // Notification popups must have a strictly higher layer than
+                // panels, rather than depending on same-layer mapping order.
+                WlrLayershell.layer: panelOpen && !notificationPopups.visible ? WlrLayer.Overlay : WlrLayer.Top
                 mask: dockInput
                 WlrLayershell.keyboardFocus: panelOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
@@ -373,6 +373,7 @@ ShellRoot {
                 }
 
                 NotificationPopups {
+                    id: notificationPopups
                     screen: bar.screen
                     service: notificationsService
                     foreground: shell.fg

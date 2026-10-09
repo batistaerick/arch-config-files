@@ -85,6 +85,8 @@ stay centered on horizontal bars; AI Usage opens beside its left-hand icon.
 Panels open above bottom bars and inward from vertical bars. All panels
 temporarily use the foreground Overlay layer while visible, including during
 closing, so application popups cannot cover their surfaces or steal clicks.
+While a notification popup is visible, panels use Top instead: notification
+popups stay on Overlay, above panels, so their close buttons receive clicks.
 The bar returns to its normal Top layer once all panels are closed. Start-group panels
 sit flush against the left screen edge (top for vertical bars); end-group panels
 sit flush against the right edge (bottom for vertical bars), without a curved

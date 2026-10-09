@@ -5,10 +5,10 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 440
+    implicitWidth: 468
     property int maximumHeight: 1000
-    implicitHeight: Math.min(maximumHeight, Math.max(650,
-        content.implicitHeight + 36 + hero.height + 10 + tabs.height + 16 + footer.implicitHeight + 16 + 2))
+    implicitHeight: Math.min(maximumHeight, Math.max(678,
+        content.implicitHeight + 64 + hero.height + 10 + tabs.height + 16 + footer.implicitHeight + 16 + 2))
     property var usage: ({providers: []})
     property var statistics: ({})
     property string selectedProvider: "Claude"
@@ -36,12 +36,12 @@ ThemedPopup {
         var seconds = Math.max(0, Math.floor(timestamp - Date.now() / 1000));
         return "Resets " + Qt.formatDateTime(new Date(timestamp * 1000), "ddd MMM dd, HH:mm") + " · " + Math.floor(seconds / 3600) + "h " + Math.floor(seconds % 3600 / 60) + "m";
     }
-    onVisibleChanged: if (visible) {
+    onOpenedChanged: if (opened) {
         freshReceived = false;
         if (!cached.running) cached.running = true;
         refresh();
     }
-    Timer { interval: 300000; repeat: true; running: menu.visible; onTriggered: menu.refresh() }
+    Timer { interval: 300000; repeat: true; running: menu.opened; onTriggered: menu.refresh() }
     Process {
         id: cached
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/ai-popup.py", "cached"]

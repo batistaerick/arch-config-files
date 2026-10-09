@@ -3,8 +3,8 @@ import "PanelStyle.js" as PanelStyle
 
 ThemedPopup {
     id: menu
-    implicitWidth: 560
-    implicitHeight: 550
+    implicitWidth: 588
+    implicitHeight: 578
     keyTarget: calendarContent
     property date today: new Date()
     property int viewYear: today.getFullYear()
@@ -28,7 +28,7 @@ ThemedPopup {
         viewYear = today.getFullYear();
         viewMonth = today.getMonth();
     }
-    onVisibleChanged: if (visible) goToday()
+    onOpenedChanged: if (opened) goToday()
 
     Item {
         id: calendarContent

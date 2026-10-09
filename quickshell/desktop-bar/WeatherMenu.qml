@@ -5,8 +5,8 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 560
-    implicitHeight: 250 + (results.visible ? results.height + 14 : 0)
+    implicitWidth: 588
+    implicitHeight: 278 + (results.visible ? results.height + 14 : 0)
     keyTarget: weatherContent
     property var weatherData: ({})
     property var defaultWeatherData: ({})
@@ -34,7 +34,7 @@ ThemedPopup {
         cities = [];
         searchError = "";
         debounce.stop();
-        if (visible) weatherContent.forceActiveFocus();
+        if (opened) weatherContent.forceActiveFocus();
     }
     function selectCity(value) {
         city = value;
@@ -59,8 +59,8 @@ ThemedPopup {
         if (["299", "302", "305", "308", "356", "359"].indexOf(code) >= 0) return "󰖖";
         return "󰖐";
     }
-    onVisibleChanged: {
-        if (visible) {
+    onOpenedChanged: {
+        if (opened) {
             city = null;
             weatherData = defaultWeatherData;
             refresh();
@@ -69,7 +69,7 @@ ThemedPopup {
             cancelSearch();
         }
     }
-    Timer { interval: 900000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
+    Timer { interval: 900000; running: menu.opened; repeat: true; onTriggered: menu.refresh() }
     Timer {
         id: debounce
         interval: 300
@@ -84,7 +84,7 @@ ThemedPopup {
         id: weatherQuery
         stdout: StdioCollector { id: weatherOutput }
         onExited: function(code) {
-            if (!menu.visible) return;
+            if (!menu.opened) return;
             if (menu.requestedCity !== JSON.stringify(menu.city)) {
                 menu.refresh();
                 return;
@@ -119,7 +119,7 @@ ThemedPopup {
         focus: true
         Keys.onEscapePressed: {
             if (menu.searching) menu.cancelSearch();
-            else menu.visible = false;
+            else menu.opened = false;
         }
         Column {
             x: 18
@@ -257,7 +257,7 @@ ThemedPopup {
                     Item {
                         required property int index
                         readonly property var day: (menu.weatherData.forecastDays || [])[index] || {}
-                        width: 524 / 3
+                        width: parent.width / 3
                         height: 60
                         Row {
                             anchors.centerIn: parent

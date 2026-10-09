@@ -12,7 +12,7 @@ import subprocess
 SETTINGS = Path.home() / ".config/quickshell/desktop-bar/bar-settings.json"
 DEFAULTS = {"appearance": "transparent", "layout": "unified", "edge": "top"}
 OPTIONS = {
-    "appearance": {"none", "transparent", "solid"},
+    "appearance": {"transparent", "solid"},
     "layout": {"unified", "split"},
     "edge": {"top", "bottom", "left", "right"},
 }

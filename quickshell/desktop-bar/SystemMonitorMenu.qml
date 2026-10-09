@@ -5,13 +5,14 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 
-PopupWindow {
+DockPanel {
     id: menu
     required property Item target
     required property color accent
     required property color foreground
     required property color background
     property string barEdge: "top"
+    property color surfaceColor: background
     property int maximumHeight: 900
     property var sections: []
     property string error: ""
@@ -20,18 +21,14 @@ PopupWindow {
         if (!query.running) query.running = true;
     }
 
-    visible: false
-    color: "transparent"
-    implicitWidth: 440
-    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2, maximumHeight)
-    anchor.item: target
-    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, "left")
-    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
-    anchor.edges: Edges.Top | Edges.Left
-    anchor.gravity: Edges.Bottom | Edges.Right
-    anchor.adjustment: PopupAdjustment.Slide
-    onVisibleChanged: {
-        if (visible) {
+    opened: false
+    implicitWidth: 468
+    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2 + 28, maximumHeight)
+    attachmentTarget: target
+    attachmentEdge: barEdge
+    alignment: "left"
+    onOpenedChanged: {
+        if (opened) {
             refresh();
             grabDelay.restart();
         } else {
@@ -39,9 +36,9 @@ PopupWindow {
             grab.active = false;
         }
     }
-    Timer { id: grabDelay; interval: 100; onTriggered: if (menu.visible) grab.active = true }
-    Timer { interval: 2000; repeat: true; running: menu.visible; onTriggered: menu.refresh() }
-    HyprlandFocusGrab { id: grab; windows: [menu]; onCleared: menu.visible = false }
+    Timer { id: grabDelay; interval: 100; onTriggered: if (menu.opened) grab.active = true }
+    Timer { interval: 2000; repeat: true; running: menu.opened; onTriggered: menu.refresh() }
+    HyprlandFocusGrab { id: grab; windows: menu.hostWindow ? [menu.hostWindow] : []; onCleared: menu.opened = false }
     Process {
         id: query
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/system-details.py"]
@@ -54,13 +51,12 @@ PopupWindow {
             } catch (e) { menu.error = "Hardware information unavailable"; }
         }
     }
-    Rectangle {
+    PanelSurface {
         anchors.fill: parent
-        radius: PanelStyle.cornerRadius
-        color: menu.background
-        border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.18)
+        hostWindow: menu
+        color: menu.surfaceColor
         focus: true
-        Keys.onEscapePressed: menu.visible = false
+        Keys.onEscapePressed: menu.opened = false
         Flickable {
             anchors.fill: parent
             anchors.margins: PanelStyle.padding

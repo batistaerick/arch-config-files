@@ -4,7 +4,7 @@ import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 
-PopupWindow {
+DockPanel {
     id: menu
     required property Item target
     required property string currentStyle
@@ -13,20 +13,17 @@ PopupWindow {
     required property color background
     required property color selectedForeground
     property string barEdge: "top"
+    property color surfaceColor: background
     signal selected(string style)
 
-    visible: false
-    color: "transparent"
-    implicitWidth: 240
-    implicitHeight: 115
-    anchor.item: target
-    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, "left")
-    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
-    anchor.edges: Edges.Top | Edges.Left
-    anchor.gravity: Edges.Bottom | Edges.Right
-    anchor.adjustment: PopupAdjustment.Slide
-    onVisibleChanged: {
-        if (visible) grabDelay.restart();
+    opened: false
+    implicitWidth: 268
+    implicitHeight: 143
+    attachmentTarget: target
+    attachmentEdge: barEdge
+    alignment: "left"
+    onOpenedChanged: {
+        if (opened) grabDelay.restart();
         else {
             grabDelay.stop();
             grab.active = false;
@@ -35,22 +32,21 @@ PopupWindow {
     Timer {
         id: grabDelay
         interval: 100
-        onTriggered: if (menu.visible) grab.active = true
+        onTriggered: if (menu.opened) grab.active = true
     }
 
     HyprlandFocusGrab {
         id: grab
-        windows: [menu]
-        onCleared: menu.visible = false
+        windows: menu.hostWindow ? [menu.hostWindow] : []
+        onCleared: menu.opened = false
     }
 
-    Rectangle {
+    PanelSurface {
         anchors.fill: parent
+        hostWindow: menu
         focus: true
-        Keys.onEscapePressed: menu.visible = false
-        radius: PanelStyle.cornerRadius
-        color: menu.background
-        border.color: Qt.alpha(menu.foreground, 0.18)
+        Keys.onEscapePressed: menu.opened = false
+        color: menu.surfaceColor
         Column {
             anchors.fill: parent
             anchors.margins: 6
@@ -61,7 +57,7 @@ PopupWindow {
                     id: choiceRow
                     required property string modelData
                     required property int index
-                    width: 228
+                    width: parent.width
                     height: 33
                     radius: 4
                     color: mouse.containsMouse ? Qt.alpha(menu.accent, 0.18) : "transparent"
@@ -118,7 +114,7 @@ PopupWindow {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             menu.selected(parent.modelData);
-                            menu.visible = false;
+                            menu.opened = false;
                         }
                     }
                 }

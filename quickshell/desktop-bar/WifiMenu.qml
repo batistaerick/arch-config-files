@@ -6,8 +6,8 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 440
-    implicitHeight: 500
+    implicitWidth: 468
+    implicitHeight: 528
     property var devices: []
     readonly property var device: devices.length ? devices[0] : null
     readonly property var details: device ? device.details : ({})
@@ -62,12 +62,12 @@ ThemedPopup {
         else { selectedNetwork = network; password.text = ""; password.forceActiveFocus(); }
     }
     function probe() { if (visible && device && device.state === "connected" && !pingQuery.running) { pingQuery.command = ["python3", helper, "probe", device.name]; pingQuery.running = true; } }
-    onVisibleChanged: {
-        if (visible) { message = ""; previous = null; latency = ({}); refresh(); }
+    onOpenedChanged: {
+        if (opened) { message = ""; previous = null; latency = ({}); refresh(); }
         else { selectedNetwork = null; secret = ""; pendingRemoval = ""; password.text = ""; closeShare(); }
     }
-    Timer { interval: 2000; running: menu.visible; repeat: true; onTriggered: menu.refresh() }
-    Timer { interval: 15000; running: menu.visible; repeat: true; onTriggered: menu.probe() }
+    Timer { interval: 2000; running: menu.opened; repeat: true; onTriggered: menu.refresh() }
+    Timer { interval: 15000; running: menu.opened; repeat: true; onTriggered: menu.probe() }
     Process {
         id: query
         command: ["python3", menu.helper, "status"]

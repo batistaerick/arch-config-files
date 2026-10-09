@@ -63,8 +63,9 @@ them with upstream defaults.
   Use the shared font, text roles, padding, and corner radii. Utility headings are
   18 px, body/control text 14 px, and captions 12-13 px. Calendar dates, weather
   temperatures, and glyphs have intentional size exceptions.
-- Panel backgrounds are opaque current-theme colors, not hardcoded black or a
-  generic light/dark palette. Maintain both light and dark theme support.
+- Panel surfaces follow the bar's selected theme color or transparency with
+  blur. Maintain both light and dark theme support; do not reintroduce the
+  no-color appearance option.
 - Use subtle foreground-colored dividers and existing `PanelButton`,
   `PanelSwitch`, `BarTooltip`, and `ThemedPopup` components where appropriate.
   Keep hover tooltips short and theme-aware; do not introduce bar hover fills.
@@ -78,8 +79,10 @@ them with upstream defaults.
   HDMI until a choice is saved; fresh portable installs prefer the largest
   active display. Do not commit a machine-specific primary-display file.
 - Hardware and AI Usage icons sit after the workspaces and open on the left;
-  calendar/weather open centered; other controls open on the right. Popups open
-  inward from the selected bar edge and retain the common 8 px offset.
+  calendar/weather open centered; other controls open on the right. Panels
+  share the bar's Wayland surface and attach directly to its actual edge with
+  inward-curved corners and continuous blur. Unfold them inward on opening and
+  fold them back on dismissal. Keep content padded inside the curved surface.
   Hardware uses one icon, with CPU/GPU/RAM and only the root-drive Storage data
   inside the popup. Growing content must stay within the usable screen.
 - Empty-bar double-left-click toggles transparency, double-right-click toggles
@@ -87,8 +90,8 @@ them with upstream defaults.
   persist in `bar-settings.json` and also appear under Style > Desktop Bar.
   Split sections touch the screen edge with rounded exposed corners; only the
   middle section gets extra gesture padding. Gaps must pass clicks through.
-- Popups close on outside click or Escape, not merely when the pointer leaves.
-  Prefer native popups over floating Hyprland windows for bar controls.
+- Panels close on outside click or Escape, not merely when the pointer leaves.
+  Use the shared DockPanel and PanelSurface components for bar controls.
 - Keep the right-side icon group hidden by default, with its manual toggle and
   no auto-close timer. Preserve the existing arrow direction and icon order.
 - Keep calendar height fixed with six week rows. Weather city choices are

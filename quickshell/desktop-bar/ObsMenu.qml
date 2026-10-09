@@ -5,8 +5,8 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 300
-    implicitHeight: content.implicitHeight + PanelStyle.padding * 2
+    implicitWidth: 328
+    implicitHeight: content.implicitHeight + PanelStyle.padding * 2 + 28
     property string status: ""
     property string actionError: ""
     property string pendingAction: ""
@@ -64,7 +64,7 @@ ThemedPopup {
         optionWriter.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "set-option", key, enabled ? "true" : "false"];
         optionWriter.running = true;
     }
-    onVisibleChanged: if (visible) { refresh(); loadOptions(); }
+    onOpenedChanged: if (opened) { refresh(); loadOptions(); }
     Component.onCompleted: { refresh(); loadOptions(); }
     Process {
         id: optionQuery
@@ -96,7 +96,7 @@ ThemedPopup {
     Timer { interval: 2000; repeat: true; running: true; onTriggered: menu.refresh() }
     Timer {
         id: startDelay
-        interval: 150
+        interval: menu.transitionDuration + 50
         onTriggered: {
             actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", menu.pendingAction];
             actionProcess.running = true;
@@ -127,12 +127,12 @@ ThemedPopup {
             if (code !== 0) {
                 menu.actionError = output.text.trim() || "OBS command failed";
                 menu.status = menu.actionError;
-                menu.visible = true;
+                menu.opened = true;
                 menu.pendingAction = "";
                 menu.preparingStart = false;
             } else if (menu.preparingStart) {
                 menu.preparingStart = false;
-                menu.visible = false;
+                menu.opened = false;
                 menu.captureStarting();
                 startDelay.restart();
             } else {

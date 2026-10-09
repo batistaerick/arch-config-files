@@ -548,6 +548,7 @@ hl.window_rule({
 
 -- Layer rules
 blurred_layer("desktop-bar", 0.2)
+hl.layer_rule({ match = { namespace = "desktop-bar" }, blur_popups = true })
 hl.layer_rule({
 	name = "walker-blur",
 	match = { namespace = "walker" },

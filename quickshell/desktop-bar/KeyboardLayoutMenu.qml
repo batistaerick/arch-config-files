@@ -14,8 +14,8 @@ ThemedPopup {
     readonly property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/keyboard-layout.py"
     readonly property var filteredLayouts: availableLayouts.filter(entry =>
         (entry.label + " " + entry.layout + " " + entry.variant).toLowerCase().includes(search.text.toLowerCase()))
-    implicitWidth: 360
-    implicitHeight: adding ? 440 : Math.max(1, layouts.length) * 35 + 76 + (error ? 34 : 0)
+    implicitWidth: 388
+    implicitHeight: adding ? 468 : Math.max(1, layouts.length) * 35 + 104 + (error ? 34 : 0)
     keyTarget: adding ? search : body
 
     function refresh() { if (!query.running && !operation.running) query.running = true; }
@@ -25,8 +25,8 @@ ThemedPopup {
         operation.command = ["python3", helper].concat(command);
         operation.running = true;
     }
-    onVisibleChanged: {
-        if (visible) { error = ""; adding = false; search.text = ""; refresh(); }
+    onOpenedChanged: {
+        if (opened) { error = ""; adding = false; search.text = ""; refresh(); }
     }
     onAddingChanged: {
         error = "";
@@ -35,7 +35,7 @@ ThemedPopup {
             Qt.callLater(function() { search.forceActiveFocus(); });
         }
     }
-    Timer { interval: 1000; running: menu.visible && !menu.adding; repeat: true; onTriggered: menu.refresh() }
+    Timer { interval: 1000; running: menu.opened && !menu.adding; repeat: true; onTriggered: menu.refresh() }
     Process {
         id: query
         command: ["python3", menu.helper]
@@ -67,7 +67,7 @@ ThemedPopup {
         onExited: function(code) {
             if (code === 0) {
                 if (menu.adding) { menu.adding = false; menu.refresh(); }
-                else menu.visible = false;
+                else menu.opened = false;
             } else {
                 try { menu.error = JSON.parse(operationOutput.text).error || "Could not change layout"; }
                 catch (e) { menu.error = "Could not change layout"; }

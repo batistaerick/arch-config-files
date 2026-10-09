@@ -4,7 +4,7 @@ import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 
-PopupWindow {
+DockPanel {
     id: popup
     required property Item target
     required property color foreground
@@ -13,44 +13,43 @@ PopupWindow {
     property bool centered: false
     property bool leftAligned: false
     property string barEdge: "top"
+    property color surfaceColor: background
     property Item keyTarget: body
     default property alias panelContent: body.data
-    visible: false
-    color: "transparent"
-    anchor.item: target
-    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, centered ? "center" : leftAligned ? "left" : "right")
-    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
-    anchor.edges: Edges.Top | Edges.Left
-    anchor.gravity: Edges.Bottom | Edges.Right
-    anchor.adjustment: PopupAdjustment.Slide
-    onVisibleChanged: {
-        if (visible) grabDelay.restart();
-        else {
-            grabDelay.stop();
-            grab.active = false;
-        }
-    }
+    opened: false
+    attachmentTarget: target
+    attachmentEdge: barEdge
+    alignment: centered ? "center" : leftAligned ? "left" : "right"
     data: [
+        Connections {
+            target: popup
+            function onOpenedChanged() {
+                if (popup.opened) grabDelay.restart();
+                else {
+                    grabDelay.stop();
+                    grab.active = false;
+                }
+            }
+        },
         Timer {
             id: grabDelay
             interval: 100
-            onTriggered: if (popup.visible) {
+            onTriggered: if (popup.opened) {
                 popup.keyTarget.forceActiveFocus();
                 grab.active = true;
             }
         },
-        HyprlandFocusGrab { id: grab; windows: [popup]; onCleared: popup.visible = false },
-        Rectangle {
+        HyprlandFocusGrab { id: grab; windows: popup.hostWindow ? [popup.hostWindow] : []; onCleared: popup.opened = false },
+        PanelSurface {
             anchors.fill: parent
-            color: popup.background
-            radius: PanelStyle.cornerRadius
-            border.color: Qt.rgba(popup.foreground.r, popup.foreground.g, popup.foreground.b, 0.18)
+            hostWindow: popup
+            color: popup.surfaceColor
             Item {
                 id: body
                 anchors.fill: parent
                 clip: true
                 focus: true
-                Keys.onEscapePressed: popup.visible = false
+                Keys.onEscapePressed: popup.opened = false
             }
         }
     ]

@@ -20,8 +20,8 @@ Gaps between sections pass clicks through to the desktop.
 Drag empty bar space toward top, bottom, left, or right to change its edge; a
 preview highlights the destination. The choices persist in `bar-settings.json`.
 Walker exposes the same settings under Style > Desktop Bar > Appearance,
-Layout, and Position. Appearance also offers None for a fully clear background
-without tint or background blur. Learn > Mouse Gestures also lists these gestures and
+Layout, and Position. Appearance offers Theme Color and Transparent with blur.
+Learn > Mouse Gestures also lists these gestures and
 the desktop wallpaper/theme double clicks. Left/right bars use upright compact
 controls, with the time/date centered and popups opening inward.
 Hardware and AI Usage sit together after the workspaces; right-hand controls
@@ -37,6 +37,10 @@ Calendar, Weather, and AI Usage use native Quickshell popups and dismiss on an
 outside click or Escape, not pointer movement or focus loss. Calendar and Weather
 stay centered on horizontal bars; AI Usage opens beside its left-hand icon.
 Panels open above bottom bars and inward from vertical bars.
+Panels render inside the bar's Wayland surface, joining it with inward-curved
+corners and continuous blur. They unfold over 320 ms from the selected edge
+and fold back on outside click, Escape, or icon toggle. Their surface follows the bar's current appearance,
+including live changes between the solid theme color and transparency with blur.
 Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,

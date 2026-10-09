@@ -13,11 +13,13 @@ spec.loader.exec_module(bar_settings)
 
 
 class BarSettingsTests(unittest.TestCase):
-    def test_no_background_persists(self):
+    def test_removed_no_background_falls_back_to_transparent(self):
         with tempfile.TemporaryDirectory() as directory, \
                 patch.object(bar_settings, "SETTINGS", Path(directory) / "bar.json"):
-            bar_settings.save_settings({"appearance": "none"})
-            self.assertEqual(bar_settings.read_settings()["appearance"], "none")
+            bar_settings.SETTINGS.write_text('{"appearance": "none"}')
+            self.assertEqual(bar_settings.read_settings()["appearance"], "transparent")
+            with self.assertRaises(ValueError):
+                bar_settings.save_settings({"appearance": "none"})
 
     def test_defaults_and_persistence(self):
         with tempfile.TemporaryDirectory() as directory, \

@@ -15,14 +15,14 @@ function nearestEdge(point, width, height) {
 }
 
 function popupX(edge, targetWidth, popupWidth, alignment) {
-    if (edge === "left") return targetWidth + 8;
-    if (edge === "right") return -popupWidth - 8;
+    if (edge === "left") return targetWidth;
+    if (edge === "right") return -popupWidth;
     if (alignment === "center") return (targetWidth - popupWidth) / 2;
     return alignment === "left" ? 0 : targetWidth - popupWidth;
 }
 
 function popupY(edge, targetHeight, popupHeight) {
-    if (edge === "bottom") return -popupHeight - 8;
+    if (edge === "bottom") return -popupHeight;
     if (edge === "left" || edge === "right") return (targetHeight - popupHeight) / 2;
-    return targetHeight + 8;
+    return targetHeight;
 }

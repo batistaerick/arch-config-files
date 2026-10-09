@@ -4,17 +4,17 @@ import "PanelStyle.js" as PanelStyle
 ThemedPopup {
     id: menu
     required property var controller
-    implicitWidth: 76 + PanelStyle.padding * 2
-    implicitHeight: 34 + PanelStyle.padding * 2
+    implicitWidth: 76 + PanelStyle.padding * 2 + 28
+    implicitHeight: 34 + PanelStyle.padding * 2 + 28
     Connections {
         target: menu.controller
         function onObsStateChanged() {
             if (!menu.controller.obsState.recording && !menu.controller.busy)
-                menu.visible = false;
+                menu.opened = false;
         }
         function onBusyChanged() {
             if (!menu.controller.obsState.recording && !menu.controller.busy)
-                menu.visible = false;
+                menu.opened = false;
         }
     }
     Row {

@@ -5,46 +5,41 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
 
-PopupWindow {
+DockPanel {
     id: menu
     required property Item target
     required property color accent
     required property color foreground
     required property color background
     property string barEdge: "top"
+    property color surfaceColor: background
     property bool microphone: false
     property int maximumHeight: 700
     readonly property PwNode currentNode: microphone ? Pipewire.defaultAudioSource : Pipewire.defaultAudioSink
     readonly property var devices: Pipewire.nodes.values.filter(node => node.audio && !node.isStream && node.isSink !== microphone)
     readonly property var streams: microphone ? [] : Pipewire.nodes.values.filter(node => node.type === PwNodeType.AudioOutStream)
 
-    visible: false
-    color: "transparent"
-    implicitWidth: 400
-    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2, maximumHeight)
-    anchor.item: target
-    anchor.rect.x: Geometry.popupX(barEdge, target.width, implicitWidth, "right")
-    anchor.rect.y: Geometry.popupY(barEdge, target.height, implicitHeight)
-    anchor.edges: Edges.Top | Edges.Left
-    anchor.gravity: Edges.Bottom | Edges.Right
-    anchor.adjustment: PopupAdjustment.Slide
-    onVisibleChanged: {
-        if (visible) grabDelay.restart();
+    opened: false
+    implicitWidth: 428
+    implicitHeight: Math.min(content.implicitHeight + PanelStyle.padding * 2 + 28, maximumHeight)
+    attachmentTarget: target
+    attachmentEdge: barEdge
+    onOpenedChanged: {
+        if (opened) grabDelay.restart();
         else {
             grabDelay.stop();
             grab.active = false;
         }
     }
-    Timer { id: grabDelay; interval: 100; onTriggered: if (menu.visible) grab.active = true }
-    HyprlandFocusGrab { id: grab; windows: [menu]; onCleared: menu.visible = false }
+    Timer { id: grabDelay; interval: 100; onTriggered: if (menu.opened) grab.active = true }
+    HyprlandFocusGrab { id: grab; windows: menu.hostWindow ? [menu.hostWindow] : []; onCleared: menu.opened = false }
 
-    Rectangle {
+    PanelSurface {
         anchors.fill: parent
-        radius: PanelStyle.cornerRadius
-        color: menu.background
-        border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.18)
+        hostWindow: menu
+        color: menu.surfaceColor
         focus: true
-        Keys.onEscapePressed: menu.visible = false
+        Keys.onEscapePressed: menu.opened = false
         Flickable {
             anchors.fill: parent
             anchors.margins: PanelStyle.padding

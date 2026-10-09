@@ -6,8 +6,8 @@ import Quickshell.Io
 
 ThemedPopup {
     id: menu
-    implicitWidth: 400
-    implicitHeight: 284 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0) + (displayError ? 24 : 0)
+    implicitWidth: 428
+    implicitHeight: 312 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0) + (displayError ? 24 : 0)
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
@@ -84,15 +84,15 @@ ThemedPopup {
         nightOperation.command = ["python3", nightlightHelper, "configure", start, end, mode];
         nightOperation.running = true;
     }
-    onVisibleChanged: {
-        if (visible) { refresh(); refreshNightlight(); refreshDisplays(); }
+    onOpenedChanged: {
+        if (opened) { refresh(); refreshNightlight(); refreshDisplays(); }
         else {
             editingSchedule = false;
             if (scheduleDirty) scheduleSettle.restart();
         }
     }
-    Timer { interval: 3000; repeat: true; running: menu.visible; onTriggered: { menu.refresh(); menu.refreshNightlight(); } }
-    Timer { interval: 6000; repeat: true; running: menu.visible; onTriggered: menu.refreshDisplays() }
+    Timer { interval: 3000; repeat: true; running: menu.opened; onTriggered: { menu.refresh(); menu.refreshNightlight(); } }
+    Timer { interval: 6000; repeat: true; running: menu.opened; onTriggered: menu.refreshDisplays() }
     Timer { id: scheduleSettle; interval: 650; onTriggered: if (menu.scheduleDirty && !nightOperation.running) menu.configureNightlight(menu.nightlight.mode) }
     Timer { id: settle; interval: 80; onTriggered: menu.applyValue(Math.round(slider.value)) }
     Process {
@@ -180,7 +180,7 @@ ThemedPopup {
         anchors.fill: parent
         anchors.margins: PanelStyle.padding
         focus: true
-        Keys.onEscapePressed: menu.visible = false
+        Keys.onEscapePressed: menu.opened = false
         Column {
             width: parent.width
             spacing: 12

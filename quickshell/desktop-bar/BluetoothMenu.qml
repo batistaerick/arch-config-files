@@ -5,8 +5,8 @@ import Quickshell.Bluetooth
 
 ThemedPopup {
     id: menu
-    implicitWidth: 440
-    implicitHeight: Math.min(480, Math.max(220, groups.height + 94))
+    implicitWidth: 468
+    implicitHeight: Math.min(508, Math.max(248, groups.height + 122))
     property var adapter: Bluetooth.defaultAdapter
     property var scanningAdapter: null
     readonly property var sections: [
@@ -19,7 +19,7 @@ ThemedPopup {
         if (scanningAdapter) { scanningAdapter.discovering = false; scanningAdapter = null; }
         else { scanningAdapter = adapter; adapter.discovering = true; scanTimer.restart(); }
     }
-    onVisibleChanged: if (!visible && scanningAdapter) {
+    onOpenedChanged: if (!opened && scanningAdapter) {
         scanningAdapter.discovering = false;
         scanningAdapter = null;
     }

@@ -10,6 +10,8 @@ Rectangle {
     required property color accent
     property bool compact: false
     property bool filled: true
+    property bool expandOnClick: false
+    signal expansionRequested()
     readonly property bool imageIsPreview: NotificationLogic.imageIsPreview(notification,
         imageLoader.implicitWidth, imageLoader.implicitHeight)
     readonly property bool useNotificationImage: notification && !imageIsPreview
@@ -37,9 +39,12 @@ Rectangle {
         anchors.fill: parent
         readonly property var defaultAction: card.notification
             ? card.notification.actions.find(action => action.identifier === "default") : null
-        enabled: !!defaultAction
+        enabled: card.expandOnClick || !!defaultAction
         cursorShape: Qt.PointingHandCursor
-        onClicked: card.invokeAction(defaultAction)
+        onClicked: {
+            if (card.expandOnClick) card.expansionRequested();
+            else card.invokeAction(defaultAction);
+        }
     }
 
     Column {

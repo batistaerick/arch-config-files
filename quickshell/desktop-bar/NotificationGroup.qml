@@ -91,6 +91,8 @@ Column {
             width: parent.width
             notification: group.notifications.length ? group.notifications[0] : null
             compact: false
+            expandOnClick: group.multiple && !group.expanded
+            onExpansionRequested: group.toggleRequested()
             color: group.multiple ? group.stackColor(0.055) : Qt.alpha(group.foreground, 0.055)
             foreground: group.foreground; accent: group.accent
             onActivated: notificationId => group.activated(notificationId)

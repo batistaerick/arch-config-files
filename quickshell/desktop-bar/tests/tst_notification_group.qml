@@ -27,16 +27,29 @@ TestCase {
             actions: [], dismiss: function() {}};
     }
     function test_activation_from_collapsed_and_expanded_cards() {
+        activatedId = 0;
         var first = notice(3), second = notice(2);
         first.actions = [{identifier: "default", text: "Open", invoke: function() {}}];
         second.actions = first.actions;
         var group = createTemporaryObject(groupComponent, test, {notifications: [first, second]});
         mouseClick(findChild(group, "frontNotificationCard"), 3, 3);
-        compare(activatedId, 3);
-        group.expanded = true;
+        verify(group.expanded);
+        compare(activatedId, 0);
         tryCompare(group, "revealProgress", 1);
+        mouseClick(findChild(group, "frontNotificationCard"), 3, 3);
+        compare(activatedId, 3);
         mouseClick(group, 3, group.height - 3);
         compare(activatedId, 2);
+    }
+    function test_collapsed_card_without_default_action_still_expands() {
+        activatedId = 0;
+        var group = createTemporaryObject(groupComponent, test, {notifications: [notice(3), notice(2)]});
+        mouseClick(findChild(group, "frontNotificationCard"), 3, 3);
+        verify(group.expanded);
+        compare(activatedId, 0);
+        tryCompare(group, "revealProgress", 1);
+        mouseClick(findChild(group, "frontNotificationCard"), 3, 3);
+        compare(activatedId, 0);
     }
     function test_expand_and_collapse() {
         var group = createTemporaryObject(groupComponent, test, {notifications: [notice(3), notice(2), notice(1)]});

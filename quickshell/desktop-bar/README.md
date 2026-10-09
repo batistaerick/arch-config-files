@@ -161,6 +161,8 @@ later previews. This does not save clipboard-only screenshots to disk.
 Images are never duplicated, and the app name is not repeated. Each
 app group shows its count and starts with its newest notification over a visual
 stack of up to three cards (one front card and two backing layers). The arrow
+or clicking the collapsed front card expands the stack without opening the app.
+Once expanded, clicking a card invokes its default action normally. The arrow
 reveals the full group and collapses it back to the stack; the three-card limit
 does not discard notification history. Single
 notifications remain fully readable. Expansion choices persist while the shell

@@ -5,7 +5,7 @@ precedence; the older JPG cards remain as fallback assets. Theme-specific previe
 are unchanged.
 
 Generated with the built-in image-generation tool, using
-`branding/source/05b-rune-liquid.png` as the logo geometry reference.
+`branding/source/eitr-logo-concept.png` as the logo geometry reference.
 
 Shared prompt: Create one restrained landscape 16:9 category image for Eitr's
 theme-selection carousel. Preserve the organic liquid-pool silhouette and angular

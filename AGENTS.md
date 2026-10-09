@@ -6,6 +6,12 @@ them with upstream defaults.
 
 ## Engineering Practices
 
+- Keep folders and filenames organized and descriptive. Promote selected artwork
+  out of concept folders and replace draft identifiers such as `05b-rune-liquid`
+  with stable Eitr asset names. Store branding sources, vector masters, and sized
+  exports in clearly separated directories; update every consumer when renaming.
+  Keep export scripts with their assets so formats and sizes can be regenerated.
+
 - Keep changes small and cohesive. Read neighboring code before adding a new
   component or helper; reuse existing patterns and shared style APIs.
 - Avoid duplicated behavior and duplicated theme constants. Put reusable
@@ -26,6 +32,16 @@ them with upstream defaults.
   repository audit. Installer actions belong on a new target system only.
 
 ## Working With Live Configs
+
+- This is Erick's PERSONAL repository, owned by GitHub `batistaerick`. Never
+  author or commit here as the work account `erickdoola` or with `erick@doola.com`.
+  Use repo-local `user.name=Erick Prado` and
+  `user.email=batista.erick@outlook.com`, and the `github-personal` SSH alias for
+  `batistaerick/eitr`. Check BOTH author and committer identities before committing.
+  Keep `core.hooksPath=.githooks` enabled in this checkout. Do not change global
+  Git identity or switch the global GitHub CLI account: this PC also hosts work
+  repos. For personal GitHub CLI writes, use an explicit per-command personal
+  account token without printing it. Never bypass the identity guard.
 
 - On the owner's machine, the active configuration is under `$HOME/.config`.
   Read the live files and repository versions before editing: either may contain

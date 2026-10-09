@@ -40,7 +40,7 @@ class AboutTests(unittest.TestCase):
             self.assertEqual(ABOUT.build_config(root, root, False)["display"]["color"]["keys"], "#509475")
 
     def test_selected_logo_renders_seventeen_rows(self):
-        logo = ABOUT.terminal_logo(ROOT / "fastfetch/assets/eitr.png")
+        logo = ABOUT.terminal_logo(ROOT / "fastfetch/assets/eitr-logo.png")
         self.assertEqual(len(logo.splitlines()), 17)
         self.assertIn("▀", logo)
 

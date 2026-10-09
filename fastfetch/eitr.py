@@ -58,7 +58,7 @@ def build_config(config_home, cache_home, image=True):
             value = color(f"color{i}", foreground)
             parts.append("{#" + value + "}██{#}")
         return " ".join(parts)
-    logo = config_home / "fastfetch/assets/eitr.png"
+    logo = config_home / "fastfetch/assets/eitr-logo.png"
     return {
         "logo": {"type": "data", "source": terminal_logo(logo),
                  "color": {"1": accent}, "padding": {"right": 4, "left": 2}}

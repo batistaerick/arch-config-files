@@ -1,5 +1,9 @@
 # Eitr
 
+<p align="center">
+  <img src="branding/png/eitr-logo-green-512.png" alt="Eitr Rune Liquid logo" width="200">
+</p>
+
 An Arch-based desktop project built around Hyprland, Quickshell, and a consistent,
 theme-aware experience. Eitr combines a custom shell with dotfiles and a
 fresh-install recipe for an everyday Linux workstation.

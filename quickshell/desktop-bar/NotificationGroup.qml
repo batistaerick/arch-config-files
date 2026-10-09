@@ -55,7 +55,8 @@ Column {
     }
     Item {
         width: group.width
-        height: collapsedStack.implicitHeight + (expandedList.implicitHeight - collapsedStack.implicitHeight) * group.revealProgress
+        height: frontCard.implicitHeight + Math.max(0, group.stackDepth - 1) * 7 * (1 - group.revealProgress)
+            + (expandedList.implicitHeight > 0 ? expandedList.implicitHeight + 8 : 0) * group.revealProgress
         clip: true
         Item {
             id: collapsedStack
@@ -81,24 +82,26 @@ Column {
                     border.color: Qt.alpha(group.foreground, 0.12)
                 }
             }
-            NotificationCard {
-                id: frontCard
-                z: 3
-                width: parent.width
-                notification: group.notifications.length ? group.notifications[0] : null
-                compact: group.multiple
-                color: group.multiple ? group.stackColor(0.055) : Qt.alpha(group.foreground, 0.055)
-                foreground: group.foreground; accent: group.accent
-            }
+        }
+        NotificationCard {
+            id: frontCard
+            objectName: "frontNotificationCard"
+            z: 3
+            width: parent.width
+            notification: group.notifications.length ? group.notifications[0] : null
+            compact: false
+            color: group.multiple ? group.stackColor(0.055) : Qt.alpha(group.foreground, 0.055)
+            foreground: group.foreground; accent: group.accent
         }
         Column {
             id: expandedList
+            y: frontCard.implicitHeight + 8
             width: group.width
             visible: group.revealProgress > 0
             opacity: group.revealProgress
             spacing: 8
             Repeater {
-                model: group.expanded || group.revealProgress > 0 ? group.notifications : []
+                model: group.expanded || group.revealProgress > 0 ? group.notifications.slice(1) : []
                 NotificationCard {
                     required property var modelData
                     width: group.width

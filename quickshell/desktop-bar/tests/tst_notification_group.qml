@@ -40,11 +40,17 @@ TestCase {
         verify(firstLayer.color !== secondLayer.color);
         verify(!findChild(group, "notificationStackLayer3"));
         var toggle = findChild(group, "toggleNotificationGroup");
+        var frontCard = findChild(group, "frontNotificationCard");
+        var frontHeight = frontCard.height;
+        var frontWidth = frontCard.width;
         verify(toggle.visible);
         mouseClick(toggle);
         compare(group.displayedNotifications.length, 3);
         verify(group.expanded);
         tryCompare(group, "revealProgress", 1);
+        compare(frontCard.height, frontHeight);
+        compare(frontCard.width, frontWidth);
+        compare(frontCard.compact, false);
         verify(!findChild(group, "collapsedNotificationStack").visible);
         group.notifications = [notice(4), notice(3), notice(2), notice(1)];
         compare(group.displayedNotifications.length, 4);

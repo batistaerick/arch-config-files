@@ -11,7 +11,12 @@ ThemedPopup {
         content.implicitHeight + 64 + hero.height + 10 + tabs.height + 16 + footer.implicitHeight + 16 + 2))
     property var usage: ({providers: []})
     property var statistics: ({})
-    property string selectedProvider: "Claude"
+    property string selectedProvider: ""
+    readonly property var availableProviders: (usage.providers || []).map(p => p.name)
+    onUsageChanged: {
+        if (availableProviders.indexOf(selectedProvider) === -1)
+            selectedProvider = availableProviders.length ? availableProviders[0] : "";
+    }
     property bool detailsExpanded: false
     readonly property var provider: (usage.providers || []).find(p => p.name === selectedProvider) || {name: selectedProvider, windows: []}
     readonly property var stats: statistics[selectedProvider] || {days: [], models: []}
@@ -96,17 +101,24 @@ ThemedPopup {
                     sourceSize.width: width * 2
                     sourceSize.height: height * 2
                     fillMode: Image.PreserveAspectFit
+                    visible: menu.selectedProvider === "Claude" || menu.selectedProvider === "Codex"
                     source: menu.selectedProvider === "Claude" ? "assets/ai/claude.svg"
                         : menu.foreground.r + menu.foreground.g + menu.foreground.b > 1.5
                             ? "assets/ai/OpenAI-white-monoblossom.svg"
                             : "assets/ai/OpenAI-black-monoblossom.svg"
+                }
+                Text {
+                    anchors.centerIn: parent
+                    visible: menu.selectedProvider === "Grok" || menu.selectedProvider === ""
+                    text: "󰧑"; color: menu.foreground
+                    font.family: PanelStyle.fontFamily; font.pixelSize: 24
                 }
             }
             Column {
                 x: 38
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
-                Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : "Codex"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
+                Text { text: menu.selectedProvider === "Claude" ? "Claude Code" : menu.selectedProvider || "AI Usage"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true }
                 Text { text: (menu.provider.plan || "Plan unavailable").toUpperCase(); color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             }
             PanelButton {
@@ -123,15 +135,17 @@ ThemedPopup {
         }
         Row {
             id: tabs
+            visible: menu.availableProviders.length > 1
+            height: visible ? 32 : 0
             anchors.top: hero.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: visible ? 10 : 0
             width: parent.width
             spacing: 6
             Repeater {
-                model: ["Claude", "Codex"]
+                model: menu.availableProviders
                 PanelButton {
                     required property string modelData
-                    width: (tabs.width - tabs.spacing) / 2
+                    width: (tabs.width - tabs.spacing * (menu.availableProviders.length - 1)) / Math.max(1, menu.availableProviders.length)
                     height: 32
                     radius: 4
                     text: modelData === "Claude" ? "Claude Code" : modelData
@@ -158,7 +172,14 @@ ThemedPopup {
                 width: parent.width
                 spacing: 14
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
-                Text { text: "LIMITS"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text { text: "LIMITS"; visible: menu.selectedProvider !== ""; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
+                Text {
+                    visible: menu.selectedProvider === ""
+                    width: parent.width; wrapMode: Text.Wrap
+                    text: menu.loading || cached.running ? "Detecting configured AI clients…" : "No signed-in AI clients detected. Install and sign in to Claude Code, Codex, or Grok to show usage here."
+                    color: menu.foreground; opacity: 0.7
+                    font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
+                }
                 Text { visible: !!menu.provider.error; width: parent.width; text: menu.provider.error || ""; wrapMode: Text.Wrap; color: menu.foreground; opacity: 0.7; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
                 Repeater {
                     model: menu.provider.windows || []
@@ -183,6 +204,7 @@ ThemedPopup {
                 }
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
                 Item {
+                    visible: menu.selectedProvider === "Claude" || menu.selectedProvider === "Codex"
                     width: parent.width; height: 28
                     Text {
                         anchors.verticalCenter: parent.verticalCenter

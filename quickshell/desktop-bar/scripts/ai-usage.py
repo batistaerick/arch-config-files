@@ -11,18 +11,113 @@ import select
 import shutil
 import subprocess
 import time
+import sys
 import urllib.error
 import urllib.request
 
 
-def codex_binary():
-    found = shutil.which("codex")
+def cli_binary(name):
+    found = shutil.which(name)
     if found:
         return found
-    candidates = glob.glob(str(Path.home() / ".nvm/versions/node/*/bin/codex"))
+    candidates = glob.glob(str(Path.home() / f".nvm/versions/node/*/bin/{name}"))
+    candidates += [str(Path.home() / ".local/bin" / name)]
+    candidates = [path for path in candidates if os.path.isfile(path) and os.access(path, os.X_OK)]
     if candidates:
         return max(candidates, key=os.path.getmtime)
-    raise RuntimeError("Codex CLI is not installed")
+    return None
+
+
+def codex_binary():
+    binary = cli_binary("codex")
+    if not binary:
+        raise RuntimeError("Codex CLI is not installed")
+    return binary
+
+
+def read_credentials(path):
+    try:
+        data = json.loads(path.read_text())
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def grok_credentials():
+    directory = Path(os.environ.get("GROK_HOME") or Path.home() / ".grok")
+    path = Path(os.environ.get("GROK_AUTH_PATH") or directory / "auth.json")
+    return read_credentials(path)
+
+
+def available_providers():
+    providers = []
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+    if cli_binary("claude") and (read_credentials(claude / ".credentials.json").get("claudeAiOauth", {}).get("accessToken")
+                                 or os.environ.get("ANTHROPIC_API_KEY")):
+        providers.append("Claude")
+    binary = cli_binary("codex")
+    if binary:
+        home = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
+        auth = read_credentials(home / "auth.json")
+        configured = bool(auth.get("OPENAI_API_KEY") or (auth.get("tokens") or {}).get("access_token"))
+        if not configured:
+            # The CLI also understands keyring-backed credentials. Never print its output.
+            try:
+                env = os.environ.copy()
+                env["PATH"] = str(Path(binary).parent) + os.pathsep + env.get("PATH", "")
+                configured = subprocess.run([binary, "login", "status"], env=env,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3).returncode == 0
+            except (OSError, subprocess.TimeoutExpired):
+                configured = False
+        if configured:
+            providers.append("Codex")
+    if cli_binary("grok") and (os.environ.get("XAI_API_KEY") or any(
+            isinstance(auth, dict) and auth.get("key") for auth in grok_credentials().values())):
+        providers.append("Grok")
+    return providers
+
+
+def grok_windows(payload):
+    config = payload.get("config") or {}
+    used = config.get("creditUsagePercent")
+    if used is None:
+        limit = (config.get("monthlyLimit") or {}).get("val", 0)
+        if limit > 0:
+            used = (config.get("used") or {}).get("val", 0) * 100 / limit
+    if used is None:
+        return []
+    period = config.get("currentPeriod") or {}
+    kind = period.get("type", "")
+    label = "Weekly" if "WEEKLY" in kind else "Monthly" if "MONTHLY" in kind else "Usage"
+    reset = period.get("end") or config.get("billingPeriodEnd")
+    if isinstance(reset, str):
+        reset = dt.datetime.fromisoformat(reset.replace("Z", "+00:00")).timestamp()
+    return [{"label": label, "used": used, "reset": reset}]
+
+
+def grok_usage():
+    # Official Grok Build auth store / read-only billing contract. Never refresh or
+    # mutate credentials, and never forward enterprise tokens to a first-party host.
+    credentials = [auth for auth in grok_credentials().values() if isinstance(auth, dict)
+                   and auth.get("key") and auth.get("oidc_issuer") == "https://auth.x.ai"
+                   and not auth.get("team_id")]
+    if len(credentials) != 1:
+        raise RuntimeError("Grok subscription usage requires one personal Grok login; API/enterprise limits are not supported")
+    auth = credentials[0]
+    request = urllib.request.Request("https://cli-chat-proxy.grok.com/v1/billing?format=credits", headers={
+        "Authorization": "Bearer " + auth["key"], "X-XAI-Token-Auth": "xai-grok-cli",
+        "x-userid": auth.get("user_id", ""), "Accept": "application/json",
+    })
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, request, file_pointer, code, message, headers, new_url):
+            return None
+
+    try:
+        with urllib.request.build_opener(NoRedirect).open(request, timeout=10) as response:
+            payload = json.load(response)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"Grok usage returned HTTP {exc.code}; retry later or sign in again") from None
+    return {"name": "Grok", "windows": grok_windows(payload), "plan": payload.get("subscriptionTier")}
 
 
 def codex_usage():
@@ -156,10 +251,11 @@ def collect():
             # Never expose raw HTTP responses or credentials in the display/cache.
             error = str(exc) if isinstance(exc, RuntimeError) else "Could not fetch usage; retry later"
             return {"name": name, "windows": [], "error": error}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        jobs = [pool.submit(safely, name, fn) for name, fn in (("Codex", codex_usage), ("Claude", claude_usage))]
+    readers = {"Claude": claude_usage, "Codex": codex_usage, "Grok": grok_usage}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+        jobs = [pool.submit(safely, name, readers[name]) for name in available_providers()]
         return {"updated": time.time(), "providers": [job.result() for job in jobs]}
 
 
 if __name__ == "__main__":
-    print(json.dumps(collect()))
+    print(json.dumps({"available": available_providers()} if "--detect" in sys.argv else collect()))

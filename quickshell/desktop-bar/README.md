@@ -93,7 +93,17 @@ between the solid theme color and transparency with blur.
 Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,
-and five-minute updates while open. Claude and Codex have separate provider tabs;
+and five-minute updates while open. It detects installed, configured Claude Code,
+Codex, and optional Grok clients locally on each refresh. Only detected providers
+get tabs; one provider hides the tab row, and no providers shows a setup message.
+Cached usage appears independently of background requests, so opening never waits
+for network access. Outages keep configured providers visible with an error.
+Codex keyring logins use the CLI's bounded, read-only login-status check.
+Grok is not installed by this feature or added to distro defaults. Its optional
+reader follows the official Grok Build auth/billing schema for one personal
+first-party OAuth login; API-key/enterprise quotas and local Grok token charts
+are not supported. The Grok reader is mock-tested, not verified against a live
+Grok account. Provider detection never launches sign-in flows or conversations.
 Limit percentages show usage consumed.
 Token charts are hidden behind an expand/collapse icon and reset to collapsed
 on every open or provider switch. Claude's scoped weekly limits, including Fable

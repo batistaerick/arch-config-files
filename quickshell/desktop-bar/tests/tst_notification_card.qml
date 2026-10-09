@@ -126,6 +126,19 @@ TestCase {
                 {tag: "broken image", image: "file:///nonexistent-eitr-notification-image.png", appIcon: true},
                 {tag: "no icons", image: "", appIcon: false}];
     }
+    function test_screenshot_preview_is_not_an_avatar_data() {
+        return [{tag: "Satty app name", appName: "Satty", desktopEntry: ""},
+                {tag: "Satty desktop entry", appName: "Screenshot", desktopEntry: "satty.desktop"}];
+    }
+    function test_screenshot_preview_is_not_an_avatar(data) {
+        var notification = notice();
+        notification.appName = data.appName;
+        notification.desktopEntry = data.desktopEntry;
+        notification.image = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="magenta"/></svg>');
+        var card = createTemporaryObject(cardComponent, test, {notification: notification});
+        compare(findChild(card, "notificationImage").source.toString(), "");
+        verify(findChild(card, "notificationFallbackGlyph").visible);
+    }
     function test_image_fallback(data) {
         var notification = notice();
         notification.image = data.image;

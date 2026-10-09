@@ -9,6 +9,10 @@ Rectangle {
     required property color accent
     property bool compact: false
     property bool filled: true
+    // Satty supplies a screenshot preview, not a sender/avatar image.
+    readonly property bool useNotificationImage: notification
+        && !/^satty$/i.test(notification.appName || "")
+        && !/^satty(?:\.desktop)?$/i.test(notification.desktopEntry || "")
     signal activated(int notificationId)
     function invokeAction(action) {
         var id = notification.id;
@@ -50,7 +54,7 @@ Rectangle {
                     id: notificationImage
                     objectName: "notificationImage"
                     anchors.fill: parent
-                    source: card.notification ? card.notification.image : ""
+                    source: card.useNotificationImage ? card.notification.image : ""
                     sourceSize.width: 56; sourceSize.height: 56
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true

@@ -1,4 +1,4 @@
-# Arch desktop distribution scaffold
+# Eitr
 
 This repository contains the complete desktop configuration and a first-pass
 installation recipe. It is not yet a tested, self-contained distribution.
@@ -113,8 +113,9 @@ and licensing for bundled wallpaper/lockscreen assets has been reviewed.
 - Audit asset licenses, package updates, security defaults, and the first-run
   experience. Never bundle tokens, logins, saved networks or device identifiers.
 
-Working name ideas: **Vela** (navigation), **Mica** (layered visual system), or
-**Luma** (light and color). No name or branding is baked into the scripts yet.
+The official project name is **Eitr**; the GitHub repository is
+[`batistaerick/eitr`](https://github.com/batistaerick/eitr).
+Installer paths remain generic; logo and release branding are still to come.
 
 References: [Archiso](https://wiki.archlinux.org/title/Archiso),
 [GPU drivers](https://wiki.archlinux.org/title/Graphics_processing_unit),

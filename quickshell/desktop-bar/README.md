@@ -43,8 +43,11 @@ gap at the screen boundary. Calendar and Weather remain screen-centered along
 the bar's axis in all four positions.
 Panels render inside the bar's Wayland surface, joining it with inward-curved
 corners and continuous blur. They unfold over 320 ms from the selected edge
-and fold back on outside click, Escape, or icon toggle. Their surface follows the bar's current appearance,
-including live changes between the solid theme color and transparency with blur.
+and fold back on outside click, Escape, or icon toggle.
+Switching controls finishes the current panel's closing animation before opening
+the next panel; rapid clicks select the latest requested panel without overlap.
+Their surface follows the bar's current appearance, including live changes
+between the solid theme color and transparency with blur.
 Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,

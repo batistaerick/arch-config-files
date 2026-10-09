@@ -249,6 +249,33 @@ ShellRoot {
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
                     keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
+                property var pendingPanel: null
+
+                function closePanels() {
+                    pendingPanel = null;
+                    dockPanels.forEach(panel => panel.opened = false);
+                }
+                function showPanel(panel) {
+                    pendingPanel = panel;
+                    dockPanels.forEach(other => other.opened = false);
+                    finishPanelSwitch();
+                }
+                function togglePanel(panel) {
+                    if (panel.opened || pendingPanel === panel) closePanels();
+                    else showPanel(panel);
+                }
+                function finishPanelSwitch() {
+                    if (!pendingPanel || dockPanels.some(panel => panel.visible)) return;
+                    var next = pendingPanel;
+                    pendingPanel = null;
+                    next.opened = true;
+                }
+                Timer {
+                    interval: 16
+                    repeat: true
+                    running: bar.pendingPanel !== null
+                    onTriggered: bar.finishPanelSwitch()
+                }
 
                 screen: modelData
                 visible: shell.barVisible || panelOpen
@@ -291,15 +318,13 @@ ShellRoot {
                 Connections {
                     target: notificationsService
                     function onToggleRequested() {
-                        var next = !notificationCenter.opened;
-                        bar.dockPanels.forEach(panel => panel.opened = false);
-                        notificationCenter.opened = next;
+                        bar.togglePanel(notificationCenter);
                     }
                 }
                 Connections {
                     target: shell
                     function onBarVisibleChanged() {
-                        if (!shell.barVisible) bar.dockPanels.forEach(panel => panel.opened = false);
+                        if (!shell.barVisible) bar.closePanels();
                     }
                 }
 
@@ -333,8 +358,7 @@ ShellRoot {
                             parent: String(panel.parent), host: String(panel.hostWindow)})));
                     }
                     function close(): void {
-                        for (var panel of bar.dockPanels)
-                            panel.opened = false;
+                        bar.closePanels();
                     }
                     function show(kind: string): void {
                         var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
@@ -342,8 +366,7 @@ ShellRoot {
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu,
                             workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter};
                         if (!panels[kind]) return;
-                        for (var key in panels) panels[key].opened = false;
-                        panels[kind].opened = true;
+                        bar.showPanel(panels[kind]);
                     }
                 }
 
@@ -441,7 +464,7 @@ ShellRoot {
                                     width: 23; buttonHeight: 20; fontSize: 14; cornerRadius: 6; textOffsetY: -1
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
-                                    onRightClicked: workspaceMenu.opened = !workspaceMenu.opened
+                                    onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
                             }
                         }
@@ -449,8 +472,8 @@ ShellRoot {
                             id: verticalHardware
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 2
-                            VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; iconSize: 18; tooltip: "Hardware"; open: true; clickable: true; onClicked: hardwareMenu.opened = !hardwareMenu.opened }
-                            VerticalBarIcon { id: verticalAiIcon; icon: "󱜙"; iconSize: 18; tooltip: "AI Usage"; open: true; clickable: true; onClicked: aiMenu.opened = !aiMenu.opened }
+                            VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; iconSize: 18; tooltip: "Hardware"; open: true; clickable: true; onClicked: bar.togglePanel(hardwareMenu) }
+                            VerticalBarIcon { id: verticalAiIcon; icon: "󱜙"; iconSize: 18; tooltip: "AI Usage"; open: true; clickable: true; onClicked: bar.togglePanel(aiMenu) }
                         }
                     }
 
@@ -485,7 +508,7 @@ ShellRoot {
                             id: verticalCalendarIcon
                             anchors.centerIn: parent
                             compact: true
-                            onClicked: calendarMenu.opened = !calendarMenu.opened
+                            onClicked: bar.togglePanel(calendarMenu)
                         }
                         WeatherWidget {
                             id: verticalWeatherIcon
@@ -498,8 +521,8 @@ ShellRoot {
                             temp: barWeather.temp
                             recording: obsMenu.obsState.recording
                             recordingPaused: obsMenu.obsState.paused
-                            onRecordingClicked: recordingMenu.opened = !recordingMenu.opened
-                            onClicked: weatherMenu.opened = !weatherMenu.opened
+                            onRecordingClicked: bar.togglePanel(recordingMenu)
+                            onClicked: bar.togglePanel(weatherMenu)
                         }
                     }
 
@@ -521,15 +544,15 @@ ShellRoot {
                             hoverLabel: "WiFi"; fontSize: 16; interval: 3000
                             open: shell.statusOpen; height: open ? 24 : 0; fixedWidth: 56; clickable: true
                             anchors.horizontalCenter: parent.horizontalCenter
-                            onClicked: wifiMenu.opened = !wifiMenu.opened
+                            onClicked: bar.togglePanel(wifiMenu)
                         }
-                        VerticalBarIcon { id: verticalBluetoothIcon; icon: "󰂯"; tooltip: "Bluetooth"; open: shell.statusOpen; clickable: true; onClicked: bluetoothMenu.opened = !bluetoothMenu.opened }
-                        VerticalBarIcon { id: verticalDisplayIcon; icon: "󰍹"; tooltip: "Display"; open: shell.statusOpen; clickable: true; onClicked: brightnessMenu.opened = !brightnessMenu.opened }
-                        VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: volumeMenu.opened = !volumeMenu.opened }
-                        VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: micMenu.opened = !micMenu.opened }
-                        VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: keyboardMenu.opened = !keyboardMenu.opened }
+                        VerticalBarIcon { id: verticalBluetoothIcon; icon: "󰂯"; tooltip: "Bluetooth"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(bluetoothMenu) }
+                        VerticalBarIcon { id: verticalDisplayIcon; icon: "󰍹"; tooltip: "Display"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(brightnessMenu) }
+                        VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(volumeMenu) }
+                        VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(micMenu) }
+                        VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(keyboardMenu) }
                         VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
-                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.opened = !obsMenu.opened }
+                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(obsMenu) }
                         VerticalBarIcon {
                             id: verticalNotificationIcon
                             icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
@@ -611,7 +634,7 @@ ShellRoot {
                                     cornerRadius: 6
                                     textOffsetY: -1
                                     onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
-                                    onRightClicked: workspaceMenu.opened = !workspaceMenu.opened
+                                    onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
 
                             }
@@ -648,7 +671,7 @@ ShellRoot {
                                 tooltip: "Hardware"
                                 open: true
                                 clickable: true
-                                onClicked: hardwareMenu.opened = !hardwareMenu.opened
+                                onClicked: bar.togglePanel(hardwareMenu)
                             }
 
                             StatusIcon {
@@ -658,7 +681,7 @@ ShellRoot {
                                 tooltip: "AI Usage"
                                 open: true
                                 clickable: true
-                                onClicked: aiMenu.opened = !aiMenu.opened
+                                onClicked: bar.togglePanel(aiMenu)
                             }
                         }
 
@@ -720,7 +743,7 @@ ShellRoot {
                                 open: shell.statusOpen
                                 slotWidth: 28
                                 clickable: true
-                                onClicked: wifiMenu.opened = !wifiMenu.opened
+                                onClicked: bar.togglePanel(wifiMenu)
                                 onOpenChanged: if (!open) wifiMenu.opened = false
                             }
 
@@ -740,7 +763,7 @@ ShellRoot {
                                 tooltip: "Bluetooth"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: bluetoothMenu.opened = !bluetoothMenu.opened
+                                onClicked: bar.togglePanel(bluetoothMenu)
                                 onOpenChanged: if (!open) bluetoothMenu.opened = false
                             }
 
@@ -760,7 +783,7 @@ ShellRoot {
                                 tooltip: "Display"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: brightnessMenu.opened = !brightnessMenu.opened
+                                onClicked: bar.togglePanel(brightnessMenu)
                                 onOpenChanged: if (!open) brightnessMenu.opened = false
                             }
 
@@ -781,7 +804,7 @@ ShellRoot {
                                 tooltip: "Volume"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: volumeMenu.opened = !volumeMenu.opened
+                                onClicked: bar.togglePanel(volumeMenu)
                                 onOpenChanged: if (!open) volumeMenu.opened = false
                             }
 
@@ -803,7 +826,7 @@ ShellRoot {
                                 tooltip: "Mic"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: micMenu.opened = !micMenu.opened
+                                onClicked: bar.togglePanel(micMenu)
                                 onOpenChanged: if (!open) micMenu.opened = false
                             }
 
@@ -826,7 +849,7 @@ ShellRoot {
                                 tooltip: "Keyboard"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: keyboardMenu.opened = !keyboardMenu.opened
+                                onClicked: bar.togglePanel(keyboardMenu)
                                 onOpenChanged: if (!open) keyboardMenu.opened = false
                             }
 
@@ -858,7 +881,7 @@ ShellRoot {
                                 open: shell.statusOpen
                                 clickable: true
                                 rightClickable: true
-                                onClicked: obsMenu.opened = !obsMenu.opened
+                                onClicked: bar.togglePanel(obsMenu)
                                 onOpenChanged: if (!open) obsMenu.opened = false
                             }
 
@@ -898,7 +921,7 @@ ShellRoot {
                     ClockButton {
                         id: centerInfo
                         anchors.centerIn: parent
-                        onClicked: calendarMenu.opened = !calendarMenu.opened
+                        onClicked: bar.togglePanel(calendarMenu)
                     }
 
                     MediaStrip {
@@ -915,11 +938,11 @@ ShellRoot {
                         id: barWeather
                         recording: obsMenu.obsState.recording
                         recordingPaused: obsMenu.obsState.paused
-                        onRecordingClicked: recordingMenu.opened = !recordingMenu.opened
+                        onRecordingClicked: bar.togglePanel(recordingMenu)
                         anchors.left: centerInfo.right
                         anchors.leftMargin: 6
                         anchors.verticalCenter: parent.verticalCenter
-                        onClicked: weatherMenu.opened = !weatherMenu.opened
+                        onClicked: bar.togglePanel(weatherMenu)
                     }
 
                     CalendarMenu {

@@ -595,7 +595,18 @@ ShellRoot {
                         VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(volumeMenu) }
                         VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(micMenu) }
                         VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(keyboardMenu) }
-                        VerticalBarIcon { id: verticalIdleLockIcon; icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(idleLockMenu); onOpenChanged: if (!open) idleLockMenu.opened = false }
+                        VerticalBarIcon {
+                            id: verticalIdleLockIcon
+                            icon: shell.idleLockEnabled ? "󱫗" : "󱫖"
+                            tooltip: "Idle Lock"
+                            open: shell.statusOpen; clickable: true; rightClickable: true
+                            onClicked: function(button) {
+                                if (button === Qt.RightButton) {
+                                    if (!toggleIdleLock.running) toggleIdleLock.running = true;
+                                } else bar.togglePanel(idleLockMenu);
+                            }
+                            onOpenChanged: if (!open) idleLockMenu.opened = false
+                        }
                         VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(obsMenu) }
                         VerticalBarIcon {
                             id: verticalNotificationIcon
@@ -924,7 +935,12 @@ ShellRoot {
                                 tooltip: shell.idleLockEnabled ? "Idle Lock: On" : "Idle Lock: Off"
                                 open: shell.statusOpen
                                 clickable: true
-                                onClicked: bar.togglePanel(idleLockMenu)
+                                rightClickable: true
+                                onClicked: function(button) {
+                                    if (button === Qt.RightButton) {
+                                        if (!toggleIdleLock.running) toggleIdleLock.running = true;
+                                    } else bar.togglePanel(idleLockMenu);
+                                }
                                 onOpenChanged: if (!open) idleLockMenu.opened = false
                             }
 
@@ -1127,7 +1143,7 @@ ShellRoot {
         property int glyphOffsetY: 0
         property int slotWidth: shell.workspaceItemSize
 
-        signal clicked()
+        signal clicked(int button)
 
         width: open ? slotWidth : 0
         height: 24
@@ -1179,11 +1195,11 @@ ShellRoot {
             acceptedButtons: item.rightClickable ? Qt.LeftButton | Qt.RightButton : Qt.LeftButton
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: {
+            onClicked: function(event) {
                 if (item.command !== "")
                     shell.run(item.command);
 
-                item.clicked();
+                item.clicked(event.button);
             }
         }
 

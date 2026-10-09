@@ -36,6 +36,8 @@ retain their manual show/hide toggle. Both side groups share 24 px icon slots
 and 4 px spacing, with centered alignment on every bar edge.
 The Idle Lock icon opens a compact themed panel with an automatic idle-lock
 switch and an icon-only Lock now button at the header's top-right corner.
+Left-click opens the panel; right-click directly toggles automatic idle lock on
+every bar edge without opening the panel.
 Lock now waits for the panel to close, then uses the existing
 manual-lock flow; idle/display-off/suspend timings are unchanged. The panel is
 available on all bar edges and via `panels show idle`. Walker's existing Toggle

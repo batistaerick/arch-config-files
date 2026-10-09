@@ -15,4 +15,4 @@ if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
   fi
 fi
 
-setsid -f kitty --class "$CLASS" --title "About Eitr" -o initial_window_width=1100 -o initial_window_height=760 -e bash -lc "$ABOUT_COMMAND" >/tmp/about-terminal.log 2>&1 < /dev/null
+setsid -f kitty --class "$CLASS" --title "About Eitr" -o initial_window_width=1000 -o initial_window_height=490 -e bash -lc "$ABOUT_COMMAND" >/tmp/about-terminal.log 2>&1 < /dev/null

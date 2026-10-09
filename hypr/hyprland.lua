@@ -496,7 +496,7 @@ floating_window_rule("screenshot-editor-float", "^(dev.local.ScreenshotEditor)$"
 floating_window_rule("fif-terminal-float", "^(fif-terminal)$", { 1000, 650 })
 floating_window_rule("fifs-terminal-float", "^(fifs-terminal)$", { 1500, 800 })
 floating_window_rule("cloud-terminal-float", "^(cloud-terminal)$", { 1700, 950 })
-floating_window_rule("about-terminal-float", "^(about-terminal)$", { 1000, 650 })
+floating_window_rule("about-terminal-float", "^(about-terminal)$", { 1000, 490 })
 
 -- App opacity
 opacity_rule("set-dolphin-transparency", "^(org.kde.dolphin)$", "1 0.94")

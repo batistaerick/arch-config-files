@@ -44,6 +44,7 @@ TestCase {
         mouseClick(toggle);
         compare(group.displayedNotifications.length, 3);
         verify(group.expanded);
+        tryCompare(group, "revealProgress", 1);
         verify(!findChild(group, "collapsedNotificationStack").visible);
         group.notifications = [notice(4), notice(3), notice(2), notice(1)];
         compare(group.displayedNotifications.length, 4);
@@ -51,6 +52,7 @@ TestCase {
         wait(400);
         mouseClick(toggle);
         compare(group.displayedNotifications.length, 1);
+        tryCompare(group, "revealProgress", 0);
         verify(findChild(group, "collapsedNotificationStack").visible);
         compare(group.displayedNotifications[0].id, 4);
         mouseClick(findChild(group, "clearNotificationGroup"));

@@ -71,6 +71,7 @@ ThemedPopup {
                         required property var modelData
                         width: groups.width
                         notifications: modelData.notifications
+                        background: center.background
                         expanded: !!center.expandedApps[modelData.name]
                         foreground: center.foreground
                         accent: center.accent

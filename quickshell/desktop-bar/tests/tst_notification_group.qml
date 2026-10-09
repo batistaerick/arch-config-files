@@ -14,6 +14,7 @@ TestCase {
         NotificationGroup {
             width: 400
             foreground: "#ddccaa"; accent: "#88aa99"
+            background: "#262626"
             onToggleRequested: expanded = !expanded
             onClearRequested: test.clears++
         }
@@ -30,6 +31,13 @@ TestCase {
         compare(group.stackDepth, 3);
         verify(findChild(group, "collapsedNotificationStack").visible);
         verify(findChild(group, "notificationStackLayer2"));
+        var firstLayer = findChild(group, "notificationStackLayer1");
+        var secondLayer = findChild(group, "notificationStackLayer2");
+        compare(firstLayer.x, 8);
+        compare(secondLayer.x, 16);
+        compare(secondLayer.y, 14);
+        compare(firstLayer.color.a, 1);
+        verify(firstLayer.color !== secondLayer.color);
         verify(!findChild(group, "notificationStackLayer3"));
         var toggle = findChild(group, "toggleNotificationGroup");
         verify(toggle.visible);

@@ -4,6 +4,7 @@ Rectangle {
     required property string edge
     required property color background
     property bool glass: false
+    property bool glassRim: true
     property real screenY: 0
     property real screenHeight: 1
     radius: 6
@@ -15,6 +16,7 @@ Rectangle {
     GlassSheen {
         anchors.fill: parent
         visible: parent.glass
+        rim: parent.glassRim
         screenY: parent.screenY
         screenHeight: parent.screenHeight
         topLeftRadius: parent.topLeftRadius

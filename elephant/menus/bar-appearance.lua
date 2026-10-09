@@ -8,7 +8,7 @@ local entries = dofile(os.getenv("HOME") .. "/.config/elephant/bar-settings-entr
 function GetEntries()
     return entries("appearance", {
         {"Blur", "transparent", "󰐾"},
-        {"Glass", "glass", "󰊓"},
+        {"Liquid Glass", "glass", "󰊓"},
         {"Theme Color", "solid", "󰏘"},
     })
 end

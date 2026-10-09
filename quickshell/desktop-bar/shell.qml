@@ -421,6 +421,7 @@ ShellRoot {
                     GlassSheen {
                         anchors.fill: parent
                         visible: shell.barLayout === "unified" && bar.glassAppearance
+                        rim: !bar.panelOpen
                         screenY: barContents.y
                         screenHeight: bar.height
                     }
@@ -430,6 +431,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"
@@ -441,6 +443,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"
@@ -452,6 +455,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"
@@ -591,6 +595,7 @@ ShellRoot {
                     GlassSheen {
                         anchors.fill: parent
                         visible: shell.barLayout === "unified" && bar.glassAppearance
+                        rim: !bar.panelOpen
                         screenY: barContents.y
                         screenHeight: bar.height
                     }
@@ -600,6 +605,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"
@@ -613,6 +619,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"
@@ -626,6 +633,7 @@ ShellRoot {
                         edge: shell.barEdge
                         background: shell.barBackground()
                         glass: bar.glassAppearance
+                        glassRim: !bar.panelOpen
                         screenY: barContents.y + y
                         screenHeight: bar.height
                         visible: shell.barLayout === "split"

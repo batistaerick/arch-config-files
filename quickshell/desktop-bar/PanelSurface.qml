@@ -61,22 +61,30 @@ Item {
                 var endInset = (reversed ? surface.flushLeading : surface.flushTrailing) ? 0 : r;
                 // The two inward curves join the sheet to the bar; the outer
                 // corners remain rounded as the sheet unfolds.
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.lineTo(w, 0);
-                ctx.quadraticCurveTo(w - endInset, 0, w - endInset, endInset);
-                ctx.lineTo(w - endInset, h - endInset);
-                ctx.quadraticCurveTo(w - endInset, h, w - 2 * endInset, h);
-                ctx.lineTo(2 * startInset, h);
-                ctx.quadraticCurveTo(startInset, h, startInset, h - startInset);
-                ctx.lineTo(startInset, startInset);
-                ctx.quadraticCurveTo(startInset, 0, 0, 0);
-                ctx.closePath();
+                GlassStyle.sheetPath(ctx, w, h, startInset, endInset, true);
                 ctx.fillStyle = surface.color;
                 ctx.fill();
                 if (surface.hostWindow.glass) {
                     ctx.fillStyle = sheen;
                     ctx.fill();
+                    ctx.save();
+                    ctx.clip();
+                    GlassStyle.sheetPath(ctx, w, h, startInset, endInset, false);
+                    var rim = ctx.createLinearGradient(0, 0, w, h);
+                    rim.addColorStop(0, "rgba(255,255,255,0.55)");
+                    rim.addColorStop(0.45, "rgba(255,255,255,0.12)");
+                    rim.addColorStop(0.75, "rgba(255,255,255,0.32)");
+                    rim.addColorStop(1, "rgba(255,255,255,0.18)");
+                    ctx.strokeStyle = "rgba(255,255,255,0.045)";
+                    ctx.lineWidth = 12;
+                    ctx.stroke();
+                    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    ctx.strokeStyle = rim;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.restore();
                 }
             }
         }

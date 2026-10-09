@@ -82,7 +82,10 @@ the current theme's accent.
 Calendar, Weather, and AI Usage use native Quickshell popups and dismiss on an
 outside click or Escape, not pointer movement or focus loss. Calendar and Weather
 stay centered on horizontal bars; AI Usage opens beside its left-hand icon.
-Panels open above bottom bars and inward from vertical bars. Start-group panels
+Panels open above bottom bars and inward from vertical bars. All panels
+temporarily use the foreground Overlay layer while visible, including during
+closing, so application popups cannot cover their surfaces or steal clicks.
+The bar returns to its normal Top layer once all panels are closed. Start-group panels
 sit flush against the left screen edge (top for vertical bars); end-group panels
 sit flush against the right edge (bottom for vertical bars), without a curved
 gap at the screen boundary. Calendar and Weather remain screen-centered along

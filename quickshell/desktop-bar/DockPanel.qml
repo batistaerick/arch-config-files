@@ -37,13 +37,14 @@ Item {
         if (!strip || !parent || !attachmentTarget) return 0;
         if (attachmentEdge === "left") return strip.x + strip.width;
         if (attachmentEdge === "right") return strip.x - width;
-        var desired = targetPoint.x + (alignment === "center" ? (attachmentTarget.width - width) / 2 : alignment === "left" ? 0 : attachmentTarget.width - width);
+        var desired = alignment === "left" ? 0 : alignment === "right" ? parent.width - width : (parent.width - width) / 2;
         return Math.max(0, Math.min(parent.width - width, desired));
     }
     y: {
         if (!strip || !parent || !attachmentTarget) return 0;
         if (attachmentEdge === "top") return strip.y + strip.height;
         if (attachmentEdge === "bottom") return strip.y - height;
-        return Math.max(0, Math.min(parent.height - height, targetPoint.y + (attachmentTarget.height - height) / 2));
+        var desired = alignment === "left" ? 0 : alignment === "right" ? parent.height - height : (parent.height - height) / 2;
+        return Math.max(0, Math.min(parent.height - height, desired));
     }
 }

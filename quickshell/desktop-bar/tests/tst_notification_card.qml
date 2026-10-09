@@ -51,4 +51,21 @@ TestCase {
         compare(replyText, "hello");
         compare(reply.text, "");
     }
+    function test_image_sizes_data() {
+        return [
+            {tag: "small image stays native", sourceWidth: 64, sourceHeight: 48, compact: false, expectedWidth: 64, expectedHeight: 48},
+            {tag: "4K image is capped", sourceWidth: 3840, sourceHeight: 2160, compact: false, expectedWidth: 160, expectedHeight: 90},
+            {tag: "popup image is capped", sourceWidth: 3840, sourceHeight: 2160, compact: true, expectedWidth: 128, expectedHeight: 72},
+            {tag: "portrait is capped proportionally", sourceWidth: 600, sourceHeight: 1200, compact: false, expectedWidth: 60, expectedHeight: 120},
+        ];
+    }
+    function test_image_sizes(data) {
+        var notification = notice();
+        notification.image = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + data.sourceWidth + '" height="' + data.sourceHeight + '"><rect width="100%" height="100%" fill="cyan"/></svg>');
+        var card = createTemporaryObject(cardComponent, test, {notification: notification, compact: data.compact});
+        var image = findChild(card, "notificationImage");
+        tryCompare(image, "status", Image.Ready);
+        compare(image.width, data.expectedWidth);
+        compare(image.height, data.expectedHeight);
+    }
 }

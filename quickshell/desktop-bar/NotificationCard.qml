@@ -9,6 +9,8 @@ Rectangle {
     required property color accent
     property bool compact: false
     property bool filled: true
+    readonly property int maximumImageWidth: compact ? 128 : 160
+    readonly property int maximumImageHeight: compact ? 96 : 120
     signal activated(int notificationId)
     function invokeAction(action) {
         var id = notification.id;
@@ -92,8 +94,15 @@ Rectangle {
             elide: Text.ElideRight
         }
         Image {
+            id: attachmentImage
+            objectName: "notificationImage"
             visible: source !== "" && status === Image.Ready
-            width: parent.width; height: visible ? (card.compact ? 100 : 160) : 0
+            readonly property real displayScale: Math.min(1,
+                content.width / Math.max(1, implicitWidth),
+                card.maximumImageWidth / Math.max(1, implicitWidth),
+                card.maximumImageHeight / Math.max(1, implicitHeight))
+            width: visible ? implicitWidth * displayScale : 0
+            height: visible ? implicitHeight * displayScale : 0
             source: card.notification ? card.notification.image : ""
             fillMode: Image.PreserveAspectFit
             asynchronous: true

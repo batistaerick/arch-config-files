@@ -36,7 +36,11 @@ the current theme's accent.
 Calendar, Weather, and AI Usage use native Quickshell popups and dismiss on an
 outside click or Escape, not pointer movement or focus loss. Calendar and Weather
 stay centered on horizontal bars; AI Usage opens beside its left-hand icon.
-Panels open above bottom bars and inward from vertical bars.
+Panels open above bottom bars and inward from vertical bars. Start-group panels
+sit flush against the left screen edge (top for vertical bars); end-group panels
+sit flush against the right edge (bottom for vertical bars), without a curved
+gap at the screen boundary. Calendar and Weather remain screen-centered along
+the bar's axis in all four positions.
 Panels render inside the bar's Wayland surface, joining it with inward-curved
 corners and continuous blur. They unfold over 320 ms from the selected edge
 and fold back on outside click, Escape, or icon toggle. Their surface follows the bar's current appearance,

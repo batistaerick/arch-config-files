@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Render Eitr's About page using the active desktop theme and Fastfetch."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import tomllib
+
+
+def terminal_logo(path):
+    """Render the selected logo's alpha mask as theme-colored terminal cells."""
+    from PIL import Image
+    with Image.open(path) as source:
+        alpha = source.getchannel("A")
+        alpha = alpha.crop(alpha.getbbox()).resize((34, 34), Image.Resampling.LANCZOS)
+        rows = []
+        for y in range(0, 34, 2):
+            rows.append("".join(" ▄▀█"[(alpha.getpixel((x, y)) >= 128) * 2
+                                      + (alpha.getpixel((x, y + 1)) >= 128)]
+                                for x in range(34)))
+        return "$1" + "\n".join(rows)
+
+
+def text(path, fallback):
+    try:
+        return " ".join(path.read_text().split()) or fallback
+    except OSError:
+        return fallback
+
+
+def build_config(config_home, cache_home, image=True):
+    current = config_home / "theme/current"
+    try:
+        palette = tomllib.loads((current / "colors.toml").read_text())
+        palette = palette.get("colors", palette)
+    except (OSError, tomllib.TOMLDecodeError):
+        palette = {}
+    def color(name, fallback):
+        value = palette.get(name, fallback)
+        return value if isinstance(value, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", value) else fallback
+    accent = color("accent", "#509475")
+    foreground = color("foreground", "#cdd6f4")
+    background = color("background", "#1e1e2e")
+    theme = text(current / "display-name", text(cache_home / "current-theme", "Default"))
+    try:
+        settings = json.loads((config_home / "quickshell/desktop-bar/bar-settings.json").read_text())
+    except (OSError, ValueError):
+        settings = {}
+    appearance = "Theme Color" if settings.get("appearance") == "solid" else "Blur"
+    def custom(key, value):
+        return {"type": "custom", "key": key, "format": value}
+    def swatches(start):
+        parts = []
+        for i in range(start, start + 8):
+            value = color(f"color{i}", foreground)
+            parts.append("{#" + value + "}██{#}")
+        return " ".join(parts)
+    logo = config_home / "fastfetch/assets/eitr.png"
+    return {
+        "logo": {"type": "data", "source": terminal_logo(logo),
+                 "color": {"1": accent}, "padding": {"right": 4, "left": 2}}
+                if image and logo.exists() else {"type": "none"},
+        "display": {"separator": "  ", "color": {"keys": accent}},
+        "modules": [
+            custom("Eitr", "Arch-based Linux · Rune Liquid"), "break",
+            {"type": "os", "key": "Base"}, "kernel", "uptime", "packages",
+            "wm", custom("Shell", Path(os.environ.get("SHELL", "/bin/sh")).name), "terminal", "display", "break",
+            "cpu", "gpu", "memory", {"type": "disk", "folders": "/"}, "break",
+            custom("Theme", theme), custom("Appearance", appearance),
+            custom("Accent", accent), custom("Foreground", foreground),
+            custom("Background", background), custom("Palette 0–7", swatches(0)),
+            custom("Palette 8–15", swatches(8)),
+        ],
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config-only", action="store_true")
+    parser.add_argument("--no-logo", action="store_true")
+    args = parser.parse_args()
+    config_home = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+    cache_home = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    config = build_config(config_home, cache_home, not args.no_logo)
+    if args.config_only:
+        print(json.dumps(config, ensure_ascii=False, indent=2))
+        return
+    # Private, per-invocation config: no shared mutable generated state or stale themes.
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", encoding="utf-8") as output:
+        json.dump(config, output, ensure_ascii=False)
+        output.flush()
+        try:
+            result = subprocess.run(["fastfetch", "--config", output.name], check=False)
+        except FileNotFoundError:
+            parser.exit(1, "Fastfetch is not installed. Install the distro's fastfetch package.\n")
+        raise SystemExit(result.returncode)
+
+
+if __name__ == "__main__":
+    main()

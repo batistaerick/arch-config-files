@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-config_dirs=(Kvantum elephant hypr kitty lockscreen nvim nwg-look quickshell swayosd themes walker xdg-desktop-portal xsettingsd)
+config_dirs=(Kvantum elephant fastfetch hypr kitty lockscreen nvim nwg-look quickshell swayosd themes walker xdg-desktop-portal xsettingsd)
 config_files=(dolphinrc filetypesrc mimeapps.list)
 
 if [[ ${EUID} -eq 0 ]]; then

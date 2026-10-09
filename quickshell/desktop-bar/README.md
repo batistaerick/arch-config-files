@@ -44,7 +44,7 @@ a tile or press 1–9/0 to switch; arrows select a tile and Enter switches to it
 Tiles preserve the workspace monitor's aspect ratio and show its number in the
 top-left corner. The current workspace has an accent border around its number;
 keyboard selection uses a neutral foreground outline, independent of that marker.
-There are no window-count headings. Escape, the close icon, or clicking outside the
+There are no window-count headings. Escape or clicking outside the
 tiles dismisses it. Walker > System > Workspace Overview opens the same view.
 SUPER+Tab toggles Overview and is listed in Learn > Shortcuts. The overlay has
 no navigation-tip footer; the shortcuts remain available in Learn and this guide.
@@ -52,7 +52,7 @@ The overlay always uses the theme-tinted Blur background, even with a Theme
 Color bar. Workspace previews enter in order with a 55 ms stagger and a 260 ms
 fade/scale/slide; even ten previews finish in about 755 ms. The blurred background
 appears before previews. All dismissal paths instantly remove the entire overlay:
-workspace selection, Escape, outside click, and the close button.
+workspace selection, Escape, and outside click.
 Capture uses Quickshell's
 [ScreencopyView](https://quickshell.org/docs/v0.3.0/types/Quickshell.Wayland/ScreencopyView/)
 and the compositor's window-export protocol, without additional screenshot tools.

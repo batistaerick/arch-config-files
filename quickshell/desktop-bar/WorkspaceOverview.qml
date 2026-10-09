@@ -87,11 +87,7 @@ PanelWindow {
                     anchors.centerIn: parent
                     width: Math.max(1, Math.min(parent.width - 96, 2160))
                     spacing: 18
-                    Row {
-                        width: parent.width; spacing: 12
-                        Text { width: parent.width - 46; height: 34; text: "󰕮  Overview"; color: overview.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true; verticalAlignment: Text.AlignVCenter }
-                        PanelButton { width: 34; height: 34; icon: true; text: "󰅖"; foreground: overview.foreground; onClicked: overview.opened = false }
-                    }
+                    Text { width: parent.width; height: 34; text: "󰕮  Overview"; color: overview.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.headingSize; font.bold: true; verticalAlignment: Text.AlignVCenter }
                     Grid {
                         id: grid
                         width: parent.width

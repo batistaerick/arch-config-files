@@ -7,15 +7,33 @@ Column {
     required property bool busy
     required property color foreground
     required property color accent
+    readonly property alias lockTarget: lockButton
+    readonly property bool lockHovered: lockHover.hovered
     signal toggleRequested()
     signal lockRequested()
     spacing: 14
-    Text {
-        text: "Idle Lock"
-        color: controls.foreground
-        font.family: PanelStyle.fontFamily
-        font.pixelSize: PanelStyle.headingSize
-        font.bold: true
+    Item {
+        width: parent.width
+        height: 34
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: "Idle Lock"
+            color: controls.foreground
+            font.family: PanelStyle.fontFamily
+            font.pixelSize: PanelStyle.headingSize
+            font.bold: true
+        }
+        PanelButton {
+            id: lockButton
+            objectName: "lockNowButton"
+            anchors.right: parent.right
+            width: 34; height: 34
+            text: "󰌾"; icon: true
+            foreground: controls.foreground
+            available: !controls.busy
+            onClicked: controls.lockRequested()
+            HoverHandler { id: lockHover }
+        }
     }
     Row {
         width: parent.width
@@ -37,23 +55,5 @@ Column {
             accent: controls.accent
             onToggled: controls.toggleRequested()
         }
-    }
-    Text {
-        width: parent.width
-        text: controls.idleEnabled ? "Locks automatically when you are away." : "Automatic idle lock is disabled. You can still lock manually."
-        wrapMode: Text.Wrap
-        color: controls.foreground
-        opacity: 0.65
-        font.family: PanelStyle.fontFamily
-        font.pixelSize: PanelStyle.secondarySize
-    }
-    PanelButton {
-        objectName: "lockNowButton"
-        width: parent.width
-        text: "Lock now"
-        leadingIcon: "󰌾"
-        foreground: controls.foreground
-        available: !controls.busy
-        onClicked: controls.lockRequested()
     }
 }

@@ -49,4 +49,15 @@ TestCase {
         compare(toggles, 0);
         compare(locks, 0);
     }
+    function test_compact_header_lock_button() {
+        var controls = createTemporaryObject(controlsComponent, test);
+        var button = findChild(controls, "lockNowButton");
+        verify(button.icon);
+        compare(button.width, 34);
+        compare(button.height, 34);
+        var position = button.mapToItem(controls, 0, 0);
+        compare(position.x + button.width, controls.width);
+        compare(position.y, 0);
+        compare(controls.implicitHeight, 88);
+    }
 }

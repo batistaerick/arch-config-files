@@ -30,4 +30,11 @@ ThemedPopup {
             menu.opened = false;
         }
     }
+    BarTooltip {
+        target: controls.lockTarget
+        hovered: controls.lockHovered
+        text: "Lock now"
+        foreground: menu.foreground
+        background: menu.background
+    }
 }

@@ -53,7 +53,9 @@ them with upstream defaults.
 - Use `walker/bin/walker` for Walker launches. It carries an application-scoped
   GTK workaround required for compositor blur; do not bypass it casually.
 - WiFi uses iwd, audio uses PipeWire, Bluetooth uses the native Quickshell service,
-  and notifications use SwayNC. Do not substitute backends without agreement.
+  and Quickshell's NotificationServer handles notifications. Do not substitute
+  backends without agreement. Notification cards and the center follow the same
+  shared panel styles and the bar's current color/transparency setting.
 - The custom lockscreen and SDDM login themes have separate responsibilities.
   Keep the `hyprlock` PAM dependency and existing idle/suspend timings intact.
 

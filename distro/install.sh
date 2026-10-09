@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-config_dirs=(Kvantum elephant hypr kitty lockscreen nvim nwg-look quickshell swaync swayosd themes walker xdg-desktop-portal xsettingsd)
+config_dirs=(Kvantum elephant hypr kitty lockscreen nvim nwg-look quickshell swayosd themes walker xdg-desktop-portal xsettingsd)
 config_files=(dolphinrc filetypesrc mimeapps.list)
 
 if [[ ${EUID} -eq 0 ]]; then
@@ -97,6 +97,8 @@ icon_target="$HOME/.local/share/icons/hicolor"
 mkdir -p "$icon_target"
 cp -a -- "$icon_source/." "$icon_target/"
 mkdir -p "$HOME/.local/share/applications"
+mkdir -p "$HOME/.local/share/dbus-1/services"
+cp -a -- "$repo_root/HOME_FILES/.local/share/dbus-1/services/." "$HOME/.local/share/dbus-1/services/"
 cp -a -- "$repo_root/HOME_FILES/.local/share/applications/." "$HOME/.local/share/applications/"
 update-desktop-database "$HOME/.local/share/applications"
 

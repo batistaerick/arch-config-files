@@ -3,3 +3,4 @@ __pycache__/
 *.log
 distro/build/
 distro/out/
+/quickshell/desktop-bar/notification-settings.json

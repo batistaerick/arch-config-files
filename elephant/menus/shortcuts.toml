@@ -112,7 +112,7 @@ actions = { "open" = "$HOME/.config/walker/scripts/actions/toggle/desktop-bar.sh
 text = "Notification Center"
 subtext = "SUPER + N"
 icon = "󰂛"
-actions = { "open" = "swaync-client -t -sw" }
+actions = { "open" = "quickshell ipc -c desktop-bar call -- notifications toggle" }
 
 [[entries]]
 text = "Color Picker"

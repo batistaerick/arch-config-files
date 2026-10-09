@@ -132,7 +132,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
 	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("quickshell -n -c desktop-bar --daemonize")
-	hl.exec_cmd("swaync")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hyprsunset")
@@ -379,7 +378,7 @@ hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(actionsDir .. "/wallpaper/nex
 hl.bind(mainMod .. " + SHIFT + space", hl.dsp.exec_cmd(actionsDir .. "/toggle/desktop-bar.sh"))
 
 -- Desktop utilities
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("quickshell ipc -c desktop-bar call -- notifications toggle"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mainMod .. " + m", hl.dsp.exec_cmd(hyprScriptsDir .. "/manual-lock.sh"))
 hl.bind(mainMod .. " + SEMICOLON", hl.dsp.exec_cmd(actionsDir .. "/emoji-picker.sh"))
@@ -556,6 +555,5 @@ hl.layer_rule({
 	blur_popups = true,
 	ignore_alpha = 0.8,
 })
-blurred_layer("swaync-control-center", 0.4)
-blurred_layer("swaync-notification-window", 0.4)
+blurred_layer("desktop-notifications", 0.2)
 blurred_layer("swayosd", 0.3)

@@ -47,7 +47,6 @@ sddm
 xdg-desktop-portal-hyprland
 xdg-utils
 polkit-kde-agent
-swaync
 swayosd
 pipewire
 pipewire-alsa

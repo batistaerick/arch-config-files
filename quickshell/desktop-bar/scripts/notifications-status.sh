@@ -2,9 +2,10 @@
 
 set -euo pipefail
 
-count="$(swaync-client -c -sw 2>/dev/null || printf '0')"
-dnd="$(swaync-client -D -sw 2>/dev/null || printf 'false')"
-inhibited="$(swaync-client -I -sw 2>/dev/null || printf 'false')"
+status="$(quickshell ipc -c desktop-bar call -- notifications status)"
+count="$(jq -r '.count' <<< "$status")"
+dnd="$(jq -r '.doNotDisturb' <<< "$status")"
+inhibited="false"
 
 count="${count//[^0-9]/}"
 [[ -n "$count" ]] || count=0

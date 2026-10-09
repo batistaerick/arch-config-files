@@ -319,7 +319,7 @@ case "$chosen" in
     "$ACTIONS_DIR/toggle/desktop-bar.sh"
     ;;
   "  SUPER + N"*)
-    swaync-client -t -sw
+    quickshell ipc -c desktop-bar call -- notifications toggle
     ;;
   "  SUPER + ="*)
     hyprpicker -a

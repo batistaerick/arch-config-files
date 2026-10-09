@@ -7,8 +7,10 @@ import Quickshell.Wayland
 
 ShellRoot {
     id: shell
+    NotificationService { id: notificationsService }
 
     property bool statusOpen: false
+    property bool barVisible: true
     property int barHeight: 30
     property color bg: Qt.rgba(24 / 255, 24 / 255, 36 / 255, 0.38)
     property color fg: "#cdd6f4"
@@ -50,6 +52,7 @@ ShellRoot {
 
     IpcHandler {
         target: "bar"
+        function visibility(): void { shell.barVisible = !shell.barVisible; }
         function update(key: string, value: string): void { shell.updateBarSetting(key, value) }
         function toggle(kind: string): void {
             if (kind === "appearance") shell.updateBarSetting(kind, shell.barAppearance === "solid" ? "transparent" : "solid");
@@ -244,15 +247,16 @@ ShellRoot {
                 required property var modelData
                 readonly property Item stripItem: barContents
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
-                    keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu]
+                    keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
 
                 screen: modelData
+                visible: shell.barVisible || panelOpen
                 implicitWidth: modelData.width
                 implicitHeight: modelData.height
                 color: "transparent"
                 exclusionMode: ExclusionMode.Normal
-                exclusiveZone: shell.verticalBar ? barContents.width : shell.barHeight
+                exclusiveZone: shell.barVisible ? (shell.verticalBar ? barContents.width : shell.barHeight) : 0
                 WlrLayershell.namespace: "desktop-bar"
                 WlrLayershell.layer: WlrLayer.Top
                 mask: dockInput
@@ -281,6 +285,43 @@ ShellRoot {
                     Region { item: obsMenu.opened ? obsMenu : null }
                     Region { item: recordingMenu.opened ? recordingMenu : null }
                     Region { item: workspaceMenu.opened ? workspaceMenu : null }
+                    Region { item: notificationCenter.opened ? notificationCenter : null }
+                }
+
+                Connections {
+                    target: notificationsService
+                    function onToggleRequested() {
+                        var next = !notificationCenter.opened;
+                        bar.dockPanels.forEach(panel => panel.opened = false);
+                        notificationCenter.opened = next;
+                    }
+                }
+                Connections {
+                    target: shell
+                    function onBarVisibleChanged() {
+                        if (!shell.barVisible) bar.dockPanels.forEach(panel => panel.opened = false);
+                    }
+                }
+
+                NotificationPopups {
+                    screen: bar.screen
+                    service: notificationsService
+                    foreground: shell.fg
+                    background: shell.barBackground()
+                    accent: shell.activeBg
+                    barEdge: shell.barEdge
+                }
+
+                NotificationCenter {
+                    id: notificationCenter
+                    service: notificationsService
+                    maximumHeight: bar.screen.height - 70
+                    target: shell.verticalBar ? verticalNotificationIcon : notificationIcon
+                    barEdge: shell.barEdge
+                    surfaceColor: shell.barBackground()
+                    foreground: shell.fg
+                    background: shell.workspaceMenuBg
+                    accent: shell.activeBg
                 }
 
                 IpcHandler {
@@ -299,7 +340,7 @@ ShellRoot {
                         var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
                             mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu,
-                            workspace: workspaceMenu, recording: recordingMenu};
+                            workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter};
                         if (!panels[kind]) return;
                         for (var key in panels) panels[key].opened = false;
                         panels[kind].opened = true;
@@ -490,8 +531,9 @@ ShellRoot {
                         VerticalBarIcon { icon: shell.idleLockEnabled ? "󱫗" : "󱫖"; tooltip: "Idle Lock"; open: shell.statusOpen; clickable: true; onClicked: if (!toggleIdleLock.running) toggleIdleLock.running = true }
                         VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: obsMenu.opened = !obsMenu.opened }
                         VerticalBarIcon {
+                            id: verticalNotificationIcon
                             icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
-                            onClicked: shell.run("swaync-client -t -sw")
+                            onClicked: notificationsService.toggleRequested()
                         }
                     }
                 }
@@ -1360,51 +1402,14 @@ ShellRoot {
     component NotificationWidget: Rectangle {
         id: notifications
 
-        property string text: "󰂜"
-        property string tooltip: "No notifications"
-        property bool hasNotifications: false
-
-        function refresh() {
-            if (notificationEvents.running || process.running)
-                return ;
-
-            process.command = ["bash", "-lc", "$HOME/.config/quickshell/desktop-bar/scripts/notifications-status.sh"];
-            process.running = true;
-        }
-
-        function parse(raw) {
-            var value = String(raw || "").trim();
-            if (value === "")
-                return ;
-
-            try {
-                var data = JSON.parse(value.split("\n").pop());
-                notifications.text = String(data.text || "󰂜");
-                notifications.tooltip = String(data.tooltip || "");
-                notifications.hasNotifications = data.active === true;
-            } catch (e) {
-                notifications.text = "󰂜";
-                notifications.tooltip = "Notifications unavailable";
-                notifications.hasNotifications = false;
-            }
-        }
-
-        function subscription(raw) {
-            try {
-                var data = JSON.parse(raw);
-                var count = Number(data.text || 0);
-                var icons = {none: "󰂜", notification: "󱅫", "dnd-none": "󰪓", "dnd-notification": "󰂠", "inhibited-none": "󰪑", "inhibited-notification": "󰂛", "dnd-inhibited-none": "󰪑", "dnd-inhibited-notification": "󰂛"};
-                notifications.text = icons[data.alt] || (count > 0 ? "󱅫" : "󰂜");
-                notifications.hasNotifications = count > 0;
-                notifications.tooltip = count > 0 ? count + " notifications" : "No notifications";
-            } catch (e) {}
-        }
+        readonly property bool hasNotifications: notificationsService.count > 0
+        readonly property string text: notificationsService.doNotDisturb ? (hasNotifications ? "󰂠" : "󰪓") : (hasNotifications ? "󱅫" : "󰂜")
+        readonly property string tooltip: notificationsService.doNotDisturb ? "Do Not Disturb" : (hasNotifications ? notificationsService.count + " notifications" : "No notifications")
 
         width: 28
         height: 24
         radius: 7
         color: "transparent"
-        Component.onCompleted: refresh()
 
         Text {
             anchors.fill: parent
@@ -1426,26 +1431,10 @@ ShellRoot {
             cursorShape: Qt.PointingHandCursor
             onClicked: function(event) {
                 if (event.button === Qt.RightButton)
-                    shell.run("swaync-client -d -sw");
+                    notificationsService.toggleDnd();
                 else
-                    shell.run("swaync-client -t -sw");
-                refreshAfterClick.restart();
+                    notificationsService.toggleRequested();
             }
-        }
-
-        Timer {
-            interval: 3000
-            running: true
-            repeat: true
-            onTriggered: notifications.refresh()
-        }
-
-        Timer {
-            id: refreshAfterClick
-
-            interval: 350
-            repeat: false
-            onTriggered: notifications.refresh()
         }
 
         BarTooltip {
@@ -1453,32 +1442,8 @@ ShellRoot {
             foreground: shell.fg
             target: notifications
             hovered: mouse.containsMouse
-            text: "Notifications"
+            text: notifications.tooltip
         }
-
-        Process {
-            id: process
-
-            running: false
-            command: []
-            onExited: notifications.parse(notificationOutput.text)
-
-            stdout: StdioCollector {
-                id: notificationOutput
-
-                waitForEnd: true
-            }
-
-        }
-
-        Process {
-            id: notificationEvents
-            command: ["swaync-client", "-swb"]
-            running: true
-            stdout: SplitParser { onRead: data => notifications.subscription(data) }
-            onExited: reconnectEvents.restart()
-        }
-        Timer { id: reconnectEvents; interval: 2000; onTriggered: notificationEvents.running = true }
 
         Behavior on color {
             ColorAnimation {

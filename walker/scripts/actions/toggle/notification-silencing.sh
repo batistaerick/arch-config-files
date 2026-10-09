@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-if ! command -v swaync-client >/dev/null 2>&1; then
-  notify-send "Notifications" "swaync-client not found"
-  exit 1
-fi
-
-STATE="$(swaync-client --toggle-dnd | tr -d '\n')"
+STATE="$(quickshell ipc -c desktop-bar call -- notifications dnd)" || exit 1
 
 if [[ "$STATE" == "true" ]]; then
   MESSAGE="󰂛  Notifications muted"

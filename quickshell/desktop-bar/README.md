@@ -97,10 +97,26 @@ machine name is not displayed. The existing Blueman agent handles any pairing-co
 Discovery started by the popup stops after 20 seconds or when it closes.
 These popups do not change network services or require new packages.
 
-SwayNC contains only the title/clear control and notifications. Its opaque
-background follows the current theme, including light themes. The bar bell uses
-SwayNC's native event subscription to update immediately when notifications are
-added/cleared, with polling retained as a fallback if the subscription stops.
+Quickshell owns the desktop notification server. The bell and SUPER+N open its
+grouped notification center using the same DockPanel and PanelSurface as the
+other controls. Right-clicking the bell toggles Do Not Disturb; the center also
+offers Do Not Disturb and Clear All buttons. Popups and the center follow the
+bar's live theme-color or transparent/blur appearance. Notifications include
+application icons, images, action buttons, and inline replies when supplied by
+the application. Terminal notifications remain filtered out.
+Hiding the desktop bar leaves the notification service and popups running;
+opening the center while the bar is hidden shows its attached surface temporarily.
+
+Popup timeout hides ordinary notifications while retaining them in history;
+transient notifications expire without entering history. Critical notifications
+and explicit no-timeout notifications remain until dismissed. Hovering pauses
+popup expiry. Do Not Disturb suppresses popups while retaining history.
+History stays in memory and survives Quickshell configuration reloads, but not
+process restarts; notification contents are never written to a log. Only Do Not
+Disturb is persisted in machine-local `notification-settings.json`. The center
+retains up to 100 notifications, with periodic pruning. `notifications` IPC
+provides `toggle`, `dnd`, `clear`, `clearApp`, and `status`. The old SwayNC files are retained
+as an inactive rollback reference; neither theme changes nor startup invoke it.
 
 Click the Hardware icon to open the shared CPU/GPU/RAM/Storage popup. It refreshes every
 two seconds while visible and closes on an outside click or Escape. CPU load,

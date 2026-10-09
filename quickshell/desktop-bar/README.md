@@ -2,6 +2,13 @@
 
 The desktop bar and its native popups follow the current theme.
 
+Configuration reload errors use a native, padded popup with the bar's live
+Theme Color or Blur appearance. Error details are selectable and scroll within
+the screen; dismiss with the close button or Escape while focused. Successful
+reloads stay quiet. The previous working configuration remains active after a
+failed reload. A failure before any configuration loads still uses Quickshell's
+built-in fallback, since the custom popup cannot run yet.
+
 OBS controls share compact icon backgrounds and show loading until actions and
 the resulting status refresh finish. Starting capture first prepares OBS in
 the background, then closes the panel before recording or streaming starts.
@@ -25,7 +32,8 @@ Learn > Mouse Gestures also lists these gestures and
 the desktop wallpaper/theme double clicks. Left/right bars use upright compact
 controls, with the time/date centered and popups opening inward.
 Hardware and AI Usage sit together after the workspaces; right-hand controls
-retain their manual show/hide toggle.
+retain their manual show/hide toggle. Both side groups share 24 px icon slots
+and 4 px spacing, with centered alignment on every bar edge.
 
 The Overview icon precedes the workspace markers on every bar edge. It opens a
 screen-centered overview of occupied workspaces only, across monitors, numbered
@@ -44,8 +52,9 @@ and the compositor's window-export protocol, without additional screenshot tools
 
 The bar starts with workspaces 1–5. Visiting a higher workspace expands the
 sequence through that number, capped at 10: visiting 7 shows 1, 2, 3, 4, 5, 6, 7.
-The maximum stays visible for the rest of the configuration session even if a
-workspace becomes empty. The compositor's existing SUPER+1–9/0 bindings and
+Extra markers disappear when leaving an empty higher workspace: the sequence
+ends at the current workspace or highest occupied workspace, with 1–5 always
+present. The compositor's existing SUPER+1–9/0 bindings and
 monitor assignments remain unchanged. Named/special workspaces are not included
 in the numbered overview; external compositor commands can still create them.
 

@@ -103,11 +103,13 @@ them with upstream defaults.
 - WiFi separates Connected, Known Networks, and Other Networks. Saved offline
   networks remain listed. Do not show fake signal percentages for offline rows.
 - Workspace style examples must match the actual bar markers. Start with five
-  numbered workspaces; expand sequentially through the highest visited workspace,
-  capped at ten. Preserve dual-monitor assignments. The Overview icon precedes
+  numbered workspaces; expand sequentially through the current or highest occupied
+  workspace, capped at ten. Remove extra empty markers after leaving them.
+  Preserve dual-monitor assignments. The Overview icon precedes
   the workspace markers and shows only occupied numbered workspaces, using
   in-memory previews with no saved screenshots. Keep equal left-group spacing
-  and centered icon/marker alignment on all bar edges.
+  and centered icon/marker alignment on all bar edges. Right-side controls use
+  the same icon-slot dimensions and spacing as the left group.
 - Wallpaper/theme changes should not emit success notifications. Preserve both
   Walker selection and the desktop carousel workflows.
 - Theme-generator changes must accompany edits to generated styles so the next

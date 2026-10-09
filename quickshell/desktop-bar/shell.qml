@@ -9,6 +9,12 @@ import "WorkspaceModel.js" as WorkspaceModel
 ShellRoot {
     id: shell
     NotificationService { id: notificationsService }
+    ReloadErrorPopup {
+        foreground: shell.fg
+        background: shell.barBackground()
+        targetScreen: shell.targetScreens()[0] || null
+        barEdge: shell.barEdge
+    }
 
     property bool statusOpen: false
     property bool barVisible: true
@@ -22,13 +28,10 @@ ShellRoot {
     property string primaryDisplay: ""
     property bool portableDisplayMode: false
     property string workspaceStyle: "Numbers"
-    property int workspaceCount: 5
+    readonly property int workspaceCount: WorkspaceModel.ceiling(WorkspaceModel.occupied(Hyprland.toplevels.values),
+        Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0)
     readonly property int workspaceItemSize: 24
     readonly property int workspaceItemSpacing: 4
-    readonly property int workspaceCeiling: WorkspaceModel.ceiling(Hyprland.workspaces.values,
-        Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0)
-    onWorkspaceCeilingChanged: workspaceCount = Math.max(workspaceCount, workspaceCeiling)
-    Component.onCompleted: workspaceCount = Math.max(workspaceCount, workspaceCeiling)
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
     property string barAppearance: "transparent"
@@ -567,7 +570,7 @@ ShellRoot {
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 8
                         anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 2
+                        spacing: shell.workspaceItemSpacing
                         VerticalBarIcon {
                             icon: shell.statusOpen ? "⌄" : "⌃"
                             tooltip: shell.statusOpen ? "Hide icons" : "Show icons"
@@ -762,9 +765,9 @@ ShellRoot {
                         Row {
                             id: rightSide
 
-                            spacing: 6
+                            spacing: shell.workspaceItemSpacing
                             anchors.right: notificationIcon.left
-                            anchors.rightMargin: 6
+                            anchors.rightMargin: shell.workspaceItemSpacing
                             anchors.verticalCenter: parent.verticalCenter
 
                             StatusIcon {
@@ -786,7 +789,8 @@ ShellRoot {
                                 fontSize: 16
                                 interval: 3000
                                 open: shell.statusOpen
-                                slotWidth: 28
+                                slotWidth: shell.workspaceItemSize
+                                fixedWidth: shell.workspaceItemSize
                                 clickable: true
                                 onClicked: bar.togglePanel(wifiMenu)
                                 onOpenChanged: if (!open) wifiMenu.opened = false
@@ -1101,7 +1105,7 @@ ShellRoot {
         property bool rightClickable: false
         property int iconSize: 15
         property int glyphOffsetY: 0
-        property int slotWidth: 28
+        property int slotWidth: shell.workspaceItemSize
 
         signal clicked()
 
@@ -1474,7 +1478,7 @@ ShellRoot {
         readonly property string text: notificationsService.doNotDisturb ? (hasNotifications ? "󰂠" : "󰪓") : (hasNotifications ? "󱅫" : "󰂜")
         readonly property string tooltip: notificationsService.doNotDisturb ? "Do Not Disturb" : (hasNotifications ? notificationsService.count + " notifications" : "No notifications")
 
-        width: 28
+        width: shell.workspaceItemSize
         height: 24
         radius: 7
         color: "transparent"

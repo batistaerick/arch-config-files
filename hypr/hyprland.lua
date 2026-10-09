@@ -556,6 +556,7 @@ hl.layer_rule({
 	ignore_alpha = 0.8,
 })
 blurred_layer("desktop-notifications", 0.2)
+blurred_layer("desktop-reload-error", 0.2)
 blurred_layer("desktop-overview", 0.2)
 -- The overview owns its preview animation; keep its blur and workspace jumps instant.
 hl.layer_rule({ match = { namespace = "desktop-overview" }, no_anim = true })

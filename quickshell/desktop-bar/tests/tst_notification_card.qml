@@ -99,10 +99,10 @@ TestCase {
     }
     function test_image_sizes_data() {
         return [
-            {tag: "small image stays native", sourceWidth: 64, sourceHeight: 48, compact: false, expectedWidth: 64, expectedHeight: 48},
-            {tag: "4K image is capped", sourceWidth: 3840, sourceHeight: 2160, compact: false, expectedWidth: 160, expectedHeight: 90},
-            {tag: "popup image is capped", sourceWidth: 3840, sourceHeight: 2160, compact: true, expectedWidth: 128, expectedHeight: 72},
-            {tag: "portrait is capped proportionally", sourceWidth: 600, sourceHeight: 1200, compact: false, expectedWidth: 60, expectedHeight: 120},
+            {tag: "small image as icon", sourceWidth: 64, sourceHeight: 48, compact: false},
+            {tag: "4K image as icon", sourceWidth: 3840, sourceHeight: 2160, compact: false},
+            {tag: "popup image as icon", sourceWidth: 3840, sourceHeight: 2160, compact: true},
+            {tag: "portrait as icon", sourceWidth: 600, sourceHeight: 1200, compact: false},
         ];
     }
     function test_image_sizes(data) {
@@ -111,7 +111,32 @@ TestCase {
         var card = createTemporaryObject(cardComponent, test, {notification: notification, compact: data.compact});
         var image = findChild(card, "notificationImage");
         tryCompare(image, "status", Image.Ready);
-        compare(image.width, data.expectedWidth);
-        compare(image.height, data.expectedHeight);
+        compare(image.width, 28);
+        compare(image.height, 28);
+        compare(image.fillMode, Image.PreserveAspectFit);
+        verify(image.visible);
+        verify(!findChild(card, "notificationFallbackIcon").visible);
+        verify(!findChild(card, "notificationFallbackGlyph").visible);
+        var plainCard = createTemporaryObject(cardComponent, test,
+            {notification: notice(), compact: data.compact});
+        compare(card.implicitHeight, plainCard.implicitHeight);
+    }
+    function test_image_fallback_data() {
+        return [{tag: "absent image", image: "", appIcon: true},
+                {tag: "broken image", image: "file:///nonexistent-eitr-notification-image.png", appIcon: true},
+                {tag: "no icons", image: "", appIcon: false}];
+    }
+    function test_image_fallback(data) {
+        var notification = notice();
+        notification.image = data.image;
+        notification.appIcon = data.appIcon ? "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect width="28" height="28" fill="cyan"/></svg>') : "";
+        var card = createTemporaryObject(cardComponent, test, {notification: notification});
+        var image = findChild(card, "notificationImage");
+        tryCompare(image, "status", data.image ? Image.Error : Image.Null);
+        verify(!image.visible);
+        var fallback = findChild(card, "notificationFallbackIcon");
+        if (data.appIcon) tryCompare(fallback, "status", Image.Ready);
+        compare(fallback.visible, data.appIcon);
+        compare(findChild(card, "notificationFallbackGlyph").visible, !data.appIcon);
     }
 }

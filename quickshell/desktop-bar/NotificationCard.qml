@@ -9,8 +9,6 @@ Rectangle {
     required property color accent
     property bool compact: false
     property bool filled: true
-    readonly property int maximumImageWidth: compact ? 128 : 160
-    readonly property int maximumImageHeight: compact ? 96 : 120
     signal activated(int notificationId)
     function invokeAction(action) {
         var id = notification.id;
@@ -43,16 +41,33 @@ Rectangle {
             id: cardHeader
             width: parent.width
             height: Math.max(30, titleBox.implicitHeight)
-            Image {
+            Item {
                 id: applicationIcon
                 objectName: "notificationAppIcon"
                 anchors.verticalCenter: parent.verticalCenter
                 width: 28; height: 28
-                source: card.notification && card.notification.appIcon ? (card.notification.appIcon.indexOf("/") !== -1 || card.notification.appIcon.indexOf(":") !== -1 ? card.notification.appIcon : "image://icon/" + card.notification.appIcon) : ""
-                fillMode: Image.PreserveAspectFit
+                Image {
+                    id: notificationImage
+                    objectName: "notificationImage"
+                    anchors.fill: parent
+                    source: card.notification ? card.notification.image : ""
+                    sourceSize.width: 56; sourceSize.height: 56
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                    visible: status === Image.Ready
+                }
+                Image {
+                    id: fallbackIcon
+                    objectName: "notificationFallbackIcon"
+                    anchors.fill: parent
+                    source: card.notification && card.notification.appIcon ? (card.notification.appIcon.indexOf("/") !== -1 || card.notification.appIcon.indexOf(":") !== -1 ? card.notification.appIcon : "image://icon/" + card.notification.appIcon) : ""
+                    fillMode: Image.PreserveAspectFit
+                    visible: notificationImage.status !== Image.Ready && status === Image.Ready
+                }
                 Text {
+                    objectName: "notificationFallbackGlyph"
                     anchors.centerIn: parent
-                    visible: !card.notification || !card.notification.appIcon || applicationIcon.status === Image.Error
+                    visible: notificationImage.status !== Image.Ready && fallbackIcon.status !== Image.Ready
                     text: "󰂚"; color: card.foreground
                     font.family: PanelStyle.fontFamily; font.pixelSize: 22
                 }
@@ -96,20 +111,6 @@ Rectangle {
             wrapMode: Text.Wrap
             maximumLineCount: card.compact ? 3 : 12
             elide: Text.ElideRight
-        }
-        Image {
-            id: attachmentImage
-            objectName: "notificationImage"
-            visible: source !== "" && status === Image.Ready
-            readonly property real displayScale: Math.min(1,
-                content.width / Math.max(1, implicitWidth),
-                card.maximumImageWidth / Math.max(1, implicitWidth),
-                card.maximumImageHeight / Math.max(1, implicitHeight))
-            width: visible ? implicitWidth * displayScale : 0
-            height: visible ? implicitHeight * displayScale : 0
-            source: card.notification ? card.notification.image : ""
-            fillMode: Image.PreserveAspectFit
-            asynchronous: true
         }
         Flow {
             width: parent.width

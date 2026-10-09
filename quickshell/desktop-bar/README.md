@@ -148,7 +148,9 @@ These popups do not change network services or require new packages.
 
 Quickshell owns the desktop notification server. The bell and SUPER+N open its
 grouped notification center using the same DockPanel and PanelSurface as the
-other controls. Cards show the app icon without repeating the app name. Each
+other controls. Cards use the notification image as their 28 px header icon,
+falling back to the app icon (then a bell) if it is absent or cannot load.
+Images are not repeated below the message, and the app name is not repeated. Each
 app group shows its count and starts with its newest notification over a visual
 stack of up to three cards (one front card and two backing layers). The arrow
 reveals the full group and collapses it back to the stack; the three-card limit
@@ -158,7 +160,7 @@ is running, including when new notifications arrive.
 Right-clicking the bell toggles Do Not Disturb; the center also
 offers Do Not Disturb and Clear All buttons. Popups and the center follow the
 bar's live theme-color or transparent/blur appearance. Notifications include
-application icons, images, action buttons, and inline replies when supplied by
+image/app icons, action buttons, and inline replies when supplied by
 the application. Clicking anywhere on a card invokes the application's default
 action, such as opening the corresponding chat message, and closes the center
 or hides the popup. Apps without a default action still expose any supplied

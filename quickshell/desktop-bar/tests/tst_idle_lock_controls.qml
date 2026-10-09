@@ -21,6 +21,28 @@ TestCase {
             onLockRequested: test.locks++
         }
     }
+    Component {
+        id: paddedPanelComponent
+        Item {
+            width: 340
+            height: paddedControls.implicitHeight + 36 + 28
+            property string barEdge: "top"
+            property real revealProgress: 1
+            property color background: "#202020"
+            PanelSurface {
+                anchors.fill: parent
+                hostWindow: parent
+                IdleLockControls {
+                    id: paddedControls
+                    objectName: "paddedIdleControls"
+                    x: 18; y: 18
+                    width: parent.width - 36
+                    idleEnabled: true; busy: false
+                    foreground: "white"; accent: "cyan"
+                }
+            }
+        }
+    }
     function cleanup() { toggles = 0; locks = 0; }
     function test_toggle_and_manual_lock_are_independent() {
         var controls = createTemporaryObject(controlsComponent, test);
@@ -59,5 +81,16 @@ TestCase {
         compare(position.x + button.width, controls.width);
         compare(position.y, 0);
         compare(controls.implicitHeight, 88);
+    }
+    function test_toggle_fits_surface_content_data() {
+        return ["top", "bottom", "left", "right"].map(edge => ({tag: edge, edge: edge}));
+    }
+    function test_toggle_fits_surface_content(data) {
+        var panel = createTemporaryObject(paddedPanelComponent, test, {barEdge: data.edge});
+        var controls = findChild(panel, "paddedIdleControls");
+        var toggle = findChild(controls, "idleLockSwitch");
+        var frame = findChild(panel, "panelContentFrame");
+        var bottom = toggle.mapToItem(frame, 0, toggle.height).y;
+        verify(frame.height - bottom >= 18, "Toggle must retain full bottom padding");
     }
 }

@@ -93,9 +93,16 @@ def main():
         json.dump(config, output, ensure_ascii=False)
         output.flush()
         try:
-            result = subprocess.run(["fastfetch", "--config", output.name], check=False)
+            # Capturing output lets us normalize only outer blank lines. Keep
+            # terminal colors enabled when the final destination is a terminal.
+            import sys
+            result = subprocess.run(
+                ["fastfetch", "--config", output.name, "--pipe",
+                 "false" if sys.stdout.isatty() else "true"],
+                check=False, stdout=subprocess.PIPE, text=True)
         except FileNotFoundError:
             parser.exit(1, "Fastfetch is not installed. Install the distro's fastfetch package.\n")
+        print("\n" + result.stdout.strip("\n") + "\n", flush=True)
         raise SystemExit(result.returncode)
 
 

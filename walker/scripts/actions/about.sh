@@ -3,7 +3,7 @@
 set -euo pipefail
 
 CLASS="about-terminal"
-ABOUT_COMMAND='python3 "${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/eitr.py"; echo; read -n 1 -s -r -p "Press any key to close"'
+ABOUT_COMMAND='python3 "${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/eitr.py"; read -n 1 -s -r'
 
 if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
   if clients_json="$(hyprctl clients -j 2>/dev/null)"; then

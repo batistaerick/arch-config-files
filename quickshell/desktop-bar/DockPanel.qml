@@ -18,7 +18,6 @@ Item {
     }
     readonly property var hostWindow: attachmentTarget ? attachmentTarget.QsWindow.window : null
     readonly property Item strip: hostWindow ? hostWindow.stripItem : null
-    readonly property bool glass: hostWindow ? hostWindow.glassAppearance : false
     property point targetPoint: Qt.point(0, 0)
     function updateTargetPoint() {
         if (attachmentTarget && parent) targetPoint = attachmentTarget.mapToItem(parent, 0, 0);

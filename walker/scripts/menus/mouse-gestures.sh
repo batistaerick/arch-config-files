@@ -2,7 +2,7 @@
 
 options="Desktop: double left-click       Wallpaper carousel
 Desktop: double right-click      Theme carousel
-Bar: double left-click           Blur / Liquid Glass / Theme Color
+Bar: double left-click           Blur / Theme Color
 Bar: double right-click          One bar / three sections
 Bar: left-click and drag         Move to a screen edge
 Workspace: right-click           Workspace style"

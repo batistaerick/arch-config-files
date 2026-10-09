@@ -13,17 +13,6 @@ spec.loader.exec_module(bar_settings)
 
 
 class BarSettingsTests(unittest.TestCase):
-    def test_three_appearance_cycle(self):
-        with tempfile.TemporaryDirectory() as directory, \
-                patch.object(bar_settings, "SETTINGS", Path(directory) / "bar.json"), \
-                patch.object(bar_settings, "apply_live") as apply_live, \
-                patch.object(bar_settings.sys, "argv", ["bar-settings.py", "toggle", "appearance"]), \
-                patch("builtins.print"):
-            for expected in ["glass", "solid", "transparent"]:
-                self.assertEqual(bar_settings.main(), 0)
-                self.assertEqual(bar_settings.read_settings()["appearance"], expected)
-                apply_live.assert_called_with("appearance", expected)
-
     def test_removed_no_background_falls_back_to_transparent(self):
         with tempfile.TemporaryDirectory() as directory, \
                 patch.object(bar_settings, "SETTINGS", Path(directory) / "bar.json"):

@@ -8,7 +8,7 @@ fixed_order = true
 text = "Appearance"
 subtext = ">"
 icon = "󰏘"
-keywords = ["blur", "glass", "liquid", "transparent", "theme", "solid", "color"]
+keywords = ["transparent", "theme", "solid", "color"]
 submenu = "bar-appearance"
 
 [[entries]]

@@ -1,5 +1,4 @@
 import QtQuick
-import "GlassStyle.js" as GlassStyle
 
 Item {
     id: surface
@@ -13,6 +12,10 @@ Item {
     readonly property bool flushTrailing: hostWindow.parent && (vertical
         ? hostWindow.y + hostWindow.height >= hostWindow.parent.height
         : hostWindow.x + hostWindow.width >= hostWindow.parent.width)
+    // Concave joins inset the painted body except at a flush screen edge.
+    // Pad relative to that body, not the larger rectangular attachment area.
+    readonly property int leadingBodyInset: flushLeading ? 0 : 14
+    readonly property int trailingBodyInset: flushTrailing ? 0 : 14
     default property alias panelContent: contents.data
 
     Item {
@@ -36,22 +39,12 @@ Item {
                 function onFlushLeadingChanged() { outline.requestPaint(); }
                 function onFlushTrailingChanged() { outline.requestPaint(); }
             }
-            Connections {
-                target: surface.hostWindow
-                function onGlassChanged() { outline.requestPaint(); }
-                function onYChanged() { outline.requestPaint(); }
-            }
             onPaint: {
                 var ctx = getContext("2d");
                 ctx.reset();
                 var w = surface.vertical ? height : width;
                 var h = surface.vertical ? width : height;
                 if (w <= 0 || h <= 0) return;
-                var sheen = ctx.createLinearGradient(0, 0, 0, height);
-                var screenY = surface.hostWindow.y + reveal.y;
-                var screenHeight = surface.hostWindow.parent ? surface.hostWindow.parent.height : height;
-                sheen.addColorStop(0, Qt.rgba(1, 1, 1, GlassStyle.highlightAlpha(screenY, screenHeight)));
-                sheen.addColorStop(1, Qt.rgba(1, 1, 1, GlassStyle.highlightAlpha(screenY + height, screenHeight)));
                 if (surface.edge === "bottom") { ctx.translate(width, height); ctx.rotate(Math.PI); }
                 else if (surface.edge === "left") { ctx.translate(0, height); ctx.rotate(-Math.PI / 2); }
                 else if (surface.edge === "right") { ctx.translate(width, 0); ctx.rotate(Math.PI / 2); }
@@ -61,40 +54,29 @@ Item {
                 var endInset = (reversed ? surface.flushLeading : surface.flushTrailing) ? 0 : r;
                 // The two inward curves join the sheet to the bar; the outer
                 // corners remain rounded as the sheet unfolds.
-                GlassStyle.sheetPath(ctx, w, h, startInset, endInset, true);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(w, 0);
+                ctx.quadraticCurveTo(w - endInset, 0, w - endInset, endInset);
+                ctx.lineTo(w - endInset, h - endInset);
+                ctx.quadraticCurveTo(w - endInset, h, w - 2 * endInset, h);
+                ctx.lineTo(2 * startInset, h);
+                ctx.quadraticCurveTo(startInset, h, startInset, h - startInset);
+                ctx.lineTo(startInset, startInset);
+                ctx.quadraticCurveTo(startInset, 0, 0, 0);
+                ctx.closePath();
                 ctx.fillStyle = surface.color;
                 ctx.fill();
-                if (surface.hostWindow.glass) {
-                    ctx.fillStyle = sheen;
-                    ctx.fill();
-                    ctx.save();
-                    ctx.clip();
-                    GlassStyle.sheetPath(ctx, w, h, startInset, endInset, false);
-                    var rim = ctx.createLinearGradient(0, 0, w, h);
-                    rim.addColorStop(0, "rgba(255,255,255,0.55)");
-                    rim.addColorStop(0.45, "rgba(255,255,255,0.12)");
-                    rim.addColorStop(0.75, "rgba(255,255,255,0.32)");
-                    rim.addColorStop(1, "rgba(255,255,255,0.18)");
-                    ctx.strokeStyle = "rgba(255,255,255,0.045)";
-                    ctx.lineWidth = 12;
-                    ctx.stroke();
-                    ctx.strokeStyle = "rgba(255,255,255,0.08)";
-                    ctx.lineWidth = 5;
-                    ctx.stroke();
-                    ctx.strokeStyle = rim;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    ctx.restore();
-                }
             }
         }
 
         Item {
             id: contents
+            objectName: "panelContentFrame"
             width: Math.max(0, surface.width - surface.contentInset * 2)
             height: Math.max(0, surface.height - surface.contentInset * 2)
-            x: surface.contentInset + (surface.edge === "right" ? reveal.width - surface.width : 0)
-            y: surface.contentInset + (surface.edge === "bottom" ? reveal.height - surface.height : 0)
+            x: surface.contentInset + (surface.vertical ? 0 : (surface.leadingBodyInset - surface.trailingBodyInset) / 2) + (surface.edge === "right" ? reveal.width - surface.width : 0)
+            y: surface.contentInset + (surface.vertical ? (surface.leadingBodyInset - surface.trailingBodyInset) / 2 : 0) + (surface.edge === "bottom" ? reveal.height - surface.height : 0)
             opacity: Math.min(1, surface.progress * 2)
         }
     }

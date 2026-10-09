@@ -33,6 +33,8 @@ Item {
     z: 100
     width: implicitWidth
     height: implicitHeight
+    PanelSizeBehavior on width { ownerPanel: panel }
+    PanelSizeBehavior on height { ownerPanel: panel }
     x: {
         if (!strip || !parent || !attachmentTarget) return 0;
         if (attachmentEdge === "left") return strip.x + strip.width;

@@ -46,6 +46,10 @@ corners and continuous blur. They unfold over 320 ms from the selected edge
 and fold back on outside click, Escape, or icon toggle.
 Switching controls finishes the current panel's closing animation before opening
 the next panel; rapid clicks select the latest requested panel without overlap.
+Content-driven width and height changes use the same 320 ms cubic animation:
+AI provider changes, OBS editing, keyboard additions, schedule editing, and
+other dynamic panels grow or shrink while staying attached to the bar. Hidden
+panels update immediately so resizing does not compete with opening/closing.
 Their surface follows the bar's current appearance, including live changes
 between the solid theme color and transparency with blur.
 Calendar retains its fixed six-row

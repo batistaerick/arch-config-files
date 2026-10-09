@@ -1,5 +1,17 @@
 .pragma library
 
+function imageSource(notification) {
+    if (!notification) return "";
+    // Use Qt's file loader/cache, not an icon-provider lookup for local images.
+    var image = notification.image || "";
+    var hints = notification.hints || {};
+    var path = hints["image-path"] || hints.image_path || "";
+    if (/^image:\/\/qs(image|pixmap)\//.test(image)) return image;
+    if (path.charAt(0) === "/") return "file://" + encodeURI(path).replace(/#/g, "%23").replace(/\?/g, "%3F");
+    if (path.indexOf("file:") === 0) return path;
+    return image;
+}
+
 function imageIsPreview(notification, width, height) {
     if (!notification) return false;
     var identity = (notification.appName || "") + " " + (notification.desktopEntry || "");

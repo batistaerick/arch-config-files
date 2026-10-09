@@ -8,6 +8,10 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, '../NotificationLogic.js'),
 assert.equal(logic.ignored('Kitty'), true);
 assert.equal(logic.ignored('Terminal'), true);
 assert.equal(logic.ignored('Slack'), false);
+assert.equal(logic.imageSource(null), '');
+assert.equal(logic.imageSource({image: 'image://icon/temp', hints: {'image-path': '/tmp/a #?.png'}}), 'file:///tmp/a%20%23%3F.png');
+assert.equal(logic.imageSource({image: 'image://icon/temp', hints: {image_path: 'file:///tmp/a.png'}}), 'file:///tmp/a.png');
+assert.equal(logic.imageSource({image: 'data:image/png;base64,test'}), 'data:image/png;base64,test');
 assert.equal(logic.imageIsPreview({appName: 'Satty'}, 100, 100), true);
 assert.equal(logic.imageIsPreview({desktopEntry: 'org.kde.spectacle'}, 100, 100), true);
 assert.equal(logic.imageIsPreview({appName: 'Google Chrome'}, 80, 120), false);

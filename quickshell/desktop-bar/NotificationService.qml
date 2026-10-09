@@ -19,6 +19,20 @@ Item {
     readonly property int count: history.length
     readonly property var popups: all.filter(n => popupIds.indexOf(n.id) !== -1).slice(-4).reverse()
 
+    // Senders such as Satty delete their thumbnail file on exit. Keep the decoded
+    // image alive immediately, even when popups are hidden or DND is enabled.
+    // Cards use the identical source/size so they share Qt's in-memory image cache.
+    Repeater {
+        model: service.all
+        Image {
+            required property var modelData
+            visible: false
+            source: Logic.imageSource(modelData)
+            asynchronous: false
+            cache: true
+        }
+    }
+
     function hidePopup(id) {
         popupIds = popupIds.filter(value => value !== id);
     }

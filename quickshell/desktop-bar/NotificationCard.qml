@@ -16,7 +16,7 @@ Rectangle {
     Image {
         id: imageLoader
         visible: false
-        source: card.notification ? card.notification.image : ""
+        source: NotificationLogic.imageSource(card.notification)
         asynchronous: true
     }
     signal activated(int notificationId)
@@ -60,8 +60,7 @@ Rectangle {
                     id: notificationImage
                     objectName: "notificationImage"
                     anchors.fill: parent
-                    source: card.useNotificationImage ? card.notification.image : ""
-                    sourceSize.width: 56; sourceSize.height: 56
+                    source: card.useNotificationImage ? imageLoader.source : ""
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
                     visible: status === Image.Ready

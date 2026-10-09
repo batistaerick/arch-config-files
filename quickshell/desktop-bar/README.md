@@ -155,6 +155,9 @@ icon in the header. Other non-chat apps use body previews for non-square images;
 chat/browser images remain header avatars. Previews preserve native size up to
 160×120 px in the center or 128×96 px in popups. Image roles are inferred because
 apps do not consistently label avatars versus attachments.
+Local notification images are decoded immediately and held in memory for the
+notification's lifetime, including during DND, so sender cleanup cannot break
+later previews. This does not save clipboard-only screenshots to disk.
 Images are never duplicated, and the app name is not repeated. Each
 app group shows its count and starts with its newest notification over a visual
 stack of up to three cards (one front card and two backing layers). The arrow

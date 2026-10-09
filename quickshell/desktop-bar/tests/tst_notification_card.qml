@@ -51,6 +51,21 @@ TestCase {
         compare(replyText, "hello");
         compare(reply.text, "");
     }
+    function test_title_and_icon_centers_data() {
+        return [{tag: "single line", title: "Message"},
+                {tag: "wrapped title", title: "A long notification title that should wrap onto multiple lines beside the app icon"}];
+    }
+    function test_title_and_icon_centers(data) {
+        var notification = notice();
+        notification.summary = data.title;
+        var card = createTemporaryObject(cardComponent, test, {notification: notification});
+        wait(20);
+        var icon = findChild(card, "notificationAppIcon");
+        var title = findChild(card, "notificationTitle");
+        var iconCenter = icon.mapToItem(card, 0, icon.height / 2);
+        var titleCenter = title.mapToItem(card, 0, title.height / 2);
+        verify(Math.abs(iconCenter.y - titleCenter.y) <= 0.5);
+    }
     function test_image_sizes_data() {
         return [
             {tag: "small image stays native", sourceWidth: 64, sourceHeight: 48, compact: false, expectedWidth: 64, expectedHeight: 48},

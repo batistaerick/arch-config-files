@@ -28,11 +28,14 @@ Rectangle {
         x: 14; y: 14
         width: parent.width - 28
         spacing: 10
-        Row {
+        Item {
+            id: cardHeader
             width: parent.width
-            spacing: 10
+            height: Math.max(30, titleBox.implicitHeight)
             Image {
                 id: applicationIcon
+                objectName: "notificationAppIcon"
+                anchors.verticalCenter: parent.verticalCenter
                 width: 28; height: 28
                 source: card.notification && card.notification.appIcon ? (card.notification.appIcon.indexOf("/") !== -1 || card.notification.appIcon.indexOf(":") !== -1 ? card.notification.appIcon : "image://icon/" + card.notification.appIcon) : ""
                 fillMode: Image.PreserveAspectFit
@@ -44,9 +47,13 @@ Rectangle {
                 }
             }
             Column {
+                id: titleBox
+                x: 38
+                anchors.verticalCenter: parent.verticalCenter
                 width: parent.width - 28 - 30 - 20
                 spacing: 3
                 Text {
+                    objectName: "notificationTitle"
                     width: parent.width
                     text: card.notification ? card.notification.summary : ""
                     textFormat: Text.PlainText
@@ -68,6 +75,8 @@ Rectangle {
             }
             PanelButton {
                 objectName: "dismissNotification"
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 width: 30; height: 30
                 text: "󰅖"; icon: true; compactIconBackground: true
                 foreground: card.foreground

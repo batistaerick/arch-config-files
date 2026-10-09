@@ -124,6 +124,7 @@ PanelWindow {
                                         selected: overview.selectedIndex === cell.index
                                         current: Hyprland.focusedWorkspace !== null && Hyprland.focusedWorkspace.id === cell.modelData.id
                                         onChosen: id => overview.choose(id)
+                                        onHovered: overview.selectedIndex = cell.index
                                     }
                                 }
                             }

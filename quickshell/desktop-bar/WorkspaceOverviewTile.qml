@@ -15,11 +15,12 @@ Rectangle {
     property bool selected: false
     property bool current: false
     signal chosen(int workspaceId)
+    signal hovered()
     radius: PanelStyle.cornerRadius
     color: background
-    border.width: selected || hover.hovered ? 2 : 1
-    border.color: Qt.alpha(foreground, selected ? 0.8 : hover.hovered ? 0.5 : 0.2)
-    HoverHandler { id: hover }
+    border.width: selected ? 2 : 1
+    border.color: Qt.alpha(foreground, selected ? 0.8 : 0.2)
+    HoverHandler { onHoveredChanged: if (hovered) tile.hovered() }
     Rectangle {
         id: roundedDesktopMask
         x: desktop.x; y: desktop.y

@@ -27,6 +27,21 @@ the graphical desktop and AUR packages are installed on the target system by
   Elephant, themes and wallpapers, Neovim/LazyVim, notifications, and app styles.
 - `HOME_FILES`: Zsh, Powerlevel10k, terminal colors and the Walker launcher link.
   The installer does not copy credentials or account state.
+- Yay is built from AUR if absent. AUR builds disable detached debug packages;
+  SwayNC, CEF, and Walker/Mongosh debug packages are deliberately excluded.
+  Quickshell owns notifications.
+- `install-development.sh` installs NVM and SDKMAN without modifying shell
+  profiles; the supplied Zsh config initializes both. `development.env` records
+  Node 24.15.0, Java 25.0.3-oracle, Maven 3.9.2, pnpm 10.33.2, and Yarn 1.22.22
+  as fresh-install defaults based on the current setup. NVM is pinned to v0.40.8;
+  SDKMAN uses its official rolling installer. System Node/npm remain installed
+  for packaged applications; interactive Zsh uses NVM's default runtime.
+  These versions are not silently substituted if an upstream download expires.
+  Override the relevant `DISTRO_*_VERSION` variables before installation when
+  needed, including a different Java vendor after reviewing its license.
+  Existing SDKs, caches, tokens, and project files are not bundled.
+- Direct helper dependencies include `lm_sensors` for hardware temperatures,
+  `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
 
 ## Install on a new machine
 
@@ -41,7 +56,8 @@ the graphical desktop and AUR packages are installed on the target system by
    config paths that already exist, and does not copy browser, Wi-Fi, SSH, AI,
    or 1Password credentials. The installer downloads official packages,
    builds `yay` from AUR, installs AUR apps, installs Claude Code through its
-   official installer, and installs Codex CLI via npm. Audit the manifests and
+   official installer, bootstraps NVM/Node and SDKMAN/Java/Maven, and installs
+   Codex CLI via npm. Audit the manifests and
    upstream installers before running them.
    On a supported NVIDIA Turing-or-newer system, review the GPU model first and
    use `DISTRO_NVIDIA_DRIVER=open bash distro/install.sh --check` followed by
@@ -82,6 +98,9 @@ and licensing for bundled wallpaper/lockscreen assets has been reviewed.
 
 - Test the ISO boot and post-install flow on UEFI and BIOS VMs, then on real
   AMD, Intel and NVIDIA systems; verify networking and graphics separately.
+- The development bootstrap has mock tests, not a completed fresh-machine
+  installation test. This recipe is not a byte-for-byte system clone: fan-control
+  services and other hardware-specific tuning still need target-specific review.
 - Add guided encryption/partitioning and a branded live desktop only after the
   base install is repeatable. AUR packages need a maintained package repository
   to be included directly in the live ISO.
@@ -99,3 +118,5 @@ References: [Archiso](https://wiki.archlinux.org/title/Archiso),
 [Hyprland monitor rules](https://wiki.hypr.land/configuring/core/monitors/),
 [Claude Code setup](https://code.claude.com/docs/en/setup),
 [Codex CLI](https://developers.openai.com/codex/cli/).
+Development bootstrap references: [NVM](https://github.com/nvm-sh/nvm),
+[SDKMAN installation and CI options](https://sdkman.io/install/).

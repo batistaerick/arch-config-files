@@ -7,6 +7,14 @@ sudo
 git
 curl
 file
+desktop-file-utils
+lm_sensors
+iproute2
+iputils
+procps-ng
+util-linux
+less
+qrencode
 rsync
 python
 python-pip

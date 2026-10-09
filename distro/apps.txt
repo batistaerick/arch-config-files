@@ -1,4 +1,8 @@
 # Additional applications currently used; review before a wider release.
+# Retain installed development tools; orphan status does not imply unused.
+clang
+go
+lld
 apache
 archlinux-xdg-menu
 breeze

@@ -11,6 +11,57 @@ DISTRO = Path(__file__).resolve().parents[1]
 
 
 class InstallManifestTests(unittest.TestCase):
+    def test_removed_packages_stay_out_of_install_manifests(self):
+        packages = set()
+        for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):
+            packages.update(line.strip() for line in (DISTRO / filename).read_text().splitlines()
+                            if line.strip() and not line.startswith("#"))
+        self.assertFalse({"swaync", "walker-debug", "mongosh-bin-debug", "cef"} & packages)
+        installer = (DISTRO / "install.sh").read_text()
+        self.assertIn("https://aur.archlinux.org/yay.git", installer)
+        self.assertIn('--mflags "--options !debug"', installer)
+        self.assertLess(installer.index('bash "$repo_root/distro/install-development.sh"'),
+                        installer.index('npm install --global'))
+
+    def test_direct_desktop_helper_dependencies_are_explicit(self):
+        packages = set((DISTRO / "packages.txt").read_text().splitlines())
+        self.assertFalse({"desktop-file-utils", "lm_sensors", "qrencode", "iproute2",
+                          "iputils", "procps-ng", "util-linux"} - packages)
+
+    @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
+    def test_development_setup_with_mocked_managers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            log = home / "calls"
+            nvm = home / ".nvm/nvm.sh"
+            sdk = home / ".sdkman/bin/sdkman-init.sh"
+            binaries = home / "bin"
+            nvm.parent.mkdir(parents=True)
+            sdk.parent.mkdir(parents=True)
+            binaries.mkdir()
+            nvm.write_text('nvm() { printf "nvm %s\\n" "$*" >> "$TEST_LOG"; }\n')
+            sdk.write_text('sdk() { printf "sdk %s\\n" "$*" >> "$TEST_LOG"; }\n')
+            npm = binaries / "npm"
+            npm.write_text('#!/bin/bash\nprintf "npm %s\\n" "$*" >> "$TEST_LOG"\n')
+            npm.chmod(0o755)
+            curl = binaries / "curl"
+            curl.write_text('#!/bin/bash\necho "Unexpected network access" >&2\nexit 99\n')
+            curl.chmod(0o755)
+            env = dict(os.environ, HOME=directory, TEST_LOG=str(log),
+                       PATH=str(binaries) + os.pathsep + os.environ["PATH"],
+                       DISTRO_NODE_VERSION="22.0.0", DISTRO_JAVA_VERSION="21-tem",
+                       DISTRO_MAVEN_VERSION="3.9.9", DISTRO_PNPM_VERSION="10.0.0",
+                       DISTRO_YARN_VERSION="1.22.22")
+            subprocess.run(["bash", str(DISTRO / "install-development.sh")],
+                           env=env, capture_output=True, text=True, check=True)
+            calls = log.read_text()
+            self.assertIn("nvm install 22.0.0", calls)
+            self.assertIn("nvm alias default 22.0.0", calls)
+            self.assertIn("npm install --global pnpm@10.0.0 yarn@1.22.22", calls)
+            self.assertIn("sdk install java 21-tem", calls)
+            self.assertIn("sdk default maven 3.9.9", calls)
+            self.assertFalse((home / ".zshrc").exists())
+
     def test_streaming_launchers_build_isolated_commands(self):
         scripts = DISTRO.parent / "HOME_FILES/.local/bin"
         with tempfile.TemporaryDirectory() as directory:

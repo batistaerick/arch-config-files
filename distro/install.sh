@@ -49,9 +49,17 @@ if ! command -v yay >/dev/null; then
   build_dir="$(mktemp -d)"
   trap 'rm -rf -- "$build_dir"' EXIT
   git clone --depth 1 https://aur.archlinux.org/yay.git "$build_dir/yay"
-  (cd "$build_dir/yay" && makepkg -si --noconfirm)
+  (cd "$build_dir/yay" && makepkg -si --noconfirm --options '!debug')
 fi
-yay -S --needed -- "${aur[@]}" "${aur_apps[@]}"
+yay -S --needed --mflags "--options !debug" -- "${aur[@]}" "${aur_apps[@]}"
+
+bash "$repo_root/distro/install-development.sh"
+# Use the managed Node runtime for the remaining npm-based setup.
+export NVM_DIR="$HOME/.nvm"
+set +u
+source "$NVM_DIR/nvm.sh"
+nvm use default
+set -u
 
 # Authentication is intentionally not copied from the backup.
 if ! command -v claude >/dev/null; then

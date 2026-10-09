@@ -89,6 +89,35 @@ def codex_usage():
         proc.stdout.close()
 
 
+def claude_windows(payload):
+    windows = []
+    for key, label in (("five_hour", "5h window"), ("seven_day_oauth_apps", "Weekly"),
+                       ("seven_day", "Weekly"), ("seven_day_sonnet", "Sonnet weekly"),
+                       ("seven_day_opus", "Opus weekly")):
+        window = payload.get(key)
+        if not window or window.get("utilization") is None:
+            continue
+        if any(w["label"] == label for w in windows):
+            continue
+        windows.append({"label": label, "used": window["utilization"], "reset": window.get("resets_at")})
+    for limit in payload.get("limits") or []:
+        if limit.get("percent") is None:
+            continue
+        scope = limit.get("scope") or {}
+        model = scope.get("model") or {}
+        name = model.get("display_name")
+        kind = limit.get("kind")
+        label = "5h window" if kind == "session" else "Weekly" if kind == "weekly_all" else None
+        if kind == "weekly_scoped" and name:
+            label = name + " weekly"
+        if label and not any(w["label"] == label for w in windows):
+            windows.append({"label": label, "used": limit["percent"], "reset": limit.get("resets_at")})
+    for window in windows:
+        if isinstance(window["reset"], str):
+            window["reset"] = dt.datetime.fromisoformat(window["reset"].replace("Z", "+00:00")).timestamp()
+    return windows
+
+
 def claude_usage():
     home = Path(os.environ.get("CLAUDE_CONFIG_DIR", str(Path.home() / ".claude")))
     try:
@@ -105,19 +134,7 @@ def claude_usage():
             payload = json.load(response)
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f"Claude usage returned HTTP {exc.code}; retry later or sign in again") from None
-    windows = []
-    for key, label in (("five_hour", "5h window"), ("seven_day_oauth_apps", "Weekly"),
-                       ("seven_day", "Weekly"), ("seven_day_sonnet", "Sonnet weekly"),
-                       ("seven_day_opus", "Opus weekly")):
-        window = payload.get(key)
-        if not window or window.get("utilization") is None:
-            continue
-        if label == "Weekly" and any(w["label"] == label for w in windows):
-            continue
-        reset = window.get("resets_at")
-        if isinstance(reset, str):
-            reset = dt.datetime.fromisoformat(reset.replace("Z", "+00:00")).timestamp()
-        windows.append({"label": label, "used": window["utilization"], "reset": reset})
+    windows = claude_windows(payload)
     account = credentials.get("claudeAiOauth", {})
     tier = account.get("rateLimitTier", "")
     plan = account.get("subscriptionType")

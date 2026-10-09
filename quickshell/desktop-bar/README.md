@@ -94,7 +94,11 @@ Calendar retains its fixed six-row
 grid, bottom navigation, year progress, and Left/Right/Up/Down/bracket/T keys.
 AI Usage retains the existing backend/cache, refresh-on-open, manual refresh,
 and five-minute updates while open. Claude and Codex have separate provider tabs;
-limit percentages show usage consumed. Local CLI transcripts provide seven days
+Limit percentages show usage consumed.
+Token charts are hidden behind an expand/collapse icon and reset to collapsed
+on every open or provider switch. Claude's scoped weekly limits, including Fable
+when returned by the account, appear alongside Session and Weekly limits.
+Local CLI transcripts provide seven days
 of token totals and all-time model totals, including cached input tokens.
 These charts describe this computer's session history, not account-wide billing.
 Only model names, dates, and counts are cached in `~/.cache/desktop-ai-local-stats`;

@@ -7,17 +7,21 @@ ThemedPopup {
     id: menu
     implicitWidth: 468
     property int maximumHeight: 1000
-    implicitHeight: Math.min(maximumHeight, Math.max(678,
+    implicitHeight: Math.min(maximumHeight, Math.max(300,
         content.implicitHeight + 64 + hero.height + 10 + tabs.height + 16 + footer.implicitHeight + 16 + 2))
     property var usage: ({providers: []})
     property var statistics: ({})
     property string selectedProvider: "Claude"
+    property bool detailsExpanded: false
     readonly property var provider: (usage.providers || []).find(p => p.name === selectedProvider) || {name: selectedProvider, windows: []}
     readonly property var stats: statistics[selectedProvider] || {days: [], models: []}
     property bool freshReceived: false
     readonly property bool loading: query.running || statsQuery.running
     property string status: "Checking usage..."
-    onSelectedProviderChanged: contentViewport.contentY = 0
+    onSelectedProviderChanged: {
+        detailsExpanded = false;
+        contentViewport.contentY = 0;
+    }
     function tokens(value) {
         if (value >= 1000000000) return (value / 1000000000).toFixed(1) + "B";
         if (value >= 1000000) return (value / 1000000).toFixed(1) + "M";
@@ -37,6 +41,8 @@ ThemedPopup {
         return "Resets " + Qt.formatDateTime(new Date(timestamp * 1000), "ddd MMM dd, HH:mm") + " · " + Math.floor(seconds / 3600) + "h " + Math.floor(seconds % 3600 / 60) + "m";
     }
     onOpenedChanged: if (opened) {
+        detailsExpanded = false;
+        contentViewport.contentY = 0;
         freshReceived = false;
         if (!cached.running) cached.running = true;
         refresh();
@@ -176,6 +182,29 @@ ThemedPopup {
                     }
                 }
                 Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Item {
+                    width: parent.width; height: 28
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "TOKEN DETAILS"; color: menu.foreground; opacity: 0.6
+                        font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize
+                    }
+                    PanelButton {
+                        id: detailsButton
+                        objectName: "toggleAiTokenDetails"
+                        anchors.right: parent.right
+                        width: 28; height: 28; icon: true
+                        text: menu.detailsExpanded ? "󰅃" : "󰅀"
+                        foreground: menu.foreground
+                        onClicked: menu.detailsExpanded = !menu.detailsExpanded
+                        HoverHandler { id: detailsHover }
+                        BarTooltip { target: detailsButton; hovered: detailsHover.hovered; text: menu.detailsExpanded ? "Collapse token details" : "Expand token details"; foreground: menu.foreground; background: menu.background }
+                    }
+                }
+                Column {
+                    visible: menu.detailsExpanded
+                    width: parent.width
+                    spacing: 14
                 Text { text: "TOKENS BY DAY"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 Text { visible: statsQuery.running && menu.stats.days.length === 0; text: "Reading local sessions..."; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                 Column {
@@ -217,6 +246,7 @@ ThemedPopup {
                             Text { anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter; text: menu.tokens(parent.modelData.tokens); color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         }
                     }
+                }
                 }
             }
         }

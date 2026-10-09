@@ -343,6 +343,7 @@ hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
 -- Workspaces 1-10. The bar starts at 1-5 and expands sequentially on demand.
+hl.bind(mainMod .. " + TAB", hl.dsp.exec_cmd("quickshell ipc -c desktop-bar call -- panels show overview"))
 for i = 1, 10 do
 	local key = tostring(i % 10)
 	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))

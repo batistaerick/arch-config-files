@@ -47,6 +47,10 @@ class AppearanceCategoryTests(unittest.TestCase):
                              [(assets / f"{name}.jpg").as_uri() for name in ("dark", "light")])
             self.assertEqual([item["current"] for item in custom_categories], [True, False])
             self.assertEqual([item["aspectRatio"] for item in custom_categories], [16 / 9, 16 / 9])
+            for name in ("dark", "light"):
+                Image.new("RGB", (320, 180)).save(assets / f"{name}.png")
+            self.assertEqual([item["image"] for item in load("theme-category")],
+                             [(assets / f"{name}.png").as_uri() for name in ("dark", "light")])
             self.assertEqual([item["name"] for item in load("theme-dark")], ["Dark A", "Dark B"])
             self.assertEqual([item["value"] for item in load("theme-dark")], ["dark-a", "dark-b"])
             self.assertEqual([item["name"] for item in load("theme-light")], ["Light A"])

@@ -41,6 +41,7 @@ options="󰌌  Launchers
   SUPER + Ctrl + K          Move window up
   SUPER + Ctrl + L          Move window right
 󰎤  Workspaces
+  SUPER + Tab               Toggle workspace overview
   SUPER + 1                 Go to workspace 1
   SUPER + 2                 Go to workspace 2
   SUPER + 3                 Go to workspace 3
@@ -209,6 +210,9 @@ case "$chosen" in
     ;;
   "  SUPER + Ctrl + L"*)
     hyprctl dispatch movewindow r
+    ;;
+  "  SUPER + Tab"*)
+    quickshell ipc -c desktop-bar call -- panels show overview
     ;;
   "  SUPER + 1"*)
     hyprctl dispatch workspace 1

@@ -57,7 +57,9 @@ if mode.startswith("theme"):
             if representative is None:
                 preferred = "catppuccin-latte" if light else "catppuccin"
                 representative = next((directory for directory in matching if directory.name == preferred), matching[0])
-            category_image = config / "quickshell/desktop-bar/assets/appearance" / f"{category.lower()}.jpg"
+            category_image = config / "quickshell/desktop-bar/assets/appearance" / f"{category.lower()}.png"
+            if not category_image.is_file():
+                category_image = category_image.with_suffix(".jpg")
             if not category_image.is_file():
                 category_image = representative / "preview.png"
             try:

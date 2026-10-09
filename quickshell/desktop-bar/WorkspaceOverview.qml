@@ -137,7 +137,6 @@ PanelWindow {
                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                         color: overview.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                     }
-                    Text { text: "Arrows to select  ·  Enter to switch  ·  1–9 / 0 to jump  ·  Esc to close"; color: overview.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 }
             }
         }

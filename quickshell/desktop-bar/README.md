@@ -46,6 +46,8 @@ top-left corner. The current workspace has an accent border around its number;
 keyboard selection uses a neutral foreground outline, independent of that marker.
 There are no window-count headings. Escape, the close icon, or clicking outside the
 tiles dismisses it. Walker > System > Workspace Overview opens the same view.
+SUPER+Tab toggles Overview and is listed in Learn > Shortcuts. The overlay has
+no navigation-tip footer; the shortcuts remain available in Learn and this guide.
 The overlay always uses the theme-tinted Blur background, even with a Theme
 Color bar. Workspace previews enter in order with a 55 ms stagger and a 260 ms
 fade/scale/slide; even ten previews finish in about 755 ms. The blurred background

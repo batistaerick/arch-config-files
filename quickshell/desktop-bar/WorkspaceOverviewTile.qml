@@ -13,11 +13,12 @@ Rectangle {
     required property color accent
     required property bool capturing
     property bool selected: false
+    property bool current: false
     signal chosen(int workspaceId)
     radius: PanelStyle.cornerRadius
     color: background
     border.width: selected || hover.hovered ? 2 : 1
-    border.color: selected || hover.hovered ? accent : Qt.alpha(foreground, 0.2)
+    border.color: Qt.alpha(foreground, selected ? 0.8 : hover.hovered ? 0.5 : 0.2)
     HoverHandler { id: hover }
     Rectangle {
         id: roundedDesktopMask
@@ -88,7 +89,8 @@ Rectangle {
         width: numberLabel.implicitWidth + 16; height: 34
         radius: PanelStyle.controlRadius
         color: Qt.alpha(tile.background, 0.92)
-        border.width: 1; border.color: Qt.alpha(tile.foreground, 0.3)
+        border.width: tile.current ? 2 : 1
+        border.color: tile.current ? tile.accent : Qt.alpha(tile.foreground, 0.3)
         Text {
             id: numberLabel
             anchors.centerIn: parent

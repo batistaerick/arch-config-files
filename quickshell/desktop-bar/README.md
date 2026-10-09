@@ -42,7 +42,9 @@ they are never saved to disk. The workspace layout updates without switching
 through desktops. Unsupported captures fall back to application labels. Click
 a tile or press 1–9/0 to switch; arrows select a tile and Enter switches to it.
 Tiles preserve the workspace monitor's aspect ratio and show its number in the
-top-left corner, without window-count headings. Escape, the close icon, or clicking outside the
+top-left corner. The current workspace has an accent border around its number;
+keyboard selection uses a neutral foreground outline, independent of that marker.
+There are no window-count headings. Escape, the close icon, or clicking outside the
 tiles dismisses it. Walker > System > Workspace Overview opens the same view.
 The overlay always uses the theme-tinted Blur background, even with a Theme
 Color bar. Workspace previews enter in order with a 55 ms stagger and a 260 ms

@@ -15,7 +15,7 @@ Column {
     Row {
         width: parent.width; spacing: 8
         Text {
-            width: parent.width - 34 - (group.multiple ? 128 : 0)
+            width: parent.width - 34 - (group.multiple ? 36 : 0)
             height: 28
             text: group.notifications.length + (group.multiple ? " notifications" : " notification")
             color: group.foreground; opacity: 0.65
@@ -26,8 +26,8 @@ Column {
         PanelButton {
             objectName: "toggleNotificationGroup"
             visible: group.multiple
-            width: 120; height: 28
-            text: group.expanded ? "󰅃 Collapse" : "󰅀 Expand"
+            width: 28; height: 28; icon: true
+            text: group.expanded ? "󰅃" : "󰅀"
             foreground: group.foreground
             onClicked: group.toggleRequested()
         }

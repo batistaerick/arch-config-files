@@ -159,7 +159,11 @@ Right-clicking the bell toggles Do Not Disturb; the center also
 offers Do Not Disturb and Clear All buttons. Popups and the center follow the
 bar's live theme-color or transparent/blur appearance. Notifications include
 application icons, images, action buttons, and inline replies when supplied by
-the application. Terminal notifications remain filtered out.
+the application. Clicking anywhere on a card invokes the application's default
+action, such as opening the corresponding chat message, and closes the center
+or hides the popup. Apps without a default action still expose any supplied
+action buttons; the shell does not guess an action. Dismiss and reply controls
+remain independent. Terminal notifications remain filtered out.
 Hiding the desktop bar leaves the notification service and popups running;
 opening the center while the bar is hidden shows its attached surface temporarily.
 

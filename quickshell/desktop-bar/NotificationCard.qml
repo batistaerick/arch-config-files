@@ -23,6 +23,17 @@ Rectangle {
     border.width: filled && notification && notification.urgency === 2 ? 1 : 0
     border.color: accent
 
+    // Behind the content so dismiss, action, and reply controls keep their own clicks.
+    MouseArea {
+        objectName: "activateNotification"
+        anchors.fill: parent
+        readonly property var defaultAction: card.notification
+            ? card.notification.actions.find(action => action.identifier === "default") : null
+        enabled: !!defaultAction
+        cursorShape: Qt.PointingHandCursor
+        onClicked: card.invokeAction(defaultAction)
+    }
+
     Column {
         id: content
         x: 14; y: 14
@@ -63,14 +74,6 @@ Rectangle {
                     wrapMode: Text.Wrap
                     maximumLineCount: card.compact ? 2 : 4
                     elide: Text.ElideRight
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            var action = card.notification.actions.find(a => a.identifier === "default");
-                            if (action) card.invokeAction(action);
-                        }
-                    }
                 }
             }
             PanelButton {

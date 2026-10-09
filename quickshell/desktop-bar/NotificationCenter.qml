@@ -77,6 +77,7 @@ ThemedPopup {
                         accent: center.accent
                         onToggleRequested: center.toggleGroup(modelData.name)
                         onClearRequested: center.service.clearApp(modelData.name)
+                        onActivated: center.opened = false
                     }
                 }
             }

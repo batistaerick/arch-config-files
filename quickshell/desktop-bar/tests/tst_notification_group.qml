@@ -9,6 +9,7 @@ TestCase {
     visible: true
     when: windowShown
     property int clears: 0
+    property int activatedId: 0
     Component {
         id: groupComponent
         NotificationGroup {
@@ -17,12 +18,25 @@ TestCase {
             background: "#262626"
             onToggleRequested: expanded = !expanded
             onClearRequested: test.clears++
+            onActivated: notificationId => test.activatedId = notificationId
         }
     }
     function notice(id) {
         return {id: id, appName: "Test", appIcon: "", summary: "Message " + id,
             body: "Body", image: "", urgency: 1, hasInlineReply: false,
             actions: [], dismiss: function() {}};
+    }
+    function test_activation_from_collapsed_and_expanded_cards() {
+        var first = notice(3), second = notice(2);
+        first.actions = [{identifier: "default", text: "Open", invoke: function() {}}];
+        second.actions = first.actions;
+        var group = createTemporaryObject(groupComponent, test, {notifications: [first, second]});
+        mouseClick(findChild(group, "frontNotificationCard"), 3, 3);
+        compare(activatedId, 3);
+        group.expanded = true;
+        tryCompare(group, "revealProgress", 1);
+        mouseClick(group, 3, group.height - 3);
+        compare(activatedId, 2);
     }
     function test_expand_and_collapse() {
         var group = createTemporaryObject(groupComponent, test, {notifications: [notice(3), notice(2), notice(1)]});

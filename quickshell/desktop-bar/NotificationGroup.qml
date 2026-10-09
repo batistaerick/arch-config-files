@@ -25,6 +25,7 @@ Column {
     readonly property var displayedNotifications: expanded ? notifications : notifications.slice(0, 1)
     signal toggleRequested()
     signal clearRequested()
+    signal activated(int notificationId)
     spacing: 8
     Row {
         width: parent.width; spacing: 8
@@ -92,6 +93,7 @@ Column {
             compact: false
             color: group.multiple ? group.stackColor(0.055) : Qt.alpha(group.foreground, 0.055)
             foreground: group.foreground; accent: group.accent
+            onActivated: notificationId => group.activated(notificationId)
         }
         Column {
             id: expandedList
@@ -107,6 +109,7 @@ Column {
                     width: group.width
                     notification: modelData
                     foreground: group.foreground; accent: group.accent
+                    onActivated: notificationId => group.activated(notificationId)
                 }
             }
         }

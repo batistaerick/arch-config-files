@@ -51,6 +51,37 @@ TestCase {
         compare(replyText, "hello");
         compare(reply.text, "");
     }
+    function test_card_default_action_data() {
+        return [{tag: "center", compact: false}, {tag: "popup", compact: true}];
+    }
+    function test_card_default_action(data) {
+        var notification = notice();
+        notification.actions.push({identifier: "default", text: "Open message",
+            invoke: function() { test.actionCalls++; }});
+        var card = createTemporaryObject(cardComponent, test,
+            {notification: notification, compact: data.compact});
+        wait(20);
+        // Padding, icon, title, and body all activate the same default action.
+        mouseClick(card, 3, 3);
+        mouseClick(findChild(card, "notificationAppIcon"));
+        mouseClick(findChild(card, "notificationTitle"));
+        mouseClick(card, 30, 55);
+        compare(actionCalls, 4);
+        compare(activatedId, 17);
+        mouseClick(findChild(card, "dismissNotification"));
+        compare(dismissCalls, 1);
+        compare(actionCalls, 4);
+        mouseClick(findChild(card, "notificationAction_open"));
+        compare(actionCalls, 5);
+        mouseClick(findChild(card, "notificationReply"));
+        compare(actionCalls, 5);
+    }
+    function test_no_default_action_does_not_guess() {
+        var card = createTemporaryObject(cardComponent, test, {notification: notice()});
+        mouseClick(card, 3, 3);
+        compare(actionCalls, 0);
+        compare(activatedId, 0);
+    }
     function test_title_and_icon_centers_data() {
         return [{tag: "single line", title: "Message"},
                 {tag: "wrapped title", title: "A long notification title that should wrap onto multiple lines beside the app icon"}];

@@ -1,4 +1,5 @@
 import QtQuick
+import "GlassStyle.js" as GlassStyle
 
 Item {
     id: surface
@@ -35,12 +36,22 @@ Item {
                 function onFlushLeadingChanged() { outline.requestPaint(); }
                 function onFlushTrailingChanged() { outline.requestPaint(); }
             }
+            Connections {
+                target: surface.hostWindow
+                function onGlassChanged() { outline.requestPaint(); }
+                function onYChanged() { outline.requestPaint(); }
+            }
             onPaint: {
                 var ctx = getContext("2d");
                 ctx.reset();
                 var w = surface.vertical ? height : width;
                 var h = surface.vertical ? width : height;
                 if (w <= 0 || h <= 0) return;
+                var sheen = ctx.createLinearGradient(0, 0, 0, height);
+                var screenY = surface.hostWindow.y + reveal.y;
+                var screenHeight = surface.hostWindow.parent ? surface.hostWindow.parent.height : height;
+                sheen.addColorStop(0, Qt.rgba(1, 1, 1, GlassStyle.highlightAlpha(screenY, screenHeight)));
+                sheen.addColorStop(1, Qt.rgba(1, 1, 1, GlassStyle.highlightAlpha(screenY + height, screenHeight)));
                 if (surface.edge === "bottom") { ctx.translate(width, height); ctx.rotate(Math.PI); }
                 else if (surface.edge === "left") { ctx.translate(0, height); ctx.rotate(-Math.PI / 2); }
                 else if (surface.edge === "right") { ctx.translate(width, 0); ctx.rotate(Math.PI / 2); }
@@ -63,6 +74,10 @@ Item {
                 ctx.closePath();
                 ctx.fillStyle = surface.color;
                 ctx.fill();
+                if (surface.hostWindow.glass) {
+                    ctx.fillStyle = sheen;
+                    ctx.fill();
+                }
             }
         }
 

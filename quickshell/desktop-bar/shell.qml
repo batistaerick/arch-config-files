@@ -32,16 +32,21 @@ ShellRoot {
     readonly property var desktopApplications: DesktopEntries.applications.values
 
     function barBackground() {
-        return barAppearance === "solid" ? workspaceMenuBg : bg;
+        return barAppearance === "solid" ? workspaceMenuBg : barAppearance === "glass" ? Qt.alpha(workspaceMenuBg, 0.24) : bg;
+    }
+
+    function nextBarAppearance() {
+        var modes = ["transparent", "glass", "solid"];
+        return modes[(modes.indexOf(barAppearance) + 1) % modes.length];
     }
 
     function barDoubleClick(button) {
-        if (button === Qt.LeftButton) updateBarSetting("appearance", barAppearance === "solid" ? "transparent" : "solid");
+        if (button === Qt.LeftButton) updateBarSetting("appearance", nextBarAppearance());
         else if (button === Qt.RightButton) updateBarSetting("layout", barLayout === "split" ? "unified" : "split");
     }
 
     function updateBarSetting(key, value) {
-        var choices = {appearance: ["transparent", "solid"], layout: ["unified", "split"], edge: ["top", "bottom", "left", "right"]};
+        var choices = {appearance: ["transparent", "glass", "solid"], layout: ["unified", "split"], edge: ["top", "bottom", "left", "right"]};
         if (!choices[key] || choices[key].indexOf(value) === -1) return;
         if (key === "appearance") barAppearance = value;
         else if (key === "layout") barLayout = value;
@@ -55,7 +60,7 @@ ShellRoot {
         function visibility(): void { shell.barVisible = !shell.barVisible; }
         function update(key: string, value: string): void { shell.updateBarSetting(key, value) }
         function toggle(kind: string): void {
-            if (kind === "appearance") shell.updateBarSetting(kind, shell.barAppearance === "solid" ? "transparent" : "solid");
+            if (kind === "appearance") shell.updateBarSetting(kind, shell.nextBarAppearance());
             else if (kind === "layout") shell.updateBarSetting(kind, shell.barLayout === "split" ? "unified" : "split");
         }
     }
@@ -245,6 +250,7 @@ ShellRoot {
                 id: bar
 
                 required property var modelData
+                readonly property bool glassAppearance: shell.barAppearance === "glass"
                 readonly property Item stripItem: barContents
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
                     keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
@@ -329,6 +335,7 @@ ShellRoot {
                 }
 
                 NotificationPopups {
+                    glass: bar.glassAppearance
                     screen: bar.screen
                     service: notificationsService
                     foreground: shell.fg
@@ -411,11 +418,20 @@ ShellRoot {
                     anchors.fill: parent
                     visible: shell.verticalBar
                     color: shell.barLayout === "unified" ? shell.barBackground() : "transparent"
+                    GlassSheen {
+                        anchors.fill: parent
+                        visible: shell.barLayout === "unified" && bar.glassAppearance
+                        screenY: barContents.y
+                        screenHeight: bar.height
+                    }
 
                     BarSection {
                         id: verticalStartBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: 0; y: 0; width: parent.width
                         height: verticalStart.y + verticalStart.height + 6
@@ -424,6 +440,9 @@ ShellRoot {
                         id: verticalMiddleBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: 0; y: verticalMiddle.y - (mediaStrip.player ? 83 : 6); width: parent.width
                         height: verticalMiddle.height + 33 + (mediaStrip.player ? 83 : 6)
@@ -432,6 +451,9 @@ ShellRoot {
                         id: verticalEndBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: 0; y: verticalEnd.y - 6; width: parent.width
                         height: parent.height - y
@@ -566,11 +588,20 @@ ShellRoot {
                     anchors.fill: parent
                     visible: !shell.verticalBar
                     color: shell.barLayout === "unified" ? shell.barBackground() : "transparent"
+                    GlassSheen {
+                        anchors.fill: parent
+                        visible: shell.barLayout === "unified" && bar.glassAppearance
+                        screenY: barContents.y
+                        screenHeight: bar.height
+                    }
 
                     BarSection {
                         id: leftBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: 0
                         y: 0
@@ -581,6 +612,9 @@ ShellRoot {
                         id: middleBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: mediaStrip.visible ? mediaStrip.x - 18 : centerInfo.x - 18
                         y: 0
@@ -591,6 +625,9 @@ ShellRoot {
                         id: rightBackground
                         edge: shell.barEdge
                         background: shell.barBackground()
+                        glass: bar.glassAppearance
+                        screenY: barContents.y + y
+                        screenHeight: bar.height
                         visible: shell.barLayout === "split"
                         x: rightSide.x - 9
                         y: 0

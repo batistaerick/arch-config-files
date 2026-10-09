@@ -12,15 +12,18 @@ OBS camera source. The active scene must include visible full-screen monitor
 capture. OBS's saved Wayland capture permission still determines the monitor;
 changing the primary display may require selecting it again in OBS.
 
-Double-left-click empty bar space to switch between the current transparent
-background and opaque theme color. Double-right-click empty space to switch
+Double-left-click empty bar space to cycle through Blur, Glass, and Theme Color.
+Glass uses a lighter translucent theme tint and a screen-space soft highlight
+over compositor blur. The highlight is continuous across the bar and attached
+panels, including vertical bars; it approximates glass without optical refraction.
+Double-right-click empty space to switch
 between one bar and three sections. Split sections touch the screen edge with
 rounded exposed corners; only the middle section has extra gesture padding.
 Gaps between sections pass clicks through to the desktop.
 Drag empty bar space toward top, bottom, left, or right to change its edge; a
 preview highlights the destination. The choices persist in `bar-settings.json`.
 Walker exposes the same settings under Style > Desktop Bar > Appearance,
-Layout, and Position. Appearance offers Theme Color and Transparent with blur.
+Layout, and Position. Appearance offers Blur, Glass, and Theme Color.
 Learn > Mouse Gestures also lists these gestures and
 the desktop wallpaper/theme double clicks. Left/right bars use upright compact
 controls, with the time/date centered and popups opening inward.
@@ -108,7 +111,7 @@ Quickshell owns the desktop notification server. The bell and SUPER+N open its
 grouped notification center using the same DockPanel and PanelSurface as the
 other controls. Right-clicking the bell toggles Do Not Disturb; the center also
 offers Do Not Disturb and Clear All buttons. Popups and the center follow the
-bar's live theme-color or transparent/blur appearance. Notifications include
+bar's live Blur, Glass, or Theme Color appearance. Notifications include
 application icons, images, action buttons, and inline replies when supplied by
 the application. Terminal notifications remain filtered out.
 Hiding the desktop bar leaves the notification service and popups running;

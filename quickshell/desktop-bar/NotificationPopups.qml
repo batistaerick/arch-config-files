@@ -10,6 +10,7 @@ PanelWindow {
     required property color background
     required property color accent
     property string barEdge: "top"
+    property bool glass: false
     visible: service.popups.length > 0 && !service.centerOpen
     color: "transparent"
     implicitWidth: 428
@@ -32,6 +33,13 @@ PanelWindow {
                 color: window.background
                 border.color: modelData && modelData.urgency === 2 ? window.accent : Qt.alpha(window.foreground, 0.18)
                 opacity: 0
+                GlassSheen {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    visible: window.glass
+                    screenY: window.margins.top + parent.y
+                    screenHeight: window.screen ? window.screen.height : window.height
+                }
                 Component.onCompleted: opacity = 1
                 Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
                 HoverHandler {

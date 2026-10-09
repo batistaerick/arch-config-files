@@ -49,7 +49,7 @@ file="$directory/$(date +'%Y-%m-%d_%H-%M-%S_%N').png"
 if [[ "$action" == edit ]]; then
     mkdir -p "$directory"
     satty -f "$temp" -o "$file" --copy-command "wl-copy --type image/png" \
-        --early-exit --save-after-copy --actions-on-escape exit \
+        --early-exit --actions-on-escape exit \
         --app-id dev.local.ScreenshotEditor --title "Screenshot" \
         --notification-thumbnail screenshot
 else

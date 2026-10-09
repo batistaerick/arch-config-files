@@ -12,6 +12,7 @@ Item {
     property var popupDeadlines: ({})
     property var popupIds: []
     property var pausedPopupIds: []
+    property var retainedImages: ({})
     signal toggleRequested()
     readonly property var all: server.trackedNotifications.values
     readonly property var history: all.filter(n => !n.transient)
@@ -22,15 +23,20 @@ Item {
     // Senders such as Satty delete their thumbnail file on exit. Keep the decoded
     // image alive immediately, even when popups are hidden or DND is enabled.
     // Cards use the identical source/size so they share Qt's in-memory image cache.
-    Repeater {
-        model: service.all
+    Component {
+        id: retainedImageComponent
         Image {
-            required property var modelData
+            required property var notification
             visible: false
-            source: Logic.imageSource(modelData)
+            source: Logic.imageSource(notification)
             asynchronous: false
             cache: true
         }
+    }
+    function retainImage(notification) {
+        if (retainedImages[notification.id]) return;
+        retainedImages[notification.id] = retainedImageComponent.createObject(service,
+            {notification: notification});
     }
 
     function hidePopup(id) {
@@ -61,6 +67,12 @@ Item {
     onCenterOpenChanged: if (centerOpen) popupIds = []
     onAllChanged: {
         var ids = all.map(n => n.id);
+        Object.keys(retainedImages).forEach(id => {
+            if (ids.indexOf(Number(id)) === -1) {
+                retainedImages[id].destroy();
+                delete retainedImages[id];
+            }
+        });
         popupIds = popupIds.filter(id => ids.indexOf(id) !== -1);
         pausedPopupIds = pausedPopupIds.filter(id => ids.indexOf(id) !== -1);
         var times = {}, deadlines = {};
@@ -79,6 +91,11 @@ Item {
         function clearApp(appName: string): void { service.clearApp(appName); }
         function dnd(): bool { return service.toggleDnd(); }
         function status(): string { return JSON.stringify({count: service.count, doNotDisturb: service.doNotDisturb, popups: service.popups.length}); }
+        function imageStatus(): string {
+            return JSON.stringify(Object.keys(service.retainedImages).map(id => ({
+                id: Number(id), status: service.retainedImages[id].status
+            })));
+        }
     }
 
     FileView {
@@ -107,6 +124,7 @@ Item {
         onNotification: function(notification) {
             if (Logic.ignored(notification.appName)) return;
             notification.tracked = true;
+            service.retainImage(notification);
             var times = Object.assign({}, service.timestamps);
             times[notification.id] = Date.now();
             service.timestamps = times;

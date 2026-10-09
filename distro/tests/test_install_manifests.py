@@ -16,7 +16,9 @@ class InstallManifestTests(unittest.TestCase):
         for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):
             packages.update(line.strip() for line in (DISTRO / filename).read_text().splitlines()
                             if line.strip() and not line.startswith("#"))
-        self.assertFalse({"swaync", "walker-debug", "mongosh-bin-debug", "cef"} & packages)
+        self.assertFalse({"swaync", "walker-debug", "mongosh-bin-debug", "cef",
+                          "bruno-bin", "ngrok", "kubectl", "helm", "minikube",
+                          "cups", "hplip", "system-config-printer", "xf86-input-wacom"} & packages)
         installer = (DISTRO / "install.sh").read_text()
         self.assertIn("https://aur.archlinux.org/yay.git", installer)
         self.assertIn('--mflags "--options !debug"', installer)
@@ -27,6 +29,14 @@ class InstallManifestTests(unittest.TestCase):
         packages = set((DISTRO / "packages.txt").read_text().splitlines())
         self.assertFalse({"desktop-file-utils", "lm_sensors", "qrencode", "iproute2",
                           "iputils", "procps-ng", "util-linux"} - packages)
+
+    def test_development_runtimes_are_managed_not_explicit_system_packages(self):
+        packages = set()
+        for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):
+            packages.update(line.strip() for line in (DISTRO / filename).read_text().splitlines()
+                            if line.strip() and not line.startswith("#"))
+        self.assertFalse({"nodejs", "npm"} & packages)
+        self.assertFalse({package for package in packages if package.startswith(("jdk", "jre"))})
 
     @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
     def test_development_setup_with_mocked_managers(self):
@@ -57,8 +67,10 @@ class InstallManifestTests(unittest.TestCase):
             calls = log.read_text()
             self.assertIn("nvm install 22.0.0", calls)
             self.assertIn("nvm alias default 22.0.0", calls)
+            self.assertIn("nvm use 22.0.0", calls)
             self.assertIn("npm install --global pnpm@10.0.0 yarn@1.22.22", calls)
             self.assertIn("sdk install java 21-tem", calls)
+            self.assertIn("sdk default java 21-tem", calls)
             self.assertIn("sdk default maven 3.9.9", calls)
             self.assertFalse((home / ".zshrc").exists())
 

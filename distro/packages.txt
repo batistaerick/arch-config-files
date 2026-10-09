@@ -19,8 +19,6 @@ rsync
 python
 python-pip
 pciutils
-nodejs
-npm
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting

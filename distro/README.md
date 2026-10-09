@@ -34,14 +34,20 @@ the graphical desktop and AUR packages are installed on the target system by
   profiles; the supplied Zsh config initializes both. `development.env` records
   Node 24.15.0, Java 25.0.3-oracle, Maven 3.9.2, pnpm 10.33.2, and Yarn 1.22.22
   as fresh-install defaults based on the current setup. NVM is pinned to v0.40.8;
-  SDKMAN uses its official rolling installer. System Node/npm remain installed
-  for packaged applications; interactive Zsh uses NVM's default runtime.
+  SDKMAN uses its official rolling installer. Development Java is installed and
+  selected through SDKMAN; Node.js and its bundled npm through NVM. System
+  Node/npm and JDK/JRE packages are not explicitly requested by the manifests.
+  Packaged applications may still pull system runtimes as dependencies; those
+  do not replace the managed development defaults in interactive Zsh.
   These versions are not silently substituted if an upstream download expires.
   Override the relevant `DISTRO_*_VERSION` variables before installation when
   needed, including a different Java vendor after reviewing its license.
   Existing SDKs, caches, tokens, and project files are not bundled.
 - Direct helper dependencies include `lm_sensors` for hardware temperatures,
   `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
+- Bruno, ngrok, kubectl, Helm, Minikube, printing packages (CUPS, HPLIP and
+  System Config Printer), and Wacom input support are excluded from defaults.
+  Existing installations are not uninstalled by changes to these manifests.
 
 ## Install on a new machine
 

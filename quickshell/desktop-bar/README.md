@@ -106,7 +106,12 @@ These popups do not change network services or require new packages.
 
 Quickshell owns the desktop notification server. The bell and SUPER+N open its
 grouped notification center using the same DockPanel and PanelSurface as the
-other controls. Right-clicking the bell toggles Do Not Disturb; the center also
+other controls. Cards show the app icon without repeating the app name. Each
+app group shows its count and starts with only its newest notification; Expand
+reveals the full group and Collapse returns to its compact preview. Single
+notifications remain fully readable. Expansion choices persist while the shell
+is running, including when new notifications arrive.
+Right-clicking the bell toggles Do Not Disturb; the center also
 offers Do Not Disturb and Clear All buttons. Popups and the center follow the
 bar's live theme-color or transparent/blur appearance. Notifications include
 application icons, images, action buttons, and inline replies when supplied by

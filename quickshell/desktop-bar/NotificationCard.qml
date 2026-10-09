@@ -48,14 +48,6 @@ Rectangle {
                 spacing: 3
                 Text {
                     width: parent.width
-                    text: card.notification ? card.notification.appName || "Application" : ""
-                    textFormat: Text.PlainText
-                    color: card.foreground; opacity: 0.65
-                    font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize
-                    elide: Text.ElideRight
-                }
-                Text {
-                    width: parent.width
                     text: card.notification ? card.notification.summary : ""
                     textFormat: Text.PlainText
                     color: card.foreground

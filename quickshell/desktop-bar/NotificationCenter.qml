@@ -4,6 +4,12 @@ import "PanelStyle.js" as PanelStyle
 ThemedPopup {
     id: center
     required property var service
+    property var expandedApps: ({})
+    function toggleGroup(name) {
+        var updated = Object.assign({}, expandedApps);
+        updated[name] = !updated[name];
+        expandedApps = updated;
+    }
     property int maximumHeight: 900
     implicitWidth: 468
     implicitHeight: Math.min(maximumHeight, 740)
@@ -61,37 +67,15 @@ ThemedPopup {
                 width: parent.width; spacing: 18
                 Repeater {
                     model: center.service.groups
-                    Column {
+                    NotificationGroup {
                         required property var modelData
-                        width: groups.width; spacing: 8
-                        Row {
-                            width: parent.width; spacing: 8
-                            Text {
-                                width: parent.width - 34; height: 26
-                                text: parent.parent.modelData.name
-                                textFormat: Text.PlainText
-                                color: center.foreground; opacity: 0.65
-                                font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize
-                                verticalAlignment: Text.AlignVCenter
-                                elide: Text.ElideRight
-                            }
-                            PanelButton {
-                                width: 26; height: 26; icon: true
-                                text: "󰅖"; compactIconBackground: true
-                                foreground: center.foreground
-                                onClicked: center.service.clearApp(parent.parent.modelData.name)
-                            }
-                        }
-                        Repeater {
-                            model: parent.modelData.notifications
-                            NotificationCard {
-                                required property var modelData
-                                width: groups.width
-                                notification: modelData
-                                foreground: center.foreground
-                                accent: center.accent
-                            }
-                        }
+                        width: groups.width
+                        notifications: modelData.notifications
+                        expanded: !!center.expandedApps[modelData.name]
+                        foreground: center.foreground
+                        accent: center.accent
+                        onToggleRequested: center.toggleGroup(modelData.name)
+                        onClearRequested: center.service.clearApp(modelData.name)
                     }
                 }
             }

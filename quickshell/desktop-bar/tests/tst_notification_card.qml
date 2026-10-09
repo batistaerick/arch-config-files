@@ -12,6 +12,18 @@ TestCase {
     property int dismissCalls: 0
     property string replyText: ""
     property int activatedId: 0
+    property int lockCalls: 0
+    Component {
+        id: idleControlsComponent
+        IdleLockControls {
+            width: 400
+            idleEnabled: true
+            busy: false
+            foreground: "white"
+            accent: "cyan"
+            onLockRequested: test.lockCalls++
+        }
+    }
     Component {
         id: cardComponent
         NotificationCard {
@@ -30,7 +42,20 @@ TestCase {
             sendInlineReply: function(text) { test.replyText = text; }};
     }
     function cleanup() {
-        actionCalls = 0; dismissCalls = 0; replyText = ""; activatedId = 0;
+        actionCalls = 0; dismissCalls = 0; replyText = ""; activatedId = 0; lockCalls = 0;
+    }
+    function test_popup_dismiss_does_not_activate_underlying_lock() {
+        var controls = createTemporaryObject(idleControlsComponent, test);
+        var card = createTemporaryObject(cardComponent, test, {notification: notice(), compact: true, z: 1});
+        wait(20);
+        var closeButton = findChild(card, "dismissNotification");
+        var closePosition = closeButton.mapToItem(test, 0, 0);
+        var lockPosition = controls.lockTarget.mapToItem(controls, 0, 0);
+        controls.x = closePosition.x - lockPosition.x;
+        controls.y = closePosition.y - lockPosition.y;
+        mouseClick(closeButton);
+        compare(dismissCalls, 1);
+        compare(lockCalls, 0);
     }
     function test_action_and_dismiss() {
         var card = createTemporaryObject(cardComponent, test, {notification: notice()});

@@ -37,7 +37,7 @@ DockPanel {
 
     HyprlandFocusGrab {
         id: grab
-        windows: menu.hostWindow ? [menu.hostWindow] : []
+        windows: menu.focusWindows
         onCleared: menu.opened = false
     }
 

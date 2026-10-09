@@ -38,7 +38,7 @@ DockPanel {
     }
     Timer { id: grabDelay; interval: 100; onTriggered: if (menu.opened) grab.active = true }
     Timer { interval: 2000; repeat: true; running: menu.opened; onTriggered: menu.refresh() }
-    HyprlandFocusGrab { id: grab; windows: menu.hostWindow ? [menu.hostWindow] : []; onCleared: menu.opened = false }
+    HyprlandFocusGrab { id: grab; windows: menu.focusWindows; onCleared: menu.opened = false }
     Process {
         id: query
         command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/system-details.py"]

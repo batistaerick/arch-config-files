@@ -265,6 +265,7 @@ ShellRoot {
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
                     keyboardMenu, idleLockMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
+                readonly property var panelFocusWindows: notificationPopups.visible ? [bar, notificationPopups] : [bar]
                 property var pendingPanel: null
                 property bool pendingOverview: false
 

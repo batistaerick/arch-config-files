@@ -39,7 +39,7 @@ DockPanel {
                 grab.active = true;
             }
         },
-        HyprlandFocusGrab { id: grab; windows: popup.hostWindow ? [popup.hostWindow] : []; onCleared: popup.opened = false },
+        HyprlandFocusGrab { id: grab; windows: popup.focusWindows; onCleared: popup.opened = false },
         PanelSurface {
             anchors.fill: parent
             hostWindow: popup

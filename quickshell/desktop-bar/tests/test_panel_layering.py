@@ -20,3 +20,12 @@ class PanelLayeringTests(unittest.TestCase):
         self.assertIn("panelOpen && !notificationPopups.visible", shell)
         self.assertIn("WlrLayershell.layer: WlrLayer.Overlay",
                       (ROOT / "NotificationPopups.qml").read_text())
+
+    def test_panel_focus_grabs_allow_notification_window(self):
+        shell = (ROOT / "shell.qml").read_text()
+        self.assertIn("notificationPopups.visible ? [bar, notificationPopups] : [bar]", shell)
+        self.assertIn("hostWindow.panelFocusWindows || [hostWindow]", (ROOT / "DockPanel.qml").read_text())
+        for filename, owner in [("ThemedPopup.qml", "popup"), ("AudioMenu.qml", "menu"),
+                                ("SystemMonitorMenu.qml", "menu"), ("WorkspaceStyleMenu.qml", "menu")]:
+            with self.subTest(filename=filename):
+                self.assertIn("windows: " + owner + ".focusWindows", (ROOT / filename).read_text())

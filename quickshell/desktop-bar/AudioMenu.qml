@@ -32,7 +32,7 @@ DockPanel {
         }
     }
     Timer { id: grabDelay; interval: 100; onTriggered: if (menu.opened) grab.active = true }
-    HyprlandFocusGrab { id: grab; windows: menu.hostWindow ? [menu.hostWindow] : []; onCleared: menu.opened = false }
+    HyprlandFocusGrab { id: grab; windows: menu.focusWindows; onCleared: menu.opened = false }
 
     PanelSurface {
         anchors.fill: parent

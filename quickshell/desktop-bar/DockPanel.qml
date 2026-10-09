@@ -17,6 +17,7 @@ Item {
         }
     }
     readonly property var hostWindow: attachmentTarget ? attachmentTarget.QsWindow.window : null
+    readonly property var focusWindows: hostWindow ? (hostWindow.panelFocusWindows || [hostWindow]) : []
     readonly property Item strip: hostWindow ? hostWindow.stripItem : null
     property point targetPoint: Qt.point(0, 0)
     function updateTargetPoint() {

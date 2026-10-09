@@ -27,16 +27,23 @@ TestCase {
         var group = createTemporaryObject(groupComponent, test, {notifications: [notice(3), notice(2), notice(1)]});
         compare(group.displayedNotifications.length, 1);
         compare(group.displayedNotifications[0].id, 3);
+        compare(group.stackDepth, 3);
+        verify(findChild(group, "collapsedNotificationStack").visible);
+        verify(findChild(group, "notificationStackLayer2"));
+        verify(!findChild(group, "notificationStackLayer3"));
         var toggle = findChild(group, "toggleNotificationGroup");
         verify(toggle.visible);
         mouseClick(toggle);
         compare(group.displayedNotifications.length, 3);
         verify(group.expanded);
+        verify(!findChild(group, "collapsedNotificationStack").visible);
         group.notifications = [notice(4), notice(3), notice(2), notice(1)];
         compare(group.displayedNotifications.length, 4);
+        compare(group.stackDepth, 3);
         wait(400);
         mouseClick(toggle);
         compare(group.displayedNotifications.length, 1);
+        verify(findChild(group, "collapsedNotificationStack").visible);
         compare(group.displayedNotifications[0].id, 4);
         mouseClick(findChild(group, "clearNotificationGroup"));
         compare(clears, 1);
@@ -44,6 +51,8 @@ TestCase {
     function test_single_notification() {
         var group = createTemporaryObject(groupComponent, test, {notifications: [notice(1)]});
         compare(group.displayedNotifications.length, 1);
+        compare(group.stackDepth, 1);
+        verify(!findChild(group, "notificationStackLayer1"));
         verify(!findChild(group, "toggleNotificationGroup").visible);
     }
 }

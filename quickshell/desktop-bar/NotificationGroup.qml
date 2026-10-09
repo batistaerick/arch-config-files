@@ -8,6 +8,7 @@ Column {
     required property color accent
     property bool expanded: false
     readonly property bool multiple: notifications.length > 1
+    readonly property int stackDepth: Math.min(3, notifications.length)
     readonly property var displayedNotifications: expanded ? notifications : notifications.slice(0, 1)
     signal toggleRequested()
     signal clearRequested()
@@ -39,15 +40,49 @@ Column {
             onClicked: group.clearRequested()
         }
     }
-    Repeater {
-        model: group.displayedNotifications
+    Item {
+        objectName: "collapsedNotificationStack"
+        width: group.width
+        visible: !group.expanded && group.notifications.length > 0
+        implicitHeight: visible ? frontCard.implicitHeight + Math.max(0, group.stackDepth - 1) * 8 : 0
+        height: implicitHeight
+        Repeater {
+            model: Math.max(0, group.stackDepth - 1)
+            Rectangle {
+                required property int index
+                readonly property int depth: index + 1
+                objectName: "notificationStackLayer" + depth
+                x: depth * 6; y: depth * 8
+                width: parent.width - depth * 12
+                height: frontCard.implicitHeight
+                z: 3 - depth
+                radius: PanelStyle.cornerRadius
+                color: Qt.alpha(group.foreground, 0.055)
+                border.width: 1
+                border.color: Qt.alpha(group.foreground, 0.08)
+            }
+        }
         NotificationCard {
-            required property var modelData
-            width: group.width
-            notification: modelData
-            compact: group.multiple && !group.expanded
-            foreground: group.foreground
-            accent: group.accent
+            id: frontCard
+            z: 3
+            width: parent.width
+            notification: group.notifications.length ? group.notifications[0] : null
+            compact: group.multiple
+            foreground: group.foreground; accent: group.accent
+        }
+    }
+    Column {
+        width: group.width
+        visible: group.expanded
+        spacing: 8
+        Repeater {
+            model: group.expanded ? group.notifications : []
+            NotificationCard {
+                required property var modelData
+                width: group.width
+                notification: modelData
+                foreground: group.foreground; accent: group.accent
+            }
         }
     }
 }

@@ -102,8 +102,12 @@ them with upstream defaults.
   its compact controls and song-name tooltip on the animated equalizer.
 - WiFi separates Connected, Known Networks, and Other Networks. Saved offline
   networks remain listed. Do not show fake signal percentages for offline rows.
-- Workspace style examples must match the actual bar markers. Keep four default
-  workspaces and the ability to create more; preserve the dual-monitor behavior.
+- Workspace style examples must match the actual bar markers. Start with five
+  numbered workspaces; expand sequentially through the highest visited workspace,
+  capped at ten. Preserve dual-monitor assignments. The Overview icon precedes
+  the workspace markers and shows only occupied numbered workspaces, using
+  in-memory previews with no saved screenshots. Keep equal left-group spacing
+  and centered icon/marker alignment on all bar edges.
 - Wallpaper/theme changes should not emit success notifications. Preserve both
   Walker selection and the desktop carousel workflows.
 - Theme-generator changes must accompany edits to generated styles so the next

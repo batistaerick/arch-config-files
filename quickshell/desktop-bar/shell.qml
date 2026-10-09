@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import "WorkspaceModel.js" as WorkspaceModel
 
 ShellRoot {
     id: shell
@@ -21,6 +22,13 @@ ShellRoot {
     property string primaryDisplay: ""
     property bool portableDisplayMode: false
     property string workspaceStyle: "Numbers"
+    property int workspaceCount: 5
+    readonly property int workspaceItemSize: 24
+    readonly property int workspaceItemSpacing: 4
+    readonly property int workspaceCeiling: WorkspaceModel.ceiling(Hyprland.workspaces.values,
+        Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0)
+    onWorkspaceCeilingChanged: workspaceCount = Math.max(workspaceCount, workspaceCeiling)
+    Component.onCompleted: workspaceCount = Math.max(workspaceCount, workspaceCeiling)
     property color workspaceMenuBg: "#181824"
     property color workspaceMenuFg: "#cdd6f4"
     property string barAppearance: "transparent"
@@ -52,6 +60,7 @@ ShellRoot {
 
     IpcHandler {
         target: "bar"
+        function workspaces(): string { return JSON.stringify({count: shell.workspaceCount, limit: 10}); }
         function visibility(): void { shell.barVisible = !shell.barVisible; }
         function update(key: string, value: string): void { shell.updateBarSetting(key, value) }
         function toggle(kind: string): void {
@@ -250,12 +259,17 @@ ShellRoot {
                     keyboardMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
                 property var pendingPanel: null
+                property bool pendingOverview: false
 
                 function closePanels() {
                     pendingPanel = null;
+                    pendingOverview = false;
+                    overview.opened = false;
                     dockPanels.forEach(panel => panel.opened = false);
                 }
                 function showPanel(panel) {
+                    pendingOverview = false;
+                    overview.opened = false;
                     pendingPanel = panel;
                     dockPanels.forEach(other => other.opened = false);
                     finishPanelSwitch();
@@ -264,8 +278,28 @@ ShellRoot {
                     if (panel.opened || pendingPanel === panel) closePanels();
                     else showPanel(panel);
                 }
+                function toggleOverview() {
+                    if (overview.opened || pendingOverview) { closePanels(); return; }
+                    pendingPanel = null;
+                    pendingOverview = true;
+                    dockPanels.forEach(panel => panel.opened = false);
+                    finishPanelSwitch();
+                }
+                WorkspaceOverview {
+                    id: overview
+                    screen: bar.screen
+                    foreground: shell.fg
+                    background: shell.barBackground()
+                    accent: shell.activeBg
+                }
                 function finishPanelSwitch() {
-                    if (!pendingPanel || dockPanels.some(panel => panel.visible)) return;
+                    if (dockPanels.some(panel => panel.visible) || overview.visible) return;
+                    if (pendingOverview) {
+                        pendingOverview = false;
+                        overview.opened = true;
+                        return;
+                    }
+                    if (!pendingPanel) return;
                     var next = pendingPanel;
                     pendingPanel = null;
                     next.opened = true;
@@ -273,7 +307,7 @@ ShellRoot {
                 Timer {
                     interval: 16
                     repeat: true
-                    running: bar.pendingPanel !== null
+                    running: bar.pendingPanel !== null || bar.pendingOverview
                     onTriggered: bar.finishPanelSwitch()
                 }
 
@@ -365,6 +399,7 @@ ShellRoot {
                             mic: micMenu, keyboard: keyboardMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu,
                             workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter};
+                        if (kind === "overview") { bar.toggleOverview(); return; }
                         if (!panels[kind]) return;
                         bar.showPanel(panels[kind]);
                     }
@@ -449,19 +484,20 @@ ShellRoot {
                         id: verticalStart
                         y: 8
                         anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 9
+                        spacing: shell.workspaceItemSpacing
                         Column {
                             id: verticalWorkspaces
                             anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 3
+                            spacing: shell.workspaceItemSpacing
+                            VerticalBarIcon { icon: "󰕮"; tooltip: "Overview"; open: true; clickable: true; onClicked: bar.toggleOverview() }
                             Repeater {
-                                model: 4
+                                model: shell.workspaceCount
                                 BarButton {
                                     text: shell.workspaceLabel(index)
                                     tooltip: active ? "" : shell.workspaceApps(index + 1)
                                     visualStyle: shell.workspaceStyle
                                     active: shell.workspaceActive(index + 1)
-                                    width: 23; buttonHeight: 20; fontSize: 14; cornerRadius: 6; textOffsetY: -1
+                                    width: shell.workspaceItemSize; buttonHeight: shell.workspaceItemSize; fontSize: 14; cornerRadius: 6; textOffsetY: 0
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
                                     onRightClicked: bar.togglePanel(workspaceMenu)
@@ -471,7 +507,7 @@ ShellRoot {
                         Column {
                             id: verticalHardware
                             anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 2
+                            spacing: shell.workspaceItemSpacing
                             VerticalBarIcon { id: verticalHardwareIcon; icon: "󰍛"; iconSize: 18; tooltip: "Hardware"; open: true; clickable: true; onClicked: bar.togglePanel(hardwareMenu) }
                             VerticalBarIcon { id: verticalAiIcon; icon: "󱜙"; iconSize: 18; tooltip: "AI Usage"; open: true; clickable: true; onClicked: bar.togglePanel(aiMenu) }
                         }
@@ -617,22 +653,29 @@ ShellRoot {
                         Row {
                             id: workspaces
 
-                            spacing: 4
+                            spacing: shell.workspaceItemSpacing
                             Layout.alignment: Qt.AlignVCenter
 
+                            StatusIcon {
+                                icon: "󰕮"; tooltip: "Overview"; open: true; clickable: true
+                                slotWidth: shell.workspaceItemSize
+                                anchors.verticalCenter: parent.verticalCenter
+                                onClicked: bar.toggleOverview()
+                            }
                             Repeater {
-                                model: 4
+                                model: shell.workspaceCount
 
                                 BarButton {
                                     text: shell.workspaceLabel(index)
                                     tooltip: active ? "" : shell.workspaceApps(index + 1)
                                     visualStyle: shell.workspaceStyle
                                     active: shell.workspaceActive(index + 1)
-                                    width: 23
-                                    buttonHeight: 20
+                                    width: shell.workspaceItemSize
+                                    buttonHeight: shell.workspaceItemSize
+                                    anchors.verticalCenter: parent.verticalCenter
                                     fontSize: 14
                                     cornerRadius: 6
-                                    textOffsetY: -1
+                                    textOffsetY: 0
                                     onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
                                     onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
@@ -661,11 +704,12 @@ ShellRoot {
                         Row {
                             id: hardwareStatus
                             Layout.alignment: Qt.AlignVCenter
-                            Layout.leftMargin: 12
-                            spacing: 6
+                            Layout.leftMargin: shell.workspaceItemSpacing
+                            spacing: shell.workspaceItemSpacing
 
                             StatusIcon {
                                 id: hardwareIcon
+                                slotWidth: shell.workspaceItemSize
                                 icon: "󰍛"
                                 iconSize: 18
                                 tooltip: "Hardware"
@@ -676,6 +720,7 @@ ShellRoot {
 
                             StatusIcon {
                                 id: aiIcon
+                                slotWidth: shell.workspaceItemSize
                                 icon: "󱜙"
                                 iconSize: 18
                                 tooltip: "AI Usage"

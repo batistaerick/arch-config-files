@@ -342,7 +342,7 @@ hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.move({ direction = "r" }))
 
--- Workspaces 1-10. The bar displays 1-4, but 5-10 remain available on demand.
+-- Workspaces 1-10. The bar starts at 1-5 and expands sequentially on demand.
 for i = 1, 10 do
 	local key = tostring(i % 10)
 	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
@@ -556,4 +556,5 @@ hl.layer_rule({
 	ignore_alpha = 0.8,
 })
 blurred_layer("desktop-notifications", 0.2)
+blurred_layer("desktop-overview", 0.2)
 blurred_layer("swayosd", 0.3)

@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const model = {};
+vm.createContext(model);
+vm.runInContext(fs.readFileSync(`${__dirname}/../WorkspaceModel.js`, 'utf8').replace('.pragma library', ''), model);
+assert.equal(model.ceiling([], 1), 5);
+assert.equal(model.ceiling([{id: 7}], 3), 7);
+assert.equal(model.ceiling([], 10), 10);
+assert.equal(model.ceiling([{id: 99}, {id: -99}], 1), 10);
+const window = (id, info = {}) => ({workspace: {id}, lastIpcObject: info, monitor: {name: 'Monitor'}});
+const occupied = model.occupied([window(3), window(1), window(3), window(2, {mapped: false}), window(4, {hidden: true}), window(-99), window(11), {}]);
+assert.equal(JSON.stringify(occupied.map(w => [w.id, w.windows.length])), '[[1,1],[3,2]]');
+const bounds = model.bounds([window(1, {at: [-200, 40], size: [100, 100]}), window(1, {at: [0, 40], size: [200, 100]})]);
+assert.equal(JSON.stringify(bounds), '{"x":-200,"y":40,"width":400,"height":100}');
+assert.equal(model.bounds([]).width, 1);
+console.log('Workspace model: defaults, sequential ceiling, cap, occupied-only groups, geometry passed');

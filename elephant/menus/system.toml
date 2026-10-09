@@ -5,6 +5,12 @@ icon = ""
 fixed_order = true
 
 [[entries]]
+text = "Workspace Overview"
+keywords = ["workspaces", "windows", "expose", "overview"]
+icon = "󰕮"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh overview" }
+
+[[entries]]
 text = "Audio"
 icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh volume" }

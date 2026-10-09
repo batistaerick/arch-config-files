@@ -27,6 +27,25 @@ controls, with the time/date centered and popups opening inward.
 Hardware and AI Usage sit together after the workspaces; right-hand controls
 retain their manual show/hide toggle.
 
+The Overview icon precedes the workspace markers on every bar edge. It opens a
+screen-centered overview of occupied workspaces only, across monitors, numbered
+1–10. Window captures stay in memory and refresh once per second while open;
+they are never saved to disk. The workspace layout updates without switching
+through desktops. Unsupported captures fall back to application labels. Click
+a tile or press 1–9/0 to switch; Escape, the close icon, or clicking outside the
+tiles dismisses it. Walker > System > Workspace Overview opens the same view.
+The overlay matches the bar's appearance and uses the usual 320 ms transition.
+Capture uses Quickshell's
+[ScreencopyView](https://quickshell.org/docs/v0.3.0/types/Quickshell.Wayland/ScreencopyView/)
+and the compositor's window-export protocol, without additional screenshot tools.
+
+The bar starts with workspaces 1–5. Visiting a higher workspace expands the
+sequence through that number, capped at 10: visiting 7 shows 1, 2, 3, 4, 5, 6, 7.
+The maximum stays visible for the rest of the configuration session even if a
+workspace becomes empty. The compositor's existing SUPER+1–9/0 bindings and
+monitor assignments remain unchanged. Named/special workspaces are not included
+in the numbered overview; external compositor commands can still create them.
+
 Right-click a workspace to choose Numbers, Glyph, or Dots, or use Walker's
 Style > Workspaces menu. Both selectors share the same saved preference.
 The menu includes examples; the checkmark identifies the current selection.

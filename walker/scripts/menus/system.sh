@@ -3,7 +3,8 @@
 MENUS_DIR="$HOME/.config/walker/scripts/menus"
 ACTIONS_DIR="$HOME/.config/walker/scripts/actions"
 
-options="  Audio
+options="󰕮  Workspace Overview
+  Audio
   WiFi
   Bluetooth
 󰌌  Keyboard
@@ -23,6 +24,9 @@ chosen="$(
 )"
 
 case "$chosen" in
+  "󰕮  Workspace Overview")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" overview
+    ;;
   "  Audio")
     bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" volume
     ;;

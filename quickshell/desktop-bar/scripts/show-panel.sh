@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 case "${1:-}" in
-  wifi|bluetooth|volume|mic|keyboard|calendar|weather|hardware|ai|notifications) ;;
+  wifi|bluetooth|volume|mic|keyboard|calendar|weather|hardware|ai|notifications|overview) ;;
   *) exit 2 ;;
 esac
 sleep 0.2

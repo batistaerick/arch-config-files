@@ -17,7 +17,7 @@ DockPanel {
     signal selected(string style)
 
     opened: false
-    implicitWidth: 268
+    implicitWidth: 296
     implicitHeight: 143
     attachmentTarget: target
     attachmentEdge: barEdge
@@ -84,7 +84,7 @@ DockPanel {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 4
                         Repeater {
-                            model: 4
+                            model: 5
                             WorkspaceMarker {
                                 required property int index
                                 width: 23

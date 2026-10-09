@@ -57,6 +57,7 @@ options="󰣇  Apps > Search Apps
   Share > File
   Share > Folder
   System
+  System > Workspace Overview
   System > Audio
   System > WiFi
   System > Bluetooth
@@ -163,6 +164,9 @@ chosen="$(
 )"
 
 case "$chosen" in
+  "  System > Workspace Overview")
+    bash "$HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh" overview
+    ;;
   "󰣇  Apps > Search Apps")
     "$MENUS_DIR/search.sh"
     ;;

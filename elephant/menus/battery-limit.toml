@@ -1,0 +1,34 @@
+name = "battery-limit"
+name_pretty = "Battery Charge Limit"
+parent = "system"
+icon = "󰂄"
+fixed_order = true
+
+[[entries]]
+text = "Charge Limit 60%"
+subtext = "Longest battery lifespan · laptops only"
+icon = "󰁿"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/battery-limit.py set 60" }
+
+[[entries]]
+text = "Charge Limit 80%"
+subtext = "Recommended when usually plugged in · laptops only"
+icon = "󰂁"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/battery-limit.py set 80" }
+
+[[entries]]
+text = "Charge Limit 90%"
+subtext = "Laptops only"
+icon = "󰂂"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/battery-limit.py set 90" }
+
+[[entries]]
+text = "Current Limit"
+icon = "󰂄"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/battery-limit.py status" }
+
+[[entries]]
+text = "Remove Limit"
+subtext = "Charge to 100%"
+icon = "󰁹"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/battery-limit.py set off" }

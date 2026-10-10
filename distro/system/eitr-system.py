@@ -285,6 +285,106 @@ def setup_boot_snapshots():
     print("Snapshot entries boot read-only; see RECOVERY.md before relying on them.")
 
 
+# Laptop battery charge limit. Only batteries whose firmware driver exposes
+# charge_control_end_threshold are supported; desktops have none.
+POWER_SUPPLY = Path("/sys/class/power_supply")
+BATTERY_LIMIT_CONFIG = Path("/etc/eitr/battery-limit")
+SYSTEMD_SYSTEM = Path("/etc/systemd/system")
+BATTERY_UNIT = "eitr-battery-limit.service"
+INSTALLED_HELPER = "/usr/local/lib/eitr/eitr-system"
+SLEEP_TARGETS = "suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target"
+BATTERY_UNIT_CONTENT = f"""[Unit]
+Description=Apply the Eitr battery charge limit
+After={SLEEP_TARGETS}
+
+[Service]
+Type=oneshot
+ExecStart={INSTALLED_HELPER} battery-limit-apply
+
+[Install]
+# Some firmware resets the threshold on resume, so it is applied again then.
+WantedBy=multi-user.target {SLEEP_TARGETS}
+"""
+
+
+def limit_batteries():
+    batteries = []
+    for battery in sorted(POWER_SUPPLY.glob("BAT*")):
+        try:
+            kind = (battery / "type").read_text().strip()
+        except OSError:
+            continue
+        if kind == "Battery" and (battery / "charge_control_end_threshold").is_file():
+            batteries.append(battery)
+    return batteries
+
+
+def parse_battery_limit(value):
+    """Return the end threshold for 60-100, or None for off."""
+    if value == "off":
+        return None
+    if not value or not value.isdigit() or not 60 <= int(value) <= 100:
+        raise ValueError("Battery limit must be a whole number from 60 to 100, or off")
+    return int(value)
+
+
+def write_battery_thresholds(limit, batteries):
+    # Validate every battery before writing any, so a refusal changes nothing.
+    for battery in batteries:
+        start = battery / "charge_control_start_threshold"
+        if limit < 100 and start.is_file() and int(start.read_text()) >= limit:
+            raise RuntimeError(f"{battery.name} starts charging at {start.read_text().strip()}%; "
+                               f"choose a limit above that. Nothing was changed.")
+    for battery in batteries:
+        (battery / "charge_control_end_threshold").write_text(f"{limit}\n")
+
+
+def battery_limit(value):
+    limit = parse_battery_limit(value)
+    batteries = limit_batteries()
+    if not batteries:
+        raise RuntimeError("No battery with a firmware charge limit (charge_control_end_threshold) was found.")
+    unit = SYSTEMD_SYSTEM / BATTERY_UNIT
+    if limit is None:
+        write_battery_thresholds(100, batteries)
+        if unit.exists():
+            run(["systemctl", "disable", BATTERY_UNIT])
+            unit.unlink()
+            run(["systemctl", "daemon-reload"])
+        BATTERY_LIMIT_CONFIG.unlink(missing_ok=True)
+        print("Battery charge limit removed; batteries charge to 100%.")
+        return
+    write_battery_thresholds(limit, batteries)
+    atomic(BATTERY_LIMIT_CONFIG, f"{limit}\n", mode=0o644, directory_mode=0o755)
+    atomic(unit, BATTERY_UNIT_CONTENT, mode=0o644, directory_mode=0o755)
+    run(["systemctl", "daemon-reload"])
+    run(["systemctl", "enable", BATTERY_UNIT])
+    names = ", ".join(battery.name for battery in batteries)
+    print(f"{names} now stop charging at {limit}%. The limit is restored at boot and after resume.")
+    print(f"Undo with: sudo {INSTALLED_HELPER} battery-limit off")
+
+
+def battery_limit_apply():
+    if not BATTERY_LIMIT_CONFIG.is_file():
+        return
+    limit = parse_battery_limit(BATTERY_LIMIT_CONFIG.read_text().strip())
+    batteries = limit_batteries()
+    if limit is not None and batteries:
+        write_battery_thresholds(limit, batteries)
+
+
+def battery_limit_status():
+    batteries = limit_batteries()
+    if not batteries:
+        print("No battery charge limit control on this machine.")
+        return 1
+    for battery in batteries:
+        print(f"{battery.name}: stops charging at {(battery / 'charge_control_end_threshold').read_text().strip()}%")
+    saved = BATTERY_LIMIT_CONFIG.read_text().strip() if BATTERY_LIMIT_CONFIG.is_file() else "none"
+    print(f"Saved limit: {saved}")
+    return 0
+
+
 def pam_with_method(content, method):
     remaining = [line for line in content.splitlines() if not line.endswith(MARKER)]
     modules = {
@@ -381,16 +481,17 @@ def restore_auth(name):
     print(f"Restored {', '.join(SERVICES)} PAM files from {backup}")
 
 
-READ_ONLY_ACTIONS = {"snapshots-check", "bootloader-detect", "snapshots-boot-status"}
+READ_ONLY_ACTIONS = {"snapshots-check", "bootloader-detect", "snapshots-boot-status", "battery-limit-status"}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["snapshots-check", "snapshots-setup", "snapshot-pre", "snapshot-post",
                                            "bootloader-detect", "snapshots-boot-status", "snapshots-boot-setup",
+                                           "battery-limit", "battery-limit-apply", "battery-limit-status",
                                            "auth-enable", "auth-restore"])
     parser.add_argument("argument", nargs="?",
                         help="auth-enable: fingerprint|fido2|password; auth-restore: backup name; "
-                             "snapshot-post: success|failed")
+                             "snapshot-post: success|failed; battery-limit: 60-100|off")
     args = parser.parse_args()
     # Read-only checks may run unprivileged (an unreadable EFI partition then
     # reports "unknown"), so the installer's --check can use them.
@@ -407,6 +508,12 @@ if __name__ == "__main__":
             sys.exit(boot_snapshot_status())
         elif args.action == "snapshots-boot-setup":
             setup_boot_snapshots()
+        elif args.action == "battery-limit":
+            battery_limit(args.argument)
+        elif args.action == "battery-limit-apply":
+            battery_limit_apply()
+        elif args.action == "battery-limit-status":
+            sys.exit(battery_limit_status())
         elif args.action == "snapshot-pre":
             snapshot_pre()
         elif args.action == "snapshot-post":

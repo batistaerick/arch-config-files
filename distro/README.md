@@ -65,6 +65,10 @@ the graphical desktop and AUR packages are installed on the target system by
   and separately confirmed optional authentication policy. Password fallback is
   preserved. Each policy change backs up the PAM files and can be undone with
   `eitr-system auth-restore`; see [recovery instructions](RECOVERY.md). Hardware support and real authentication still require testing.
+- Laptops: Walker → System → Battery Charge Limit runs
+  `eitr-system battery-limit <60-100|off>`, which writes
+  `charge_control_end_threshold` and installs `eitr-battery-limit.service` to
+  restore it at boot and after resume. Desktops have no threshold and are refused.
 - Direct helper dependencies include `lm_sensors` for hardware temperatures,
   `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
 - Bruno, ngrok, kubectl, Helm, Minikube, printing packages (CUPS, HPLIP and

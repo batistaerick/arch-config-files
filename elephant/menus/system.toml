@@ -21,6 +21,13 @@ icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh volume" }
 
 [[entries]]
+text = "Battery Charge Limit"
+keywords = ["battery", "charge", "threshold", "laptop"]
+subtext = ">"
+icon = "󰂄"
+submenu = "battery-limit"
+
+[[entries]]
 text = "Bluetooth"
 icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh bluetooth" }

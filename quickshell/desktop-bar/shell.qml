@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import "PanelStyle.js" as PanelStyle
 import "WorkspaceModel.js" as WorkspaceModel
 
 ShellRoot {
@@ -974,7 +975,6 @@ ShellRoot {
                                 tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"
                                 open: shell.statusOpen
                                 clickable: true
-                                rightClickable: true
                                 onClicked: bar.togglePanel(obsMenu)
                                 onOpenChanged: if (!open) obsMenu.opened = false
                             }
@@ -1141,10 +1141,7 @@ ShellRoot {
         id: item
 
         property string icon: ""
-        property string imageIcon: ""
         property string tooltip: ""
-        property string detail: ""
-        property string command: ""
         property bool open: true
         property bool clickable: false
         property bool rightClickable: false
@@ -1169,29 +1166,10 @@ ShellRoot {
 
             Text {
                 text: item.icon
-                visible: item.imageIcon === ""
                 y: item.glyphOffsetY
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: item.iconSize
-                font.bold: true
-            }
-
-            Image {
-                visible: item.imageIcon !== ""
-                source: item.imageIcon
-                width: item.iconSize
-                height: item.iconSize
-                sourceSize.width: item.iconSize
-                sourceSize.height: item.iconSize
-            }
-
-            Text {
-                visible: item.detail !== ""
-                text: item.detail
-                color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 11
                 font.bold: true
             }
 
@@ -1200,16 +1178,11 @@ ShellRoot {
         MouseArea {
             id: iconMouse
             anchors.fill: parent
-            enabled: item.open && (item.clickable || item.command !== "")
+            enabled: item.open && item.clickable
             acceptedButtons: item.rightClickable ? Qt.LeftButton | Qt.RightButton : Qt.LeftButton
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: function(event) {
-                if (item.command !== "")
-                    shell.run(item.command);
-
-                item.clicked(event.button);
-            }
+            onClicked: function(event) { item.clicked(event.button); }
         }
 
         BarTooltip {
@@ -1303,13 +1276,10 @@ ShellRoot {
         MouseArea {
             id: commandMouse
             anchors.fill: parent
-            enabled: item.open && (item.clickable || item.command !== "")
+            enabled: item.open && item.clickable
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: {
-                item.clicked();
-                if (item.command !== "") shell.run(item.command);
-            }
+            onClicked: item.clicked()
         }
 
         BarTooltip {

@@ -147,7 +147,7 @@ and licensing for bundled wallpaper/lockscreen assets has been reviewed.
 
 The official project name is **Eitr**; the GitHub repository is
 [`batistaerick/eitr`](https://github.com/batistaerick/eitr).
-Installer paths remain generic. The selected Rune Liquid logo is in `branding/`;
+Installer paths remain generic. The Eitr logo is in `branding/`;
 release branding and fresh-install validation remain in progress.
 
 References: [Archiso](https://wiki.archlinux.org/title/Archiso),

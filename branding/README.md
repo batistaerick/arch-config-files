@@ -1,6 +1,6 @@
 # Eitr branding
 
-The selected logo is **05B — Rune Liquid**: an angular E in negative space inside
+The Eitr logo, the **Eitr rune mark**, is an angular E in negative space inside
 an organic liquid pool. `source/eitr-logo-master.png` is the transparent raster
 source; `source/eitr-logo-concept.png` preserves the selected concept presentation.
 

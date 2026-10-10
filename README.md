@@ -1,7 +1,7 @@
 # Eitr
 
 <p align="center">
-  <img src="branding/png/eitr-logo-green-512.png" alt="Eitr Rune Liquid logo" width="200">
+  <img src="branding/png/eitr-logo-green-512.png" alt="Eitr logo" width="200">
 </p>
 
 An Arch-based desktop project built around Hyprland, Quickshell, and a consistent,
@@ -20,7 +20,7 @@ desktop. Review the installation guide before using it on a new machine.
 - Dark/light theme and wallpaper carousels, with coordinated application colors.
 - Walker menus and Elephant providers for applications, system actions, and Learn.
 - Native hardware, audio, network, calendar, weather, and other desktop controls.
-- A themed Fastfetch About page featuring Eitr's Rune Liquid logo.
+- A themed Fastfetch About page featuring Eitr's rune logo.
 - Kitty, Zsh, Neovim/LazyVim, Lazygit and Lazydocker; optional development menus
   install languages/frameworks and AI CLIs. NVM manages Node.js and SDKMAN
   manages Java/Maven when selected. Yay supplies the required AUR packages.

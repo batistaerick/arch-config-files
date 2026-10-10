@@ -1,7 +1,7 @@
 # Eitr
 
 <p align="center">
-  <img src="branding/png/eitr-logo-green-512.png" alt="Eitr logo" width="200">
+  <img src="branding/png/eitr-wordmark-green-1024.png" alt="Eitr rune wordmark" width="360">
 </p>
 
 An Arch-based desktop project built around Hyprland, Quickshell, and a consistent,

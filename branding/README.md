@@ -1,5 +1,29 @@
 # Eitr branding
 
+## Rune wordmark
+
+The approved EITR wordmark preserves the original E rune and adds a narrow I,
+arrow-shaped T, and open angular R. These are custom rune-inspired letters,
+rather than a historical alphabet transcription. There is no liquid pool.
+
+- `source/eitr-wordmark-master.svg`: approved vector master.
+- `svg/eitr-wordmark.svg`: themeable `currentColor` export.
+- `svg/eitr-wordmark-{black,white,green}.svg`: fixed-color vectors.
+- `png/eitr-wordmark-{black,white,green}-{512,1024,2048}.png`: transparent
+  exports named by width, with proportional height.
+
+The repository README uses the green wordmark. Desktop icon assets remain
+available separately below. Regenerate the wordmark with:
+
+```sh
+uv run --with pillow branding/scripts/export-wordmark.py
+```
+
+The master uses closed polygon paths with M/L/Z commands; retain that format
+when editing it so both vector and raster exports stay synchronized.
+
+## Desktop mark
+
 The Eitr logo, the **Eitr rune mark**, is an angular E in negative space inside
 an organic liquid pool. `source/eitr-logo-master.png` is the transparent raster
 source; `source/eitr-logo-concept.png` preserves the selected concept presentation.

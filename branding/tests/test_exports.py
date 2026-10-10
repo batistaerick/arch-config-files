@@ -14,7 +14,7 @@ class LogoExportsTests(unittest.TestCase):
             self.assertFalse(document.findall(".//{http://www.w3.org/2000/svg}image"))
 
     def test_png_sizes_and_transparency(self):
-        files = list((ROOT / "png").glob("*.png"))
+        files = list((ROOT / "png").glob("eitr-logo-*.png"))
         self.assertEqual(len(files), 33)
         for filename in files:
             size = int(filename.stem.rsplit("-", 1)[1])
@@ -36,6 +36,22 @@ class LogoExportsTests(unittest.TestCase):
             actual = image.getchannel("A").point(lambda value: 255 if value >= 128 else 0)
         mismatch = sum(ImageChops.difference(expected, actual).histogram()[1:])
         self.assertLess(mismatch / (1024 * 1024), 0.005)
+
+    def test_wordmark_exports_preserve_transparency_and_color_independent_shape(self):
+        master = ET.parse(ROOT / "source/eitr-wordmark-master.svg")
+        _, _, width, height = map(float, master.getroot().get("viewBox").split())
+        for size in (512, 1024, 2048):
+            alpha = None
+            for color in ("black", "white", "green"):
+                with Image.open(ROOT / f"png/eitr-wordmark-{color}-{size}.png") as image:
+                    self.assertEqual(image.size, (size, round(size * height / width)))
+                    self.assertEqual(image.mode, "RGBA")
+                    current = image.getchannel("A")
+                    self.assertIsNotNone(current.getbbox())
+                    self.assertEqual(current.getpixel((0, 0)), 0)
+                    if alpha is not None:
+                        self.assertIsNone(ImageChops.difference(alpha, current).getbbox())
+                    alpha = current
 
     def test_banner_and_icon_dimensions(self):
         for name in ("dark", "light"):

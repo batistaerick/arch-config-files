@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -188,9 +189,34 @@ def recipe(group, identifier):
             run(["bash", str(SCRIPT.with_name("development.sh")), identifier])
 
 
+def gaming(identifier):
+    if identifier == "steam":
+        if shutil.which("steam"):
+            subprocess.Popen(["steam"], start_new_session=True)
+            return
+    elif identifier == "geforcenow":
+        if shutil.which("flatpak"):
+            result = subprocess.run(["flatpak", "info", "com.nvidia.geforcenow"],
+                                    capture_output=True, timeout=10)
+            if result.returncode == 0:
+                subprocess.Popen(["flatpak", "run", "com.nvidia.geforcenow"], start_new_session=True)
+                return
+    else:
+        raise ValueError("Unknown gaming app")
+    terminal("python3", str(SCRIPT), "gaming-install", identifier)
+
+
+def gaming_install(identifier):
+    if identifier not in ("steam", "geforcenow"):
+        raise ValueError("Unknown gaming app")
+    if identifier == "geforcenow" and not shutil.which("flatpak"):
+        install("pacman", ["flatpak"])
+    recipe("gaming", identifier)
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["search", "recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch"])
+    parser.add_argument("action", choices=["search", "recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch", "gaming", "gaming-install"])
     parser.add_argument("args", nargs="*")
     options = parser.parse_args()
     args = options.args
@@ -219,6 +245,10 @@ def main():
         recipe(*args)
     elif options.action == "recipe-launch":
         terminal("python3", str(SCRIPT), "recipe", *args)
+    elif options.action == "gaming":
+        gaming(*args)
+    elif options.action == "gaming-install":
+        gaming_install(*args)
 
 
 if __name__ == "__main__":

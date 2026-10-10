@@ -12,6 +12,41 @@ spec.loader.exec_module(software)
 
 
 class SoftwareTests(unittest.TestCase):
+    def test_gaming_installed_steam_launches_without_installing(self):
+        with patch.object(software.shutil, "which", return_value="/usr/bin/steam"), \
+                patch.object(software.subprocess, "Popen") as launch, patch.object(software, "terminal") as terminal:
+            software.gaming("steam")
+            launch.assert_called_once_with(["steam"], start_new_session=True)
+            terminal.assert_not_called()
+
+    def test_gaming_missing_apps_open_install_terminal(self):
+        for identifier in ("steam", "geforcenow"):
+            with self.subTest(identifier=identifier), patch.object(software.shutil, "which", return_value=None), \
+                    patch.object(software.subprocess, "Popen") as launch, patch.object(software, "terminal") as terminal:
+                software.gaming(identifier)
+                terminal.assert_called_once_with("python3", str(software.SCRIPT), "gaming-install", identifier)
+                launch.assert_not_called()
+
+    def test_gaming_flatpak_checks_app_not_just_flatpak_binary(self):
+        for installed in (True, False):
+            with self.subTest(installed=installed), patch.object(software.shutil, "which", return_value="/usr/bin/flatpak"), \
+                    patch.object(software.subprocess, "run", return_value=SimpleNamespace(returncode=0 if installed else 1)), \
+                    patch.object(software.subprocess, "Popen") as launch, patch.object(software, "terminal") as terminal:
+                software.gaming("geforcenow")
+                if installed:
+                    launch.assert_called_once_with(["flatpak", "run", "com.nvidia.geforcenow"], start_new_session=True)
+                    terminal.assert_not_called()
+                else:
+                    launch.assert_not_called()
+                    terminal.assert_called_once()
+
+    def test_gaming_installer_bootstraps_missing_flatpak(self):
+        with patch.object(software.shutil, "which", return_value=None), \
+                patch.object(software, "install") as install, patch.object(software, "recipe") as recipe:
+            software.gaming_install("geforcenow")
+            install.assert_called_once_with("pacman", ["flatpak"])
+            recipe.assert_called_once_with("gaming", "geforcenow")
+
     def test_install_keeps_arguments_separate_and_deduplicates(self):
         with patch.object(software, "run") as run:
             software.install("pacman", ["firefox", "firefox"])

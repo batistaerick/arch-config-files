@@ -11,6 +11,12 @@ def menu(name):
 
 
 class MenuStructureTests(unittest.TestCase):
+    def test_ai_install_is_only_under_install(self):
+        self.assertNotIn("ai-install", [entry.get("submenu") for entry in menu("ai-tools")["entries"]])
+        self.assertIn("ai-install", [entry.get("submenu") for entry in menu("install")["entries"]])
+
+    def test_gaming_has_only_app_entries(self):
+        self.assertEqual([entry["text"] for entry in menu("gaming")["entries"]], ["Steam", "GeForce NOW"])
     def test_install_and_gaming_follow_learn(self):
         names = [entry["text"] for entry in menu("main")["entries"]]
         start = names.index("Learn")

@@ -219,9 +219,14 @@ done
 
 # Hyprland and the bar default to a generic layout. Machine-local overrides are
 # Git-ignored, but a copy made from a working checkout could still carry them.
+# Only remove files that exist in this checkout too, so a user's own override
+# created after a failed first run is never deleted.
 if ! is_recorded step:machine-local-cleanup; then
-  rm -f -- "$HOME/.config/hypr/local.lua" "$HOME/.config/hypr/preferred-outputs" \
-    "$HOME/.config/hypr/primary-display"
+  for name in local.lua preferred-outputs primary-display; do
+    if [[ -e "$repo_root/hypr/$name" ]] && same_content "$repo_root/hypr/$name" "$HOME/.config/hypr/$name"; then
+      rm -f -- "$HOME/.config/hypr/$name"
+    fi
+  done
   record step:machine-local-cleanup
 fi
 [[ -e "$HOME/.cache/current-theme" ]] || printf 'catppuccin\n' > "$HOME/.cache/current-theme"

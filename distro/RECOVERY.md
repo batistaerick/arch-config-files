@@ -6,7 +6,9 @@ destroy the system and its snapshots together. Keep independent backups.
 Eitr currently supports Snapper on a Btrfs root with `/usr`, `/etc` and
 `/var/lib/pacman` in the same root subvolume. `/home` may be separate: it is not
 covered by a root snapshot. Unsupported layouts fail closed before upgrades.
-The installer does not format disks or rearrange existing subvolumes.
+`install.sh` does not format disks or rearrange existing subvolumes; only the
+ISO's `eitr-guided-install` erases the disk you confirm, creating this layout
+(see the README's Guided install section).
 
 ## Before updates
 

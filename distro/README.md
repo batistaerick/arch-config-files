@@ -89,8 +89,10 @@ link once installation and release testing is complete.
 
 1. Install a supported x86_64 Arch system with a Btrfs root, a normal user and sudo access.
    Choose partitioning, encryption, boot loader, locale, timezone and user name
-   during the normal Arch install. This repo does not make those decisions or
-   format disks. Do not run the installer on an existing configured desktop.
+   during the normal Arch install, or let the ISO's
+   [guided install](#guided-install) erase one disk with Eitr's encrypted layout
+   (it then offers steps 2 and 3 at first login). `install.sh` itself never
+   formats disks. Do not run the installer on an existing configured desktop.
 2. Enable `[multilib]` in `/etc/pacman.conf` and refresh pacman. Steam and
    `lib32-*` packages require it.
 3. Clone this repository, run `bash distro/install.sh --check`, then run
@@ -219,12 +221,47 @@ The ISO lands in `distro/out/`; temporary profile/work files stay under
 `distro/build/`. The script refuses to reuse an existing build directory to
 avoid deleting mounted work trees. It exports the committed `HEAD` (via
 `git archive`) into `/opt/desktop-config` on the live image, so uncommitted,
-untracked, and ignored machine-local files are excluded. Boot the image and
-install Arch as usual. Before rebooting, copy the repo into the new user's home,
-for example `cp -a /opt/desktop-config /mnt/home/<user>/eitr` followed by
-`arch-chroot /mnt chown -R <user>: /home/<user>/eitr`. Then log in as that user on
-the new system and run `bash ~/eitr/distro/install.sh --check`. Keep the image off public mirrors until it has been tested in a VM
-and licensing for bundled wallpaper/lockscreen assets has been reviewed.
+untracked, and ignored machine-local files are excluded. The export also gets a
+`distro/pkg/eitr-desktop/source-version` stamp so the target can build the
+package without Git history, and `profiledef.sh` entries that restore the
+executable bits `mkarchiso` would otherwise drop. Keep the image off public
+mirrors until it has been tested in a VM and licensing for bundled
+wallpaper/lockscreen assets has been reviewed.
+
+### Guided install
+
+Boot the ISO in **UEFI** mode, connect to the internet (Ethernet is automatic;
+use `iwctl` for Wi-Fi) and run `eitr-guided-install` as root. It:
+
+1. Lists whole, writable disks of at least 64 GiB (never the boot medium),
+   shows the chosen disk's current contents and requires typing its path
+   before anything is erased. No disk name is assumed.
+2. Prompts twice for the LUKS2 passphrase and hands it to archinstall through a
+   pipe; it is never written to a file or command line.
+3. Runs archinstall with [`archinstall/user_configuration.json`](archinstall/user_configuration.json):
+   a 2 GiB FAT32 ESP at `/boot` and a LUKS2 Btrfs root with subvolumes `@` (`/`),
+   `@home`, `@log` (`/var/log`) and `@pkg` (`/var/cache/pacman/pkg`), so `/usr`,
+   `/etc` and `/var/lib/pacman` stay in the root snapshot that
+   `eitr-system snapshots-check` requires. `/.snapshots` is not a separate
+   subvolume because `snapshots-setup` lets Snapper create it. It also selects
+   Limine (kernels on the FAT `/boot`, compatible with bootable snapshot entries),
+   linux, zram, PipeWire, Bluetooth, `[multilib]`, iwd with systemd-networkd and
+   resolved (no NetworkManager), and the Minimal profile: Eitr provides the
+   desktop. In archinstall's menu you choose the locale, keyboard, timezone and
+   hostname, and create your user with sudo rights; leave the disk layout and
+   encryption unchanged.
+4. Before any reboot, copies this repository to `~/eitr` for that user, runs the
+   same `snapshots-check` inside the new system, installs the Eitr network files
+   and the resolved stub link, and adds a marked block to `~/.bash_profile`.
+
+After rebooting, unlock the disk and log in on the first console. The block runs
+`distro/archinstall/first-login.sh`, which checks connectivity (printing `iwctl`
+steps if offline) and, once you confirm, runs `install.sh --check` and
+`install.sh`. It is offered on each console login until the install completes;
+NVIDIA systems pass their driver choice as described above, for example
+`DISTRO_NVIDIA_DRIVER=open bash ~/eitr/distro/archinstall/first-login.sh`.
+BIOS boot, other layouts and dual-boot partitioning are not handled by the guided
+install; use a manual Arch install meeting the requirements above instead.
 
 ## Before calling it a distro
 
@@ -233,9 +270,10 @@ and licensing for bundled wallpaper/lockscreen assets has been reviewed.
 - The development bootstrap has mock tests, not a completed fresh-machine
   installation test. This recipe is not a byte-for-byte system clone: fan-control
   services and other hardware-specific tuning still need target-specific review.
-- Add guided encryption/partitioning and a branded live desktop only after the
-  base install is repeatable. AUR packages need a maintained package repository
-  to be included directly in the live ISO.
+- Test the guided install (LUKS2, Limine, first-login hand-off) in UEFI VMs and
+  on real hardware; add a branded live desktop only after the base install is
+  repeatable. AUR packages need a maintained package repository to be included
+  directly in the live ISO.
 - Audit asset licenses, package updates, security defaults, and the first-run
   experience. Never bundle tokens, logins, saved networks or device identifiers.
 

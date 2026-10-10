@@ -15,10 +15,4 @@ const fromRight = context.screenPoint({x: -2460, y: 540}, 'right', 2560, 1080, 6
 assert.equal(context.nearestEdge(fromRight, 2560, 1080), 'left');
 assert.equal(context.nearestEdge({x: 2500, y: 540}, 2560, 1080), 'right');
 assert.equal(context.nearestEdge({x: 1280, y: 150}, 2560, 1080), 'top');
-assert.equal(context.popupX('top', 24, 400, 'right'), -376);
-assert.equal(context.popupX('top', 24, 400, 'left'), 0);
-assert.equal(context.popupY('top', 24, 400), 24);
-assert.equal(context.popupY('bottom', 24, 400), -400);
-assert.equal(context.popupX('left', 28, 400, 'right'), 28);
-assert.equal(context.popupX('right', 28, 400, 'right'), -400);
 console.log('Bar geometry checks passed');

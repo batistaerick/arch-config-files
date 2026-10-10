@@ -19,17 +19,6 @@ Item {
     readonly property var hostWindow: attachmentTarget ? attachmentTarget.QsWindow.window : null
     readonly property var focusWindows: hostWindow ? (hostWindow.panelFocusWindows || [hostWindow]) : []
     readonly property Item strip: hostWindow ? hostWindow.stripItem : null
-    property point targetPoint: Qt.point(0, 0)
-    function updateTargetPoint() {
-        if (attachmentTarget && parent) targetPoint = attachmentTarget.mapToItem(parent, 0, 0);
-    }
-    Timer {
-        interval: 16
-        running: panel.visible
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: panel.updateTargetPoint()
-    }
     parent: hostWindow ? hostWindow.contentItem : null
     z: 100
     width: implicitWidth

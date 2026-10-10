@@ -13,16 +13,3 @@ function nearestEdge(point, width, height) {
     var distances = {top: y, bottom: 1 - y, left: x, right: 1 - x};
     return Object.keys(distances).reduce((best, edge) => distances[edge] < distances[best] ? edge : best);
 }
-
-function popupX(edge, targetWidth, popupWidth, alignment) {
-    if (edge === "left") return targetWidth;
-    if (edge === "right") return -popupWidth;
-    if (alignment === "center") return (targetWidth - popupWidth) / 2;
-    return alignment === "left" ? 0 : targetWidth - popupWidth;
-}
-
-function popupY(edge, targetHeight, popupHeight) {
-    if (edge === "bottom") return -popupHeight;
-    if (edge === "left" || edge === "right") return (targetHeight - popupHeight) / 2;
-    return targetHeight;
-}

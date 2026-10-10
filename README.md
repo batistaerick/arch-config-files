@@ -90,3 +90,23 @@ Bundled artwork and third-party assets require a license review before public IS
 distribution; inclusion here does not grant blanket redistribution rights.
 Read [PUBLISHING.md](PUBLISHING.md) before making the repository public or
 distributing an ISO.
+
+## Checks
+
+`tools/check.sh` runs every repository check: Python and Node test suites,
+`bash -n`/`py_compile`/`luac -p` syntax checks, ShellCheck (warnings and errors),
+Qt 6 qmllint, whitespace, and JSON/TOML parsing. Files are discovered with
+`git ls-files`, so new tests and scripts are picked up automatically. CI runs the
+same script in an Arch Linux container (`.github/workflows/ci.yml`).
+
+```sh
+bash tools/check.sh                  # all stages; run as a normal user
+bash tools/check.sh shellcheck qml   # selected stages (see --list)
+```
+
+On a non-Arch host, run it from a regular clone in a throwaway Arch container.
+The checkout is mounted read-only and copied, so its file ownership is untouched:
+
+```sh
+docker run --rm --platform linux/amd64 -v "$PWD":/repo:ro archlinux:latest bash -c 'sed -i "/^\[options\]/a DisableSandbox" /etc/pacman.conf && pacman -Syu --noconfirm --needed bash git python python-pillow python-gobject nodejs shellcheck lua qt6-declarative jq util-linux xkeyboard-config >/dev/null && useradd -m tester && cp -a /repo /home/tester/eitr && chown -R tester: /home/tester/eitr && su tester -c "cd ~/eitr && bash tools/check.sh"'
+```

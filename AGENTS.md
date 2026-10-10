@@ -172,7 +172,9 @@ them with upstream defaults.
   without explicit authorization. Keep WiFi QR secrets out of files and argv.
 - Inspect screenshots for clipping, alignment, and theme consistency without
   publishing private screen content. Close any test menus afterward.
-- Run focused checks appropriate to the change, for example:
+- `bash tools/check.sh` runs every repository check (CI runs the same script;
+  `--list` shows stages to run individually). Run focused checks appropriate
+  to the change, for example:
 
 ```sh
 /usr/lib/qt6/bin/qmllint --silent quickshell/desktop-bar/ChangedComponent.qml

@@ -113,7 +113,11 @@ class SoftwareTests(unittest.TestCase):
             os.environ.pop("XDG_DATA_HOME", None)
             with self.assertRaisesRegex(FileNotFoundError, "Existing desktop"):
                 software.catalog()
+        # An existing desktop has an installed catalog; isolate the checkout
+        # fallback from the reviewer's HOME and XDG data dirs rather than
+        # assuming they are empty.
         with tempfile.TemporaryDirectory() as directory, \
+                patch.object(software.Path, "home", return_value=Path(directory)), \
                 patch.dict(os.environ, {"XDG_DATA_DIRS": directory}):
             os.environ.pop("XDG_DATA_HOME", None)
             self.assertEqual(software.data_file("software.json"), ROOT / "distro/software.json")

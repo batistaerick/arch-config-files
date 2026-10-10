@@ -142,6 +142,9 @@ fi
 if ! command -v pacman >/dev/null || ! command -v sudo >/dev/null; then
   die 'This installer requires an installed Arch Linux system and sudo.'
 fi
+if ! command -v python3 >/dev/null; then
+  die 'Preflight requires Python. Run sudo pacman -Syu --needed python, then retry.'
+fi
 if [[ ${1:-} == --check ]]; then
   if systemctl is-enabled --quiet NetworkManager.service 2>/dev/null; then
     die 'NetworkManager is enabled. This desktop uses iwd/networkd; resolve that conflict first.'

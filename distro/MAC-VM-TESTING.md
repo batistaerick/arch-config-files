@@ -60,7 +60,7 @@ Choose a minimal installation, **not** a preconfigured Hyprland/GNOME/KDE deskto
   root subvolume for Eitr's snapshot-protected upgrades.
 - Create a normal user with a password and sudo access. Select your own locale,
   keyboard, timezone, and a UEFI-compatible bootloader.
-- Include `git`, `sudo`, and `base-devel`. Eitr installs the desktop afterward.
+- Include `git`, `sudo`, `base-devel`, and `python`. Eitr installs the desktop afterward.
 - Enable the `multilib` repository, needed by the current Steam/lib32 defaults.
 - Configure working virtual Ethernet using systemd-networkd and systemd-resolved.
   Do not enable NetworkManager: Eitr's preflight rejects it. Verify networking
@@ -78,7 +78,7 @@ desktop. Read [the main installation guide](README.md) and package manifests.
 ```sh
 uname -m
 sudo -v
-sudo pacman -Syu --needed git base-devel
+sudo pacman -Syu --needed git base-devel python
 git clone https://github.com/batistaerick/eitr.git
 cd eitr
 git rev-parse HEAD

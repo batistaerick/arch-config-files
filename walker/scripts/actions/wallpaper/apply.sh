@@ -9,12 +9,4 @@ if [ -z "$wallpaper" ] || [ ! -f "$wallpaper" ]; then
   exit 1
 fi
 
-cache_image="$HOME/.cache/current-wallpaper-image"
-cache_path="$HOME/.cache/current-wallpaper"
-
-ln -sf "$wallpaper" "$cache_image"
-printf '%s\n' "$wallpaper" > "$cache_path"
-
-for monitor in $(hyprctl monitors -j | jq -r '.[].name'); do
-  hyprctl hyprpaper wallpaper "$monitor,$wallpaper" || true
-done
+exec python3 "$HOME/.config/walker/scripts/actions/wallpaper/transition.py" apply "$wallpaper"

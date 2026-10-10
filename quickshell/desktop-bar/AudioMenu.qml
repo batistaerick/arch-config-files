@@ -1,4 +1,5 @@
 import QtQuick
+// Audio controls and the live input meter share this panel's lifecycle.
 import "PanelStyle.js" as PanelStyle
 import "BarGeometry.js" as Geometry
 import Quickshell
@@ -18,6 +19,11 @@ DockPanel {
     readonly property PwNode currentNode: microphone ? Pipewire.defaultAudioSource : Pipewire.defaultAudioSink
     readonly property var devices: Pipewire.nodes.values.filter(node => node.audio && !node.isStream && node.isSink !== microphone)
     readonly property var streams: microphone ? [] : Pipewire.nodes.values.filter(node => node.type === PwNodeType.AudioOutStream)
+    PwNodePeakMonitor {
+        id: inputPeak
+        node: menu.microphone ? menu.currentNode : null
+        enabled: menu.opened && menu.microphone && menu.currentNode !== null
+    }
 
     opened: false
     implicitWidth: 428
@@ -65,6 +71,14 @@ DockPanel {
                     accent: menu.accent
                     foreground: menu.foreground
                     background: menu.background
+                }
+                MicrophoneMeter {
+                    visible: menu.microphone
+                    width: parent.width
+                    peak: inputPeak.peak
+                    muted: !menu.currentNode || !menu.currentNode.audio || menu.currentNode.audio.muted
+                    foreground: menu.foreground
+                    accent: menu.accent
                 }
                 Rectangle {
                     width: parent.width

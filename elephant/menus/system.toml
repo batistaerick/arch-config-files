@@ -5,6 +5,18 @@ icon = ""
 fixed_order = true
 
 [[entries]]
+text = "Security"
+subtext = ">"
+icon = "󰒃"
+submenu = "security"
+
+[[entries]]
+text = "Snapshots"
+subtext = ">"
+icon = "󰋊"
+submenu = "snapshots"
+
+[[entries]]
 text = "Workspace Overview"
 keywords = ["workspaces", "windows", "expose", "overview"]
 icon = "󰕮"

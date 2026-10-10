@@ -1,8 +1,5 @@
 # Additional applications currently used; review before a wider release.
 # Retain installed development tools; orphan status does not imply unused.
-clang
-go
-lld
 apache
 archlinux-xdg-menu
 breeze
@@ -47,10 +44,8 @@ pipewire-jack
 steam
 steam-devices
 mangohud
-rustup
 smartmontools
 terraform
-timeshift
 totem
 tree
 vim

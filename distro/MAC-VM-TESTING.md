@@ -56,6 +56,8 @@ Choose a minimal installation, **not** a preconfigured Hyprland/GNOME/KDE deskto
 
 - Partition only the new VM's virtual disk. Check its size before accepting any
   erase/partition action. Never select a host or passed-through disk.
+  Choose Btrfs root; `/usr`, `/etc` and `/var/lib/pacman` must remain within the
+  root subvolume for Eitr's snapshot-protected upgrades.
 - Create a normal user with a password and sudo access. Select your own locale,
   keyboard, timezone, and a UEFI-compatible bootloader.
 - Include `git`, `sudo`, and `base-devel`. Eitr installs the desktop afterward.
@@ -103,9 +105,9 @@ needed. Keep the VM online; official/AUR packages and SDKs are downloaded, not
 bundled. Expect slow AUR builds under emulation. The current default package
 set is substantial, including Steam and development tools.
 
-Setup includes Yay, NVM-managed Node.js, SDKMAN-managed Java/Maven, Claude Code,
-and Codex. Credentials are not copied. Pinned SDK downloads can become
-unavailable; report failures rather than silently changing versions.
+Setup includes Yay, Lazygit/Lazydocker, Steam, GeForce NOW and snapshot protection.
+Development runtimes and AI CLIs are optional Walker menu selections, not defaults.
+Credentials are not copied. Report upstream download/package failures.
 
 On failure, capture the first error and stage. Do not blindly rerun: this first-pass
 installer is not a resumable transaction, and copied configs can make preflight
@@ -130,8 +132,11 @@ for the basic desktop test.
 - [ ] Workspaces 1–10 and Overview selection, previews, Escape, and outside-click
       dismissal work. Verify empty extra workspace markers disappear.
 - [ ] Screenshot copy does not save; explicit Save does. Notification images work.
-- [ ] In a fresh terminal, `nvm current`, `node --version`, `sdk current java`,
-      and `java -version` confirm managed runtimes; `yay --version` works.
+- [ ] `yay --version`, `lazygit --version` and `lazydocker --version` work.
+- [ ] Optional Node/Java menu installs work; then a fresh terminal's `nvm current`,
+      `node --version`, `sdk current java` and `java -version` confirm managers.
+- [ ] A guest-only upgrade creates a root recovery snapshot and boot archives;
+      recovery from live media is tested before calling rollback reliable.
 - [ ] Another guest reboot preserves the setup.
 
 For failures, record the repo commit, macOS/UTM versions, chip/RAM, VM architecture,

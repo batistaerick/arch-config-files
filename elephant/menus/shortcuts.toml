@@ -5,6 +5,24 @@ icon = "󰌌"
 fixed_order = true
 
 [[entries]]
+text = "Uninstall Selected App"
+subtext = "Delete in Apps / SUPER + Space · confirmation required"
+icon = "󰆴"
+actions = { open = "$HOME/.config/walker/scripts/menus/search.sh" }
+
+[[entries]]
+text = "Delete Clipboard Entry"
+subtext = "Delete in SUPER + Ctrl + V"
+icon = ""
+actions = { open = "$HOME/.config/walker/bin/walker --provider menus:clipboard --width 850" }
+
+[[entries]]
+text = "Install Packages"
+subtext = "Tab select · Enter install selected · Ctrl+B review build"
+icon = "󰏖"
+submenu = "install"
+
+[[entries]]
 text = "Open Terminal"
 subtext = "SUPER + Enter"
 icon = ""

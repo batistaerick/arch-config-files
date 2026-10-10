@@ -76,6 +76,11 @@ fifs() {
 }
 
 export PATH="$HOME/.local/bin:$PATH"
+[[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+[[ -d "$HOME/.bun/bin" ]] && export PATH="$HOME/.bun/bin:$PATH"
+[[ -d "$HOME/.deno/bin" ]] && export PATH="$HOME/.deno/bin:$PATH"
+[[ -d "$HOME/.config/composer/vendor/bin" ]] && export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+(( $+commands[mise] )) && eval "$(mise activate zsh)"
 
 alias ls='eza --icons=auto --group-directories-first'
 alias ll='eza -la --icons=auto --group-directories-first --git'

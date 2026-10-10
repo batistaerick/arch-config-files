@@ -1,0 +1,32 @@
+name = "install"
+name_pretty = "Install"
+parent = "main"
+icon = "󰏖"
+fixed_order = true
+
+[[entries]]
+text = "Pacman"
+subtext = "Official packages · Tab select · Enter install · Ctrl+B review"
+icon = "󰏖"
+submenu = "packages-pacman"
+
+[[entries]]
+text = "Yay (AUR)"
+subtext = "Community builds · Tab select · Enter install · Ctrl+B review"
+icon = "󰀦"
+submenu = "packages-aur"
+
+[[entries]]
+text = "Browsers"
+icon = "󰖟"
+submenu = "browsers"
+
+[[entries]]
+text = "Development Languages"
+icon = "󰅩"
+submenu = "languages"
+
+[[entries]]
+text = "AI CLIs"
+icon = "󱜙"
+submenu = "ai-install"

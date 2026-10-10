@@ -18,6 +18,10 @@ if [[ ${1:-} == --check ]]; then
     printf 'NetworkManager is enabled. This desktop uses iwd/networkd; resolve that conflict first.\n' >&2
     exit 1
   fi
+  if [[ $(findmnt -n -o FSTYPE /) != btrfs ]]; then
+    printf 'Eitr snapshot-protected updates require a Btrfs root. Use Btrfs on the fresh target.\n' >&2
+    exit 1
+  fi
   for item in "${config_dirs[@]}" "${config_files[@]}"; do
     [[ -e "$repo_root/$item" ]] || { printf 'Missing source: %s\n' "$item" >&2; exit 1; }
     [[ ! -e "$HOME/.config/$item" ]] || { printf 'Already exists: %s\n' "$HOME/.config/$item" >&2; exit 1; }
@@ -53,24 +57,16 @@ if ! command -v yay >/dev/null; then
 fi
 yay -S --needed --mflags "--options !debug" -- "${aur[@]}" "${aur_apps[@]}"
 
-bash "$repo_root/distro/install-development.sh"
-# Use the managed Node runtime for the remaining npm-based setup.
-export NVM_DIR="$HOME/.nvm"
-set +u
-source "$NVM_DIR/nvm.sh"
-nvm use default
-set -u
-
-# Authentication is intentionally not copied from the backup.
-if ! command -v claude >/dev/null; then
-  claude_installer="$(mktemp)"
-  curl -fsSL https://claude.ai/install.sh -o "$claude_installer"
-  bash "$claude_installer"
-  rm -f -- "$claude_installer"
-fi
-if ! command -v codex >/dev/null; then
-  npm install --global --prefix "$HOME/.local" @openai/codex
-fi
+# Development runtimes and AI CLIs are installed only by explicit menu selection.
+mkdir -p "$HOME/.local/share/eitr"
+install -m 644 "$repo_root/distro/software.json" "$HOME/.local/share/eitr/software.json"
+install -m 644 "$repo_root/distro/installers.json" "$HOME/.local/share/eitr/installers.json"
+install -m 644 "$repo_root/distro/RECOVERY.md" "$HOME/.local/share/eitr/RECOVERY.md"
+sudo install -Dm755 "$repo_root/distro/system/eitr-system.py" /usr/local/lib/eitr/eitr-system
+sudo /usr/local/lib/eitr/eitr-system snapshots-setup
+for hook in "$repo_root/distro/hooks/"*.hook; do
+  sudo install -Dm644 "$hook" "/etc/pacman.d/hooks/$(basename "$hook")"
+done
 
 mkdir -p "$HOME/.config" "$HOME/.cache" "$HOME/.local/bin"
 for item in "${config_dirs[@]}" "${config_files[@]}"; do
@@ -129,5 +125,7 @@ fi
 sudo python3 "$HOME/.config/quickshell/lockscreen/scripts/install-login.py"
 sudo usermod -s /usr/bin/zsh "$(id -un)"
 sudo systemctl enable iwd systemd-networkd systemd-resolved bluetooth sddm
+flatpak remote-add --user --if-not-exists GeForceNOW https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo
+flatpak install --user --noninteractive GeForceNOW com.nvidia.geforcenow
 printf '\nInstalled desktop files for %s. Reboot after reviewing network and SDDM setup.\n' "$USER"
 printf 'Choose a theme in Walker after first login to generate the remaining app styles.\n'

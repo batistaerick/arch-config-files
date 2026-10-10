@@ -1,0 +1,26 @@
+name = "gaming"
+name_pretty = "Gaming"
+parent = "main"
+icon = "󰊴"
+fixed_order = true
+
+[[entries]]
+text = "Steam"
+icon = ""
+actions = { open = "steam" }
+
+[[entries]]
+text = "GeForce NOW"
+subtext = "Cloud gaming · requires account and supported hardware/network"
+icon = "󰊴"
+actions = { open = "flatpak run com.nvidia.geforcenow" }
+
+[[entries]]
+text = "Install / Reinstall Steam"
+icon = "󰏖"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py recipe-launch gaming steam" }
+
+[[entries]]
+text = "Install / Reinstall GeForce NOW"
+icon = "󰏖"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py recipe-launch gaming geforcenow" }

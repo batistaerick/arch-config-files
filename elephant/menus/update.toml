@@ -8,16 +8,16 @@ fixed_order = true
 text = "Pacman"
 subtext = "Official packages"
 icon = "󰚰"
-actions = { "open" = "kitty -e sudo pacman -Syu" }
+actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh pacman" }
 
 [[entries]]
 text = "Yay"
 subtext = "AUR and official packages"
 icon = "󰀦"
-actions = { "open" = "kitty -e yay -Syu" }
+actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh yay" }
 
 [[entries]]
 text = "Full Upgrade"
 subtext = "Pacman plus AUR devel update"
 icon = "󰜉"
-actions = { "open" = "kitty -e bash -c 'sudo pacman -Syu && yay -Sua --devel'" }
+actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh full" }

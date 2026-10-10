@@ -26,6 +26,7 @@ if [[ ! -d "$THEME_DIR" ]]; then
   exit 1
 fi
 
+previous_wallpaper="$(python3 "$HOME/.config/walker/scripts/actions/wallpaper/transition.py" snapshot)"
 rm -rf "$CURRENT_DIR"
 mkdir -p "$CURRENT_DIR"
 
@@ -85,12 +86,7 @@ mapfile -t wallpapers < <(
 FIRST_WALLPAPER="${wallpapers[0]:-}"
 
 if [[ -n "$FIRST_WALLPAPER" ]]; then
-  ln -sf "$FIRST_WALLPAPER" "$HOME/.cache/current-wallpaper-image"
-  echo "$FIRST_WALLPAPER" > "$HOME/.cache/current-wallpaper"
-
-  while read -r monitor; do
-    hyprctl hyprpaper wallpaper "$monitor,$FIRST_WALLPAPER" || true
-  done < <(hyprctl monitors -j | jq -r '.[].name')
+  python3 "$HOME/.config/walker/scripts/actions/wallpaper/transition.py" apply "$FIRST_WALLPAPER" --previous "$previous_wallpaper"
 fi
 
 if (( ${#failed_modules[@]} )); then

@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = Creating Eitr recovery snapshot before upgrading packages...
+When = PreTransaction
+Exec = /usr/local/lib/eitr/eitr-system snapshot-pre
+AbortOnFail

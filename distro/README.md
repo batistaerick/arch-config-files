@@ -30,19 +30,26 @@ the graphical desktop and AUR packages are installed on the target system by
 - Yay is built from AUR if absent. AUR builds disable detached debug packages;
   SwayNC, CEF, and Walker/Mongosh debug packages are deliberately excluded.
   Quickshell owns notifications.
-- `install-development.sh` installs NVM and SDKMAN without modifying shell
-  profiles; the supplied Zsh config initializes both. `development.env` records
-  Node 24.15.0, Java 25.0.3-oracle, Maven 3.9.2, pnpm 10.33.2, and Yarn 1.22.22
-  as fresh-install defaults based on the current setup. NVM is pinned to v0.40.8;
-  SDKMAN uses its official rolling installer. Development Java is installed and
-  selected through SDKMAN; Node.js and its bundled npm through NVM. System
-  Node/npm and JDK/JRE packages are not explicitly requested by the manifests.
-  Packaged applications may still pull system runtimes as dependencies; those
-  do not replace the managed development defaults in interactive Zsh.
-  These versions are not silently substituted if an upstream download expires.
-  Override the relevant `DISTRO_*_VERSION` variables before installation when
-  needed, including a different Java vendor after reviewing its license.
-  Existing SDKs, caches, tokens, and project files are not bundled.
+- Development languages, frameworks, JavaScript tools and AI CLIs are optional:
+  Walker → Development → Languages & Frameworks / JavaScript Tools / AI → Install
+  AI CLIs. `software.json` records optional package recipes. Java uses SDKMAN
+  with the latest available Temurin LTS and Maven; Node uses NVM's latest LTS.
+  Python remains a system dependency for desktop helpers; uv-managed development
+  Python is optional. Rust uses rustup; Ruby/Rails uses mise; PHP/Composer,
+  Elixir/Erlang and .NET use Arch packages. No managers, development SDKs or AI
+  CLIs are bootstrapped by default. Dependencies may still pull their own runtimes.
+  Existing SDKs and account state on the owner's desktop are not uninstalled.
+- Lazygit and Lazydocker are included from Arch's official repositories. Gaming
+  includes Steam and the official NVIDIA GeForce NOW user Flatpak, installed
+  from NVIDIA's signed remote. It requires a separate account and compatible
+  hardware/network; it does not install NVIDIA GPU drivers on AMD/Intel systems.
+- Snapper and fail-closed pacman hooks create recovery points before upgrades,
+  including Yay upgrade transactions. Supported fresh installs require Btrfs
+  root with `/usr`, `/etc`, and `/var/lib/pacman` inside that root subvolume.
+  Boot/EFI archives are separate; see [recovery instructions](RECOVERY.md).
+- Security offers password changes, fingerprint enrollment, FIDO2-key enrollment,
+  and separately confirmed optional authentication policy. Password fallback is
+  preserved. Hardware support and real authentication still require testing.
 - Direct helper dependencies include `lm_sensors` for hardware temperatures,
   `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
 - Bruno, ngrok, kubectl, Helm, Minikube, printing packages (CUPS, HPLIP and
@@ -55,7 +62,7 @@ For Apple Silicon Macs, follow the [temporary VM testing guide](MAC-VM-TESTING.m
 It uses x86_64 emulation, not a supported ARM port. Remove that guide and this
 link once installation and release testing is complete.
 
-1. Install a supported x86_64 Arch system with a normal user and sudo access.
+1. Install a supported x86_64 Arch system with a Btrfs root, a normal user and sudo access.
    Choose partitioning, encryption, boot loader, locale, timezone and user name
    during the normal Arch install. This repo does not make those decisions or
    format disks. Do not run the installer on an existing configured desktop.
@@ -65,9 +72,9 @@ link once installation and release testing is complete.
    `bash distro/install.sh` as the new **non-root** user. It refuses to replace
    config paths that already exist, and does not copy browser, Wi-Fi, SSH, AI,
    or 1Password credentials. The installer downloads official packages,
-   builds `yay` from AUR, installs AUR apps, installs Claude Code through its
-   official installer, bootstraps NVM/Node and SDKMAN/Java/Maven, and installs
-   Codex CLI via npm. Audit the manifests and
+   builds `yay` from AUR, installs AUR apps, configures Snapper and upgrade hooks,
+   and installs GeForce NOW. Development SDKs and AI CLIs are selected later
+   from Walker rather than installed automatically. Audit the manifests and
    upstream installers before running them.
    On a supported NVIDIA Turing-or-newer system, review the GPU model first and
    use `DISTRO_NVIDIA_DRIVER=open bash distro/install.sh --check` followed by
@@ -132,3 +139,24 @@ References: [Archiso](https://wiki.archlinux.org/title/Archiso),
 [Codex CLI](https://developers.openai.com/codex/cli/).
 Development bootstrap references: [NVM](https://github.com/nvm-sh/nvm),
 [SDKMAN installation and CI options](https://sdkman.io/install/).
+
+## Existing desktop: privileged integration
+
+Config/menu changes do not automatically install packages, change PAM, or
+configure root snapshots on the owner's running desktop. To enable the root
+integration on a reviewed supported Btrfs installation, install the dependencies
+and root-owned helper/hooks deliberately:
+
+```sh
+sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker
+sudo install -Dm755 distro/system/eitr-system.py /usr/local/lib/eitr/eitr-system
+sudo /usr/local/lib/eitr/eitr-system snapshots-setup
+sudo install -Dm644 distro/hooks/05-eitr-snapshot-pre.hook /etc/pacman.d/hooks/05-eitr-snapshot-pre.hook
+sudo install -Dm644 distro/hooks/95-eitr-snapshot-post.hook /etc/pacman.d/hooks/95-eitr-snapshot-post.hook
+```
+
+Run from this repo, as the normal desktop user. If setup rejects the layout,
+stop; do not bypass its protection. The initial dependency bootstrap above is
+not protected by hooks that have not yet been installed. Thereafter, the Update
+menu requires the hooks. Never sudo a helper under a user-writable config path.
+Do not restart SDDM or test authentication without a recovery console available.

@@ -43,8 +43,9 @@ class InstallManifestTests(unittest.TestCase):
         installer = (DISTRO / "install.sh").read_text()
         self.assertIn("https://aur.archlinux.org/yay.git", installer)
         self.assertIn('--mflags "--options !debug"', installer)
-        self.assertLess(installer.index('bash "$repo_root/distro/install-development.sh"'),
-                        installer.index('npm install --global'))
+        self.assertNotIn('bash "$repo_root/distro/install-development.sh"', installer)
+        self.assertNotIn('npm install --global', installer)
+        self.assertNotIn('https://claude.ai/install.sh', installer)
 
     def test_direct_desktop_helper_dependencies_are_explicit(self):
         packages = set((DISTRO / "packages.txt").read_text().splitlines())
@@ -58,9 +59,19 @@ class InstallManifestTests(unittest.TestCase):
                             if line.strip() and not line.startswith("#"))
         self.assertFalse({"nodejs", "npm"} & packages)
         self.assertFalse({package for package in packages if package.startswith(("jdk", "jre"))})
+        self.assertFalse({"go", "rustup", "fvm", "python-pip"} & packages)
+        self.assertIn("python", packages)  # Required by desktop helpers.
+
+    def test_snapshot_and_gaming_dependencies_are_explicit(self):
+        packages = set((DISTRO / "packages.txt").read_text().splitlines())
+        self.assertFalse({"snapper", "flatpak", "fprintd", "pam-u2f", "lazygit", "lazydocker"} - packages)
+        installer = (DISTRO / "install.sh").read_text()
+        self.assertIn("com.nvidia.geforcenow", installer)
+        self.assertIn("snapshots-setup", installer)
+        self.assertIn("/usr/local/lib/eitr/eitr-system", installer)
 
     @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
-    def test_development_setup_with_mocked_managers(self):
+    def test_optional_node_setup_uses_lts_with_mocked_manager(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
             log = home / "calls"
@@ -79,20 +90,16 @@ class InstallManifestTests(unittest.TestCase):
             curl.write_text('#!/bin/bash\necho "Unexpected network access" >&2\nexit 99\n')
             curl.chmod(0o755)
             env = dict(os.environ, HOME=directory, TEST_LOG=str(log),
-                       PATH=str(binaries) + os.pathsep + os.environ["PATH"],
-                       DISTRO_NODE_VERSION="22.0.0", DISTRO_JAVA_VERSION="21-tem",
-                       DISTRO_MAVEN_VERSION="3.9.9", DISTRO_PNPM_VERSION="10.0.0",
-                       DISTRO_YARN_VERSION="1.22.22")
-            subprocess.run(["bash", str(DISTRO / "install-development.sh")],
+                       PATH=str(binaries) + os.pathsep + os.environ["PATH"])
+            script = DISTRO.parent / "walker/scripts/actions/install/development.sh"
+            subprocess.run(["bash", str(script), "node"],
                            env=env, capture_output=True, text=True, check=True)
             calls = log.read_text()
-            self.assertIn("nvm install 22.0.0", calls)
-            self.assertIn("nvm alias default 22.0.0", calls)
-            self.assertIn("nvm use 22.0.0", calls)
-            self.assertIn("npm install --global pnpm@10.0.0 yarn@1.22.22", calls)
-            self.assertIn("sdk install java 21-tem", calls)
-            self.assertIn("sdk default java 21-tem", calls)
-            self.assertIn("sdk default maven 3.9.9", calls)
+            self.assertIn("nvm install --lts", calls)
+            self.assertIn("nvm alias default lts/*", calls)
+            self.assertIn("nvm use default", calls)
+            self.assertNotIn("npm install", calls)
+            self.assertNotIn("sdk install", calls)
             self.assertFalse((home / ".zshrc").exists())
 
     def test_streaming_launchers_build_isolated_commands(self):

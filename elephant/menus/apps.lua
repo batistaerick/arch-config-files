@@ -8,6 +8,8 @@ SearchName = true
 local home = os.getenv("HOME")
 local app_dirs = {
     home .. "/.local/share/applications",
+    home .. "/.local/share/flatpak/exports/share/applications",
+    "/var/lib/flatpak/exports/share/applications",
     "/usr/local/share/applications",
     "/usr/share/applications",
 }
@@ -79,7 +81,7 @@ function GetEntries()
     local seen = {}
 
     for _, dir in ipairs(app_dirs) do
-        local handle = io.popen("find " .. shell_quote(dir) .. " -maxdepth 1 -type f -name '*.desktop' 2>/dev/null | sort")
+        local handle = io.popen("find -L " .. shell_quote(dir) .. " -maxdepth 1 -type f -name '*.desktop' 2>/dev/null | sort")
 
         if handle then
             for path in handle:lines() do
@@ -105,11 +107,12 @@ function GetEntries()
                         table.insert(entries, {
                             Text = app.Name,
                             Subtext = app.GenericName or app.Comment or id,
-                            Value = id,
+                            Value = path,
                             Icon = app.Icon or "application-x-executable",
                             Keywords = keywords,
                             Actions = {
                                 open = "gtk-launch " .. shell_quote(id),
+                                app_uninstall = "python3 " .. shell_quote(home .. "/.config/walker/scripts/actions/install/software.py") .. " uninstall " .. shell_quote(path),
                             },
                         })
                     end

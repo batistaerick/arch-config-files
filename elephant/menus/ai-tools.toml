@@ -5,6 +5,11 @@ icon = "󱜙"
 fixed_order = true
 
 [[entries]]
+text = "Install AI CLIs"
+icon = "󱜙"
+submenu = "ai-install"
+
+[[entries]]
 text = "Claude"
 subtext = ">"
 icon = "claude-brand"

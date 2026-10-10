@@ -5,6 +5,21 @@ icon = "󰅩"
 fixed_order = true
 
 [[entries]]
+text = "Languages & Frameworks"
+icon = "󰅩"
+submenu = "languages"
+
+[[entries]]
+text = "JavaScript Tools"
+icon = "󰛦"
+submenu = "javascript-tools"
+
+[[entries]]
+text = "Developer Tools"
+icon = "󰅩"
+submenu = "developer-tools"
+
+[[entries]]
 text = "AI"
 subtext = ">"
 keywords = ["codex", "claude"]

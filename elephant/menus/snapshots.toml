@@ -1,0 +1,21 @@
+name = "snapshots"
+name_pretty = "Snapshots"
+parent = "system"
+icon = "󰋊"
+fixed_order = true
+
+[[entries]]
+text = "List Recovery Snapshots"
+icon = "󰋊"
+actions = { open = "kitty --hold -e sudo snapper -c root list" }
+
+[[entries]]
+text = "Configure Snapshot Protection"
+subtext = "Requires Btrfs root; never formats or repartitions"
+icon = "󰒃"
+actions = { open = "kitty --hold -e sudo /usr/local/lib/eitr/eitr-system snapshots-setup" }
+
+[[entries]]
+text = "Recovery Instructions"
+icon = "󰧑"
+actions = { open = "kitty --hold -e less $HOME/.local/share/eitr/RECOVERY.md" }

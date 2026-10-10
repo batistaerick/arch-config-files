@@ -17,7 +17,6 @@ less
 qrencode
 rsync
 python
-python-pip
 pciutils
 zsh
 zsh-autosuggestions
@@ -95,6 +94,12 @@ aws-cli
 github-cli
 docker
 docker-compose
+flatpak
+snapper
+fprintd
+pam-u2f
+lazygit
+lazydocker
 ttf-jetbrains-mono-nerd
 noto-fonts
 noto-fonts-emoji

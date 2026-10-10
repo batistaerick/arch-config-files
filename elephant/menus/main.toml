@@ -5,6 +5,18 @@ icon = "󰣇"
 fixed_order = true
 
 [[entries]]
+text = "Install"
+subtext = ">"
+icon = "󰏖"
+submenu = "install"
+
+[[entries]]
+text = "Gaming"
+subtext = ">"
+icon = "󰊴"
+submenu = "gaming"
+
+[[entries]]
 text = "Development"
 subtext = ">"
 keywords = ["dev", "projects", "code"]

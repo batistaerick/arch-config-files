@@ -1,0 +1,40 @@
+{
+  "browsers": {
+    "firefox": {"label": "Firefox", "source": "pacman", "packages": ["firefox"]},
+    "tor": {"label": "Tor Browser", "source": "pacman", "packages": ["torbrowser-launcher"]},
+    "edge": {"label": "Microsoft Edge", "source": "aur", "packages": ["microsoft-edge-stable-bin"]},
+    "chromium": {"label": "Chromium", "source": "pacman", "packages": ["chromium"]},
+    "chrome": {"label": "Google Chrome", "source": "aur", "packages": ["google-chrome"]}
+  },
+  "languages": {
+    "java": {"label": "Java LTS + Maven", "source": "managed", "packages": [], "manager": "SDKMAN"},
+    "python": {"label": "Python + uv", "source": "managed", "packages": [], "manager": "uv"},
+    "rust": {"label": "Rust + Cargo", "source": "managed", "packages": ["rustup"], "manager": "rustup"},
+    "rails": {"label": "Ruby + Rails", "source": "managed", "packages": ["mise", "libyaml", "openssl", "readline", "zlib", "gmp"], "manager": "mise"},
+    "node": {"label": "Node.js LTS + npm", "source": "managed", "packages": [], "manager": "NVM"},
+    "php": {"label": "PHP + Composer", "source": "pacman", "packages": ["php", "composer"]},
+    "elixir": {"label": "Elixir + Erlang", "source": "pacman", "packages": ["elixir"]},
+    "dotnet": {"label": ".NET SDK", "source": "pacman", "packages": ["dotnet-sdk"]},
+    "laravel": {"label": "Laravel + PHP + Composer", "source": "managed", "packages": ["php", "composer"]}
+  },
+  "javascript": {
+    "yarn": {"label": "Yarn", "source": "managed", "packages": [], "manager": "NVM / npm"},
+    "pnpm": {"label": "pnpm", "source": "managed", "packages": [], "manager": "NVM / npm"},
+    "bun": {"label": "Bun", "source": "managed", "packages": [], "manager": "Bun installer"},
+    "deno": {"label": "Deno", "source": "managed", "packages": [], "manager": "Deno installer"}
+  },
+  "ai": {
+    "codex": {"label": "Codex", "source": "managed", "packages": [], "manager": "NVM / npm"},
+    "claude": {"label": "Claude Code", "source": "managed", "packages": [], "manager": "Anthropic installer"},
+    "grok": {"label": "Grok Build", "source": "managed", "packages": [], "manager": "xAI installer"},
+    "gemini": {"label": "Gemini CLI", "source": "managed", "packages": [], "manager": "NVM / npm"}
+  },
+  "tools": {
+    "lazygit": {"label": "Lazygit", "source": "pacman", "packages": ["lazygit"]},
+    "lazydocker": {"label": "Lazydocker", "source": "pacman", "packages": ["lazydocker"]}
+  },
+  "gaming": {
+    "steam": {"label": "Steam", "source": "pacman", "packages": ["steam", "steam-devices"]},
+    "geforcenow": {"label": "GeForce NOW", "source": "flatpak", "packages": ["com.nvidia.geforcenow"], "remote": "GeForceNOW", "url": "https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo"}
+  }
+}

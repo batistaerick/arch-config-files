@@ -42,9 +42,4 @@ NEXT_INDEX=$(( (CURRENT_INDEX + 1) % TOTAL ))
 NEXT_WALLPAPER="${WALLPAPERS[$NEXT_INDEX]}"
 NEXT_NAME="$(basename "$NEXT_WALLPAPER")"
 
-ln -sf "$NEXT_WALLPAPER" "$CACHE_IMAGE"
-echo "$NEXT_WALLPAPER" > "$CACHE_PATH"
-
-for monitor in $(hyprctl monitors -j | jq -r '.[].name'); do
-  hyprctl hyprpaper wallpaper "$monitor,$NEXT_WALLPAPER" || true
-done
+exec bash "$HOME/.config/walker/scripts/actions/wallpaper/apply.sh" "$NEXT_WALLPAPER"

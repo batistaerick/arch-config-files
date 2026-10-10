@@ -36,11 +36,4 @@ kill "$preview_pid" 2>/dev/null
 
 [[ "$confirm" != "Apply" ]] && exit 0
 
-# Keep last wallpaper persistent for hyprpaper.conf
-ln -sf "$WALLPAPER" "$CACHE_IMAGE"
-echo "$WALLPAPER" > "$CACHE_PATH"
-
-# Apply live to all monitors
-for monitor in $(hyprctl monitors -j | jq -r '.[].name'); do
-  hyprctl hyprpaper wallpaper "$monitor,$WALLPAPER" || true
-done
+exec bash "$HOME/.config/walker/scripts/actions/wallpaper/apply.sh" "$WALLPAPER"

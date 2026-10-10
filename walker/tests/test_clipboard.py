@@ -41,3 +41,15 @@ class ClipboardTests(unittest.TestCase):
             clipboard.paste("2")
             self.assertEqual(command.call_args_list[0].kwargs["input"], b"\x89PNG\x00")
             self.assertEqual(command.call_args_list[1].args[0][0], "wtype")
+
+    def test_delete_only_selected_id_and_refreshes_previews(self):
+        with patch.object(clipboard.subprocess, "run") as command, patch.object(clipboard, "entries") as refresh:
+            clipboard.delete("2")
+            command.assert_called_once_with(["cliphist", "delete"], input=b"2", check=True, timeout=5)
+            refresh.assert_called_once()
+
+    def test_invalid_delete_id_is_rejected(self):
+        with patch.object(clipboard.subprocess, "run") as command:
+            with self.assertRaises(ValueError):
+                clipboard.delete("--all")
+            command.assert_not_called()

@@ -8,12 +8,12 @@ chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no
 
 case "$chosen" in
   "󰚰  Pacman (official packages)")
-    kitty -e sudo pacman -Syu
+    kitty --hold -e bash "$HOME/.config/walker/scripts/actions/system/update.sh" pacman
     ;;
   "󰀦  Yay (AUR + pacman)")
-    kitty -e yay -Syu
+    kitty --hold -e bash "$HOME/.config/walker/scripts/actions/system/update.sh" yay
     ;;
   "󰜉  Full upgrade (clean)")
-    kitty -e bash -c "sudo pacman -Syu && yay -Sua --devel"
+    kitty --hold -e bash "$HOME/.config/walker/scripts/actions/system/update.sh" full
     ;;
 esac

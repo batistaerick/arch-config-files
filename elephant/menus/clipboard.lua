@@ -21,7 +21,10 @@ function GetEntries()
             Icon = row.preview ~= "" and "image-x-generic" or "edit-paste",
             Preview = row.preview,
             PreviewType = row.preview ~= "" and "file" or "",
-            Actions = { clipboard_paste = "python3 " .. quote(helper) .. " paste " .. quote(row.id) },
+            Actions = {
+                clipboard_paste = "python3 " .. quote(helper) .. " paste " .. quote(row.id),
+                clipboard_delete = "python3 " .. quote(helper) .. " delete " .. quote(row.id),
+            },
         })
     end
     return entries

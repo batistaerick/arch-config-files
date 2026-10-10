@@ -49,8 +49,18 @@ def paste(identifier):
     subprocess.run(["wtype", "-M", "ctrl", "v", "-m", "ctrl"], check=True)
 
 
+def delete(identifier):
+    if not identifier.isdigit():
+        raise ValueError("Invalid clipboard ID")
+    subprocess.run(["cliphist", "delete"], input=identifier.encode(), check=True, timeout=5)
+    # Refresh also removes the deleted item's private image preview.
+    entries()
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "paste":
         paste(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "delete":
+        delete(sys.argv[2])
     else:
         print(json.dumps(entries()))

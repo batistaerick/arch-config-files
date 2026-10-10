@@ -1,5 +1,9 @@
 # Desktop Bar
 
+The microphone panel includes a live PipeWire input-level meter. Monitoring runs
+only while that panel is open; no audio is written to disk. The meter follows the
+shared panel theme and shows zero when the selected microphone is muted.
+
 The desktop bar and its native popups follow the current theme.
 
 Configuration reload errors use a native, padded popup with the bar's live

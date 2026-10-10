@@ -21,8 +21,11 @@ desktop. Review the installation guide before using it on a new machine.
 - Walker menus and Elephant providers for applications, system actions, and Learn.
 - Native hardware, audio, network, calendar, weather, and other desktop controls.
 - A themed Fastfetch About page featuring Eitr's Rune Liquid logo.
-- Kitty, Zsh, Neovim/LazyVim, and development tools; NVM manages Node.js and SDKMAN
-  manages Java/Maven. Yay supplies the required AUR packages.
+- Kitty, Zsh, Neovim/LazyVim, Lazygit and Lazydocker; optional development menus
+  install languages/frameworks and AI CLIs. NVM manages Node.js and SDKMAN
+  manages Java/Maven when selected. Yay supplies the required AUR packages.
+- Package installation with multi-selection/build review, confirmed app removal,
+  security enrollment, and snapshot-protected package updates on Btrfs.
 
 ## Getting started
 
@@ -32,7 +35,7 @@ after installation and release validation is complete.
 
 Read [the installation guide](distro/README.md), including its hardware caveats
 and current limitations. The installer is intended for a **new Arch installation**,
-as a normal user with sudo access, not an existing configured desktop. It refuses
+with Btrfs root, as a normal user with sudo access, not an existing configured desktop. It refuses
 to overwrite existing configuration paths. Enable Arch's multilib repository as
 described in the guide before proceeding.
 

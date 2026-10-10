@@ -1,5 +1,4 @@
 # Additional AUR applications currently used; review before a wider release.
-fvm
 catppuccin-plasma-colorscheme-frappe
 catppuccin-plasma-colorscheme-latte
 catppuccin-plasma-colorscheme-macchiato

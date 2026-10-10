@@ -157,7 +157,8 @@ Escape, or hiding the status icons dismiss them; pointer movement does not.
 Inactive workspace tooltips list their open applications by display name, with
 duplicates omitted. Current and empty workspaces show no tooltip.
 Walker System entries use show-panel.sh to open these same bar popups, including
-audio, microphone, keyboard, calendar, weather, hardware, and AI usage. Hidden
+audio, microphone, keyboard, display, calendar, weather, hardware, and AI usage.
+Its allowlist accepts exactly the `panels show` kinds; a test keeps them in sync. Hidden
 status icons remain hidden; their popups anchor beside the notification icon.
 Keyboard's Add Layout searches the installed XKB languages and variants. Added
 layouts persist in hypr/keyboard-layouts.lua and retain Alt+Shift switching.

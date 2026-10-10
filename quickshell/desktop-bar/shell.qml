@@ -198,7 +198,7 @@ ShellRoot {
         command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/manual-lock.sh"]
     }
 
-    AppearancePicker {}
+    AppearancePicker { defaultScreen: shell.targetScreens()[0] || null }
 
     function focusWorkspace(id) {
         var command = WorkspaceModel.focusCommand(id);

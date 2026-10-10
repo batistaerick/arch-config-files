@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
@@ -9,6 +10,8 @@ Item {
     property bool opened: false
     property string mode: "wallpaper"
     property var targetScreen: null
+    // IPC opens on the bar's primary screen; desktop double-clicks use their own screen.
+    property var defaultScreen: null
     property var items: []
     property int selectedIndex: 0
     property color accent: "#cdd6f4"
@@ -23,7 +26,7 @@ Item {
         items = [];
         error = "";
         opened = true;
-        loader.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/appearance-items.py", mode];
+        loader.command = ["python3", Quickshell.shellDir + "/scripts/appearance-items.py", mode];
         loader.running = true;
     }
 
@@ -82,7 +85,7 @@ Item {
     IpcHandler {
         target: "appearance"
         function show(kind: string): void {
-            picker.open(kind.startsWith("theme") ? kind : "wallpaper", Quickshell.screens[0]);
+            picker.open(kind.startsWith("theme") ? kind : "wallpaper", picker.defaultScreen || Quickshell.screens[0]);
         }
         function close(): void { picker.opened = false; }
         function next(): void { picker.navigate(1); }
@@ -170,7 +173,7 @@ Item {
                     Rectangle {
                         id: roundedMask
                         anchors.fill: parent
-                        radius: 4
+                        radius: PanelStyle.controlRadius
                         color: "white"
                         visible: false
                         layer.enabled: true
@@ -197,7 +200,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         color: "transparent"
-                        radius: 4
+                        radius: PanelStyle.controlRadius
                         border.color: tile.selected ? picker.accent : "#66ffffff"
                         border.width: tile.selected ? 3 : 1
                     }
@@ -220,8 +223,8 @@ Item {
                 elide: Text.ElideMiddle
                 text: picker.items[picker.selectedIndex] ? picker.items[picker.selectedIndex].name : (picker.error || "Loading...")
                 color: picker.foreground
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 18
+                font.family: PanelStyle.fontFamily
+                font.pixelSize: PanelStyle.headingSize
                 font.bold: true
             }
         }

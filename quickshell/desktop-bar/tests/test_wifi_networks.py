@@ -4,7 +4,11 @@ import unittest
 
 spec = importlib.util.spec_from_file_location("wifi", Path(__file__).parents[1] / "scripts/wifi-popup.py")
 wifi = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(wifi)
+try:
+    # wifi-popup.py connects to the system D-Bus at import time.
+    spec.loader.exec_module(wifi)
+except Exception as error:  # no gi or no system bus (CI containers, macOS)
+    raise unittest.SkipTest(f"wifi-popup.py needs GObject and a system bus: {error}")
 
 
 class KnownNetworkTests(unittest.TestCase):

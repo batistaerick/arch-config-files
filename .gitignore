@@ -1,6 +1,14 @@
 __pycache__/
 *.py[cod]
 *.log
+.DS_Store
 distro/build/
 distro/out/
+# Machine-local desktop state written at runtime or by the installer.
+/hypr/primary-display
+/hypr/portable.mode
 /quickshell/desktop-bar/notification-settings.json
+/lockscreen/selected
+/quickshell/desktop-bar/bar-settings.json
+/quickshell/desktop-bar/workspace-style.json
+/quickshell/desktop-bar/obs-recording.json

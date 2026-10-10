@@ -217,9 +217,12 @@ for index in "${!targets[@]}"; do
   install_path "${sources[$index]}" "${targets[$index]}"
 done
 
-if ! is_recorded step:portable-mode; then
-  touch "$HOME/.config/hypr/portable.mode"
-  record step:portable-mode
+# Hyprland and the bar default to a generic layout. Machine-local overrides are
+# Git-ignored, but a copy made from a working checkout could still carry them.
+if ! is_recorded step:machine-local-cleanup; then
+  rm -f -- "$HOME/.config/hypr/local.lua" "$HOME/.config/hypr/preferred-outputs" \
+    "$HOME/.config/hypr/primary-display"
+  record step:machine-local-cleanup
 fi
 [[ -e "$HOME/.cache/current-theme" ]] || printf 'catppuccin\n' > "$HOME/.cache/current-theme"
 if [[ ! -e "$HOME/.cache/current-wallpaper-image" && ! -L "$HOME/.cache/current-wallpaper-image" ]]; then

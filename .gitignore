@@ -4,9 +4,10 @@ __pycache__/
 .DS_Store
 distro/build/
 distro/out/
-# Machine-local desktop state written at runtime or by the installer.
+# Machine-local desktop state and overrides, written at runtime or by hand.
 /hypr/primary-display
-/hypr/portable.mode
+/hypr/local.lua
+/hypr/preferred-outputs
 /quickshell/desktop-bar/notification-settings.json
 /lockscreen/selected
 /quickshell/desktop-bar/bar-settings.json

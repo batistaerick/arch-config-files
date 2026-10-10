@@ -111,13 +111,42 @@ link once installation and release testing is complete.
    launch. Check the SDDM theme on a spare/test system before using it as your
    only login path; the lockscreen README has recovery instructions.
 
-The desktop includes a generic monitor mode marker (`hypr/portable.mode`) on
-new installs. Hyprland reads each connected display's preferred EDID mode
-(resolution and refresh rate) at login and positions outputs automatically,
-rather than copying the original machine's output names and resolutions.
-`preferred` is the safe default, not a guarantee of the highest advertised Hz;
-the Display panel reports the active mode. The backup's original monitor layout
-remains unchanged unless this marker is present.
+### Monitors and machine-local overrides
+
+The shared Hyprland config is generic: it reads each connected display's
+preferred EDID mode (resolution and refresh rate) at login and positions outputs
+automatically, rather than copying the original machine's output names and
+resolutions. `preferred` is the safe default, not a guarantee of the highest
+advertised Hz; the Display panel reports the active mode. The bar starts on the
+largest active display until you pick another one in the Display panel.
+
+Machine-specific settings live in two optional, Git-ignored files:
+
+- `~/.config/hypr/local.lua`: a Lua chunk that runs after `hyprland.lua` and
+  uses the same `hl.*` calls (`hl.monitor`, `hl.workspace_rule`, `hl.device`,
+  `hl.env`, `hl.config`, ...). Its calls apply only if the whole file runs
+  without error; otherwise the generic layout stays and a notification shows
+  the error.
+- `~/.config/hypr/preferred-outputs`: output names, one per line, that the bar
+  prefers before the largest display. A choice saved from the Display panel
+  (`~/.config/hypr/primary-display`) still wins.
+
+`hypr/local.lua.example` and `hypr/preferred-outputs.example` hold the original
+machine's layout (fixed modes, HDR, positions, workspace-to-monitor rules,
+mouse tuning, and the HDMI-A-1/DP-3 bar preference).
+
+**Owner machine migration:** older checkouts applied that layout unless
+`hypr/portable.mode` existed; the marker is no longer read. On the original
+machine, restore the layout once with:
+
+```sh
+cp hypr/local.lua.example ~/.config/hypr/local.lua
+cp hypr/preferred-outputs.example ~/.config/hypr/preferred-outputs
+hyprctl reload
+```
+
+A leftover `~/.config/hypr/portable.mode` on other machines is harmless and can
+be deleted.
 
 ## Build installer ISO
 

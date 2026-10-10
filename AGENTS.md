@@ -106,9 +106,15 @@ them with upstream defaults.
 - The date/time stays exactly screen-centered regardless of neighboring items.
   The Display panel's connected rows select the bar's primary screen and save
   it in the machine-local `hypr/primary-display` file. If the chosen display is
-  disconnected, fall back to an available one. Existing installations prefer
-  HDMI until a choice is saved; fresh portable installs prefer the largest
-  active display. Do not commit a machine-specific primary-display file.
+  disconnected, fall back to an available one. Until a choice is saved, use the
+  first connected output in the machine-local `hypr/preferred-outputs`, else the
+  largest active display. Do not commit primary-display or preferred-outputs.
+- Shared `hypr/hyprland.lua` stays generic: automatic monitor layout and no
+  connector names, input device names, or other machine-specific settings.
+  Those belong in the Git-ignored `~/.config/hypr/local.lua`, loaded last and
+  error-guarded; the owner's layout is kept in `hypr/local.lua.example` and
+  `hypr/preferred-outputs.example`. Update the examples, not the shared file,
+  when the owner's hardware changes.
 - Hardware and AI Usage icons sit after the workspaces and open on the left;
   calendar/weather open centered; other controls open on the right. Panels
   share the bar's Wayland surface and attach directly to its actual edge with

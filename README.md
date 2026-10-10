@@ -68,6 +68,14 @@ Most top-level directories mirror `~/.config`. `HOME_FILES/` holds files install
 elsewhere in the user's home directory. `distro/` owns package manifests, hardware
 detection, installation scripts, and the ISO recipe. `branding/` holds the logo.
 
+The shared Hyprland config uses a generic, automatic monitor layout. Settings for
+one machine (monitor modes, workspace rules, input devices) go in an optional,
+Git-ignored `~/.config/hypr/local.lua`; see
+[monitors and machine-local overrides](distro/README.md#monitors-and-machine-local-overrides).
+On the original desktop, copy `hypr/local.lua.example` to
+`~/.config/hypr/local.lua` and `hypr/preferred-outputs.example` to
+`~/.config/hypr/preferred-outputs`.
+
 More details: [desktop shell](quickshell/desktop-bar/README.md),
 [lockscreen and login](quickshell/lockscreen/README.md),
 [Walker](walker/README.md), [About](fastfetch/README.md),

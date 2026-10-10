@@ -1,3 +1,9 @@
+# Before Publishing
+
+See [PUBLISHING.md](PUBLISHING.md): split the personal overlay from the distro,
+move large media out of Git history, finish licensing and artwork clearance,
+scan history for secrets, and add a diagnostics action.
+
 # Display Layout
 
 Deferred until a second physical monitor is connected for testing:

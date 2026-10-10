@@ -80,3 +80,5 @@ Run the tests relevant to your change; do not test disruptive hardware actions
 on an active session. Fresh-machine installation and ISO testing are still needed.
 Bundled artwork and third-party assets require a license review before public ISO
 distribution; inclusion here does not grant blanket redistribution rights.
+Read [PUBLISHING.md](PUBLISHING.md) before making the repository public or
+distributing an ISO.

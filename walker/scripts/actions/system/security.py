@@ -22,7 +22,14 @@ def fido_enroll():
         existing = path.read_text().strip()
         if not existing.startswith(user + ":") or "\n" in existing:
             raise ValueError("Existing FIDO2 registration needs manual review")
-        registration = existing + ":" + registration.split(":", 1)[1]
+        # Credentials are "keyhandle,publickey,..." entries joined by ":".
+        known = {credential.split(",", 1)[0] for credential in existing.split(":")[1:]}
+        added = [credential for credential in registration.split(":")[1:]
+                 if credential.split(",", 1)[0] not in known]
+        if not added:
+            print("This security key is already enrolled.")
+            return
+        registration = ":".join([existing, *added])
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd, "w") as file:
         os.fchmod(file.fileno(), 0o600)

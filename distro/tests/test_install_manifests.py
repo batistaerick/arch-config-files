@@ -11,6 +11,27 @@ DISTRO = Path(__file__).resolve().parents[1]
 
 
 class InstallManifestTests(unittest.TestCase):
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_non_executable_installer_runs_preflight_before_installing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            installer = root / "install.sh"
+            installer.write_text((DISTRO / "install.sh").read_text())
+            installer.chmod(0o644)
+            binaries = root / "bin"
+            binaries.mkdir()
+            for name in ("pacman", "sudo", "systemctl"):
+                mock = binaries / name
+                mock.write_text("#!/bin/sh\nexit 0\n")
+                mock.chmod(0o755)
+            env = dict(os.environ, HOME=directory,
+                       PATH=str(binaries) + os.pathsep + os.environ["PATH"])
+            result = subprocess.run(["bash", str(installer)], env=env,
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("NetworkManager is enabled", result.stderr)
+            self.assertNotIn("Permission denied", result.stderr)
+
     def test_removed_packages_stay_out_of_install_manifests(self):
         packages = set()
         for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):

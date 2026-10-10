@@ -36,7 +36,7 @@ if [[ $# -ne 0 ]]; then
   exit 2
 fi
 
-"$0" --check
+bash "$0" --check
 hardware_output="$(bash "$repo_root/distro/hardware/detect.sh")"
 mapfile -t hardware_packages <<< "$hardware_output"
 mapfile -t official < <(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$repo_root/distro/packages.txt")

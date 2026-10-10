@@ -13,20 +13,26 @@ ShellRoot {
         if (started) return;
         if (windows.instances.some(window => !window.ready)) return;
         started = true;
-        reveal.start();
+        // Replace the backing wallpaper while the old-image layer covers it.
+        commit.running = true;
     }
     NumberAnimation {
         id: reveal
         target: root; property: "progress"
         from: 0; to: 1; duration: 650; easing.type: Easing.InOutCubic
-        onFinished: commit.running = true
+        onFinished: handoff.start()
     }
     Process {
         id: commit
         command: ["python3", Quickshell.env("HOME") + "/.config/walker/scripts/actions/wallpaper/transition.py", "commit", root.next]
-        onExited: function(exitCode) { Qt.quit(); }
+        onExited: function(exitCode) {
+            if (exitCode === 0) reveal.start();
+            else Qt.exit(1);
+        }
     }
-    Timer { interval: 10000; running: true; onTriggered: Qt.quit(); }
+    // Keep the completed frame covering Hyprpaper until the compositor catches up.
+    Timer { id: handoff; interval: 250; onTriggered: Qt.quit(); }
+    Timer { interval: 10000; running: true; onTriggered: Qt.exit(1); }
     Variants {
         id: windows
         model: Quickshell.screens

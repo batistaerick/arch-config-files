@@ -11,6 +11,23 @@ spec.loader.exec_module(transition)
 
 
 class WallpaperTests(unittest.TestCase):
+    def test_success_does_not_reapply_after_transition(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "wallpaper.png"
+            image.write_bytes(b"mock")
+            with patch.object(transition, "runtime", return_value=Path(directory)), \
+                    patch.object(transition, "snapshot", return_value=""), \
+                    patch.object(transition.subprocess, "run"), patch.object(transition, "commit") as commit:
+                transition.apply(str(image))
+                commit.assert_not_called()
+
+    def test_backing_wallpaper_changes_before_reveal(self):
+        qml = (ROOT / "quickshell/wallpaper-transition/shell.qml").read_text()
+        self.assertIn("commit.running = true", qml.split("NumberAnimation")[0])
+        self.assertIn("if (exitCode === 0) reveal.start()", qml)
+        self.assertIn("onFinished: handoff.start()", qml)
+        self.assertIn("onTriggered: Qt.exit(1)", qml)
+
     def test_transition_does_not_capture_input(self):
         qml = (ROOT / "quickshell/wallpaper-transition/shell.qml").read_text()
         self.assertIn("WlrLayer.Bottom", qml)

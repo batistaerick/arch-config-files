@@ -227,6 +227,10 @@ ShellRoot {
         return names.join("\n");
     }
 
+    // display-primary.py owns the choice and reports it as primaryDisplay.
+    // This fallback mirrors its choose_primary() order (saved/reported name,
+    // largest screen in portable mode, else HDMI-A-1, DP-3, first) so startup
+    // and unmatched names pick the same screen without a bar jump.
     function targetScreens() {
         var screens = Quickshell.screens || [];
         var fallback = null;

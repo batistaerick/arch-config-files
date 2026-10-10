@@ -27,6 +27,11 @@ def saved_primary():
         return ""
 
 
+# shell.qml's targetScreens() mirrors this order for the moment before the
+# first status query returns; keep both in sync (tests/test_display_primary.py).
+LEGACY_PREFERENCE = ("HDMI-A-1", "DP-3")
+
+
 def choose_primary(monitors, saved="", portable=False):
     connected = {monitor["name"]: monitor for monitor in monitors}
     if saved in connected:
@@ -34,13 +39,9 @@ def choose_primary(monitors, saved="", portable=False):
     if not connected:
         return ""
     if portable:
-        return max(
-            monitors,
-            key=lambda monitor: (
-                monitor["width"] * monitor["height"], monitor.get("refreshRate", 0)
-            ),
-        )["name"]
-    for name in ("HDMI-A-1", "DP-3"):
+        # Largest area; ties keep compositor order, as QML can match it.
+        return max(monitors, key=lambda monitor: monitor["width"] * monitor["height"])["name"]
+    for name in LEGACY_PREFERENCE:
         if name in connected:
             return name
     return monitors[0]["name"]

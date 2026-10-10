@@ -13,18 +13,18 @@ choose_ecs_cluster() {
 
   if ! clusters="$(aws_cli ecs list-clusters | jq -r '.clusterArns[] | split("/")[-1]')"; then
     notify-send "ECS" "Failed to list clusters for $AWS_PROFILE"
-    exit 1
+    return 1
   fi
 
   if [ -z "$clusters" ]; then
     notify-send "ECS" "No clusters found for $AWS_PROFILE"
-    exit 0
+    return 1
   fi
 
   chosen="$(printf "%s\n" "$clusters" | walker_menu "ECS Cluster")"
 
   if [ -z "$chosen" ]; then
-    exit 0
+    return 1
   fi
 
   echo "$chosen"
@@ -39,33 +39,33 @@ choose_ecs_service() {
     --cluster "$cluster" \
     | jq -r '.serviceArns[] | split("/")[-1]')"; then
     notify-send "ECS" "Failed to list services in $cluster"
-    exit 1
+    return 1
   fi
 
   if [ -z "$services" ]; then
     notify-send "ECS" "No services found in $cluster"
-    exit 0
+    return 1
   fi
 
   chosen="$(printf "%s\n" "$services" | walker_menu "ECS Service")"
 
   if [ -z "$chosen" ]; then
-    exit 0
+    return 1
   fi
 
   echo "$chosen"
 }
 
-ECS_CLUSTER="$(choose_ecs_cluster)"
-ECS_SERVICE="$(choose_ecs_service "$ECS_CLUSTER")"
+ECS_CLUSTER="$(choose_ecs_cluster)" || exit 0
+ECS_SERVICE="$(choose_ecs_service "$ECS_CLUSTER")" || exit 0
 printf -v RETURN_TO_ECS_COMMAND "%q %q" "$0" "$AWS_PROFILE"
 
 service_status_command() {
   cat <<EOF
-aws_header "ECS service status"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
+cloud_header "ECS service status"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
 echo
 
 $(aws_base) ecs describe-services \\
@@ -90,16 +90,16 @@ $(aws_base) ecs describe-services \\
       ] | join("\n")
     )
   end
-' | aws_report
+' | cloud_report
 EOF
 }
 
 service_events_command() {
   cat <<EOF
-aws_header "ECS service events"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
+cloud_header "ECS service events"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
 echo
 
 $(aws_base) ecs describe-services \\
@@ -114,16 +114,16 @@ $(aws_base) ecs describe-services \\
     .services[0].events[:30][]
     | "\u001b[90m\(.createdAt)\u001b[0m  \(.message)"
   end
-' | aws_report
+' | cloud_report
 EOF
 }
 
 running_tasks_command() {
   cat <<EOF
-aws_header "Running ECS tasks"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
+cloud_header "Running ECS tasks"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
 echo
 
 TASKS=\$($(aws_base) ecs list-tasks \\
@@ -143,16 +143,16 @@ $(aws_base) ecs describe-tasks \\
 | jq -r '
   .tasks[]
   | "\u001b[36m\(.taskArn | split("/")[-1])\u001b[0m  last=\(.lastStatus) desired=\(.desiredStatus) health=\(.healthStatus // "N/A") started=\(.startedAt // "N/A") cpu=\(.cpu // "N/A") memory=\(.memory // "N/A")"
-' | aws_report
+' | cloud_report
 EOF
 }
 
 stopped_tasks_command() {
   cat <<EOF
-aws_header "Recently stopped ECS tasks"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
+cloud_header "Recently stopped ECS tasks"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
 echo
 
 TASKS=\$($(aws_base) ecs list-tasks \\
@@ -173,16 +173,16 @@ $(aws_base) ecs describe-tasks \\
 | jq -r '
   .tasks[]
   | "\u001b[36m\(.taskArn | split("/")[-1])\u001b[0m  code=\(.stopCode // "N/A") stopped=\(.stoppedAt // "N/A") reason=\(.stoppedReason // "N/A") containers=\([.containers[] | "\(.name):exit=\(.exitCode // "N/A") reason=\(.reason // "N/A")"] | join("; "))"
-' | aws_report
+' | cloud_report
 EOF
 }
 
 deployments_command() {
   cat <<EOF
-aws_header "ECS deployments"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
+cloud_header "ECS deployments"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
 echo
 
 $(aws_base) ecs describe-services \\
@@ -197,17 +197,17 @@ $(aws_base) ecs describe-services \\
     .services[0].deployments[]
     | "\u001b[36m\(.status)\u001b[0m  id=\(.id | split("/")[-1]) desired=\(.desiredCount) running=\(.runningCount) pending=\(.pendingCount) failed=\(.failedTasks) rollout=\(.rolloutState // "N/A") created=\(.createdAt) updated=\(.updatedAt) reason=\(.rolloutStateReason // "N/A")"
   end
-' | aws_report
+' | cloud_report
 EOF
 }
 
 deployment_logs_command() {
   cat <<EOF
-aws_header "ECS latest deployment logs"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
-aws_kv "Service" "$ECS_SERVICE"
-aws_kv "Log group" "$LOG_GROUP"
+cloud_header "ECS latest deployment logs"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
+cloud_kv "Service" "$ECS_SERVICE"
+cloud_kv "Log group" "$LOG_GROUP"
 echo
 
 SERVICE_JSON=\$($(aws_base) ecs describe-services \\
@@ -223,10 +223,10 @@ DEPLOYMENT_START=\$(printf '%s' "\$SERVICE_JSON" | jq -r '
 
 if [ -n "\$DEPLOYMENT_START" ]; then
   START_MS=\$(date -d "\$DEPLOYMENT_START" +%s%3N 2>/dev/null || date -d "60 minutes ago" +%s%3N)
-  aws_kv "Since" "\$DEPLOYMENT_START"
+  cloud_kv "Since" "\$DEPLOYMENT_START"
 else
   START_MS=\$(date -d "60 minutes ago" +%s%3N)
-  aws_warn "Could not find deployment start time. Falling back to the last 60 minutes."
+  cloud_warn "Could not find deployment start time. Falling back to the last 60 minutes."
 fi
 
 echo
@@ -249,31 +249,31 @@ $(aws_base) logs filter-log-events \\
         | gsub("failed"; "\u001b[31mfailed\u001b[0m")
         | gsub("Failed"; "\u001b[31mFailed\u001b[0m"))"
   end
-' | aws_fzf "Deployment logs"
+' | cloud_fzf "Deployment logs"
 EOF
 }
 
 list_clusters_command() {
   cat <<EOF
-aws_header "ECS clusters"
-aws_kv "Profile" "$AWS_PROFILE"
+cloud_header "ECS clusters"
+cloud_kv "Profile" "$AWS_PROFILE"
 echo
 
-$(aws_base) ecs list-clusters | jq -r '.clusterArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' | aws_fzf "Clusters" plain
+$(aws_base) ecs list-clusters | jq -r '.clusterArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' | cloud_fzf "Clusters" plain
 EOF
 }
 
 list_services_command() {
   cat <<EOF
-aws_header "ECS services"
-aws_kv "Profile" "$AWS_PROFILE"
-aws_kv "Cluster" "$ECS_CLUSTER"
+cloud_header "ECS services"
+cloud_kv "Profile" "$AWS_PROFILE"
+cloud_kv "Cluster" "$ECS_CLUSTER"
 echo
 
 $(aws_base) ecs list-services \\
   --cluster "$ECS_CLUSTER" \\
 | jq -r '.serviceArns[] | "\u001b[36m\(split("/")[-1])\u001b[0m  \u001b[90m\(.)\u001b[0m"' \
-| aws_fzf "Services" plain
+| cloud_fzf "Services" plain
 EOF
 }
 
@@ -286,7 +286,7 @@ options="󰅟  Service status
 󰌗  List clusters
 󰓾  List services"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="ECS - $AWS_PROFILE")
+chosen="$(printf '%s\n' "$options" | walker_menu "ECS - $AWS_PROFILE")"
 
 case "$chosen" in
   "󰅟  Service status")

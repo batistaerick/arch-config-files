@@ -10,12 +10,12 @@ choose_vpc() {
 
   if ! vpcs="$(aws_cli ec2 describe-vpcs | jq -r '.Vpcs[] | "\((.Tags // [] | map(select(.Key == \"Name\"))[0].Value) // \"<no-name>\")  \(.VpcId)"')"; then
     notify-send "VPC" "Failed to list VPCs"
-    exit 1
+    return 1
   fi
 
-  [ -z "$vpcs" ] && notify-send "VPC" "No VPCs found" && exit 0
+  [ -z "$vpcs" ] && notify-send "VPC" "No VPCs found" && return 1
   chosen="$(printf "%s\n" "$vpcs" | walker_menu "VPC")"
-  [ -z "$chosen" ] && exit 0
+  [ -z "$chosen" ] && return 1
   echo "$chosen" | awk '{ print $NF }'
 }
 
@@ -25,78 +25,78 @@ options="󰩠  VPCs
 󰒋  Network ACLs
 󰒄  VPC endpoints"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="VPC - $AWS_PROFILE")
+chosen="$(printf '%s\n' "$options" | walker_menu "VPC - $AWS_PROFILE")"
 
 case "$chosen" in
   "󰩠  VPCs")
     run_in_kitty "VPCs - $AWS_PROFILE" "
-aws_header 'VPCs'
-aws_kv 'Profile' '$AWS_PROFILE'
+cloud_header 'VPCs'
+cloud_kv 'Profile' '$AWS_PROFILE'
 echo
 
 $(aws_base) ec2 describe-vpcs \
 | jq -r '.Vpcs[] | \"\u001b[36m\((.Tags // [] | map(select(.Key == \"Name\"))[0].Value) // \"<no-name>\")\u001b[0m  id=\(.VpcId)  cidr=\(.CidrBlock)  default=\(.IsDefault)  state=\(.State)\"' \
-| aws_fzf 'VPCs' plain
+| cloud_fzf 'VPCs' plain
 " close-on-success toggle
     ;;
   "󰩠  Subnets")
-    vpc_id="$(choose_vpc)"
+    vpc_id="$(choose_vpc)" || exit 0
     quoted_vpc_id="$(shell_quote "$vpc_id")"
 
     run_in_kitty "Subnets - $AWS_PROFILE" "
-aws_header 'VPC subnets'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'VPC' $quoted_vpc_id
+cloud_header 'VPC subnets'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'VPC' $quoted_vpc_id
 echo
 
 $(aws_base) ec2 describe-subnets --filters Name=vpc-id,Values=$quoted_vpc_id \
 | jq -r '.Subnets[] | \"\u001b[36m\((.Tags // [] | map(select(.Key == \"Name\"))[0].Value) // \"<no-name>\")\u001b[0m  id=\(.SubnetId)  cidr=\(.CidrBlock)  az=\(.AvailabilityZone)  availableIps=\(.AvailableIpAddressCount)\"' \
-| aws_fzf 'Subnets' plain
+| cloud_fzf 'Subnets' plain
 " close-on-success toggle
     ;;
   "󰑓  Route tables")
-    vpc_id="$(choose_vpc)"
+    vpc_id="$(choose_vpc)" || exit 0
     quoted_vpc_id="$(shell_quote "$vpc_id")"
 
     run_in_kitty "Route Tables - $AWS_PROFILE" "
-aws_header 'VPC route tables'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'VPC' $quoted_vpc_id
+cloud_header 'VPC route tables'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'VPC' $quoted_vpc_id
 echo
 
 $(aws_base) ec2 describe-route-tables --filters Name=vpc-id,Values=$quoted_vpc_id \
 | jq -r '.RouteTables[] | \"\u001b[36m\(.RouteTableId)\u001b[0m  routes=\(.Routes | length)  associations=\(.Associations | length)\"' \
-| aws_fzf 'Route tables' plain
+| cloud_fzf 'Route tables' plain
 " close-on-success toggle
     ;;
   "󰒋  Network ACLs")
-    vpc_id="$(choose_vpc)"
+    vpc_id="$(choose_vpc)" || exit 0
     quoted_vpc_id="$(shell_quote "$vpc_id")"
 
     run_in_kitty "Network ACLs - $AWS_PROFILE" "
-aws_header 'VPC network ACLs'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'VPC' $quoted_vpc_id
+cloud_header 'VPC network ACLs'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'VPC' $quoted_vpc_id
 echo
 
 $(aws_base) ec2 describe-network-acls --filters Name=vpc-id,Values=$quoted_vpc_id \
 | jq -r '.NetworkAcls[] | \"\u001b[36m\(.NetworkAclId)\u001b[0m  default=\(.IsDefault)  entries=\(.Entries | length)  associations=\(.Associations | length)\"' \
-| aws_fzf 'Network ACLs' plain
+| cloud_fzf 'Network ACLs' plain
 " close-on-success toggle
     ;;
   "󰒄  VPC endpoints")
-    vpc_id="$(choose_vpc)"
+    vpc_id="$(choose_vpc)" || exit 0
     quoted_vpc_id="$(shell_quote "$vpc_id")"
 
     run_in_kitty "VPC Endpoints - $AWS_PROFILE" "
-aws_header 'VPC endpoints'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'VPC' $quoted_vpc_id
+cloud_header 'VPC endpoints'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'VPC' $quoted_vpc_id
 echo
 
 $(aws_base) ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=$quoted_vpc_id \
 | jq -r '.VpcEndpoints[] | \"\u001b[36m\(.VpcEndpointId)\u001b[0m  service=\(.ServiceName)  type=\(.VpcEndpointType)  state=\(.State)\"' \
-| aws_fzf 'VPC endpoints' plain
+| cloud_fzf 'VPC endpoints' plain
 " close-on-success toggle
     ;;
   "")

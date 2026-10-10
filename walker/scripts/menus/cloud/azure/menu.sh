@@ -17,7 +17,7 @@ az login
     exit 0
     ;;
   --check-auth)
-    require_az
+    require_az || exit 0
     run_in_kitty "Azure Auth" "
 cloud_header 'Azure auth'
 az account show -o json \
@@ -26,7 +26,7 @@ az account show -o json \
     exit 0
     ;;
   --subscriptions)
-    require_az
+    require_az || exit 0
     run_in_kitty "Azure Subscriptions" "
 cloud_header 'Azure subscriptions'
 az account list -o json \
@@ -51,7 +51,7 @@ options="󰊭  Login
 󰖟  Virtual Networks
 󰢬  Activity Logs"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="Azure")
+chosen="$(printf '%s\n' "$options" | walker_menu "Azure")"
 
 case "$chosen" in
   "󰊭  Login")
@@ -67,7 +67,7 @@ az login
 " close-on-success
     ;;
   "󰅟  Check Auth")
-    require_az
+    require_az || exit 0
     run_in_kitty "Azure Auth" "
 cloud_header 'Azure auth'
 az account show -o json \
@@ -75,7 +75,7 @@ az account show -o json \
 " close-on-key toggle
     ;;
   "󰏗  Subscriptions")
-    require_az
+    require_az || exit 0
     run_in_kitty "Azure Subscriptions" "
 cloud_header 'Azure subscriptions'
 az account list -o json \

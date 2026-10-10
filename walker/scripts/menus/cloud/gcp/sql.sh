@@ -2,7 +2,7 @@
 
 source "$HOME/.config/walker/scripts/menus/cloud/gcp/common.sh"
 
-project="$(choose_gcp_project)"
+project="$(choose_gcp_project)" || exit 0
 
 run_in_kitty "GCP SQL - $project" "
 cloud_header 'GCP Cloud SQL instances'

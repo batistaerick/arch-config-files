@@ -17,7 +17,7 @@ gcloud auth login
     exit 0
     ;;
   --check-auth)
-    require_gcloud
+    require_gcloud || exit 0
     run_in_kitty "GCP Auth" "
 cloud_header 'GCP auth'
 gcloud auth list --format=json \
@@ -26,7 +26,7 @@ gcloud auth list --format=json \
     exit 0
     ;;
   --projects)
-    require_gcloud
+    require_gcloud || exit 0
     run_in_kitty "GCP Projects" "
 cloud_header 'GCP projects'
 gcloud projects list --format=json \
@@ -51,7 +51,7 @@ options="󰊭  Login
 󰒃  IAM
 󰢬  Logs"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="GCP")
+chosen="$(printf '%s\n' "$options" | walker_menu "GCP")"
 
 case "$chosen" in
   "󰊭  Login")
@@ -67,7 +67,7 @@ gcloud auth login
 " close-on-success
     ;;
   "󰅟  Check Auth")
-    require_gcloud
+    require_gcloud || exit 0
     run_in_kitty "GCP Auth" "
 cloud_header 'GCP auth'
 gcloud auth list --format=json \
@@ -75,7 +75,7 @@ gcloud auth list --format=json \
 " close-on-key toggle
     ;;
   "󰏗  Projects")
-    require_gcloud
+    require_gcloud || exit 0
     run_in_kitty "GCP Projects" "
 cloud_header 'GCP projects'
 gcloud projects list --format=json \

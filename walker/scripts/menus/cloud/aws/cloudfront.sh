@@ -10,12 +10,12 @@ choose_distribution() {
 
   if ! distributions="$(aws_cli cloudfront list-distributions | jq -r '.DistributionList.Items[]? | "\(.DomainName)  \(.Id)"')"; then
     notify-send "CloudFront" "Failed to list distributions"
-    exit 1
+    return 1
   fi
 
-  [ -z "$distributions" ] && notify-send "CloudFront" "No distributions found" && exit 0
+  [ -z "$distributions" ] && notify-send "CloudFront" "No distributions found" && return 1
   chosen="$(printf "%s\n" "$distributions" | walker_menu "Distribution")"
-  [ -z "$chosen" ] && exit 0
+  [ -z "$chosen" ] && return 1
   echo "$chosen" | awk '{ print $NF }'
 }
 
@@ -23,46 +23,46 @@ options="󰖟  Distributions
 󰅟  Distribution details
 󰑓  Invalidations"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="CloudFront - $AWS_PROFILE")
+chosen="$(printf '%s\n' "$options" | walker_menu "CloudFront - $AWS_PROFILE")"
 
 case "$chosen" in
   "󰖟  Distributions")
     run_in_kitty "CloudFront Distributions - $AWS_PROFILE" "
-aws_header 'CloudFront distributions'
-aws_kv 'Profile' '$AWS_PROFILE'
+cloud_header 'CloudFront distributions'
+cloud_kv 'Profile' '$AWS_PROFILE'
 echo
 
 $(aws_base) cloudfront list-distributions \
 | jq -r '.DistributionList.Items[]? | \"\u001b[36m\(.DomainName)\u001b[0m  id=\(.Id)  status=\(.Status)  enabled=\(.Enabled)  aliases=\([.Aliases.Items[]?] | join(\",\"))\"' \
-| aws_fzf 'Distributions' plain
+| cloud_fzf 'Distributions' plain
 " close-on-success toggle
     ;;
   "󰅟  Distribution details")
-    distribution_id="$(choose_distribution)"
+    distribution_id="$(choose_distribution)" || exit 0
     quoted_distribution_id="$(shell_quote "$distribution_id")"
 
     run_in_kitty "CloudFront Distribution - $AWS_PROFILE" "
-aws_header 'CloudFront distribution'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'Distribution' $quoted_distribution_id
+cloud_header 'CloudFront distribution'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'Distribution' $quoted_distribution_id
 echo
 
-$(aws_base) cloudfront get-distribution --id $quoted_distribution_id | aws_json
+$(aws_base) cloudfront get-distribution --id $quoted_distribution_id | cloud_json
 " close-on-success toggle
     ;;
   "󰑓  Invalidations")
-    distribution_id="$(choose_distribution)"
+    distribution_id="$(choose_distribution)" || exit 0
     quoted_distribution_id="$(shell_quote "$distribution_id")"
 
     run_in_kitty "CloudFront Invalidations - $AWS_PROFILE" "
-aws_header 'CloudFront invalidations'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'Distribution' $quoted_distribution_id
+cloud_header 'CloudFront invalidations'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'Distribution' $quoted_distribution_id
 echo
 
 $(aws_base) cloudfront list-invalidations --distribution-id $quoted_distribution_id \
 | jq -r '.InvalidationList.Items[]? | \"\u001b[36m\(.Id)\u001b[0m  status=\(.Status)  created=\(.CreateTime)\"' \
-| aws_fzf 'Invalidations' plain
+| cloud_fzf 'Invalidations' plain
 " close-on-success toggle
     ;;
   "")

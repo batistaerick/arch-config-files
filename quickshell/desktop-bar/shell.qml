@@ -269,7 +269,7 @@ ShellRoot {
                 required property var modelData
                 readonly property Item stripItem: barContents
                 readonly property var dockPanels: [wifiMenu, bluetoothMenu, brightnessMenu, volumeMenu, micMenu,
-                    keyboardMenu, idleLockMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter]
+                    keyboardMenu, idleLockMenu, calendarMenu, weatherMenu, hardwareMenu, aiMenu, obsMenu, recordingMenu, workspaceMenu, notificationCenter, welcomeMenu]
                 readonly property bool panelOpen: dockPanels.some(panel => panel.visible)
                 readonly property var panelFocusWindows: notificationPopups.visible ? [bar, notificationPopups] : [bar]
                 property var pendingPanel: null
@@ -364,6 +364,7 @@ ShellRoot {
                     Region { item: recordingMenu.opened ? recordingMenu : null }
                     Region { item: workspaceMenu.opened ? workspaceMenu : null }
                     Region { item: notificationCenter.opened ? notificationCenter : null }
+                    Region { item: welcomeMenu.opened ? welcomeMenu : null }
                 }
 
                 Connections {
@@ -416,7 +417,8 @@ ShellRoot {
                         var panels = {wifi: wifiMenu, bluetooth: bluetoothMenu, brightness: brightnessMenu, display: brightnessMenu, volume: volumeMenu,
                             mic: micMenu, keyboard: keyboardMenu, idle: idleLockMenu, calendar: calendarMenu,
                             weather: weatherMenu, hardware: hardwareMenu, ai: aiMenu, obs: obsMenu,
-                            workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter};
+                            workspace: workspaceMenu, recording: recordingMenu, notifications: notificationCenter,
+                            welcome: welcomeMenu};
                         if (kind === "overview") { bar.toggleOverview(); return; }
                         if (!panels[kind]) return;
                         bar.showPanel(panels[kind]);
@@ -1062,6 +1064,19 @@ ShellRoot {
                         foreground: shell.fg
                         background: shell.workspaceMenuBg
                         onDefaultWeatherUpdated: function(data) { barWeather.updateData(data); }
+                    }
+
+                    WelcomeMenu {
+                        id: welcomeMenu
+                        surfaceColor: shell.barBackground()
+                        maximumHeight: bar.screen.height - 70
+                        target: shell.verticalBar ? verticalCalendarIcon : centerInfo
+                        barEdge: shell.barEdge
+                        centered: true
+                        accent: shell.activeBg
+                        foreground: shell.fg
+                        background: shell.workspaceMenuBg
+                        onAutoShowRequested: bar.showPanel(welcomeMenu)
                     }
 
                 }

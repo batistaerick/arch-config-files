@@ -27,3 +27,9 @@ text = "Tmux Commands"
 keywords = ["tmux", "terminal", "multiplexer", "session", "panes"]
 icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/menus/tmux.sh" }
+
+[[entries]]
+text = "Welcome"
+keywords = ["setup", "first", "start", "guide", "onboarding"]
+icon = "󰋜"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh welcome" }

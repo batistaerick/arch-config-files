@@ -141,6 +141,22 @@ debounced city search, country-based units, and smaller alternate temperature.
 City overrides last only until the popup closes; the bar's default is unchanged.
 Escape cancels city search first, then closes Weather. Buttons support Tab/Enter.
 
+The Welcome panel is a first-login guide. Like Calendar and Weather it is not
+tied to a bar icon, so it opens screen-centered along the bar's axis, using the
+shared ThemedPopup surface, and dismisses on outside click, Escape, or its
+close button. Its steps only open existing workflows: the theme and wallpaper
+carousel (`appearance-picker.sh`), the Display, Keyboard, WiFi, and Bluetooth
+panels (`show-panel.sh`), and Walker's Learn menu. The panel closes before the
+chosen workflow opens. Walker > Learn > Welcome and `panels show welcome` reopen it.
+It opens automatically about two seconds after the bar starts, at most once per
+Quickshell session, when `scripts/welcome-state.py status` reports it pending.
+State lives in `${XDG_STATE_HOME:-~/.local/state}/eitr/`, never in this repository.
+A user is eligible only when the Eitr installer's `installed-paths` record exists
+there, so existing desktops restored from this backup are not interrupted.
+Closing with "Don't show again" on (the default) writes `welcome-dismissed`;
+turning it off writes `welcome-pending`, which shows the guide at the next login
+on any machine. No daemon or service is involved.
+
 Bar tooltips follow the current theme's background and foreground colors.
 
 A compact media strip sits left of the clock without moving the clock's center.

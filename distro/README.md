@@ -77,7 +77,9 @@ link once installation and release testing is complete.
    format disks. Do not run the installer on an existing configured desktop.
 2. Enable `[multilib]` in `/etc/pacman.conf` and refresh pacman. Steam and
    `lib32-*` packages require it.
-3. Clone this repository, run `bash distro/install.sh --check`, then run
+3. Install the preflight prerequisites with
+   `sudo pacman -Syu --needed git base-devel python`. Clone this repository,
+   run `bash distro/install.sh --check`, then run
    `bash distro/install.sh` as the new **non-root** user. `--check` lists every
    existing config, `~/.local` file, systemd user unit, or theme path that differs
    from this repo and stops; move those aside first. It never overwrites them.

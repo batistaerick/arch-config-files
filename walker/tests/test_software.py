@@ -111,8 +111,12 @@ class SoftwareTests(unittest.TestCase):
                 patch.object(software, "SCRIPT", Path(directory) / "a/b/c/d/software.py"):
             with self.assertRaisesRegex(FileNotFoundError, "Existing desktop"):
                 software.catalog()
-        self.assertEqual(software.data_file("software.json"), ROOT / "distro/software.json")
-        self.assertTrue(software.installer_url("nvm").startswith("https://"))
+        # An existing desktop has an installed catalog; isolate the checkout
+        # fallback from the reviewer's HOME rather than assuming it is absent.
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(software.Path, "home", return_value=Path(directory)):
+            self.assertEqual(software.data_file("software.json"), ROOT / "distro/software.json")
+            self.assertTrue(software.installer_url("nvm").startswith("https://"))
 
     def test_recipe_menu_shows_catalog_errors(self):
         script = ROOT / "walker/scripts/actions/install/software.py"

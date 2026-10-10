@@ -11,11 +11,19 @@ import tomllib
 
 
 def terminal_logo(path):
-    """Render the selected logo's alpha mask as theme-colored terminal cells."""
+    """Render the selected logo's alpha mask as theme-colored terminal cells.
+
+    Returns None when the logo has no visible alpha mask to render.
+    """
     from PIL import Image
     with Image.open(path) as source:
+        if "A" not in source.getbands():
+            return None
         alpha = source.getchannel("A")
-        alpha = alpha.crop(alpha.getbbox()).resize((34, 34), Image.Resampling.LANCZOS)
+        bounds = alpha.getbbox()
+        if bounds is None:
+            return None
+        alpha = alpha.crop(bounds).resize((34, 34), Image.Resampling.LANCZOS)
         rows = []
         for y in range(0, 34, 2):
             rows.append("".join(" ▄▀█"[(alpha.getpixel((x, y)) >= 128) * 2
@@ -59,13 +67,14 @@ def build_config(config_home, cache_home, image=True):
             parts.append("{#" + value + "}██{#}")
         return " ".join(parts)
     logo = config_home / "fastfetch/assets/eitr-logo.png"
+    logo_source = terminal_logo(logo) if image and logo.exists() else None
     return {
-        "logo": {"type": "data", "source": terminal_logo(logo),
+        "logo": {"type": "data", "source": logo_source,
                  "color": {"1": accent}, "padding": {"right": 4, "left": 2}}
-                if image and logo.exists() else {"type": "none"},
+                if logo_source else {"type": "none"},
         "display": {"separator": "  ", "color": {"keys": accent}},
         "modules": [
-            custom("Eitr", "Arch-based Linux · Rune Liquid"), "break",
+            custom("Eitr", "Arch-based Linux desktop"), "break",
             {"type": "os", "key": "Base"}, "kernel", "uptime", "packages",
             "wm", custom("Shell", Path(os.environ.get("SHELL", "/bin/sh")).name), "terminal", "display", "break",
             "cpu", "gpu", "memory", {"type": "disk", "folders": "/"}, "break",

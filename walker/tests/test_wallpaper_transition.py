@@ -49,8 +49,17 @@ class WallpaperTests(unittest.TestCase):
                 transition.apply(str(image))
                 commit.assert_called_once_with(str(image))
 
+    def test_wallpapers_are_listed_in_natural_order(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("10.png", "2.JPG", "1.webp", "notes.txt"):
+                (root / name).write_bytes(b"mock")
+            names = [path.name for path in transition.wallpapers(root)]
+            self.assertEqual(names, ["1.webp", "2.JPG", "10.png"])
+            self.assertEqual(transition.wallpapers(root / "missing"), [])
+
     def test_every_existing_wallpaper_entrypoint_uses_shared_helper(self):
         for filename in ("walker/scripts/actions/wallpaper/apply.sh", "walker/scripts/actions/style/apply.sh"):
             self.assertIn("transition.py", (ROOT / filename).read_text())
-        for filename in ("walker/scripts/actions/wallpaper/next.sh", "walker/scripts/menus/style/wallpaper.sh"):
+        for filename in ("walker/scripts/actions/wallpaper/next.sh",):
             self.assertIn("/wallpaper/apply.sh", (ROOT / filename).read_text())

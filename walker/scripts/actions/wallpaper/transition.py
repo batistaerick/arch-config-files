@@ -5,6 +5,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -14,6 +15,22 @@ def runtime():
     root = Path(os.environ.get("XDG_RUNTIME_DIR", str(Path.home() / ".cache"))) / "eitr-wallpaper"
     root.mkdir(parents=True, mode=0o700, exist_ok=True)
     return root
+
+
+WALLPAPER_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
+
+
+def wallpapers(directory):
+    """Return a theme's wallpapers in natural order (like `sort -V`)."""
+    def natural(path):
+        return [int(part) if part.isdigit() else part.lower()
+                for part in re.split(r"(\d+)", str(path.relative_to(directory)))]
+    directory = Path(directory)
+    if not directory.is_dir():
+        return []
+    files = (path for path in directory.rglob("*")
+             if path.is_file() and path.suffix.lower() in WALLPAPER_SUFFIXES)
+    return sorted(files, key=natural)
 
 
 def snapshot():
@@ -71,12 +88,15 @@ def apply(path, previous=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["snapshot", "apply", "commit"])
+    parser.add_argument("action", choices=["snapshot", "apply", "commit", "list"])
     parser.add_argument("path", nargs="?")
     parser.add_argument("--previous")
     args = parser.parse_args()
     if args.action == "snapshot":
         print(snapshot())
+    elif args.action == "list":
+        for wallpaper in wallpapers(args.path or Path.home() / ".config/theme/current/backgrounds"):
+            print(wallpaper)
     elif args.action == "commit":
         from urllib.parse import unquote, urlparse
         commit(unquote(urlparse(args.path).path) if args.path.startswith("file:") else args.path)

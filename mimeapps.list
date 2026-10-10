@@ -1,20 +1,20 @@
 [Added Associations]
-application/pdf=evince-4.desktop;evince-3.desktop;evince-2.desktop;evince.desktop;
-image/gif=eog-6.desktop;eog-5.desktop;
-image/png=eog-4.desktop;eog-3.desktop;eog-2.desktop;eog.desktop;
-image/webp=eog-7.desktop;
+application/pdf=org.gnome.Evince.desktop;
+image/gif=org.gnome.eog.desktop;
+image/png=org.gnome.eog.desktop;
+image/webp=org.gnome.eog.desktop;
 text/plain=nvim.desktop;
 video/mp4=org.gnome.Totem.desktop;
 
 [Default Applications]
-application/pdf=evince-4.desktop;
+application/pdf=org.gnome.Evince.desktop;
 application/x-directory=org.kde.dolphin.desktop
 application/x-gnome-saved-search=org.kde.dolphin.desktop
-image/gif=eog-6.desktop;
+image/gif=org.gnome.eog.desktop;
 image/jpeg=org.gnome.eog.desktop
 image/jpg=org.gnome.eog.desktop
-image/png=eog-4.desktop;
-image/webp=eog-7.desktop;
+image/png=org.gnome.eog.desktop;
+image/webp=org.gnome.eog.desktop;
 inode/directory=org.kde.dolphin.desktop
 text/html=google-chrome.desktop
 text/plain=nvim.desktop

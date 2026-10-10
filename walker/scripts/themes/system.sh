@@ -162,6 +162,3 @@ gtk-theme-name=$GTK_THEME
 gtk-icon-theme-name=$ICON_THEME
 gtk-application-prefer-dark-theme=$GTK_DARK
 EOF
-
-export QT_QPA_PLATFORMTHEME="qt6ct"
-export QT_STYLE_OVERRIDE="kvantum"

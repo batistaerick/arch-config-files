@@ -51,6 +51,7 @@ qt6-multimedia
 qt6-multimedia-ffmpeg
 sddm
 xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
 xdg-utils
 polkit-kde-agent
 swayosd

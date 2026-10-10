@@ -112,226 +112,226 @@ case "$chosen" in
   "  󰌌"* | "  󰖲"* | "  󰆾"* | "  󰙀"* | "  󰎤"* | "  "* | "  "*)
     exit 0
     ;;
-  "  SUPER + Enter"*)
+  "  SUPER + Enter "*)
     kitty &
     ;;
-  "  SUPER + Ctrl + Enter"*)
+  "  SUPER + Ctrl + Enter "*)
     kitty -e tmux new-session -A -s main &
     ;;
-  "  SUPER + Space"*)
+  "  SUPER + Space "*)
     "$MENUS_DIR/search.sh"
     ;;
-  "  SUPER + /"*)
+  "  SUPER + / "*)
     "$MENUS_DIR/shortcuts.sh"
     ;;
-  "  SUPER + Shift + /"*)
+  "  SUPER + Shift + / "*)
     "$MENUS_DIR/vim.sh"
     ;;
-  "  SUPER + E"*)
+  "  SUPER + E "*)
     dolphin --new-window &
     ;;
-  "  SUPER + F"*)
+  "  SUPER + F "*)
     "$HOME/.config/walker/bin/walker" --provider menus:main
     ;;
-  "  SUPER + G"*)
+  "  SUPER + G "*)
     "$ACTIONS_DIR/search/google.sh"
     ;;
-  "  SUPER + C"*)
+  "  SUPER + C "*)
     wtype -M ctrl c -m ctrl
     ;;
-  "  SUPER + X"*)
+  "  SUPER + X "*)
     wtype -M ctrl x -m ctrl
     ;;
-  "  SUPER + V"*)
+  "  SUPER + V "*)
     wtype -M ctrl v -m ctrl
     ;;
-  "  SUPER + Ctrl + V"*)
+  "  SUPER + Ctrl + V "*)
     "$HOME/.config/walker/bin/walker" --provider menus:clipboard --width 850
     ;;
-  "  SUPER + P"*)
+  "  SUPER + P "*)
     kitty --class fif-terminal -e zsh -c 'source ~/.zshrc; fif; kill -9 $$' &
     ;;
-  "  SUPER + Ctrl + P"*)
+  "  SUPER + Ctrl + P "*)
     kitty --class fifs-terminal -e zsh -c 'source ~/.zshrc; fifs; exit 0' &
     ;;
-  "  SUPER + W"*)
+  "  SUPER + W "*)
     hyprctl dispatch killactive
     ;;
-  "  SUPER + T"*)
+  "  SUPER + T "*)
     hyprctl --batch "dispatch togglefloating; dispatch pin"
     ;;
-  "  SUPER + Ctrl + F"*)
+  "  SUPER + Ctrl + F "*)
     hyprctl dispatch fullscreen
     ;;
-  "  SUPER + Shift + P"*)
+  "  SUPER + Shift + P "*)
     hyprctl dispatch pseudo
     ;;
-  "  SUPER + A"*)
+  "  SUPER + A "*)
     hyprctl dispatch layoutmsg togglesplit
     ;;
-  "  SUPER + Shift + A"*)
+  "  SUPER + Shift + A "*)
     hyprctl dispatch layoutmsg rotatesplit
     ;;
-  "  SUPER + H"*)
+  "  SUPER + H "*)
     hyprctl dispatch movefocus l
     ;;
-  "  SUPER + J"*)
+  "  SUPER + J "*)
     hyprctl dispatch movefocus d
     ;;
-  "  SUPER + K"*)
+  "  SUPER + K "*)
     hyprctl dispatch movefocus u
     ;;
-  "  SUPER + L"*)
+  "  SUPER + L "*)
     hyprctl dispatch movefocus r
     ;;
-  "  SUPER + Shift + H"*)
+  "  SUPER + Shift + H "*)
     hyprctl dispatch resizeactive -15 0
     ;;
-  "  SUPER + Shift + J"*)
+  "  SUPER + Shift + J "*)
     hyprctl dispatch resizeactive 0 15
     ;;
-  "  SUPER + Shift + K"*)
+  "  SUPER + Shift + K "*)
     hyprctl dispatch resizeactive 0 -15
     ;;
-  "  SUPER + Shift + L"*)
+  "  SUPER + Shift + L "*)
     hyprctl dispatch resizeactive 15 0
     ;;
-  "  SUPER + Ctrl + U"*)
+  "  SUPER + Ctrl + U "*)
     "$HOME/.config/hypr/scripts/window-quarter-size.sh"
     ;;
-  "  SUPER + Ctrl + H"*)
+  "  SUPER + Ctrl + H "*)
     hyprctl dispatch movewindow l
     ;;
-  "  SUPER + Ctrl + J"*)
+  "  SUPER + Ctrl + J "*)
     hyprctl dispatch movewindow d
     ;;
-  "  SUPER + Ctrl + K"*)
+  "  SUPER + Ctrl + K "*)
     hyprctl dispatch movewindow u
     ;;
-  "  SUPER + Ctrl + L"*)
+  "  SUPER + Ctrl + L "*)
     hyprctl dispatch movewindow r
     ;;
-  "  SUPER + Tab"*)
+  "  SUPER + Tab "*)
     quickshell ipc -c desktop-bar call -- panels show overview
     ;;
-  "  SUPER + 1"*)
+  "  SUPER + 1 "*)
     hyprctl dispatch workspace 1
     ;;
-  "  SUPER + 2"*)
+  "  SUPER + 2 "*)
     hyprctl dispatch workspace 2
     ;;
-  "  SUPER + 3"*)
+  "  SUPER + 3 "*)
     hyprctl dispatch workspace 3
     ;;
-  "  SUPER + 4"*)
+  "  SUPER + 4 "*)
     hyprctl dispatch workspace 4
     ;;
-  "  SUPER + 5"*)
+  "  SUPER + 5 "*)
     hyprctl dispatch workspace 5
     ;;
-  "  SUPER + 6"*)
+  "  SUPER + 6 "*)
     hyprctl dispatch workspace 6
     ;;
-  "  SUPER + 7"*)
+  "  SUPER + 7 "*)
     hyprctl dispatch workspace 7
     ;;
-  "  SUPER + 8"*)
+  "  SUPER + 8 "*)
     hyprctl dispatch workspace 8
     ;;
-  "  SUPER + 9"*)
+  "  SUPER + 9 "*)
     hyprctl dispatch workspace 9
     ;;
-  "  SUPER + 0"*)
+  "  SUPER + 0 "*)
     hyprctl dispatch workspace 10
     ;;
-  "  SUPER + Shift + 1"*)
+  "  SUPER + Shift + 1 "*)
     hyprctl dispatch movetoworkspace 1
     ;;
-  "  SUPER + Shift + 2"*)
+  "  SUPER + Shift + 2 "*)
     hyprctl dispatch movetoworkspace 2
     ;;
-  "  SUPER + Shift + 3"*)
+  "  SUPER + Shift + 3 "*)
     hyprctl dispatch movetoworkspace 3
     ;;
-  "  SUPER + Shift + 4"*)
+  "  SUPER + Shift + 4 "*)
     hyprctl dispatch movetoworkspace 4
     ;;
-  "  SUPER + Shift + 5"*)
+  "  SUPER + Shift + 5 "*)
     hyprctl dispatch movetoworkspace 5
     ;;
-  "  SUPER + Shift + 6"*)
+  "  SUPER + Shift + 6 "*)
     hyprctl dispatch movetoworkspace 6
     ;;
-  "  SUPER + Shift + 7"*)
+  "  SUPER + Shift + 7 "*)
     hyprctl dispatch movetoworkspace 7
     ;;
-  "  SUPER + Shift + 8"*)
+  "  SUPER + Shift + 8 "*)
     hyprctl dispatch movetoworkspace 8
     ;;
-  "  SUPER + Shift + 9"*)
+  "  SUPER + Shift + 9 "*)
     hyprctl dispatch movetoworkspace 9
     ;;
-  "  SUPER + Shift + 0"*)
+  "  SUPER + Shift + 0 "*)
     hyprctl dispatch movetoworkspace 10
     ;;
-  "  SUPER + Shift + S"*)
+  "  SUPER + Shift + S "*)
     hyprctl dispatch movetoworkspace special:magic
     ;;
-  "  SUPER + Ctrl + S"*)
+  "  SUPER + Ctrl + S "*)
     hyprctl dispatch movetoworkspace 1
     ;;
-  "  SUPER + S"*)
+  "  SUPER + S "*)
     hyprctl dispatch togglespecialworkspace magic
     ;;
-  "  SUPER + Mouse Wheel Down"*)
+  "  SUPER + Mouse Wheel Down "*)
     hyprctl dispatch workspace e+1
     ;;
-  "  SUPER + Mouse Wheel Up"*)
+  "  SUPER + Mouse Wheel Up "*)
     hyprctl dispatch workspace e-1
     ;;
-  "  SUPER + Alt + H"*)
+  "  SUPER + Alt + H "*)
     hyprctl dispatch workspace e-1
     ;;
-  "  SUPER + Alt + L"*)
+  "  SUPER + Alt + L "*)
     hyprctl dispatch workspace e+1
     ;;
-  "  Print"*)
+  "  Print "*)
     "$ACTIONS_DIR/capture/screenshot-full.sh"
     ;;
-  "  SUPER + Print"*)
+  "  SUPER + Print "*)
     "$ACTIONS_DIR/capture/screenshot-selection.sh"
     ;;
-  "  SUPER + Shift + Print"*)
+  "  SUPER + Shift + Print "*)
     "$ACTIONS_DIR/capture/screenshot.sh" window edit
     ;;
-  "  SUPER + Ctrl + Print"*)
+  "  SUPER + Ctrl + Print "*)
     "$ACTIONS_DIR/capture/text.sh"
     ;;
-  "  SUPER + Alt + Print"*)
+  "  SUPER + Alt + Print "*)
     "$ACTIONS_DIR/capture/qr.sh"
     ;;
-  "  SUPER + Shift + N"*)
+  "  SUPER + Shift + N "*)
     "$ACTIONS_DIR/wallpaper/next.sh"
     ;;
-  "  SUPER + Ctrl + N"*)
+  "  SUPER + Ctrl + N "*)
     bash "$HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh" wallpaper
     ;;
-  "  SUPER + Ctrl + Shift + N"*)
+  "  SUPER + Ctrl + Shift + N "*)
     bash "$HOME/.config/quickshell/desktop-bar/scripts/appearance-picker.sh" theme
     ;;
-  "  SUPER + Shift + Space"*)
+  "  SUPER + Shift + Space "*)
     "$ACTIONS_DIR/toggle/desktop-bar.sh"
     ;;
-  "  SUPER + N"*)
+  "  SUPER + N "*)
     quickshell ipc -c desktop-bar call -- notifications toggle
     ;;
-  "  SUPER + ="*)
+  "  SUPER + = "*)
     hyprpicker -a
     ;;
-  "  SUPER + M"*)
+  "  SUPER + M "*)
     "$HOME/.config/hypr/scripts/manual-lock.sh"
     ;;
-  "  SUPER + ;"*)
+  "  SUPER + ; "*)
     "$ACTIONS_DIR/emoji-picker.sh"
     ;;
   "  F8"* | "  Media Play/Pause"*)

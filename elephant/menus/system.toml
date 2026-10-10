@@ -21,6 +21,13 @@ icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh volume" }
 
 [[entries]]
+text = "Battery Charge Limit"
+keywords = ["battery", "charge", "threshold", "laptop"]
+subtext = ">"
+icon = "󰂄"
+submenu = "battery-limit"
+
+[[entries]]
 text = "Bluetooth"
 icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh bluetooth" }
@@ -38,7 +45,7 @@ actions = { "open" = "kitty --class system-cleanup -e $HOME/.config/walker/scrip
 
 [[entries]]
 text = "Display"
-keywords = ["brightness", "nightlight", "monitor", "resolution", "refresh rate"]
+keywords = ["brightness", "nightlight", "monitor", "resolution", "refresh rate", "power profile", "battery", "performance"]
 icon = "󰍹"
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh display" }
 

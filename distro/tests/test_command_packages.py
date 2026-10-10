@@ -21,6 +21,7 @@ COMMAND_PACKAGES = {
     "impala": "impala", "flatpak": "flatpak",
     "snapper": "snapper", "imv": "imv", "totem": "totem", "rg": "ripgrep", "eza": "eza",
     "fprintd-enroll": "fprintd", "pamu2fcfg": "pam-u2f", "rsync": "rsync", "curl": "curl",
+    "powerprofilesctl": "power-profiles-daemon",
 }
 
 

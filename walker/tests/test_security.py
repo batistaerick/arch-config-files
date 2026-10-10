@@ -46,7 +46,7 @@ class PolicyConfirmationTests(unittest.TestCase):
     def test_policy_changes_require_typed_enable(self):
         with tempfile.NamedTemporaryFile() as helper:
             for answer, expected_calls in (("enable", 0), ("", 0), ("ENABLE", 1)):
-                with self.subTest(answer=answer), patch.object(security, "ROOT_HELPER", helper.name), \
+                with self.subTest(answer=answer), patch.object(security, "ROOT_HELPERS", ("/nonexistent/eitr-system", helper.name)), \
                         patch("builtins.input", return_value=answer), patch("builtins.print"), \
                         patch.object(security.subprocess, "run") as run:
                     security.main("enable-fido2")
@@ -55,9 +55,47 @@ class PolicyConfirmationTests(unittest.TestCase):
                         run.assert_called_once_with(["sudo", helper.name, "auth-enable", "fido2"], check=True)
 
     def test_missing_root_helper_never_prompts(self):
-        with patch.object(security, "ROOT_HELPER", "/nonexistent/eitr-system"), \
+        with patch.object(security, "ROOT_HELPERS", ("/nonexistent/eitr-system",)), \
                 patch("builtins.input") as prompt, patch.object(security.subprocess, "run") as run:
             with self.assertRaises(RuntimeError):
                 security.main("password-only")
             prompt.assert_not_called()
             run.assert_not_called()
+
+    def test_packaged_helper_is_preferred_over_manual_install(self):
+        self.assertEqual(security.ROOT_HELPERS[0], "/usr/lib/eitr/eitr-system")
+        self.assertIn("/usr/local/lib/eitr/eitr-system", security.ROOT_HELPERS)
+
+class TpmUnlockTests(unittest.TestCase):
+    LSBLK = SimpleNamespace(stdout="/dev/nvme0n1\n/dev/nvme0n1p1 vfat\n/dev/nvme0n1p2 crypto_LUKS\n")
+
+    def run_tpm(self, action, answers):
+        with tempfile.NamedTemporaryFile() as helper, patch.object(security, "ROOT_HELPERS", (helper.name,)), \
+                patch("builtins.input", side_effect=answers), patch("builtins.print"), \
+                patch.object(security.subprocess, "run", return_value=self.LSBLK) as run:
+            security.main(action)
+        commands = [call.args[0] for call in run.call_args_list]
+        return [command[2:] for command in commands if command[0] == "sudo"]
+
+    def test_enroll_offers_recovery_key_then_requires_typed_phrase(self):
+        self.assertEqual(self.run_tpm("tpm-enroll", ["", "", "ENROLL TPM"]), [
+            ["luks-tpm-check", "/dev/nvme0n1p2"], ["luks-recovery-key", "/dev/nvme0n1p2"],
+            ["luks-tpm-enroll", "/dev/nvme0n1p2"]])
+
+    def test_enroll_without_phrase_changes_nothing(self):
+        for answers in (["n", "enroll tpm"], ["n", "yes"], ["n", ""]):
+            with self.subTest(answers=answers):
+                self.assertEqual(self.run_tpm("tpm-enroll", answers), [["luks-tpm-check", "/dev/nvme0n1p2"]])
+
+    def test_remove_requires_typed_phrase(self):
+        self.assertEqual(self.run_tpm("tpm-remove", ["yes"]), [])
+        self.assertEqual(self.run_tpm("tpm-remove", ["REMOVE TPM"]), [["luks-tpm-remove", "/dev/nvme0n1p2"]])
+
+    def test_several_luks_devices_need_a_valid_choice(self):
+        many = SimpleNamespace(stdout="/dev/sda2 crypto_LUKS\n/dev/sdb1 crypto_LUKS\n")
+        with patch.object(security.subprocess, "run", return_value=many), patch("builtins.print"):
+            with patch("builtins.input", return_value="2"):
+                self.assertEqual(security.choose_luks_device(), "/dev/sdb1")
+            for answer in ("0", "3", "x"):
+                with patch("builtins.input", return_value=answer), self.assertRaises(ValueError):
+                    security.choose_luks_device()

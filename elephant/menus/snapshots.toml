@@ -5,10 +5,17 @@ icon = "󰋊"
 fixed_order = true
 
 [[entries]]
+text = "Bootable Snapshot Status"
+subtext = "GRUB or Limine snapshot boot entries"
+keywords = ["boot", "grub", "limine", "rollback"]
+icon = "󰑓"
+actions = { open = "kitty --hold -e sh -c 'for helper in /usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system; do if [ -x \"$helper\" ]; then exec sudo \"$helper\" snapshots-boot-status; fi; done; echo \"The root-owned Eitr helper is not installed. Install the eitr-desktop package (see distro/README.md).\"'" }
+
+[[entries]]
 text = "Configure Snapshot Protection"
 subtext = "Requires Btrfs root; never formats or repartitions"
 icon = "󰒃"
-actions = { open = "kitty --hold -e sudo /usr/local/lib/eitr/eitr-system snapshots-setup" }
+actions = { open = "kitty --hold -e sh -c 'for helper in /usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system; do if [ -x \"$helper\" ]; then exec sudo \"$helper\" snapshots-setup; fi; done; echo \"The root-owned Eitr helper is not installed. Install the eitr-desktop package (see distro/README.md).\"'" }
 
 [[entries]]
 text = "List Recovery Snapshots"
@@ -18,4 +25,4 @@ actions = { open = "kitty --hold -e sudo snapper -c root list" }
 [[entries]]
 text = "Recovery Instructions"
 icon = "󰧑"
-actions = { open = "kitty --hold -e sh -c 'f=\"$HOME/.local/share/eitr/RECOVERY.md\"; if [ -r \"$f\" ]; then less \"$f\"; else echo \"Recovery instructions are not installed. Read distro/RECOVERY.md in the Eitr repository, or see distro/README.md (Existing desktop).\"; fi'" }
+actions = { open = "kitty --hold -e sh -c 'for f in \"${XDG_DATA_HOME:-$HOME/.local/share}/eitr/RECOVERY.md\" /usr/share/eitr/RECOVERY.md; do if [ -r \"$f\" ]; then exec less \"$f\"; fi; done; echo \"Recovery instructions are not installed. Read distro/RECOVERY.md in the Eitr repository, or install the eitr-desktop package (see distro/README.md).\"'" }

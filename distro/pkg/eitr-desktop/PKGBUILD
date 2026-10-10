@@ -1,0 +1,61 @@
+# shellcheck shell=bash disable=SC2034,SC2154 # makepkg reads the metadata and sets startdir/srcdir/pkgdir.
+# Eitr desktop package, built from the Eitr tree that contains this file.
+# A Git checkout contributes its committed HEAD only (git archive), so
+# uncommitted and ignored machine-local files never enter the package. An
+# exported tree must carry the source-version stamp that build-iso.sh writes.
+# Run makepkg from this directory; see distro/README.md.
+_repo="$(cd -- "$startdir/../../.." && pwd -P)"
+_manifest() { sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d; s/[[:space:]]*$//' "$_repo/distro/$1"; }
+_is_checkout() { [[ "$(git -C "$_repo" rev-parse --show-toplevel 2>/dev/null)" == "$_repo" ]]; }
+
+pkgname=eitr-desktop
+# Computed here rather than in pkgver(), which makepkg would write back into
+# this tracked file.
+pkgver="$(bash "$_repo/distro/pkg/eitr-desktop/source-version.sh" "$_repo")"
+pkgrel=1
+pkgdesc='Eitr Hyprland desktop: default user configs, helpers and data files'
+arch=(any)
+url='https://github.com/batistaerick/eitr'
+# Bundled wallpaper/lockscreen asset licensing is still under review.
+license=('LicenseRef-unknown')
+makedepends=(git python)
+options=(!debug !strip)
+# Official desktop packages come from packages.txt. The kernel, firmware and
+# build tools stay system choices, so linux-lts/zen-only installs remain valid.
+# Hardware drivers (distro/hardware) and apps.txt are never hard dependencies.
+_system_choices=(base base-devel linux linux-firmware)
+mapfile -t depends < <(_manifest packages.txt | grep -vxF -f <(printf '%s\n' "${_system_choices[@]}"))
+# AUR packages cannot be pacman dependencies; install.sh installs them with yay.
+mapfile -t optdepends < <(_manifest aur-packages.txt | sed 's/$/: Eitr desktop component from the AUR/')
+install=eitr-desktop.install
+
+prepare() {
+  rm -rf -- "$srcdir/eitr"
+  mkdir -- "$srcdir/eitr"
+  if _is_checkout; then
+    git -C "$_repo" archive --format=tar HEAD | tar -x -C "$srcdir/eitr"
+  else
+    # pkgver above already required the export's version stamp.
+    tar -C "$_repo" --exclude=./distro/build --exclude=./distro/out \
+      --exclude=./distro/pkg/eitr-desktop/src --exclude=./distro/pkg/eitr-desktop/pkg \
+      --exclude='./distro/pkg/eitr-desktop/*.pkg.tar*' -cf - . | tar -x -C "$srcdir/eitr"
+  fi
+}
+
+check() {
+  cd "$srcdir/eitr" || return
+  python3 -m json.tool distro/user-defaults.json >/dev/null
+  python3 -m py_compile distro/bin/eitr-config distro/system/eitr-system.py
+  find . -name __pycache__ -type d -prune -exec rm -r -- {} +
+}
+
+package() {
+  cd "$srcdir/eitr" || return
+  python3 distro/bin/eitr-config --repo . stage "$pkgdir/usr/share/eitr"
+  install -Dm644 -t "$pkgdir/usr/share/eitr" \
+    distro/software.json distro/installers.json distro/RECOVERY.md distro/SECURE-BOOT.md \
+    distro/system-update-policy.conf
+  install -Dm755 distro/system/eitr-system.py "$pkgdir/usr/lib/eitr/eitr-system"
+  install -Dm755 distro/bin/eitr-config "$pkgdir/usr/bin/eitr-config"
+  install -Dm644 -t "$pkgdir/usr/lib/systemd/user" systemd/user/*.service systemd/user/*.timer
+}

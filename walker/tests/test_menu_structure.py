@@ -74,3 +74,24 @@ class MenuStructureTests(unittest.TestCase):
         self.assertFalse(any("Fingerprint" in entry["text"] and "actions" in entry for entry in entries))
         self.assertEqual(menu("fingerprint")["parent"], "security")
         self.assertEqual(len(menu("fingerprint")["entries"]), 2)
+
+    def test_tpm_unlock_has_its_own_security_submenu(self):
+        entry = next(entry for entry in menu("security")["entries"] if entry.get("submenu") == "tpm-unlock")
+        self.assertEqual(entry.get("subtext"), ">")
+        self.assertEqual(menu("tpm-unlock")["parent"], "security")
+        for item in menu("tpm-unlock")["entries"]:
+            self.assertIn("security.py tpm-", item["actions"]["open"])
+
+    def test_battery_limit_lives_under_system(self):
+        entry = next(entry for entry in menu("system")["entries"] if entry.get("submenu") == "battery-limit")
+        self.assertEqual(entry.get("subtext"), ">")
+        self.assertEqual(menu("battery-limit")["parent"], "system")
+
+    def test_secure_boot_guide_is_documentation_only(self):
+        entry = next(entry for entry in menu("security")["entries"] if entry["text"] == "Secure Boot Guide")
+        action = entry["actions"]["open"]
+        self.assertIn("/usr/share/eitr/SECURE-BOOT.md", action)
+        self.assertNotIn("sbctl", action)
+        self.assertNotIn("sudo", action)
+        self.assertIn("distro/SECURE-BOOT.md", (ROOT / "distro/pkg/eitr-desktop/PKGBUILD").read_text())
+        self.assertTrue((ROOT / "distro/SECURE-BOOT.md").is_file())

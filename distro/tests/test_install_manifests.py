@@ -128,7 +128,20 @@ class InstallManifestTests(unittest.TestCase):
         self.assertIn("recipe gaming geforcenow", installer)
         self.assertNotIn("geforcenow.flatpakrepo", installer)
         self.assertIn("snapshots-setup", installer)
-        self.assertIn("/usr/local/lib/eitr/eitr-system", installer)
+        self.assertIn("sudo /usr/lib/eitr/eitr-system snapshots-setup", installer)
+        self.assertNotIn("/usr/local/lib/eitr", installer)
+
+    def test_installer_seeds_defaults_from_the_package(self):
+        installer = (DISTRO / "install.sh").read_text()
+        package = installer.index("\ninstall_desktop_package\n")
+        self.assertLess(installer.index("yay -S --needed"), package)
+        self.assertLess(package, installer.index("snapshots-setup\n"))
+        self.assertLess(installer.index("clone_once https://github.com/ohmyzsh"), installer.index("\neitr-config seed\n"))
+        self.assertIn("/usr/share/eitr/system-update-policy.conf", installer)
+        self.assertIn("makepkg --nodeps", installer)
+        self.assertIn("sudo pacman -U --needed", installer)
+        self.assertNotIn(".local/share/eitr", installer)
+        self.assertNotIn("install_path", installer)
 
     @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
     def test_optional_node_setup_uses_lts_with_mocked_manager(self):

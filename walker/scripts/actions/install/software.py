@@ -44,17 +44,27 @@ def confirm(label):
     return answer.returncode == 0 and answer.stdout.strip() == "Confirm"
 
 
+def data_dirs():
+    """Eitr data directories: the user's XDG data home, then the system XDG data
+    directories (the eitr-desktop package installs /usr/share/eitr)."""
+    user = os.environ.get("XDG_DATA_HOME", "")
+    directories = [Path(user) if os.path.isabs(user) else Path.home() / ".local/share"]
+    system = os.environ.get("XDG_DATA_DIRS", "") or "/usr/local/share:/usr/share"
+    directories += [Path(entry) for entry in system.split(":") if os.path.isabs(entry)]
+    return [directory / "eitr" for directory in directories]
+
+
 def data_file(name):
-    """Find a distro data file: the installed copy, else this repository's checkout."""
-    candidates = [Path.home() / ".local/share/eitr" / name]
+    """Find a distro data file: an installed copy, else this repository's checkout."""
+    candidates = [directory / name for directory in data_dirs()]
     # In a checkout this script lives at walker/scripts/actions/install/.
     if len(SCRIPT.parents) > 4:
         candidates.append(SCRIPT.parents[4] / "distro" / name)
     for candidate in candidates:
         if candidate.is_file():
             return candidate
-    raise FileNotFoundError(f"Eitr {name} is not installed. Copy it from the repository's distro/ "
-                            "folder to ~/.local/share/eitr (see distro/README.md, Existing desktop).")
+    raise FileNotFoundError(f"Eitr {name} is not installed. Install the eitr-desktop package "
+                            "(see distro/README.md, Existing desktop).")
 
 
 def catalog():

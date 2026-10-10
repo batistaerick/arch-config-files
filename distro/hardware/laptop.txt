@@ -1,0 +1,2 @@
+# Laptops only (battery or portable chassis detected): power profile switching.
+power-profiles-daemon

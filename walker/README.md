@@ -44,8 +44,9 @@ if system updates are pending they stop and point to System Update, so upgrades
 never happen outside its recovery snapshots (Arch does not support partial
 upgrades). Managed tool installers use official endpoints recorded in
 `distro/installers.json` and never edit shell profiles; `HOME_FILES/.zshrc`
-already adds their PATH entries. The runtime catalog is installed under
-`~/.local/share/eitr/`; a missing catalog is shown as an error row in the menu.
+already adds their PATH entries. The runtime catalog ships in `/usr/share/eitr/`
+with the eitr-desktop package (a copy in `~/.local/share/eitr/` takes precedence);
+a missing catalog is shown as an error row in the menu.
 
 System → Security separates password changes, fingerprint enrollment and FIDO2
 security-key enrollment. Enrolling does not automatically change PAM; enabling
@@ -60,6 +61,10 @@ desktops. System Update upgrades official and AUR packages, with pre/post
 snapshots enabled only on distro installs. Advanced offers Pacman, Pacman + Yay,
 and Yay (AUR-only), without automatic snapshots.
 No PAM or snapshot setup runs at login.
+System → Battery Charge Limit sets 60/80/90% or removes the limit after a typed
+`yes`, through `eitr-system battery-limit`. It needs a laptop battery whose
+firmware exposes `charge_control_end_threshold`; elsewhere it explains that no
+control exists. The limit is restored at boot and after resume.
 
 Gaming offers Steam and NVIDIA's official GeForce NOW Flatpak. NVIDIA's cloud
 service is not restricted to local NVIDIA GPUs; no AMD-branded equivalent is

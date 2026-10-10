@@ -1,25 +1,3 @@
--- Detect whether this session is running on the laptop panel or the desktop monitors.
--- DRM status files contain "connected" or "disconnected"; match whole lines only.
-local function drm_output_connected(output_glob)
-	local handle = io.popen("cat /sys/class/drm/card*-" .. output_glob .. "/status 2>/dev/null")
-	if not handle then
-		return false
-	end
-
-	local status = handle:read("*a") or ""
-	handle:close()
-
-	return ("\n" .. status):match("\nconnected") ~= nil
-end
-
-local is_laptop = drm_output_connected("eDP-*")
-local has_hdmi = drm_output_connected("HDMI-A-1")
-local portable_config = io.open(os.getenv("HOME") .. "/.config/hypr/portable.mode", "r")
-local portable_mode = portable_config ~= nil
-if portable_config then
-	portable_config:close()
-end
-
 -------------
 -- Themes --
 -------------
@@ -66,38 +44,9 @@ end
 -- Monitors --
 --------------
 
-if portable_mode then
-	hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
-elseif is_laptop then
-	hl.monitor({
-		output = "eDP-1",
-		mode = "1920x1080@60",
-		position = "0x0",
-		scale = 1,
-	})
-else
-	hl.monitor({
-		output = "DP-3",
-		mode = "2560x1080@144",
-		position = "0x0",
-		scale = 1,
-		bitdepth = 10,
-		supports_wide_color = 1,
-		supports_hdr = 1,
-	})
-
-	if has_hdmi then
-		hl.monitor({
-			output = "HDMI-A-1",
-			mode = "1920x1080@144",
-			position = "320x1080",
-			scale = 1,
-			bitdepth = 10,
-			supports_wide_color = 1,
-			supports_hdr = 1,
-		})
-	end
-end
+-- Generic layout: every display uses its preferred EDID mode and is positioned
+-- automatically. Machine-specific outputs belong in ~/.config/hypr/local.lua.
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 
 --------------
 -- Commands --
@@ -276,14 +225,6 @@ hl.gesture({
 --   scale = 1.0,
 -- })
 
--- Owner-specific hardware tuning; fresh installs create portable.mode and skip it.
-if not portable_mode then
-	hl.device({
-		name = "epic-mouse-v1",
-		sensitivity = -0.5,
-	})
-end
-
 -----------------
 -- Keybindings --
 -----------------
@@ -419,26 +360,6 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- Windows And Workspaces --
 ----------------------------
 
-if not portable_mode then
-	if is_laptop then
-		for i = 1, 4 do
-			hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1" })
-		end
-	elseif has_hdmi then
-		-- Main monitor
-		hl.workspace_rule({ workspace = "1", monitor = "DP-3" })
-		hl.workspace_rule({ workspace = "2", monitor = "DP-3" })
-
-		-- Secondary monitor
-		hl.workspace_rule({ workspace = "3", monitor = "HDMI-A-1" })
-		hl.workspace_rule({ workspace = "4", monitor = "HDMI-A-1" })
-	else
-		for i = 1, 4 do
-			hl.workspace_rule({ workspace = tostring(i), monitor = "DP-3" })
-		end
-	end
-end
-
 -- Optional test workspace for the new scrolling layout + scroll_move gesture.
 -- Uncomment this together with the 4-finger scroll_move gesture above.
 -- hl.workspace_rule({ workspace = "7", layout = "scrolling" })
@@ -555,3 +476,66 @@ blurred_layer("desktop-overview", 0.2)
 -- The overview owns its preview animation; keep its blur and workspace jumps instant.
 hl.layer_rule({ match = { namespace = "desktop-overview" }, no_anim = true })
 blurred_layer("swayosd", 0.3)
+
+------------------------------
+-- Machine-Local Overrides --
+------------------------------
+
+-- ~/.config/hypr/local.lua is an optional, uncommitted Lua chunk for one machine.
+-- It runs after the shared config and uses the same hl.* calls (hl.monitor,
+-- hl.workspace_rule, hl.device, hl.env, hl.config, ...), so its settings win.
+-- Its hl.* calls are queued and applied only after the whole file succeeds; on
+-- any error the generic layout above stays in effect and the error is reported.
+-- See hypr/local.lua.example in the Eitr repository.
+
+local function report_config_error(message)
+	io.stderr:write("eitr: " .. message .. "\n")
+	local function quote(value)
+		return "'" .. value:gsub("'", "'\\''") .. "'"
+	end
+	local notifier = os.getenv("HOME") .. "/.config/hypr/scripts/notify-config-error.sh"
+	os.execute(quote(notifier) .. " " .. quote(message) .. " >/dev/null 2>&1 &")
+end
+
+local function load_local_config(path)
+	local file = io.open(path, "r")
+	if not file then
+		return
+	end
+	file:close()
+
+	local queued = {}
+	local queued_hl = setmetatable({}, {
+		__index = function(_, key)
+			local value = hl[key]
+			if type(value) ~= "function" then
+				return value
+			end
+			return function(...)
+				table.insert(queued, { name = key, count = select("#", ...), args = { ... } })
+			end
+		end,
+	})
+	local environment = setmetatable({ hl = queued_hl }, { __index = _G })
+
+	local chunk, load_error = loadfile(path, "t", environment)
+	if not chunk then
+		report_config_error("local.lua was not applied: " .. tostring(load_error))
+		return
+	end
+	local ok, run_error = pcall(chunk)
+	if not ok then
+		report_config_error("local.lua was not applied: " .. tostring(run_error))
+		return
+	end
+
+	local unpack_args = table.unpack or unpack
+	for _, call in ipairs(queued) do
+		local applied, apply_error = pcall(hl[call.name], unpack_args(call.args, 1, call.count))
+		if not applied then
+			report_config_error("local.lua hl." .. call.name .. " failed: " .. tostring(apply_error))
+		end
+	end
+end
+
+load_local_config(os.getenv("HOME") .. "/.config/hypr/local.lua")

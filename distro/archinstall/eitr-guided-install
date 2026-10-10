@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+"""Guided Eitr install from the live ISO.
+
+Asks which disk to erase, prompts for the LUKS2 passphrase, then runs
+archinstall with Eitr's layout (distro/archinstall/user_configuration.json).
+Afterwards it copies this repository to the new user's home and arranges for
+the Eitr desktop installer to be offered on that user's first console login.
+"""
+import copy
+import getpass
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+SOURCE = Path(__file__).resolve().parents[2]
+TEMPLATE = SOURCE / "distro/archinstall/user_configuration.json"
+TARGET = Path("/mnt")
+MIB = 1024 ** 2
+GIB = 1024 ** 3
+# The desktop tree, its package, seeded configs and packages need room to grow.
+MINIMUM_DISK = 64 * GIB
+MINIMUM_ROOT_MIB = 32 * 1024
+MINIMUM_PASSPHRASE = 8
+NOLOGIN_SHELLS = {"/usr/bin/nologin", "/sbin/nologin", "/bin/false", "/usr/bin/false"}
+HOOK_START = "# >>> eitr first login >>>"
+HOOK_END = "# <<< eitr first login <<<"
+
+
+class GuidedInstallError(RuntimeError):
+    pass
+
+
+def human_size(size):
+    return f"{size / GIB:.1f} GiB"
+
+
+def candidate_disks(lsblk, excluded):
+    """Whole, writable disks large enough for Eitr, from `lsblk --json --bytes`."""
+    disks = []
+    for device in lsblk.get("blockdevices", []):
+        if device.get("type") != "disk" or device.get("ro") or device.get("path") in excluded:
+            continue
+        if int(device.get("size") or 0) < MINIMUM_DISK:
+            continue
+        disks.append({
+            "path": device["path"],
+            "size": int(device["size"]),
+            "sector_size": int(device.get("log-sec") or 512),
+            "model": (device.get("model") or "").strip() or "unknown model",
+            "transport": device.get("tran") or "",
+        })
+    return disks
+
+
+def build_config(template, disk):
+    """Fill the template's single device entry for the selected disk."""
+    config = copy.deepcopy(template)
+    config.pop("eitr_comment", None)
+    (device,) = config["disk_config"]["device_modifications"]
+    if device.get("device") is not None:
+        raise GuidedInstallError("The template must not name a disk")
+    device["device"] = disk["path"]
+    esp, root = device["partitions"]
+    for partition in (esp, root):
+        for field in ("start", "size"):
+            if partition[field]["unit"] != "MiB":
+                raise GuidedInstallError("Template partition sizes must be in MiB")
+            partition[field]["sector_size"] = {"value": disk["sector_size"], "unit": "B"}
+    root_start = esp["start"]["value"] + esp["size"]["value"]
+    # Leave the last MiB free for the backup GPT header, aligned like archinstall.
+    root_size = disk["size"] // MIB - 1 - root_start
+    if root_size < MINIMUM_ROOT_MIB:
+        raise GuidedInstallError(f"{disk['path']} is too small for Eitr")
+    root["start"]["value"] = root_start
+    root["size"]["value"] = root_size
+    return config
+
+
+def desktop_users(passwd):
+    """Login users archinstall created, from the target's /etc/passwd."""
+    users = []
+    for line in passwd.splitlines():
+        fields = line.split(":")
+        if len(fields) != 7 or not fields[2].isdigit() or not fields[3].isdigit():
+            continue
+        name, _, uid, gid, _, home, shell = fields
+        if 1000 <= int(uid) < 60000 and home.startswith("/home/") and shell not in NOLOGIN_SHELLS:
+            users.append({"name": name, "uid": int(uid), "gid": int(gid), "home": home})
+    return users
+
+
+def login_hook(repo_path):
+    script = f"$HOME/{repo_path}/distro/archinstall/first-login.sh"
+    return (f"{HOOK_START}\n"
+            "# Added by eitr-guided-install: offers the Eitr desktop installer on the\n"
+            "# first console login until it has completed once.\n"
+            f'if [[ -z ${{WAYLAND_DISPLAY:-}} && $(tty) == /dev/tty1 && -r "{script}" ]]; then\n'
+            f'  bash "{script}"\n'
+            "fi\n"
+            f"{HOOK_END}\n")
+
+
+def with_login_hook(profile, repo_path):
+    if HOOK_START in profile:
+        return profile
+    if profile and not profile.endswith("\n"):
+        profile += "\n"
+    return profile + login_hook(repo_path)
+
+
+def output(args):
+    return subprocess.check_output(args, text=True).strip()
+
+
+def live_media_disks():
+    """Disks backing the booted ISO, so they are never offered for erasing."""
+    disks = set()
+    for mountpoint in ("/run/archiso/bootmnt", "/run/archiso/cowspace"):
+        source = subprocess.run(["findmnt", "-n", "-o", "SOURCE", mountpoint],
+                                capture_output=True, text=True).stdout.strip()
+        if source.startswith("/dev/"):
+            parents = subprocess.run(["lsblk", "-n", "-p", "-s", "-o", "PATH,TYPE", source],
+                                     capture_output=True, text=True).stdout.splitlines()
+            disks.update(line.split()[0] for line in parents if line.split()[-1:] == ["disk"])
+    return disks
+
+
+def ask(prompt):
+    try:
+        return input(prompt).strip()
+    except EOFError:
+        raise GuidedInstallError("No answer; nothing was changed") from None
+
+
+def choose_disk():
+    lsblk = json.loads(output(["lsblk", "--json", "--bytes", "--nodeps", "--paths",
+                               "-o", "PATH,SIZE,TYPE,RO,MODEL,TRAN,LOG-SEC"]))
+    disks = candidate_disks(lsblk, live_media_disks())
+    if not disks:
+        raise GuidedInstallError(f"No writable disk of at least {human_size(MINIMUM_DISK)} was found")
+    print("\nDisks that can hold Eitr:")
+    for number, disk in enumerate(disks, 1):
+        print(f"  {number}) {disk['path']}  {human_size(disk['size'])}  {disk['model']} {disk['transport']}")
+    answer = ask("\nNumber of the disk to ERASE for Eitr (Enter cancels): ")
+    if not answer.isdigit() or not 1 <= int(answer) <= len(disks):
+        raise GuidedInstallError("No disk selected; nothing was changed")
+    disk = disks[int(answer) - 1]
+    print(f"\nCurrent contents of {disk['path']}:")
+    subprocess.run(["lsblk", "-o", "NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS", disk["path"]], check=False)
+    print(f"\nEVERY partition and file on {disk['path']} will be destroyed.")
+    if ask(f"Type the disk path ({disk['path']}) to confirm: ") != disk["path"]:
+        raise GuidedInstallError("Confirmation did not match; nothing was changed")
+    return disk
+
+
+def ask_passphrase():
+    print("\nChoose the disk encryption (LUKS2) passphrase. It is needed at every boot;")
+    print("Eitr cannot recover it. It is passed to archinstall in memory and never saved.")
+    while True:
+        first = getpass.getpass("Encryption passphrase: ")
+        if len(first) < MINIMUM_PASSPHRASE:
+            print(f"Use at least {MINIMUM_PASSPHRASE} characters.")
+            continue
+        if getpass.getpass("Repeat passphrase: ") == first:
+            return first
+        print("The passphrases did not match.")
+
+
+def run_archinstall(config, passphrase, work):
+    config_path = work / "user_configuration.json"
+    config_path.write_text(json.dumps(config, indent=2) + "\n")
+    # archinstall offers to reboot when it finishes; this shim keeps the live
+    # session so the Eitr steps below still run, then they offer the reboot.
+    shim = work / "bin"
+    shim.mkdir()
+    (shim / "reboot").write_text("#!/bin/sh\necho 'Eitr finishes its setup first and then offers to reboot.'\n")
+    (shim / "reboot").chmod(0o755)
+    environment = dict(os.environ, PATH=f"{shim}{os.pathsep}{os.environ.get('PATH', '')}")
+    reader, writer = os.pipe()
+    try:
+        os.write(writer, json.dumps({"encryption_password": passphrase}).encode())
+        os.close(writer)
+        writer = None
+        result = subprocess.run(["archinstall", "--config", str(config_path), "--creds", f"/dev/fd/{reader}",
+                                 "--mountpoint", str(TARGET)], pass_fds=(reader,), env=environment)
+    finally:
+        os.close(reader)
+        if writer is not None:
+            os.close(writer)
+    if result.returncode != 0:
+        raise GuidedInstallError(f"archinstall exited with status {result.returncode}")
+    if not (TARGET / "etc/fstab").is_file() or subprocess.run(["findmnt", "-M", str(TARGET)],
+                                                             stdout=subprocess.DEVNULL).returncode:
+        raise GuidedInstallError("archinstall did not complete an installation; Eitr setup stopped")
+
+
+def choose_user():
+    users = desktop_users((TARGET / "etc/passwd").read_text())
+    if not users:
+        raise GuidedInstallError("No regular user was created. Create one with sudo rights and rerun archinstall.")
+    if len(users) == 1:
+        return users[0]
+    print("\nUsers on the new system:")
+    for number, user in enumerate(users, 1):
+        print(f"  {number}) {user['name']}")
+    answer = ask("Number of the user who gets the Eitr desktop: ")
+    if not answer.isdigit() or not 1 <= int(answer) <= len(users):
+        raise GuidedInstallError("No user selected")
+    return users[int(answer) - 1]
+
+
+def prepare_target(user):
+    home = TARGET / user["home"].lstrip("/")
+    repo = home / "eitr"
+    if repo.exists():
+        raise GuidedInstallError(f"{repo} already exists; move it aside first")
+    print(f"\nCopying Eitr to {user['home']}/eitr ...")
+    subprocess.run(["cp", "-a", "--", f"{SOURCE}/.", str(repo)], check=True)
+    subprocess.run(["chown", "-R", "--no-dereference", f"{user['uid']}:{user['gid']}", "--", str(repo)], check=True)
+    # The same read-only layout check Eitr's snapshot setup runs, inside the new system.
+    checker = f"{user['home']}/eitr/distro/system/eitr-system.py"
+    if subprocess.run(["arch-chroot", str(TARGET), "python3", checker, "snapshots-check"]).returncode:
+        raise GuidedInstallError("The installed layout does not support Eitr's snapshot-protected updates")
+    network = TARGET / "etc/systemd/network"
+    network.mkdir(parents=True, exist_ok=True)
+    for source in sorted((SOURCE / "distro/network").glob("*.network")):
+        target = network / source.name
+        if not target.exists():
+            shutil.copyfile(source, target)
+            target.chmod(0o644)
+    resolv = TARGET / "etc/resolv.conf"
+    if not resolv.is_symlink():
+        resolv.unlink(missing_ok=True)
+        resolv.symlink_to("/run/systemd/resolve/stub-resolv.conf")
+    profile = home / ".bash_profile"
+    existed = profile.exists()
+    profile.write_text(with_login_hook(profile.read_text() if existed else "", "eitr"))
+    if not existed:
+        os.chown(profile, user["uid"], user["gid"])
+        profile.chmod(0o644)
+
+
+def main():
+    if os.geteuid() != 0:
+        raise GuidedInstallError("Run eitr-guided-install as root from the Eitr live ISO")
+    if not Path("/sys/firmware/efi").is_dir():
+        raise GuidedInstallError("The guided install supports UEFI boot only; boot the ISO in UEFI mode")
+    if not shutil.which("archinstall") or not shutil.which("arch-chroot"):
+        raise GuidedInstallError("archinstall and arch-chroot are required (they ship on the Arch ISO)")
+    if subprocess.run(["findmnt", "-M", str(TARGET)], stdout=subprocess.DEVNULL).returncode == 0:
+        raise GuidedInstallError(f"{TARGET} is already mounted; unmount it before installing")
+    print(__doc__.split("\n\n")[0])
+    print("Connect to the internet first (Ethernet works automatically; for Wi-Fi use iwctl).")
+    disk = choose_disk()
+    config = build_config(json.loads(TEMPLATE.read_text()), disk)
+    passphrase = ask_passphrase()
+    print(f"""
+archinstall opens next with Eitr's choices filled in: {disk['path']} with LUKS2,
+Btrfs subvolumes for /, /home, /var/log and the package cache, Limine,
+PipeWire, iwd with systemd-networkd, and no desktop profile.
+In its menu, set Locales, Timezone and Hostname, and under Authentication
+create your user with superuser (sudo) rights. Leave the disk layout and
+encryption unchanged, then choose Install.""")
+    if ask("Start archinstall now? [y/N] ").lower() not in ("y", "yes"):
+        raise GuidedInstallError("Cancelled; nothing was changed")
+    with tempfile.TemporaryDirectory(prefix="eitr-guided-", dir="/run") as directory:
+        run_archinstall(config, passphrase, Path(directory))
+    del passphrase
+    user = choose_user()
+    prepare_target(user)
+    print(f"""
+The base system is installed. After rebooting, unlock the disk, log in as
+{user['name']} on the console, and the Eitr desktop installer will be offered.
+Wi-Fi: connect first with `iwctl station <device> connect <network>`.""")
+    if ask("Reboot now? [y/N] ").lower() in ("y", "yes"):
+        subprocess.run(["umount", "-R", str(TARGET)], check=False)
+        subprocess.run(["systemctl", "reboot"], check=False)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except GuidedInstallError as error:
+        print(f"\neitr-guided-install: {error}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\nInterrupted.", file=sys.stderr)
+        sys.exit(130)

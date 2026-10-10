@@ -1,0 +1,11 @@
+post_install() {
+  echo ':: Eitr defaults are in /usr/share/eitr. As each desktop user, run:'
+  echo '     eitr-config seed     # copies missing defaults; never overwrites'
+  echo ':: To enable snapshot-protected System Update, see /usr/share/eitr/RECOVERY.md.'
+}
+
+post_upgrade() {
+  echo ':: Eitr defaults were updated. As each desktop user, review and apply them:'
+  echo '     eitr-config status && eitr-config update'
+  echo ':: Edited files are kept; new versions are written next to them as *.eitr-new.'
+}

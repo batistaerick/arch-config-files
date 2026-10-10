@@ -141,6 +141,22 @@ debounced city search, country-based units, and smaller alternate temperature.
 City overrides last only until the popup closes; the bar's default is unchanged.
 Escape cancels city search first, then closes Weather. Buttons support Tab/Enter.
 
+The Welcome panel is a first-login guide. Like Calendar and Weather it is not
+tied to a bar icon, so it opens screen-centered along the bar's axis, using the
+shared ThemedPopup surface, and dismisses on outside click, Escape, or its
+close button. Its steps only open existing workflows: the theme and wallpaper
+carousel (`appearance-picker.sh`), the Display, Keyboard, WiFi, and Bluetooth
+panels (`show-panel.sh`), and Walker's Learn menu. The panel closes before the
+chosen workflow opens. Walker > Learn > Welcome and `panels show welcome` reopen it.
+It opens automatically about two seconds after the bar starts, at most once per
+Quickshell session, when `scripts/welcome-state.py status` reports it pending.
+State lives in `${XDG_STATE_HOME:-~/.local/state}/eitr/`, never in this repository.
+A user is eligible only when the Eitr installer's `installed-paths` record exists
+there, so existing desktops restored from this backup are not interrupted.
+Closing with "Don't show again" on (the default) writes `welcome-dismissed`;
+turning it off writes `welcome-pending`, which shows the guide at the next login
+on any machine. No daemon or service is involved.
+
 Bar tooltips follow the current theme's background and foreground colors.
 
 A compact media strip sits left of the clock without moving the clock's center.
@@ -239,8 +255,9 @@ Display opens a themed native panel with brightness, Nightlight, and active
 monitor names, resolutions, and refresh rates. Clicking a display makes it the
 bar's primary screen; the choice persists in `~/.config/hypr/primary-display`.
 If that display is unplugged, the bar uses an available screen until it returns.
-Existing installations retain the HDMI preference until a choice is saved;
-fresh portable installs default to the largest active screen. Display modes
+Until a choice is saved, the bar uses the first connected output listed in the
+machine-local `~/.config/hypr/preferred-outputs`, else the largest active
+screen. Display modes
 remain read-only so this selection cannot disturb the Hyprland monitor layout.
 The Nightlight editor saves valid time changes automatically; its Auto switch
 enables or disables the schedule, while the main switch remains a manual override.
@@ -250,6 +267,11 @@ brightness is generated from the current theme when styles change.
 For an Arch installation image, include `brightnessctl` for direct laptop
 backlight control and `ddcutil` for external monitors. The control chooses a
 usable native backlight before DDC; chassis type is not used to select it.
+On laptops, a Power Profile row below brightness switches power-profiles-daemon
+between Power Saver, Balanced, and Performance through `scripts/power-profile.py`
+(`powerprofilesctl` in argv form). Profiles the hardware lacks are disabled. The
+row is hidden without a system battery (`/sys/class/power_supply/BAT*`) or the
+daemon, so desktops never see it; no extra bar icon is added.
 
 Volume and Mic open themed native PipeWire popups with live volume/gain sliders,
 mute controls, and default output/input device selection. Volume also lists

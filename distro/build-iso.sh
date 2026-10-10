@@ -33,6 +33,16 @@ cp -a "$profile_source/." "$profile/"
 desktop_config="$profile/airootfs/opt/desktop-config"
 mkdir -p "$desktop_config"
 git -C "$repo_root" archive --format=tar HEAD | tar -x -C "$desktop_config"
+# The export has no Git history; this stamp lets the target build eitr-desktop.
+bash "$repo_root/distro/pkg/eitr-desktop/source-version.sh" "$repo_root" \
+  > "$desktop_config/distro/pkg/eitr-desktop/source-version"
+# mkarchiso copies airootfs without file modes; restore the executable bits.
+while IFS= read -r -d '' file; do
+  printf 'file_permissions[%q]="0:0:755"\n' "/opt/desktop-config/${file#"$desktop_config"/}"
+done < <(find "$desktop_config" -type f -perm -u+x -print0 | sort -z) >> "$profile/profiledef.sh"
+mkdir -p "$profile/airootfs/usr/local/bin"
+ln -s /opt/desktop-config/distro/archinstall/eitr-guided-install "$profile/airootfs/usr/local/bin/eitr-guided-install"
+printf '\nTo install Eitr (erases the disk you select), run: eitr-guided-install\n' >> "$profile/airootfs/etc/motd"
 sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$desktop_config/distro/packages.txt" >> "$profile/packages.x86_64"
 sort -u -o "$profile/packages.x86_64" "$profile/packages.x86_64"
 mkarchiso -v -w "$build_root/work" -o "$repo_root/distro/out" "$profile"

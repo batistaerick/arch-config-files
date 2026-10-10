@@ -107,16 +107,36 @@ class SoftwareTests(unittest.TestCase):
 
     def test_missing_catalog_reports_existing_desktop_step(self):
         with tempfile.TemporaryDirectory() as directory, \
+                patch.dict(os.environ, {"XDG_DATA_DIRS": directory}), \
                 patch.object(software.Path, "home", return_value=Path(directory)), \
                 patch.object(software, "SCRIPT", Path(directory) / "a/b/c/d/software.py"):
+            os.environ.pop("XDG_DATA_HOME", None)
             with self.assertRaisesRegex(FileNotFoundError, "Existing desktop"):
                 software.catalog()
         # An existing desktop has an installed catalog; isolate the checkout
-        # fallback from the reviewer's HOME rather than assuming it is absent.
+        # fallback from the reviewer's HOME and XDG data dirs rather than
+        # assuming they are empty.
         with tempfile.TemporaryDirectory() as directory, \
-                patch.object(software.Path, "home", return_value=Path(directory)):
+                patch.object(software.Path, "home", return_value=Path(directory)), \
+                patch.dict(os.environ, {"XDG_DATA_DIRS": directory}):
+            os.environ.pop("XDG_DATA_HOME", None)
             self.assertEqual(software.data_file("software.json"), ROOT / "distro/software.json")
             self.assertTrue(software.installer_url("nvm").startswith("https://"))
+
+    def test_packaged_data_files_are_found_after_user_copies(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            packaged = base / "usr/share/eitr/software.json"
+            packaged.parent.mkdir(parents=True)
+            packaged.write_text("{}")
+            environment = {"XDG_DATA_HOME": str(base / "data"), "XDG_DATA_DIRS": f"relative:{base}/usr/share"}
+            with patch.dict(os.environ, environment):
+                self.assertEqual(software.data_file("software.json"), packaged)
+                user_copy = base / "data/eitr/software.json"
+                user_copy.parent.mkdir(parents=True)
+                user_copy.write_text("{}")
+                self.assertEqual(software.data_file("software.json"), user_copy)
+        self.assertEqual(software.data_dirs()[-1].parent.name, "share")
 
     def test_recipe_menu_shows_catalog_errors(self):
         script = ROOT / "walker/scripts/actions/install/software.py"
@@ -124,7 +144,9 @@ class SoftwareTests(unittest.TestCase):
             copy = Path(directory) / "software.py"
             copy.write_text(script.read_text())
             result = subprocess.run([sys.executable, str(copy), "recipes", "languages"],
-                                    capture_output=True, text=True, env=dict(os.environ, HOME=directory))
+                                    capture_output=True, text=True,
+                                    env=dict(os.environ, HOME=directory, XDG_DATA_HOME=directory,
+                                             XDG_DATA_DIRS=directory))
         self.assertEqual(result.returncode, 1)
         rows = json.loads(result.stdout)
         self.assertTrue(rows[0]["error"])

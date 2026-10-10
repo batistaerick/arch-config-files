@@ -6,7 +6,9 @@ destroy the system and its snapshots together. Keep independent backups.
 Eitr currently supports Snapper on a Btrfs root with `/usr`, `/etc` and
 `/var/lib/pacman` in the same root subvolume. `/home` may be separate: it is not
 covered by a root snapshot. Unsupported layouts fail closed before upgrades.
-The installer does not format disks or rearrange existing subvolumes.
+`install.sh` does not format disks or rearrange existing subvolumes; only the
+ISO's `eitr-guided-install` erases the disk you confirm, creating this layout
+(see the README's Guided install section).
 
 ## Before updates
 
@@ -50,7 +52,44 @@ shell or TTY:
 
 ```sh
 sudo ls /var/lib/eitr/pam-backups
-sudo /usr/local/lib/eitr/eitr-system auth-restore <timestamp>
+sudo /usr/lib/eitr/eitr-system auth-restore <timestamp>
+# Without the eitr-desktop package, the helper is /usr/local/lib/eitr/eitr-system.
+```
+
+## TPM disk unlock
+
+Security → TPM Disk Unlock can add a TPM2 key slot to a LUKS2 root so the disk
+unlocks at boot without typing the passphrase. Nothing here runs from the
+installer. The root helper (`luks-tpm-check`, `luks-recovery-key`,
+`luks-tpm-enroll`, `luks-tpm-remove`) refuses unless the device is LUKS2, a TPM2
+device is listed by `systemd-cryptenroll --tpm2-device=list`, and a passphrase
+or recovery slot already exists. It only **adds** a slot; the passphrase stays.
+
+- **Recovery key first.** The Walker flow offers
+  `systemd-cryptenroll --recovery-key`; the key is printed once to the terminal
+  and never stored. Write it down offline. It works at the normal passphrase prompt.
+- **PCR choice.** Eitr binds to PCR 7 (Secure Boot state and keys). Firmware
+  updates rarely change it, while a Secure Boot key change does. PCR 7 only
+  protects much when Secure Boot is enabled with your own keys (see
+  [SECURE-BOOT.md](SECURE-BOOT.md)); otherwise anyone can boot this machine
+  with an edited kernel command line and get an unlocked disk. For stronger
+  protection, enroll manually with a PIN:
+  `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes <device>`.
+- **Initramfs.** The busybox `encrypt` hook cannot use TPM2 tokens, so
+  enrollment refuses while it is configured. Switching to `systemd` and
+  `sd-encrypt` in `HOOKS` (with `rd.luks.name=<LUKS-UUID>=root` replacing
+  `cryptdevice=` on the kernel command line, or `/etc/crypttab.initramfs`) is a
+  boot-critical change Eitr leaves to you. Make it, run `sudo mkinitcpio -P`,
+  update the boot entry, and confirm one passphrase boot works **before**
+  enrolling the TPM.
+
+If the TPM stops unlocking (firmware or Secure Boot change, TPM reset), the
+passphrase prompt appears as before. Enter it, then remove and re-enroll. To
+roll back completely, use Remove TPM Unlock, or from any working shell:
+
+```sh
+sudo systemd-cryptenroll /dev/<luks-partition>            # list slots
+sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/<luks-partition>
 ```
 
 ## Inspect recovery points
@@ -69,6 +108,90 @@ Arch installer ISO and mount the system's Btrfs filesystem. Identify the correct
 disk, encryption mapping, root subvolume, snapshot number and EFI mount before
 making any changes. Do not copy commands from another machine blindly.
 
+## Boot an older snapshot
+
+With GRUB or Limine, the boot menu can list read-only Snapper snapshots, so a
+broken update can be inspected and rolled back without live media. The
+installer offers this only after you type `yes`; on an existing installation run
+`bash distro/bootloader/setup.sh` (`--check` only reports). Check the result with
+Walker → System → Snapshots → Bootable Snapshot Status, or
+`sudo /usr/lib/eitr/eitr-system snapshots-boot-status`.
+
+| Boot loader | Integration | Packages (`distro/bootloader/`) |
+|---|---|---|
+| GRUB | `grub-btrfsd.service` rebuilds the "Arch Linux snapshots" submenu whenever Snapper adds or removes a snapshot | `grub-btrfs`, `inotify-tools` (official) |
+| Limine | `limine-snapper-sync.service` adds snapshot entries to `limine.conf` | `limine-snapper-sync`, `limine-mkinitcpio-hook` (AUR) |
+| systemd-boot | **Not supported.** It only loads kernels from the EFI/XBOOTLDR partition and cannot open Btrfs snapshots | Use the live-media procedure below |
+
+Detection reads the GRUB, Limine and systemd-boot files under `/boot`, `/efi`
+and `/boot/efi`. If more than one loader is configured (for example leftover
+systemd-boot files next to GRUB), setup refuses rather than guessing; remove the
+stale files or configure entries manually. Setup copies the current
+`grub.cfg`/`limine.conf` to `/var/lib/eitr/boot-config-backups/<timestamp>/`
+first, and enables the service for the next boot:
+
+- **GRUB:** setup runs `grub-mkconfig -o /boot/grub/grub.cfg` once. If `/boot`
+  is a separate partition, snapshot entries boot the *current* kernel; after a
+  kernel update, restore the matching boot archive (see below) as well.
+- **Limine:** `limine-snapper-sync` manages entries created by
+  `limine-entry-tool` (from `limine-mkinitcpio-hook`) and keeps copies of each
+  snapshot's kernel on the EFI partition, so that partition needs room (upstream
+  recommends 4 GiB). Review `/etc/default/limine` (`SNAPPER_CONFIG_NAME="root"`,
+  `ESP_PATH` if not detected), run `sudo limine-update`, check the menu, then
+  `sudo systemctl start limine-snapper-sync.service`. Eitr does not run
+  `limine-update` for you because it rewrites the boot menu.
+
+To undo, disable the service and copy the backup back, for example
+`sudo systemctl disable grub-btrfsd.service` and
+`sudo cp /var/lib/eitr/boot-config-backups/<timestamp>/grub.cfg /boot/grub/grub.cfg`.
+
+### Read-only snapshots
+
+Snapper snapshots are read-only. A snapshot booted as-is cannot write `/var`, so
+SDDM and other services may fail; log in on a text console (Ctrl+Alt+F3) if the
+graphical login does not start. An initramfs overlay makes the booted snapshot
+writable in RAM (changes vanish at reboot). Eitr does not edit `HOOKS`; add it
+yourself, then regenerate, and note that only snapshots created afterwards
+contain the hook:
+
+- GRUB: append `grub-btrfs-overlayfs` to `HOOKS=(...)` in `/etc/mkinitcpio.conf`,
+  then `sudo mkinitcpio -P`.
+- Limine: add `btrfs-overlayfs` after `filesystems` (or `sd-btrfs-overlayfs`
+  with the systemd hooks), then `sudo limine-update`.
+
+### Roll back for good
+
+1. Pick the newest "before package upgrade" snapshot in the boot menu's
+   snapshot list and confirm the system works there.
+2. **Limine:** run `sudo limine-snapper-restore` and choose the snapshot. It
+   restores with the configured `RESTORE_METHOD` and adds a backup entry for the
+   replaced system, so the restore itself can be reverted from the boot menu.
+3. **GRUB:** `snapper rollback` only works when the root is mounted through the
+   Btrfs default subvolume. Arch layouts usually boot `rootflags=subvol=@`
+   (check `findmnt -no OPTIONS /` and `/etc/fstab`), so rollback would have no
+   effect. Replace the root subvolume from live media after inspecting the
+   top-level filesystem's subvolume list. The following example is **only** for
+   Eitr's guided-install layout, where Snapper created the nested
+   `@/.snapshots` subvolume; other layouts need their actual paths:
+
+   ```sh
+   sudo mount -o subvolid=5 /dev/<root-or-mapper> /mnt
+   sudo mv /mnt/@ /mnt/@.broken
+   sudo btrfs subvolume snapshot /mnt/@.broken/.snapshots/<number>/snapshot /mnt/@
+   # A Btrfs snapshot does not include nested subvolumes. Keep the original
+   # Snapper store in the restored root instead of deleting it with @.broken.
+   sudo rmdir /mnt/@/.snapshots
+   sudo mv /mnt/@.broken/.snapshots /mnt/@/.snapshots
+   ```
+
+   If any command fails, stop and inspect; do not delete the preserved root.
+   Verify the snapshot store is present under the restored root, and review
+   its fstab before proceeding. Restore the matching
+   `/var/lib/eitr/boot-backups/<number>/` archive if `/boot`
+   is separate, reboot into the normal entry, run
+   `sudo grub-mkconfig -o /boot/grub/grub.cfg`, and delete `@.broken` with
+   `sudo btrfs subvolume delete` only after the restored system is verified.
+
 ## Restore safely from live media
 
 1. Back up any newer files you need. Mount the Btrfs top-level filesystem and
@@ -86,8 +209,11 @@ making any changes. Do not copy commands from another machine blindly.
 
 This is a layout-aware manual recovery procedure, **not a verified one-click
 rollback implementation**. Snapper's `rollback` command alone is not sufficient
-for arbitrary Arch subvolume/bootloader layouts. Bootable snapshot integration
-must be validated during distro testing before claiming automatic recovery.
+for arbitrary Arch subvolume/bootloader layouts. The GRUB and Limine snapshot
+entries above still need validation on real hardware before claiming automatic
+recovery.
 
-References: [Snapper recovery concepts](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-snapper.html),
+References: [grub-btrfs](https://github.com/Antynea/grub-btrfs),
+[limine-snapper-sync](https://gitlab.com/Zesko/limine-snapper-sync),
+[Snapper recovery concepts](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-snapper.html),
 [Arch installation guide](https://wiki.archlinux.org/title/Installation_guide).

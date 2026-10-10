@@ -1,0 +1,22 @@
+name = "tpm-unlock"
+name_pretty = "TPM Disk Unlock"
+parent = "security"
+icon = "󰌾"
+fixed_order = true
+
+[[entries]]
+text = "Enroll TPM Unlock"
+subtext = "LUKS2 · passphrase kept · PCR 7 · typed confirmation"
+icon = "󰌾"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py tpm-enroll" }
+
+[[entries]]
+text = "Remove TPM Unlock"
+subtext = "Passphrase required at boot again"
+icon = "󰌾"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py tpm-remove" }
+
+[[entries]]
+text = "Show Disk Unlock Methods"
+icon = "󰋼"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py tpm-status" }

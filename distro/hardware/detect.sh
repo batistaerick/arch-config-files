@@ -5,6 +5,8 @@ hardware_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 pci_root="${HARDWARE_SYSFS_ROOT:-/sys/bus/pci/devices}"
 cpuinfo="${HARDWARE_CPUINFO:-/proc/cpuinfo}"
 modules_root="${HARDWARE_MODULES_ROOT:-/usr/lib/modules}"
+power_supply_root="${HARDWARE_POWER_SUPPLY_ROOT:-/sys/class/power_supply}"
+chassis_type="${HARDWARE_CHASSIS_TYPE:-/sys/class/dmi/id/chassis_type}"
 declare -A found=() packages=()
 declare -a manifests=()
 
@@ -57,6 +59,22 @@ if [[ -n ${found[nvidia]:-} ]]; then
 fi
 
 manifests+=(graphics-common.txt)
+
+# Laptop-only packages: a system battery (peripheral batteries are not BAT*),
+# or a DMI portable/laptop/notebook/sub-notebook/convertible/detachable chassis.
+is_laptop() {
+  local supply
+  for supply in "$power_supply_root"/BAT*; do
+    [[ -r "$supply/type" && "$(<"$supply/type")" == Battery ]] && return 0
+  done
+  [[ -r "$chassis_type" ]] || return 1
+  case "$(<"$chassis_type")" in 8|9|10|14|31|32) return 0 ;; esac
+  return 1
+}
+if is_laptop; then
+  printf 'Laptop detected: adding power profile support.\n' >&2
+  manifests+=(laptop.txt)
+fi
 [[ -n ${found[amd]:-} ]] && manifests+=(amd-gpu.txt)
 [[ -n ${found[intel]:-} ]] && manifests+=(intel-gpu.txt)
 [[ -n ${found[virtual]:-} ]] && manifests+=(virtual-gpu.txt)

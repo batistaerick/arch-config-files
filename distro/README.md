@@ -21,6 +21,8 @@ the graphical desktop and AUR packages are installed on the target system by
   explicit driver choice because older cards require a different driver. If a
   non-default kernel (for example `linux-lts` or `linux-zen`) is installed,
   `nvidia-open-dkms` and headers for every installed kernel replace `nvidia-open`.
+  A system battery (`BAT*`) or laptop DMI chassis adds `laptop.txt`
+  (`power-profiles-daemon`); the installer enables it only when installed.
 - Steam, GameMode, Gamescope, MangoHud, 32-bit graphics libraries, and
   `lib32-systemd` for Steam networking with systemd-networkd.
 - FFmpeg, Qt Multimedia's FFmpeg backend, and GStreamer with base/good/bad/
@@ -55,10 +57,24 @@ the graphical desktop and AUR packages are installed on the target system by
   Advanced Pacman/AUR updates intentionally do not request snapshots. Supported fresh installs require Btrfs
   root with `/usr`, `/etc`, and `/var/lib/pacman` inside that root subvolume.
   Boot/EFI archives are separate; see [recovery instructions](RECOVERY.md).
+- `bootloader/`: optional Snapper snapshot boot entries. `setup.sh` detects
+  GRUB (`grub-btrfs`) or Limine (AUR `limine-snapper-sync`), installs that
+  loader's manifest and runs `eitr-system snapshots-boot-setup` only after typed
+  confirmation. systemd-boot cannot boot snapshots and is refused.
 - Security offers password changes, fingerprint enrollment, FIDO2-key enrollment,
   and separately confirmed optional authentication policy. Password fallback is
   preserved. Each policy change backs up the PAM files and can be undone with
   `eitr-system auth-restore`; see [recovery instructions](RECOVERY.md). Hardware support and real authentication still require testing.
+  Security → TPM Disk Unlock adds (or removes) a PCR 7 TPM2 slot on a LUKS2
+  root after a typed confirmation, offering a recovery key first and keeping the
+  passphrase. It refuses the busybox `encrypt` initramfs hook and never runs
+  from the installer.
+  Secure Boot is documentation only: [SECURE-BOOT.md](SECURE-BOOT.md) (sbctl,
+  Option ROM risks, GRUB/Limine snapshot entries, undo), linked from Security.
+- Laptops: Walker → System → Battery Charge Limit runs
+  `eitr-system battery-limit <60-100|off>`, which writes
+  `charge_control_end_threshold` and installs `eitr-battery-limit.service` to
+  restore it at boot and after resume. Desktops have no threshold and are refused.
 - Direct helper dependencies include `lm_sensors` for hardware temperatures,
   `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
 - Bruno, ngrok, kubectl, Helm, Minikube, printing packages (CUPS, HPLIP and
@@ -73,8 +89,10 @@ link once installation and release testing is complete.
 
 1. Install a supported x86_64 Arch system with a Btrfs root, a normal user and sudo access.
    Choose partitioning, encryption, boot loader, locale, timezone and user name
-   during the normal Arch install. This repo does not make those decisions or
-   format disks. Do not run the installer on an existing configured desktop.
+   during the normal Arch install, or let the ISO's
+   [guided install](#guided-install) erase one disk with Eitr's encrypted layout
+   (it then offers steps 2 and 3 at first login). `install.sh` itself never
+   formats disks. Do not run the installer on an existing configured desktop.
 2. Enable `[multilib]` in `/etc/pacman.conf` and refresh pacman. Steam and
    `lib32-*` packages require it.
 3. Install the preflight prerequisites with
@@ -89,7 +107,9 @@ link once installation and release testing is complete.
    verifies that every manifest entry exists in the enabled repositories (AUR
    names once `yay` is available). It does not copy browser, Wi-Fi, SSH, AI,
    or 1Password credentials. The installer downloads official packages,
-   builds `yay` from AUR, installs AUR apps, configures Snapper and System Update protection,
+   builds `yay` from AUR, installs AUR apps, builds and installs the
+   `eitr-desktop` package (see [Desktop package](#desktop-package-and-config-updates))
+   and seeds your home from it with `eitr-config seed`, configures Snapper and System Update protection,
    and installs GeForce NOW. Development SDKs and AI CLIs are selected later
    from Walker rather than installed automatically. Audit the manifests and
    upstream installers before running them.
@@ -113,13 +133,88 @@ link once installation and release testing is complete.
    launch. Check the SDDM theme on a spare/test system before using it as your
    only login path; the lockscreen README has recovery instructions.
 
-The desktop includes a generic monitor mode marker (`hypr/portable.mode`) on
-new installs. Hyprland reads each connected display's preferred EDID mode
-(resolution and refresh rate) at login and positions outputs automatically,
-rather than copying the original machine's output names and resolutions.
-`preferred` is the safe default, not a guarantee of the highest advertised Hz;
-the Display panel reports the active mode. The backup's original monitor layout
-remains unchanged unless this marker is present.
+### Monitors and machine-local overrides
+
+The shared Hyprland config is generic: it reads each connected display's
+preferred EDID mode (resolution and refresh rate) at login and positions outputs
+automatically, rather than copying the original machine's output names and
+resolutions. `preferred` is the safe default, not a guarantee of the highest
+advertised Hz; the Display panel reports the active mode. The bar starts on the
+largest active display until you pick another one in the Display panel.
+
+Machine-specific settings live in two optional, Git-ignored files:
+
+- `~/.config/hypr/local.lua`: a Lua chunk that runs after `hyprland.lua` and
+  uses the same `hl.*` calls (`hl.monitor`, `hl.workspace_rule`, `hl.device`,
+  `hl.env`, `hl.config`, ...). Its calls apply only if the whole file runs
+  without error; otherwise the generic layout stays and a notification shows
+  the error.
+- `~/.config/hypr/preferred-outputs`: output names, one per line, that the bar
+  prefers before the largest display. A choice saved from the Display panel
+  (`~/.config/hypr/primary-display`) still wins.
+
+`hypr/local.lua.example` and `hypr/preferred-outputs.example` hold the original
+machine's layout (fixed modes, HDR, positions, workspace-to-monitor rules,
+mouse tuning, and the HDMI-A-1/DP-3 bar preference).
+
+**Owner machine migration:** older checkouts applied that layout unless
+`hypr/portable.mode` existed; the marker is no longer read. On the original
+machine, restore the layout once with:
+
+```sh
+cp hypr/local.lua.example ~/.config/hypr/local.lua
+cp hypr/preferred-outputs.example ~/.config/hypr/preferred-outputs
+hyprctl reload
+```
+
+A leftover `~/.config/hypr/portable.mode` on other machines is harmless and can
+be deleted.
+
+## Desktop package and config updates
+
+`pkg/eitr-desktop/PKGBUILD` packages the desktop from this tree. A Git checkout
+contributes only its committed `HEAD` (via `git archive`), so uncommitted and
+ignored machine-local files never ship; the version is `0.r<commits>.g<hash>`.
+It installs:
+
+- default configs under `/usr/share/eitr/config/` (the directories in
+  `user-defaults.json`) and `HOME_FILES` defaults under `/usr/share/eitr/home/`;
+- `software.json`, `installers.json`, `RECOVERY.md` and
+  `system-update-policy.conf` in `/usr/share/eitr/`;
+- the root helper as `/usr/lib/eitr/eitr-system` (earlier manual installs used
+  `/usr/local/lib/eitr/eitr-system`, which callers still accept as a fallback);
+- `eitr-config` in `/usr/bin` and the systemd user units in `/usr/lib/systemd/user`.
+
+Its dependencies are the official `packages.txt` entries except `base`,
+`base-devel`, `linux` and `linux-firmware`, which stay system choices (so
+`linux-lts`/`linux-zen` systems are valid). `apps.txt`, hardware drivers and AUR
+packages are not hard dependencies; the AUR desktop packages appear as optional
+dependencies and `install.sh` installs them with `yay`. Build and install it as
+your normal user from an up-to-date system:
+
+```sh
+cd distro/pkg/eitr-desktop
+makepkg --nodeps --clean   # pacman -U below resolves the official dependencies
+sudo pacman -U eitr-desktop-*.pkg.tar.zst
+```
+
+Packages only update files under `/usr`; your home is changed by `eitr-config`,
+run as the desktop user:
+
+- `eitr-config status` lists defaults that are new, outdated (unchanged by you),
+  in conflict (changed by you and upstream), or differ without ever being seeded.
+  `--all` also lists matching and locally modified files.
+- `eitr-config seed` copies missing defaults and never overwrites anything.
+  It records each copied file's checksum in
+  `${XDG_STATE_HOME:-~/.local/state}/eitr/user-defaults-state.json`.
+- `eitr-config update` seeds new defaults, replaces files you never edited, and
+  writes `<file>.eitr-new` beside files you edited (like pacman's `.pacnew`).
+  After merging one, `eitr-config resolve <file>` accepts it and removes the
+  `.eitr-new` copy. Files you deleted stay deleted. `theme/current` is only
+  seeded, because theme switches rewrite it. Both commands accept `--dry-run`.
+
+`eitr-config` honours `XDG_CONFIG_HOME` and `XDG_STATE_HOME`. With
+`--repo <checkout>` it compares against a checkout instead of the package.
 
 ## Build installer ISO
 
@@ -128,12 +223,47 @@ The ISO lands in `distro/out/`; temporary profile/work files stay under
 `distro/build/`. The script refuses to reuse an existing build directory to
 avoid deleting mounted work trees. It exports the committed `HEAD` (via
 `git archive`) into `/opt/desktop-config` on the live image, so uncommitted,
-untracked, and ignored machine-local files are excluded. Boot the image and
-install Arch as usual. Before rebooting, copy the repo into the new user's home,
-for example `cp -a /opt/desktop-config /mnt/home/<user>/eitr` followed by
-`arch-chroot /mnt chown -R <user>: /home/<user>/eitr`. Then log in as that user on
-the new system and run `bash ~/eitr/distro/install.sh --check`. Keep the image off public mirrors until it has been tested in a VM
-and licensing for bundled wallpaper/lockscreen assets has been reviewed.
+untracked, and ignored machine-local files are excluded. The export also gets a
+`distro/pkg/eitr-desktop/source-version` stamp so the target can build the
+package without Git history, and `profiledef.sh` entries that restore the
+executable bits `mkarchiso` would otherwise drop. Keep the image off public
+mirrors until it has been tested in a VM and licensing for bundled
+wallpaper/lockscreen assets has been reviewed.
+
+### Guided install
+
+Boot the ISO in **UEFI** mode, connect to the internet (Ethernet is automatic;
+use `iwctl` for Wi-Fi) and run `eitr-guided-install` as root. It:
+
+1. Lists whole, writable disks of at least 64 GiB (never the boot medium),
+   shows the chosen disk's current contents and requires typing its path
+   before anything is erased. No disk name is assumed.
+2. Prompts twice for the LUKS2 passphrase and hands it to archinstall through a
+   pipe; it is never written to a file or command line.
+3. Runs archinstall with [`archinstall/user_configuration.json`](archinstall/user_configuration.json):
+   a 2 GiB FAT32 ESP at `/boot` and a LUKS2 Btrfs root with subvolumes `@` (`/`),
+   `@home`, `@log` (`/var/log`) and `@pkg` (`/var/cache/pacman/pkg`), so `/usr`,
+   `/etc` and `/var/lib/pacman` stay in the root snapshot that
+   `eitr-system snapshots-check` requires. `/.snapshots` is not a separate
+   subvolume because `snapshots-setup` lets Snapper create it. It also selects
+   Limine (kernels on the FAT `/boot`, compatible with bootable snapshot entries),
+   linux, zram, PipeWire, Bluetooth, `[multilib]`, iwd with systemd-networkd and
+   resolved (no NetworkManager), and the Minimal profile: Eitr provides the
+   desktop. In archinstall's menu you choose the locale, keyboard, timezone and
+   hostname, and create your user with sudo rights; leave the disk layout and
+   encryption unchanged.
+4. Before any reboot, copies this repository to `~/eitr` for that user, runs the
+   same `snapshots-check` inside the new system, installs the Eitr network files
+   and the resolved stub link, and adds a marked block to `~/.bash_profile`.
+
+After rebooting, unlock the disk and log in on the first console. The block runs
+`distro/archinstall/first-login.sh`, which checks connectivity (printing `iwctl`
+steps if offline) and, once you confirm, runs `install.sh --check` and
+`install.sh`. It is offered on each console login until the install completes;
+NVIDIA systems pass their driver choice as described above, for example
+`DISTRO_NVIDIA_DRIVER=open bash ~/eitr/distro/archinstall/first-login.sh`.
+BIOS boot, other layouts and dual-boot partitioning are not handled by the guided
+install; use a manual Arch install meeting the requirements above instead.
 
 ## Before calling it a distro
 
@@ -142,9 +272,10 @@ and licensing for bundled wallpaper/lockscreen assets has been reviewed.
 - The development bootstrap has mock tests, not a completed fresh-machine
   installation test. This recipe is not a byte-for-byte system clone: fan-control
   services and other hardware-specific tuning still need target-specific review.
-- Add guided encryption/partitioning and a branded live desktop only after the
-  base install is repeatable. AUR packages need a maintained package repository
-  to be included directly in the live ISO.
+- Test the guided install (LUKS2, Limine, first-login hand-off) in UEFI VMs and
+  on real hardware; add a branded live desktop only after the base install is
+  repeatable. AUR packages need a maintained package repository to be included
+  directly in the live ISO.
 - Audit asset licenses, package updates, security defaults, and the first-run
   experience. Never bundle tokens, logins, saved networks or device identifiers.
 
@@ -173,22 +304,22 @@ and root-owned helper and System Update policy deliberately:
 
 ```sh
 sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker pacman-contrib
-sudo install -Dm755 distro/system/eitr-system.py /usr/local/lib/eitr/eitr-system
-sudo /usr/local/lib/eitr/eitr-system snapshots-setup
-sudo install -Dm644 distro/system-update-policy.conf /etc/eitr/system-update-policy.conf
+(cd distro/pkg/eitr-desktop && makepkg --nodeps --clean)
+sudo pacman -U distro/pkg/eitr-desktop/eitr-desktop-*.pkg.tar.zst
+sudo /usr/lib/eitr/eitr-system snapshots-setup
+sudo install -Dm644 /usr/share/eitr/system-update-policy.conf /etc/eitr/system-update-policy.conf
 ```
 
-The Install submenus, development installers and Snapshots → Recovery
-Instructions read the distro data files from `~/.local/share/eitr/`. The live
-`~/.config` copies cannot locate this checkout, so install (and refresh after
-pulling changes) those reference copies as the desktop user:
-
-```sh
-install -Dm644 -t ~/.local/share/eitr distro/software.json distro/installers.json distro/RECOVERY.md
-```
-
-Rerun the `install -Dm755 … eitr-system` line after helper changes; the
-installed root-owned copy is never updated automatically.
+The [package](#desktop-package-and-config-updates) installs the root helper,
+the data files read by the Install submenus, development installers and
+Snapshots → Recovery Instructions and Security → Secure Boot Guide, and
+`eitr-config`. Rebuild and reinstall it
+after pulling changes; there is no manual copy step. Installing the package does
+not touch `~/.config`: run `eitr-config status` to compare the live files with
+the shipped defaults before deciding on `eitr-config update` (it never
+overwrites edited files). Copies in `~/.local/share/eitr/` take precedence over
+`/usr/share/eitr/`, so remove stale ones from earlier manual installs, and remove
+an old `/usr/local/lib/eitr/eitr-system` once the packaged helper is installed.
 
 Run from this repo, as the normal desktop user. If setup rejects the layout,
 stop; do not bypass its protection. The initial dependency bootstrap above is

@@ -17,7 +17,7 @@ def run_protected_update(mocks):
         policy = Path(directory) / "policy"
         policy.touch()
         source = source.replace("/etc/eitr/system-update-policy.conf", str(policy))
-        source = source.replace("/usr/local/lib/eitr/eitr-system", "/usr/bin/true")
+        source = source.replace("/usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system", "/usr/bin/true")
         environment = dict(os.environ, XDG_RUNTIME_DIR=directory)
         return subprocess.run(["bash", "-c", FLOCK_MOCK + mocks + source, "update", "system"],
                               capture_output=True, text=True, env=environment)
@@ -53,6 +53,23 @@ yay() { echo "yay $*"; }
         lines = result.stdout.splitlines()
         self.assertEqual(lines[0].split()[-1], "snapshot-pre")
         self.assertEqual(lines[-1].split()[-2:], ["snapshot-post", "success"])
+
+    def test_missing_helper_aborts_before_any_update(self):
+        source = (ROOT / "walker/scripts/actions/system/update.sh").read_text()
+        self.assertIn("/usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system", source)
+        with tempfile.TemporaryDirectory() as directory:
+            policy = Path(directory) / "policy"
+            policy.touch()
+            source = source.replace("/etc/eitr/system-update-policy.conf", str(policy))
+            source = source.replace("/usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system",
+                                    f"{directory}/missing-a {directory}/missing-b")
+            mocks = 'sudo() { echo "sudo $*"; }; yay() { echo "yay $*"; }\n'
+            result = subprocess.run(["bash", "-c", FLOCK_MOCK + mocks + source, "update", "system"],
+                                    capture_output=True, text=True,
+                                    env=dict(os.environ, XDG_RUNTIME_DIR=directory))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("helper is missing", result.stderr)
+        self.assertEqual(result.stdout, "")
 
     def test_advanced_aur_updates_only_aur_without_snapshots(self):
         source = (ROOT / "walker/scripts/actions/system/update.sh").read_text()

@@ -4,11 +4,18 @@ __pycache__/
 .DS_Store
 distro/build/
 distro/out/
-# Machine-local desktop state written at runtime or by the installer.
+# makepkg output when building eitr-desktop in place.
+/distro/pkg/eitr-desktop/src/
+/distro/pkg/eitr-desktop/pkg/
+/distro/pkg/eitr-desktop/*.pkg.tar*
+/distro/pkg/eitr-desktop/source-version
+# Machine-local desktop state and overrides, written at runtime or by hand.
 /hypr/primary-display
-/hypr/portable.mode
+/hypr/local.lua
+/hypr/preferred-outputs
 /quickshell/desktop-bar/notification-settings.json
 /lockscreen/selected
 /quickshell/desktop-bar/bar-settings.json
 /quickshell/desktop-bar/workspace-style.json
 /quickshell/desktop-bar/obs-recording.json
+/.claude/worktrees/

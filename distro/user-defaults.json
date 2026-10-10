@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "comment": "Default user files shipped by eitr-desktop. source is relative to the repository; HOME_FILES/ sources install under /usr/share/eitr/home, the rest under /usr/share/eitr/config. Targets may use ${HOME} and ${XDG_CONFIG_HOME}.",
+  "entries": [
+    {"source": "Kvantum", "target": "${XDG_CONFIG_HOME}/Kvantum"},
+    {"source": "elephant", "target": "${XDG_CONFIG_HOME}/elephant"},
+    {"source": "fastfetch", "target": "${XDG_CONFIG_HOME}/fastfetch"},
+    {"source": "hypr", "target": "${XDG_CONFIG_HOME}/hypr"},
+    {"source": "kitty", "target": "${XDG_CONFIG_HOME}/kitty"},
+    {"source": "nvim", "target": "${XDG_CONFIG_HOME}/nvim"},
+    {"source": "nwg-look", "target": "${XDG_CONFIG_HOME}/nwg-look"},
+    {"source": "quickshell", "target": "${XDG_CONFIG_HOME}/quickshell"},
+    {"source": "swayosd", "target": "${XDG_CONFIG_HOME}/swayosd"},
+    {"source": "themes", "target": "${XDG_CONFIG_HOME}/themes"},
+    {"source": "walker", "target": "${XDG_CONFIG_HOME}/walker"},
+    {"source": "xdg-desktop-portal", "target": "${XDG_CONFIG_HOME}/xdg-desktop-portal"},
+    {"source": "dolphinrc", "target": "${XDG_CONFIG_HOME}/dolphinrc"},
+    {"source": "filetypesrc", "target": "${XDG_CONFIG_HOME}/filetypesrc"},
+    {"source": "mimeapps.list", "target": "${XDG_CONFIG_HOME}/mimeapps.list"},
+    {"source": "themes/catppuccin", "target": "${XDG_CONFIG_HOME}/theme/current", "update": false},
+    {"source": "HOME_FILES/.local", "target": "${HOME}/.local"},
+    {"source": "HOME_FILES/.zshrc", "target": "${HOME}/.zshrc", "requires": "${HOME}/.oh-my-zsh/oh-my-zsh.sh"},
+    {"source": "HOME_FILES/.p10k.zsh", "target": "${HOME}/.p10k.zsh"},
+    {"source": "HOME_FILES/.ls_colors", "target": "${HOME}/.ls_colors"}
+  ]
+}

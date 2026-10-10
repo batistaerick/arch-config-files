@@ -106,9 +106,15 @@ them with upstream defaults.
 - The date/time stays exactly screen-centered regardless of neighboring items.
   The Display panel's connected rows select the bar's primary screen and save
   it in the machine-local `hypr/primary-display` file. If the chosen display is
-  disconnected, fall back to an available one. Existing installations prefer
-  HDMI until a choice is saved; fresh portable installs prefer the largest
-  active display. Do not commit a machine-specific primary-display file.
+  disconnected, fall back to an available one. Until a choice is saved, use the
+  first connected output in the machine-local `hypr/preferred-outputs`, else the
+  largest active display. Do not commit primary-display or preferred-outputs.
+- Shared `hypr/hyprland.lua` stays generic: automatic monitor layout and no
+  connector names, input device names, or other machine-specific settings.
+  Those belong in the Git-ignored `~/.config/hypr/local.lua`, loaded last and
+  error-guarded; the owner's layout is kept in `hypr/local.lua.example` and
+  `hypr/preferred-outputs.example`. Update the examples, not the shared file,
+  when the owner's hardware changes.
 - Hardware and AI Usage icons sit after the workspaces and open on the left;
   calendar/weather open centered; other controls open on the right. Panels
   share the bar's Wayland surface and attach directly to its actual edge with
@@ -156,11 +162,19 @@ them with upstream defaults.
 - Never restart SDDM during a session. Ask before restarting Elephant or another
   service that could disrupt the user's work, unless permission was given for
   the current task. Prefer Quickshell auto-reload and config-only Hyprland reload.
+- Boot, disk, LUKS/TPM, Secure Boot and PAM changes stay explicit `eitr-system`
+  actions behind typed confirmation, with backups or a documented undo. The
+  installer may only offer them (`distro/bootloader/setup.sh --offer`); never
+  automate sbctl key enrollment, initramfs `HOOKS` edits or `limine-update`.
+  systemd-boot snapshot booting is unsupported. Laptop-only features (power
+  profiles, battery limit) must stay hidden or refused without a system battery.
 - Do not uninstall packages, delete configs, or weaken credential permissions
   without explicit authorization. Keep WiFi QR secrets out of files and argv.
 - Inspect screenshots for clipping, alignment, and theme consistency without
   publishing private screen content. Close any test menus afterward.
-- Run focused checks appropriate to the change, for example:
+- `bash tools/check.sh` runs every repository check (CI runs the same script;
+  `--list` shows stages to run individually). Run focused checks appropriate
+  to the change, for example:
 
 ```sh
 /usr/lib/qt6/bin/qmllint --silent quickshell/desktop-bar/ChangedComponent.qml

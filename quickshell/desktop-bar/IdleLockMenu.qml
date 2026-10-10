@@ -9,8 +9,8 @@ ThemedPopup {
     signal lockRequested()
     property bool pendingLock: false
     implicitWidth: 340
-    // The shared surface reserves 14 px above and below its content frame.
-    implicitHeight: controls.implicitHeight + PanelStyle.padding * 2 + 28
+    // The shared surface reserves PanelStyle.surfaceInset above and below its content frame.
+    implicitHeight: controls.implicitHeight + PanelStyle.padding * 2 + PanelStyle.surfaceInset * 2
     onVisibleChanged: {
         if (!visible && pendingLock) {
             pendingLock = false;

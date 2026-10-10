@@ -11,7 +11,7 @@ ThemedPopup {
     property int activeLayout: -1
     property bool adding: false
     property string error: ""
-    readonly property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/keyboard-layout.py"
+    readonly property string helper: Quickshell.shellDir + "/scripts/keyboard-layout.py"
     readonly property var filteredLayouts: availableLayouts.filter(entry =>
         (entry.label + " " + entry.layout + " " + entry.variant).toLowerCase().includes(search.text.toLowerCase()))
     implicitWidth: 388
@@ -89,7 +89,7 @@ ThemedPopup {
             font.family: PanelStyle.fontFamily
             font.pixelSize: PanelStyle.bodySize
             background: Rectangle {
-                radius: 4
+                radius: PanelStyle.controlRadius
                 color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08)
                 border.color: search.activeFocus ? menu.accent : "transparent"
             }
@@ -119,7 +119,7 @@ ThemedPopup {
                 required property int index
                 width: choices.width
                 height: 33
-                radius: 4
+                radius: PanelStyle.controlRadius
                 color: mouse.containsMouse || (menu.adding && choices.currentIndex === index)
                     ? Qt.rgba(menu.accent.r, menu.accent.g, menu.accent.b, 0.18) : "transparent"
                 Text {

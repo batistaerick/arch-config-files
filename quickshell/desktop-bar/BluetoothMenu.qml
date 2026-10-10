@@ -80,7 +80,7 @@ ThemedPopup {
                         required property var modelData
                         width: groups.width
                         spacing: 8
-                        Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                        Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
                         Text { text: parent.modelData.title; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                         Text { visible: parent.modelData.devices.length === 0; text: parent.modelData.title === "SCANNED DEVICES" && menu.scanningAdapter ? "Scanning..." : "No devices"; color: menu.foreground; opacity: 0.55; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                         Repeater {
@@ -91,7 +91,7 @@ ThemedPopup {
                                 property bool confirmingForget: false
                                 width: groups.width
                                 height: 44
-                                Rectangle { anchors.fill: parent; radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, device.modelData.connected ? 0.18 : 0.04) }
+                                Rectangle { anchors.fill: parent; radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, device.modelData.connected ? 0.18 : 0.04) }
                                 Text { x: 10; anchors.verticalCenter: parent.verticalCenter; text: device.modelData.connected ? "󰂱" : "󰂯"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 18 }
                                 Column {
                                     x: 36

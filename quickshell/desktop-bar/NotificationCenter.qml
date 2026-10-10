@@ -48,7 +48,7 @@ ThemedPopup {
                 BarTooltip { target: clearButton; hovered: clearHover.hovered; text: "Clear all"; foreground: center.foreground; background: center.background }
             }
         }
-        Rectangle { y: header.height + 12; width: parent.width; height: 1; color: Qt.alpha(center.foreground, 0.12) }
+        Rectangle { y: header.height + 12; width: parent.width; height: 1; color: Qt.alpha(center.foreground, PanelStyle.dividerAlpha) }
         Text {
             anchors.centerIn: parent
             visible: center.service.count === 0

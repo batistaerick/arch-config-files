@@ -75,7 +75,7 @@ ShellRoot {
 
     Process {
         id: barSettingsQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py", "status"]
+        command: ["python3", Quickshell.shellDir + "/scripts/bar-settings.py", "status"]
         running: true
         stdout: StdioCollector { id: barSettingsOutput }
         onExited: function(code) {
@@ -105,7 +105,7 @@ ShellRoot {
     function persistBarSettings() {
         if (saveBarSettings.running) return;
         settingsDirty = false;
-        saveBarSettings.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py",
+        saveBarSettings.command = ["python3", Quickshell.shellDir + "/scripts/bar-settings.py",
             "set-all", barAppearance, barLayout, barEdge];
         saveBarSettings.running = true;
     }
@@ -125,7 +125,7 @@ ShellRoot {
 
     Process {
         id: workspacePalette
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/workspace-color.py"]
+        command: ["python3", Quickshell.shellDir + "/scripts/workspace-color.py"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -154,7 +154,7 @@ ShellRoot {
 
     Process {
         id: primaryDisplayQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/display-primary.py", "status"]
+        command: ["python3", Quickshell.shellDir + "/scripts/display-primary.py", "status"]
         running: true
         stdout: StdioCollector { id: primaryDisplayOutput }
         onExited: function(code) {
@@ -724,7 +724,7 @@ ShellRoot {
                                 selectedForeground: shell.activeFg
                                 onSelected: function(style) {
                                     shell.workspaceStyle = style;
-                                    saveWorkspaceStyle.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/workspace-style.py", style];
+                                    saveWorkspaceStyle.command = ["python3", Quickshell.shellDir + "/scripts/workspace-style.py", style];
                                     saveWorkspaceStyle.running = true;
                                 }
                             }
@@ -811,7 +811,7 @@ ShellRoot {
 
                             StatusCommand {
                                 id: wifiIcon
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
+                                script: Quickshell.shellDir + "/scripts/wifi-status.sh"
                                 hoverLabel: "WiFi"
                                 fontSize: 16
                                 interval: 3000
@@ -1265,7 +1265,7 @@ ShellRoot {
             text: item.text
             textFormat: Text.RichText
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: item.fontSize
             font.bold: true
         }
@@ -1355,7 +1355,7 @@ ShellRoot {
             if (process.running)
                 return ;
 
-            process.command = ["bash", "-lc", "$HOME/.config/quickshell/desktop-bar/scripts/weather-status.sh"];
+            process.command = ["bash", Quickshell.shellDir + "/scripts/weather-status.sh"];
             requestedRevision = dataRevision;
             process.running = true;
         }
@@ -1400,14 +1400,14 @@ ShellRoot {
             Text {
                 text: weather.text.split(" ")[0]
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
             Text {
                 text: weather.temp || (weather.text.indexOf(" ") >= 0 ? weather.text.slice(weather.text.indexOf(" ") + 1).trim() : "")
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
@@ -1501,7 +1501,7 @@ ShellRoot {
             anchors.fill: parent
             text: notifications.text
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: 18
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
@@ -1568,7 +1568,7 @@ ShellRoot {
             text: Qt.formatDateTime(clock.now, clock.compact ? "hh:mm\nMMM dd" : "ddd MMM dd hh:mm AP")
             horizontalAlignment: Text.AlignHCenter
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: clock.compact ? 12 : 14
             font.bold: true
         }

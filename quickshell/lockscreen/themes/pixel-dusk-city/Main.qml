@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Window
 import Qt5Compat.GraphicalEffects
 import SddmComponents 2.0
+import LockscreenComponents
 
 Rectangle {
     // Wayland Cursor Fix
@@ -54,7 +55,7 @@ Rectangle {
 
     // Background
     Rectangle { anchors.fill: parent; color: "#0c0a08" }
-    Loader { anchors.fill: parent; source: "BackgroundVideo.qml" }
+    BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background) }
 
     // View Vignette
     RadialGradient {

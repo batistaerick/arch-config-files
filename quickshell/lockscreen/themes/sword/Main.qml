@@ -3,6 +3,7 @@ import QtQuick.Window
 import Qt5Compat.GraphicalEffects
 import Qt.labs.folderlistmodel
 import SddmComponents 2.0
+import LockscreenComponents
 
 Rectangle {
     // Wayland Cursor Fix
@@ -66,7 +67,7 @@ Rectangle {
         }
     }
 
-    Loader { anchors.fill: parent; source: "BackgroundVideo.qml" }
+    BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background) }
 
     RadialGradient {
         anchors.fill: parent; opacity: 0.75

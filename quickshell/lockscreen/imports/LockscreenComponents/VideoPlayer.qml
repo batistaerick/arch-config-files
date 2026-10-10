@@ -1,23 +1,22 @@
 import QtQuick
-import QtQuick.Window
 import QtMultimedia
 
+// Internal to BackgroundVideo.qml, which loads it on demand.
 Item {
-    readonly property real s: Screen.height / 768
-    anchors.fill: parent
+    id: video
+
+    property url source
 
     MediaPlayer {
-        id: mediaplayer
-        source: "bg.mp4"
+        source: video.source
         autoPlay: true
         loops: MediaPlayer.Infinite
-        videoOutput: videoOutput
+        videoOutput: output
     }
 
     VideoOutput {
-        id: videoOutput
+        id: output
         anchors.fill: parent
         fillMode: VideoOutput.PreserveAspectCrop
     }
 }
-

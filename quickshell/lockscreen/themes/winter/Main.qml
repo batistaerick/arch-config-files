@@ -1,8 +1,8 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
-import QtMultimedia
 import Qt.labs.folderlistmodel
 import SddmComponents 2.0
+import LockscreenComponents
 
 Item {
     // Wayland Cursor Fix
@@ -58,12 +58,7 @@ Item {
 
     // Background
     Rectangle { anchors.fill: parent; color: "#05080c"; z: -1000 }
-    MediaPlayer {
-        id: player; source: "bg.mp4"
-        videoOutput: bgVideo; loops: MediaPlayer.Infinite
-        Component.onCompleted: player.play()
-    }
-    VideoOutput { id: bgVideo; anchors.fill: parent; fillMode: VideoOutput.PreserveAspectCrop; z: -500 }
+    BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background); z: -500 }
 
     // Overlay
     Rectangle {

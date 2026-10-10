@@ -11,7 +11,7 @@ Imported from upstream revision `f6561e2ceae33f26e5e660742a5df2f725cbe514`.
 - Walker: Style > Lockscreen. Enter selects a design for future locks.
 - Ctrl+P previews without locking; Escape returns to the selector.
 - Super+M locks with the selected design. Hyprlock remains the safety fallback.
-- Preferences: `~/.config/lockscreen/selected`.
+- Preferences: `~/.config/lockscreen/selected` (machine-local; Hyprlock when absent).
 
 Idle locking uses the same launcher through `hypr/hypridle.conf`: lock after
 15 minutes, screen off after 30 minutes, and suspend after 60 minutes. Hypridle
@@ -33,6 +33,45 @@ flows are not supported; select Hyprlock for those configurations.
 The screens can be edited under `themes/`. The authentication/session-lock core
 lives in `AuthAdapter.qml` and `shell.qml`, separately from the presentation.
 `scripts/settings.py` discovers designs by `Main.qml` and reads their INI config.
+If the Quickshell lock fails to start or exits without a successful unlock,
+`scripts/launch.sh` hands the session to Hyprlock.
+
+## Writing Designs
+
+A design is a directory under `themes/` with `Main.qml`, `theme.conf`,
+`metadata.desktop`, `preview.png`, and its own assets. Shared pieces live in the
+`LockscreenComponents` module (`imports/LockscreenComponents`); the launcher puts
+it on the QML import path and the login installer copies it into every SDDM design.
+
+- Media comes from `theme.conf`: set `background=` under `[General]` and pass it
+  through `Qt.resolvedUrl(config.background)`, which resolves next to `Main.qml`.
+  Replacing a wallpaper means replacing that file or editing that one value;
+  shared QML never names media files.
+- Video: `BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background) }`.
+  It loads QtMultimedia on demand, so designs do not import it themselves.
+- Login: use `LoginController` for the user, session, and password flow, and
+  never gate `login()` on `isQuickshell`; the Quickshell bridge already refuses
+  logins in previews. Quickshell exposes `sddm`, `userModel`, `sessionModel`,
+  `keyboard`, and `config` to `Main.qml` only, so pass them to shared components:
+
+  ```qml
+  LoginController {
+      id: login
+      sddm: typeof sddm !== "undefined" ? sddm : null
+      userModel: typeof userModel !== "undefined" ? userModel : null
+      sessionModel: typeof sessionModel !== "undefined" ? sessionModel : null
+      onLoginFailed: errorText.text = "Try again"
+  }
+  // login.login(password), login.userName, login.cycleUser(), login.isQuickshell
+  ```
+
+- Variants of one layout share a module component configured by `theme.conf`.
+  `material-you` and `material-you-dark` use `MaterialYouDesign` with
+  `themeMode=light|dark`; their `Main.qml` files are identical.
+
+Older imported designs still carry their own login boilerplate; move them to
+these pieces when they are next edited. `tests/test_lockscreen.py` checks the
+rules above.
 
 ## Login Screen
 

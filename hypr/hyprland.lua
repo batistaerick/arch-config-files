@@ -308,6 +308,7 @@ hl.bind(
 
 -- Window state and layout
 hl.bind(mainMod .. " + W", hl.dsp.window.close())
+-- Intentional pair: SUPER+T toggles floating and pin together (see Learn > Shortcuts).
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.window.pin())
 hl.bind(mainMod .. " + CTRL + F", hl.dsp.window.fullscreen())
@@ -394,12 +395,12 @@ hl.bind(
 hl.bind(
 	"XF86AudioMute",
 	hl.dsp.exec_cmd("swayosd-client --output-volume=mute-toggle --max-volume=100"),
-	{ locked = true, repeating = true }
+	{ locked = true }
 )
 hl.bind(
 	"XF86AudioMicMute",
 	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
-	{ locked = true, repeating = true }
+	{ locked = true }
 )
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("swayosd-client --brightness +2"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness -2"), { locked = true, repeating = true })

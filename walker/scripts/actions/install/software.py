@@ -46,7 +46,10 @@ def confirm(label):
 
 def data_file(name):
     """Find a distro data file: the installed copy, else this repository's checkout."""
-    candidates = [Path.home() / ".local/share/eitr" / name, SCRIPT.parents[4] / "distro" / name]
+    candidates = [Path.home() / ".local/share/eitr" / name]
+    # In a checkout this script lives at walker/scripts/actions/install/.
+    if len(SCRIPT.parents) > 4:
+        candidates.append(SCRIPT.parents[4] / "distro" / name)
     for candidate in candidates:
         if candidate.is_file():
             return candidate

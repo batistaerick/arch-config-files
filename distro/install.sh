@@ -126,6 +126,7 @@ sudo python3 "$HOME/.config/quickshell/lockscreen/scripts/install-login.py"
 sudo usermod -s /usr/bin/zsh "$(id -un)"
 sudo systemctl enable iwd systemd-networkd systemd-resolved bluetooth sddm
 flatpak remote-add --user --if-not-exists GeForceNOW https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --user --noninteractive GeForceNOW com.nvidia.geforcenow
 printf '\nInstalled desktop files for %s. Reboot after reviewing network and SDDM setup.\n' "$USER"
 printf 'Choose a theme in Walker after first login to generate the remaining app styles.\n'

@@ -181,6 +181,8 @@ def remove(source, name):
 def recipe(group, identifier):
     item = catalog()[group][identifier]
     if item["source"] == "flatpak":
+        for remote in item.get("runtime_remotes", []):
+            run(["flatpak", "remote-add", "--user", "--if-not-exists", remote["name"], remote["url"]])
         run(["flatpak", "remote-add", "--user", "--if-not-exists", item["remote"], item["url"]])
         run(["flatpak", "install", "--user", item["remote"], *item["packages"]])
     else:

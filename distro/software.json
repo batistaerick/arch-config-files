@@ -35,6 +35,6 @@
   },
   "gaming": {
     "steam": {"label": "Steam", "source": "pacman", "packages": ["steam", "steam-devices"]},
-    "geforcenow": {"label": "GeForce NOW", "source": "flatpak", "packages": ["com.nvidia.geforcenow"], "remote": "GeForceNOW", "url": "https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo"}
+    "geforcenow": {"label": "GeForce NOW", "source": "flatpak", "packages": ["com.nvidia.geforcenow"], "runtime_remotes": [{"name": "flathub", "url": "https://dl.flathub.org/repo/flathub.flatpakrepo"}], "remote": "GeForceNOW", "url": "https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo"}
   }
 }

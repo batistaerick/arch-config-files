@@ -12,6 +12,15 @@ spec.loader.exec_module(software)
 
 
 class SoftwareTests(unittest.TestCase):
+    def test_geforce_adds_runtime_remote_before_install(self):
+        data = json.loads((ROOT / "distro/software.json").read_text())
+        with patch.object(software, "catalog", return_value=data), patch.object(software, "run") as run:
+            software.recipe("gaming", "geforcenow")
+            calls = [call.args[0] for call in run.call_args_list]
+            self.assertEqual(calls[0], ["flatpak", "remote-add", "--user", "--if-not-exists",
+                                      "flathub", "https://dl.flathub.org/repo/flathub.flatpakrepo"])
+            self.assertEqual(calls[-1], ["flatpak", "install", "--user", "GeForceNOW", "com.nvidia.geforcenow"])
+
     def test_package_picker_installs_all_selected_packages(self):
         with patch.object(software, "text", return_value="firefox\nchromium"), \
                 patch.object(software.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout="firefox\nchromium\n")) as picker, \

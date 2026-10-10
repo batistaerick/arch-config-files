@@ -66,8 +66,10 @@ them with upstream defaults.
   shortcut and Learn/Shortcuts entry points when changing a workflow.
 - Keep Walker menus organized: group related setup/actions into named submenus
   instead of crowding their parent. Set each submenu's parent to its actual
-  location so Shift+Backspace returns correctly. Do not use a standalone ">"
-  subtext as a submenu indicator; it renders below the label.
+  location so Shift+Backspace returns correctly. Submenu rows use ">" subtext
+  with the shared horizontal row layout (for example item_menus-system.xml),
+  right-aligned beside the label, never underneath it. Add the matching
+  item_menus-<name>.xml layout for new parent menus.
 - Walker system actions should open the same native panels as bar clicks. Use
   the existing `panels` IPC interface, including `call -- panels show <kind>`.
 - Use `walker/bin/walker` for Walker launches. It carries an application-scoped

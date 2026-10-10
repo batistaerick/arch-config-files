@@ -11,11 +11,13 @@ actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions
 
 [[entries]]
 text = "Fingerprint"
+subtext = ">"
 icon = "󰈷"
 submenu = "fingerprint"
 
 [[entries]]
 text = "FIDO2 Security Key"
+subtext = ">"
 icon = "󰌆"
 submenu = "fido2"
 

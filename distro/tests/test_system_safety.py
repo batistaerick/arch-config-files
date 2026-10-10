@@ -42,12 +42,13 @@ class SystemSafetyTests(unittest.TestCase):
             run.assert_not_called()
             self.assertFalse((Path(temporary) / "pending-upgrade.json").exists())
 
-    def test_hooks_abort_updates_if_snapshot_fails(self):
-        before = (ROOT / "hooks/05-eitr-snapshot-pre.hook").read_text()
-        self.assertIn("Operation = Upgrade", before)
-        self.assertIn("When = PreTransaction", before)
-        self.assertIn("AbortOnFail", before)
-        self.assertIn("/usr/local/lib/eitr/eitr-system snapshot-pre", before)
+    def test_only_system_update_requests_snapshots(self):
+        script = (ROOT.parent / "walker/scripts/actions/system/update.sh").read_text()
+        protected = script.split("system)")[1].split(";;")[0]
+        self.assertIn('sudo "$helper" snapshot-pre', protected)
+        self.assertLess(protected.index("snapshot-pre"), protected.index("\n      full_update"))
+        self.assertIn('sudo "$helper" snapshot-post', protected)
+        self.assertNotIn("snapshot-pre", script.split("pacman)")[1])
 
     def test_auth_targets_are_narrow(self):
         self.assertEqual(system.SERVICES, ("hyprlock", "sddm", "sudo"))

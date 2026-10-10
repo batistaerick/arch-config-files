@@ -50,7 +50,9 @@ Password fallback remains. A FIDO2 biometric key is not a laptop fingerprint rea
 Touch ID on the host Mac is not passed through as a normal Linux fingerprint reader.
 System → Snapshots requires the reviewed privileged integration described
 in [the distro guide](../distro/README.md). Update works normally on existing
-desktops; fresh distro installs enforce snapshots through pacman hooks.
+desktops. System Update upgrades official and AUR packages, with pre/post
+snapshots enabled only on distro installs. Advanced offers Pacman, Pacman + Yay,
+and Yay (AUR-only), without automatic snapshots.
 No PAM or snapshot setup runs at login.
 
 Gaming offers Steam and NVIDIA's official GeForce NOW Flatpak. NVIDIA's cloud

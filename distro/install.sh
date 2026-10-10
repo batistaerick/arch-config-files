@@ -64,9 +64,7 @@ install -m 644 "$repo_root/distro/installers.json" "$HOME/.local/share/eitr/inst
 install -m 644 "$repo_root/distro/RECOVERY.md" "$HOME/.local/share/eitr/RECOVERY.md"
 sudo install -Dm755 "$repo_root/distro/system/eitr-system.py" /usr/local/lib/eitr/eitr-system
 sudo /usr/local/lib/eitr/eitr-system snapshots-setup
-for hook in "$repo_root/distro/hooks/"*.hook; do
-  sudo install -Dm644 "$hook" "/etc/pacman.d/hooks/$(basename "$hook")"
-done
+sudo install -Dm644 "$repo_root/distro/system-update-policy.conf" /etc/eitr/system-update-policy.conf
 
 mkdir -p "$HOME/.config" "$HOME/.cache" "$HOME/.local/bin"
 for item in "${config_dirs[@]}" "${config_files[@]}"; do

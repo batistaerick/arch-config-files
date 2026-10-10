@@ -43,8 +43,8 @@ the graphical desktop and AUR packages are installed on the target system by
   includes Steam and the official NVIDIA GeForce NOW user Flatpak, installed
   from NVIDIA's signed remote. It requires a separate account and compatible
   hardware/network; it does not install NVIDIA GPU drivers on AMD/Intel systems.
-- Snapper and fail-closed pacman hooks create recovery points before upgrades,
-  including Yay upgrade transactions. Supported fresh installs require Btrfs
+- Snapper creates recovery points only through System Update on distro installs.
+  Advanced Pacman/AUR updates intentionally do not request snapshots. Supported fresh installs require Btrfs
   root with `/usr`, `/etc`, and `/var/lib/pacman` inside that root subvolume.
   Boot/EFI archives are separate; see [recovery instructions](RECOVERY.md).
 - Security offers password changes, fingerprint enrollment, FIDO2-key enrollment,
@@ -72,7 +72,7 @@ link once installation and release testing is complete.
    `bash distro/install.sh` as the new **non-root** user. It refuses to replace
    config paths that already exist, and does not copy browser, Wi-Fi, SSH, AI,
    or 1Password credentials. The installer downloads official packages,
-   builds `yay` from AUR, installs AUR apps, configures Snapper and upgrade hooks,
+   builds `yay` from AUR, installs AUR apps, configures Snapper and System Update protection,
    and installs GeForce NOW. Development SDKs and AI CLIs are selected later
    from Walker rather than installed automatically. Audit the manifests and
    upstream installers before running them.
@@ -145,20 +145,22 @@ Development bootstrap references: [NVM](https://github.com/nvm-sh/nvm),
 Config/menu changes do not automatically install packages, change PAM, or
 configure root snapshots on the owner's running desktop. To enable the root
 integration on a reviewed supported Btrfs installation, install the dependencies
-and root-owned helper/hooks deliberately:
+and root-owned helper and System Update policy deliberately:
 
 ```sh
 sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker
 sudo install -Dm755 distro/system/eitr-system.py /usr/local/lib/eitr/eitr-system
 sudo /usr/local/lib/eitr/eitr-system snapshots-setup
-sudo install -Dm644 distro/hooks/05-eitr-snapshot-pre.hook /etc/pacman.d/hooks/05-eitr-snapshot-pre.hook
-sudo install -Dm644 distro/hooks/95-eitr-snapshot-post.hook /etc/pacman.d/hooks/95-eitr-snapshot-post.hook
+sudo install -Dm644 distro/system-update-policy.conf /etc/eitr/system-update-policy.conf
 ```
 
 Run from this repo, as the normal desktop user. If setup rejects the layout,
 stop; do not bypass its protection. The initial dependency bootstrap above is
-not protected by hooks that have not yet been installed. Thereafter, the Update
-menu is protected by pacman's hooks. Existing desktops without hooks can still
-update normally; snapshot protection is not a prerequisite for using the menu.
+not protected before that policy is enabled. Thereafter, System Update requires
+successful snapshot creation before upgrading. Advanced updates are unprotected.
+Existing desktops without the policy still update normally.
+If you installed the old Eitr hooks manually, remove only
+`/etc/pacman.d/hooks/05-eitr-snapshot-pre.hook` and
+`/etc/pacman.d/hooks/95-eitr-snapshot-post.hook` to adopt this new policy.
 Never sudo a helper under a user-writable config path.
 Do not restart SDDM or test authentication without a recovery console available.

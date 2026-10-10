@@ -67,7 +67,8 @@ them with upstream defaults.
 - SUPER+Space must keep the native desktopapplications provider and its existing
   pins/history/actions. Do not replace it with a custom menu to add another action.
   Existing desktops must not require distro snapshot setup just to update;
-  fresh distro installs enforce protection through their pacman hooks.
+  fresh distro installs snapshot only the System Update workflow. Advanced
+  Pacman/AUR updates intentionally do not create automatic snapshots.
 - Keep Walker menus organized: group related setup/actions into named submenus
   and sort their labels alphabetically (case-insensitive). Main retains its
   custom order, and Apps retains its existing behavior.

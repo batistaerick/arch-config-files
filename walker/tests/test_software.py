@@ -132,7 +132,6 @@ class SoftwareTests(unittest.TestCase):
 
     def test_existing_desktop_update_does_not_require_distro_snapshot_setup(self):
         script = (ROOT / "walker/scripts/actions/system/update.sh").read_text()
-        self.assertNotIn("exit 1", script)
+        self.assertIn("if [[ -f /etc/eitr/system-update-policy.conf ]]", script)
         self.assertIn("sudo pacman -Syu", script)
-        hook = (ROOT / "distro/hooks/05-eitr-snapshot-pre.hook").read_text()
-        self.assertIn("AbortOnFail", hook)
+        self.assertIn("yay) yay -Sua --devel", script)

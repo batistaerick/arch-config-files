@@ -10,8 +10,8 @@ The installer does not format disks or rearrange existing subvolumes.
 
 ## Before updates
 
-The installer places root-owned hooks in `/etc/pacman.d/hooks`. Before any pacman
-upgrade transaction (including packages installed through Yay), the pre hook:
+The installer enables `/etc/eitr/system-update-policy.conf`. Before
+System → Update → System Update upgrades official and AUR packages, it:
 
 1. Verifies the supported layout and Snapper root configuration.
 2. Creates a pre-upgrade root snapshot.
@@ -19,10 +19,12 @@ upgrade transaction (including packages installed through Yay), the pre hook:
    `/var/lib/eitr/boot-backups/<snapshot-number>/` with root-only access.
 4. Aborts the upgrade if snapshot creation or boot backup fails.
 
-After a successful upgrade, the post hook creates the corresponding post snapshot.
+After a successful update, the workflow creates the corresponding post snapshot.
 An interrupted/failed upgrade still retains its pre snapshot and boot archives.
 Updates to Flatpaks, SDKMAN/NVM runtimes and files on separate home subvolumes are
-not pacman transactions and are not protected by these hooks.
+not protected by these snapshots. Advanced updates and direct pacman/yay commands
+intentionally do not create automatic snapshots. Older Eitr snapshot hooks, if
+manually installed, must be removed to adopt this policy.
 
 New Snapper configurations keep up to 10 ordinary and 5 important numbered
 snapshots through the cleanup timer. Existing policies are preserved. Boot

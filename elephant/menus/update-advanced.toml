@@ -1,0 +1,23 @@
+name = "update-advanced"
+name_pretty = "Advanced Updates"
+parent = "update"
+icon = "󰒓"
+fixed_order = true
+
+[[entries]]
+text = "Pacman"
+subtext = "Official packages · no automatic snapshot"
+icon = "󰚰"
+actions = { open = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh pacman" }
+
+[[entries]]
+text = "Pacman + Yay"
+subtext = "Official and AUR packages · no automatic snapshot"
+icon = "󰜉"
+actions = { open = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh full" }
+
+[[entries]]
+text = "Yay (AUR)"
+subtext = "AUR packages only · no automatic snapshot"
+icon = "󰀦"
+actions = { open = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh yay" }

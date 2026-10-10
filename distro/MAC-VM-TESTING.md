@@ -135,7 +135,7 @@ for the basic desktop test.
 - [ ] `yay --version`, `lazygit --version` and `lazydocker --version` work.
 - [ ] Optional Node/Java menu installs work; then a fresh terminal's `nvm current`,
       `node --version`, `sdk current java` and `java -version` confirm managers.
-- [ ] A guest-only upgrade creates a root recovery snapshot and boot archives;
+- [ ] System Update in the guest creates a root recovery snapshot and boot archives;
       recovery from live media is tested before calling rollback reliable.
 - [ ] Another guest reboot preserves the setup.
 

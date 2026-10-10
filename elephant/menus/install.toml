@@ -8,13 +8,13 @@ fixed_order = true
 text = "Pacman"
 subtext = "Official packages · Tab select · Enter install · Ctrl+B review"
 icon = "󰏖"
-submenu = "packages-pacman"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch pacman" }
 
 [[entries]]
 text = "Yay (AUR)"
 subtext = "Community builds · Tab select · Enter install · Ctrl+B review"
 icon = "󰀦"
-submenu = "packages-aur"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch aur" }
 
 [[entries]]
 text = "Browsers"

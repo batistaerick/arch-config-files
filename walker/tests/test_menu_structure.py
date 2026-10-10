@@ -11,6 +11,10 @@ def menu(name):
 
 
 class MenuStructureTests(unittest.TestCase):
+    def test_package_entries_open_terminal_pickers(self):
+        for entry in menu("install")["entries"][:2]:
+            self.assertNotIn("submenu", entry)
+            self.assertIn("picker-launch", entry["actions"]["open"])
     def test_ai_install_is_only_under_install(self):
         self.assertNotIn("ai-install", [entry.get("submenu") for entry in menu("ai-tools")["entries"]])
         self.assertIn("ai-install", [entry.get("submenu") for entry in menu("install")["entries"]])

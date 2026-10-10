@@ -16,11 +16,13 @@ the corresponding symlink under `HOME_FILES/.local/bin/walker`.
 
 ## Software and system menus
 
-Main → Install offers Pacman and Yay/AUR search. Type at least two characters,
-press Tab to select/unselect multiple packages, then Enter to install the selection
-in a terminal. Ctrl+B opens official metadata or the AUR build repository without
+Main → Install → Pacman / Yay opens a terminal package picker. Type to search
+package names, press Tab to select/unselect multiple packages, then Enter to install
+the selection in that terminal. Escape cancels without installing. Pacman uses
+the local repository databases; AUR downloads its package-name index when opened.
+Ctrl+B opens official metadata or the AUR build repository without
 executing it; review PKGBUILD, .install files and patches before accepting Yay's
-build prompts. Selection is separate for each source and clears after launch.
+build prompts. Selection lasts only for that picker session.
 
 SUPER+Space and Main → Apps use the same application menu. Delete opens a themed
 Cancel/Confirm prompt, then a terminal for package-manager authorization. The

@@ -12,6 +12,21 @@ spec.loader.exec_module(software)
 
 
 class SoftwareTests(unittest.TestCase):
+    def test_package_picker_installs_all_selected_packages(self):
+        with patch.object(software, "text", return_value="firefox\nchromium"), \
+                patch.object(software.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout="firefox\nchromium\n")) as picker, \
+                patch.object(software, "install") as install:
+            software.package_picker("pacman")
+            self.assertIn("--multi", picker.call_args.args[0])
+            install.assert_called_once_with("pacman", ["firefox", "chromium"])
+
+    def test_package_picker_cancel_never_installs(self):
+        with patch.object(software, "text", return_value="firefox"), \
+                patch.object(software.subprocess, "run", return_value=SimpleNamespace(returncode=130, stdout="")), \
+                patch.object(software, "install") as install:
+            software.package_picker("pacman")
+            install.assert_not_called()
+
     def test_gaming_installed_steam_launches_without_installing(self):
         with patch.object(software.shutil, "which", return_value="/usr/bin/steam"), \
                 patch.object(software.subprocess, "Popen") as launch, patch.object(software, "terminal") as terminal:

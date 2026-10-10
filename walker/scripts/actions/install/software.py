@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Walker software workflows. No package writes occur while listing or reviewing."""
 import argparse
+import gzip
 import json
 import os
 from pathlib import Path
@@ -189,6 +190,33 @@ def recipe(group, identifier):
             run(["bash", str(SCRIPT.with_name("development.sh")), identifier])
 
 
+def package_picker(source):
+    if source == "pacman":
+        names = text(["pacman", "-Slq"]).splitlines()
+    elif source == "aur":
+        print("Loading AUR package names…", flush=True)
+        with urllib.request.urlopen("https://aur.archlinux.org/packages.gz", timeout=30) as response:
+            names = gzip.decompress(response.read()).decode().splitlines()
+    else:
+        raise ValueError("Unknown package source")
+    names = sorted({name for name in names if NAME.fullmatch(name) and ":" not in name})
+    if not names:
+        raise ValueError("No package names available; check your package databases/network")
+    review_command = shlex.join(["python3", str(SCRIPT), "review", source]) + " {}"
+    result = subprocess.run(
+        ["fzf", "--multi", "--layout=reverse", "--border", "--prompt", source.upper() + " > ",
+         "--header", "Type to search · Tab select · Enter install · Ctrl+B review · Esc cancel",
+         "--bind", "tab:toggle+down,shift-tab:toggle+up,ctrl-b:execute(" + review_command + ")"],
+        input="\n".join(names) + "\n", text=True, stdout=subprocess.PIPE)
+    if result.returncode in (1, 130):
+        return
+    if result.returncode != 0:
+        raise RuntimeError("Package picker failed")
+    selected = result.stdout.splitlines()
+    if selected:
+        install(source, selected)
+
+
 def gaming(identifier):
     if identifier == "steam":
         if shutil.which("steam"):
@@ -216,7 +244,7 @@ def gaming_install(identifier):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["search", "recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch", "gaming", "gaming-install"])
+    parser.add_argument("action", choices=["search", "recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch", "gaming", "gaming-install", "picker", "picker-launch"])
     parser.add_argument("args", nargs="*")
     options = parser.parse_args()
     args = options.args
@@ -249,12 +277,16 @@ def main():
         gaming(*args)
     elif options.action == "gaming-install":
         gaming_install(*args)
+    elif options.action == "picker":
+        package_picker(*args)
+    elif options.action == "picker-launch":
+        terminal("python3", str(SCRIPT), "picker", *args)
 
 
 if __name__ == "__main__":
     try:
         main()
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         print(str(error), file=sys.stderr)
         if "search" in sys.argv or "recipes" in sys.argv:
             print(json.dumps([{"name": "", "description": "Search unavailable; check network/package databases"}]))

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -13,23 +14,25 @@ ShellRoot {
         if (started) return;
         if (windows.instances.some(window => !window.ready)) return;
         started = true;
-        // Replace the backing wallpaper while the old-image layer covers it.
-        commit.running = true;
+        // Allow the initial old-wallpaper frame to be presented first.
+        prepare.start();
     }
     NumberAnimation {
         id: reveal
         target: root; property: "progress"
         from: 0; to: 1; duration: 650; easing.type: Easing.InOutCubic
-        onFinished: handoff.start()
+        // Only replace Hyprpaper once the new image completely covers it.
+        onFinished: commit.running = true
     }
     Process {
         id: commit
         command: ["python3", Quickshell.env("HOME") + "/.config/walker/scripts/actions/wallpaper/transition.py", "commit", root.next]
         onExited: function(exitCode) {
-            if (exitCode === 0) reveal.start();
+            if (exitCode === 0) handoff.start();
             else Qt.exit(1);
         }
     }
+    Timer { id: prepare; interval: 120; onTriggered: reveal.start(); }
     // Keep the completed frame covering Hyprpaper until the compositor catches up.
     Timer { id: handoff; interval: 250; onTriggered: Qt.quit(); }
     Timer { interval: 10000; running: true; onTriggered: Qt.exit(1); }
@@ -56,16 +59,29 @@ ShellRoot {
                 fillMode: Image.PreserveAspectCrop
             }
             Item {
-                width: parent.width * root.progress
-                height: parent.height
-                anchors.horizontalCenter: parent.horizontalCenter
-                clip: true
-                Image {
-                    id: newImage
-                    width: window.width; height: window.height
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    source: root.next
-                    fillMode: Image.PreserveAspectCrop
+                id: circleMask
+                anchors.fill: parent
+                visible: false
+                layer.enabled: true
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: Math.sqrt(window.width * window.width + window.height * window.height) * root.progress
+                    height: width
+                    radius: width / 2
+                    color: "white"
+                }
+            }
+            Image {
+                id: newImage
+                anchors.fill: parent
+                source: root.next
+                fillMode: Image.PreserveAspectCrop
+                layer.enabled: true
+                layer.effect: MultiEffect {
+                    maskEnabled: true
+                    maskSource: circleMask
+                    maskThresholdMin: 0.5
+                    maskSpreadAtMin: 0.5
                 }
             }
         }

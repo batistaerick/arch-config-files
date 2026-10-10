@@ -21,11 +21,12 @@ class WallpaperTests(unittest.TestCase):
                 transition.apply(str(image))
                 commit.assert_not_called()
 
-    def test_backing_wallpaper_changes_before_reveal(self):
+    def test_backing_wallpaper_changes_only_under_completed_reveal(self):
         qml = (ROOT / "quickshell/wallpaper-transition/shell.qml").read_text()
-        self.assertIn("commit.running = true", qml.split("NumberAnimation")[0])
-        self.assertIn("if (exitCode === 0) reveal.start()", qml)
-        self.assertIn("onFinished: handoff.start()", qml)
+        self.assertNotIn("commit.running = true", qml.split("NumberAnimation")[0])
+        self.assertIn("if (exitCode === 0) handoff.start()", qml)
+        self.assertIn("onFinished: commit.running = true", qml)
+        self.assertIn("prepare.start()", qml)
         self.assertIn("onTriggered: Qt.exit(1)", qml)
 
     def test_transition_does_not_capture_input(self):
@@ -33,7 +34,9 @@ class WallpaperTests(unittest.TestCase):
         self.assertIn("WlrLayer.Bottom", qml)
         self.assertIn("mask: Region {}", qml)
         self.assertIn("duration: 650", qml)
-        self.assertIn("anchors.horizontalCenter", qml)
+        self.assertIn("anchors.centerIn", qml)
+        self.assertIn("maskSource: circleMask", qml)
+        self.assertIn("Math.sqrt(window.width * window.width + window.height * window.height)", qml)
 
     def test_failure_still_commits_static_wallpaper(self):
         with tempfile.TemporaryDirectory() as directory:

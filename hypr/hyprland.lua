@@ -119,7 +119,6 @@ local hyprScriptsDir = "~/.config/hypr/scripts"
 hl.on("hyprland.start", function()
 	hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
 	hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
-	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("quickshell -n -c desktop-bar --daemonize")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("hyprpaper")
@@ -481,7 +480,6 @@ end
 -- Floating utility windows
 local topRightPanelPosition = "top-right"
 
-floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })

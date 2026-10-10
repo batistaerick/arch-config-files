@@ -1,18 +1,7 @@
 -- Detect whether this session is running on the laptop panel or the desktop monitors.
-local function has_internal_display()
-	local handle = io.popen("cat /sys/class/drm/card*-eDP-*/status 2>/dev/null")
-	if not handle then
-		return false
-	end
-
-	local output = handle:read("*a") or ""
-	handle:close()
-
-	return output:match("connected") ~= nil
-end
-
-local function has_connected_output(output)
-	local handle = io.popen("cat /sys/class/drm/card*-" .. output .. "/status 2>/dev/null")
+-- DRM status files contain "connected" or "disconnected"; match whole lines only.
+local function drm_output_connected(output_glob)
+	local handle = io.popen("cat /sys/class/drm/card*-" .. output_glob .. "/status 2>/dev/null")
 	if not handle then
 		return false
 	end
@@ -20,11 +9,11 @@ local function has_connected_output(output)
 	local status = handle:read("*a") or ""
 	handle:close()
 
-	return status:match("connected") ~= nil
+	return ("\n" .. status):match("\nconnected") ~= nil
 end
 
-local is_laptop = has_internal_display()
-local has_hdmi = has_connected_output("HDMI-A-1")
+local is_laptop = drm_output_connected("eDP-*")
+local has_hdmi = drm_output_connected("HDMI-A-1")
 local portable_config = io.open(os.getenv("HOME") .. "/.config/hypr/portable.mode", "r")
 local portable_mode = portable_config ~= nil
 if portable_config then

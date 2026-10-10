@@ -40,6 +40,10 @@ def main():
         for value, label in designs().items():
             print(f"{value}\t{label}")
         return
+    if command not in ("select", "config"):
+        raise SystemExit("Unknown command")
+    if len(sys.argv) < 3:
+        raise SystemExit(f"Usage: settings.py {command} DESIGN")
     value = sys.argv[2]
     if value not in designs():
         raise SystemExit("Unknown lockscreen")

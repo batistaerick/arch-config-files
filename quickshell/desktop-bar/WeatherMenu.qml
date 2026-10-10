@@ -1,5 +1,6 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
+import "WeatherIcons.js" as WeatherIcons
 import Quickshell
 import Quickshell.Io
 
@@ -25,7 +26,7 @@ ThemedPopup {
     function refresh() {
         if (!weatherQuery.running) {
             requestedCity = JSON.stringify(city);
-            weatherQuery.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/weather-popup.py", "weather", requestedCity];
+            weatherQuery.command = ["python3", Quickshell.shellDir + "/scripts/weather-popup.py", "weather", requestedCity];
             weatherQuery.running = true;
         }
     }
@@ -48,16 +49,7 @@ ThemedPopup {
         refresh();
     }
     function forecastIcon(code) {
-        // Keep the existing panel's forecast glyph mapping.
-        if (code === "113") return "󰖙";
-        if (code === "116") return "󰖕";
-        if (["143", "248", "260"].indexOf(code) >= 0) return "󰖑";
-        if (["176", "263", "266", "293", "296", "353"].indexOf(code) >= 0) return "󰖗";
-        if (["179", "182", "185", "281", "284", "311", "314", "317", "320", "362", "365", "374", "377"].indexOf(code) >= 0) return "󰖒";
-        if (["200", "386", "389", "392", "395"].indexOf(code) >= 0) return "󰙾";
-        if (["227", "230", "323", "326", "329", "332", "335", "338", "350", "368", "371"].indexOf(code) >= 0) return "󰖘";
-        if (["299", "302", "305", "308", "356", "359"].indexOf(code) >= 0) return "󰖖";
-        return "󰖐";
+        return WeatherIcons.forecastIcon(code);
     }
     onOpenedChanged: {
         if (opened) {
@@ -76,7 +68,7 @@ ThemedPopup {
         onTriggered: {
             if (searchQuery.running || !menu.searching || cityInput.text.trim().length < 2) return;
             menu.requestedSearch = cityInput.text.trim();
-            searchQuery.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/weather-popup.py", "search", menu.requestedSearch];
+            searchQuery.command = ["python3", Quickshell.shellDir + "/scripts/weather-popup.py", "search", menu.requestedSearch];
             searchQuery.running = true;
         }
     }
@@ -249,7 +241,7 @@ ThemedPopup {
                 }
                 Text { visible: menu.searchError !== ""; text: menu.searchError; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
             }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
             Row {
                 width: parent.width
                 Repeater {

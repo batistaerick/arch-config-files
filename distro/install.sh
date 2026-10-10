@@ -267,9 +267,8 @@ fi
 sudo python3 "$HOME/.config/quickshell/lockscreen/scripts/install-login.py"
 sudo usermod -s /usr/bin/zsh "$(id -un)"
 sudo systemctl enable iwd systemd-networkd systemd-resolved bluetooth sddm
-flatpak remote-add --user --if-not-exists GeForceNOW https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo
-flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak install --user --noninteractive --or-update GeForceNOW com.nvidia.geforcenow
+# GeForce NOW uses the same software.json recipe as Walker → Gaming.
+python3 "$repo_root/walker/scripts/actions/install/software.py" recipe gaming geforcenow
 printf '\nInstalled desktop files for %s. Reboot after reviewing network and SDDM setup.\n' "$USER"
 printf 'Choose a theme in Walker after first login to generate the remaining app styles.\n'
 printf 'Docker and cronie are installed but not enabled. Enable them only if needed:\n'

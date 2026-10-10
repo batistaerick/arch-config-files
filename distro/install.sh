@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-config_dirs=(Kvantum elephant fastfetch hypr kitty lockscreen nvim nwg-look quickshell swayosd themes walker xdg-desktop-portal)
+config_dirs=(Kvantum elephant fastfetch hypr kitty nvim nwg-look quickshell swayosd themes walker xdg-desktop-portal)
 config_files=(dolphinrc filetypesrc mimeapps.list)
 shell_files=(.zshrc .p10k.zsh .ls_colors)
 # Paths this installer created are recorded here, so a rerun after a partial

@@ -38,6 +38,22 @@ class DisplayPrimaryTests(unittest.TestCase):
     def test_existing_default_keeps_hdmi_preference(self):
         self.assertEqual(display_primary.choose_primary(self.monitors), "HDMI-A-1")
 
+    def test_portable_tie_keeps_compositor_order(self):
+        monitors = [
+            {"name": "eDP-1", "width": 1920, "height": 1080, "refreshRate": 60},
+            {"name": "DP-1", "width": 1920, "height": 1080, "refreshRate": 165},
+        ]
+        self.assertEqual(display_primary.choose_primary(monitors, portable=True), "eDP-1")
+
+    def test_shell_fallback_mirrors_python_preference(self):
+        shell = (Path(__file__).parents[1] / "shell.qml").read_text()
+        start = shell.index("function targetScreens()")
+        body = shell[start:shell.index("Variants {", start)]
+        first, second = display_primary.LEGACY_PREFERENCE
+        self.assertLess(body.index('"' + first + '"'), body.index('"' + second + '"'))
+        self.assertIn("portableDisplayMode && largest", body)
+        self.assertIn("width * screens[i].height > largest.width * largest.height", body)
+
     def test_set_persists_only_connected_display(self):
         with tempfile.TemporaryDirectory() as directory, \
                 patch.object(display_primary, "CONFIG_DIR", Path(directory)), \

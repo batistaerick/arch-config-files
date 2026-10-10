@@ -2,7 +2,7 @@
 
 source "$HOME/.config/walker/scripts/menus/cloud/azure/common.sh"
 
-subscription="$(choose_azure_subscription)"
+subscription="$(choose_azure_subscription)" || exit 0
 
 run_in_kitty "Azure VNets" "
 cloud_header 'Azure virtual networks'

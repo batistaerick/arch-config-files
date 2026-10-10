@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+expected_name='Erick Prado'
+expected_email='batista.erick@outlook.com'
 for role in AUTHOR COMMITTER; do
   identity="$(git var "GIT_${role}_IDENT")"
-  if [[ "$identity" != *'<batista.erick@outlook.com>'* ]]; then
-    printf 'Eitr is a personal repo. Refusing %s identity: %s\nUse batistaerick / batista.erick@outlook.com; never the work account.\n' "$role" "$identity" >&2
+  name="${identity%% <*}"
+  email="${identity#*<}"
+  email="${email%%>*}"
+  if [[ "$name" != "$expected_name" || "$email" != "$expected_email" ]]; then
+    printf 'Eitr is a personal repo. Refusing %s identity: %s <%s>\nUse %s <%s>; never the work account.\n' \
+      "$role" "$name" "$email" "$expected_name" "$expected_email" >&2
     exit 1
   fi
 done

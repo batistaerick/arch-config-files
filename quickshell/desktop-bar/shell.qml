@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import "PanelStyle.js" as PanelStyle
 import "WorkspaceModel.js" as WorkspaceModel
 
 ShellRoot {
@@ -74,7 +75,7 @@ ShellRoot {
 
     Process {
         id: barSettingsQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py", "status"]
+        command: ["python3", Quickshell.shellDir + "/scripts/bar-settings.py", "status"]
         running: true
         stdout: StdioCollector { id: barSettingsOutput }
         onExited: function(code) {
@@ -104,7 +105,7 @@ ShellRoot {
     function persistBarSettings() {
         if (saveBarSettings.running) return;
         settingsDirty = false;
-        saveBarSettings.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/bar-settings.py",
+        saveBarSettings.command = ["python3", Quickshell.shellDir + "/scripts/bar-settings.py",
             "set-all", barAppearance, barLayout, barEdge];
         saveBarSettings.running = true;
     }
@@ -124,7 +125,7 @@ ShellRoot {
 
     Process {
         id: workspacePalette
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/workspace-color.py"]
+        command: ["python3", Quickshell.shellDir + "/scripts/workspace-color.py"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -153,7 +154,7 @@ ShellRoot {
 
     Process {
         id: primaryDisplayQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/display-primary.py", "status"]
+        command: ["python3", Quickshell.shellDir + "/scripts/display-primary.py", "status"]
         running: true
         stdout: StdioCollector { id: primaryDisplayOutput }
         onExited: function(code) {
@@ -197,10 +198,11 @@ ShellRoot {
         command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/manual-lock.sh"]
     }
 
-    AppearancePicker {}
+    AppearancePicker { defaultScreen: shell.targetScreens()[0] || null }
 
-    function run(command) {
-        Quickshell.execDetached(["bash", "-lc", command]);
+    function focusWorkspace(id) {
+        var command = WorkspaceModel.focusCommand(id);
+        if (command.length) Quickshell.execDetached(command);
     }
 
     function workspaceActive(index) {
@@ -227,6 +229,10 @@ ShellRoot {
         return names.join("\n");
     }
 
+    // display-primary.py owns the choice and reports it as primaryDisplay.
+    // This fallback mirrors its choose_primary() order (saved/reported name,
+    // largest screen in portable mode, else HDMI-A-1, DP-3, first) so startup
+    // and unmatched names pick the same screen without a bar jump.
     function targetScreens() {
         var screens = Quickshell.screens || [];
         var fallback = null;
@@ -511,7 +517,7 @@ ShellRoot {
                                     active: shell.workspaceActive(index + 1)
                                     width: shell.workspaceItemSize; buttonHeight: shell.workspaceItemSize; fontSize: 14; cornerRadius: 6; textOffsetY: 0
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
+                                    onClicked: shell.focusWorkspace(index + 1)
                                     onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
                             }
@@ -588,17 +594,18 @@ ShellRoot {
                         }
                         StatusCommand {
                             id: verticalWifiIcon
-                            script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
+                            script: Quickshell.shellDir + "/scripts/wifi-status.sh"
                             hoverLabel: "WiFi"; fontSize: 16; interval: 3000
                             open: shell.statusOpen; height: open ? 24 : 0; fixedWidth: 56; clickable: true
                             anchors.horizontalCenter: parent.horizontalCenter
                             onClicked: bar.togglePanel(wifiMenu)
+                            onOpenChanged: if (!open) wifiMenu.opened = false
                         }
-                        VerticalBarIcon { id: verticalBluetoothIcon; icon: "󰂯"; tooltip: "Bluetooth"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(bluetoothMenu) }
-                        VerticalBarIcon { id: verticalDisplayIcon; icon: "󰍹"; tooltip: "Display"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(brightnessMenu) }
-                        VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(volumeMenu) }
-                        VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(micMenu) }
-                        VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(keyboardMenu) }
+                        VerticalBarIcon { id: verticalBluetoothIcon; icon: "󰂯"; tooltip: "Bluetooth"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(bluetoothMenu); onOpenChanged: if (!open) bluetoothMenu.opened = false }
+                        VerticalBarIcon { id: verticalDisplayIcon; icon: "󰍹"; tooltip: "Display"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(brightnessMenu); onOpenChanged: if (!open) brightnessMenu.opened = false }
+                        VerticalBarIcon { id: verticalVolumeIcon; icon: ""; tooltip: "Volume"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(volumeMenu); onOpenChanged: if (!open) volumeMenu.opened = false }
+                        VerticalBarIcon { id: verticalMicIcon; icon: "󰍬"; tooltip: "Mic"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(micMenu); onOpenChanged: if (!open) micMenu.opened = false }
+                        VerticalBarIcon { id: verticalKeyboardIcon; icon: "󰌌"; tooltip: "Keyboard"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(keyboardMenu); onOpenChanged: if (!open) keyboardMenu.opened = false }
                         VerticalBarIcon {
                             id: verticalIdleLockIcon
                             icon: shell.idleLockEnabled ? "󱫗" : "󱫖"
@@ -611,7 +618,7 @@ ShellRoot {
                             }
                             onOpenChanged: if (!open) idleLockMenu.opened = false
                         }
-                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(obsMenu) }
+                        VerticalBarIcon { id: verticalObsIcon; icon: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "󰏤" : "󰑋") : "󰻂"; iconSize: obsMenu.obsState.recording && !obsMenu.obsState.paused ? 22 : 16; tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"; open: shell.statusOpen; clickable: true; onClicked: bar.togglePanel(obsMenu); onOpenChanged: if (!open) obsMenu.opened = false }
                         VerticalBarIcon {
                             id: verticalNotificationIcon
                             icon: notificationIcon.text; tooltip: "Notifications"; open: true; clickable: true
@@ -699,7 +706,7 @@ ShellRoot {
                                     fontSize: 14
                                     cornerRadius: 6
                                     textOffsetY: 0
-                                    onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
+                                    onClicked: shell.focusWorkspace(index + 1)
                                     onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
 
@@ -717,7 +724,7 @@ ShellRoot {
                                 selectedForeground: shell.activeFg
                                 onSelected: function(style) {
                                     shell.workspaceStyle = style;
-                                    saveWorkspaceStyle.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/workspace-style.py", style];
+                                    saveWorkspaceStyle.command = ["python3", Quickshell.shellDir + "/scripts/workspace-style.py", style];
                                     saveWorkspaceStyle.running = true;
                                 }
                             }
@@ -804,7 +811,7 @@ ShellRoot {
 
                             StatusCommand {
                                 id: wifiIcon
-                                script: "$HOME/.config/quickshell/desktop-bar/scripts/wifi-status.sh"
+                                script: Quickshell.shellDir + "/scripts/wifi-status.sh"
                                 hoverLabel: "WiFi"
                                 fontSize: 16
                                 interval: 3000
@@ -969,7 +976,6 @@ ShellRoot {
                                 tooltip: obsMenu.obsState.recording ? (obsMenu.obsState.paused ? "Recording paused" : "Recording") : "OBS Studio"
                                 open: shell.statusOpen
                                 clickable: true
-                                rightClickable: true
                                 onClicked: bar.togglePanel(obsMenu)
                                 onOpenChanged: if (!open) obsMenu.opened = false
                             }
@@ -1136,10 +1142,7 @@ ShellRoot {
         id: item
 
         property string icon: ""
-        property string imageIcon: ""
         property string tooltip: ""
-        property string detail: ""
-        property string command: ""
         property bool open: true
         property bool clickable: false
         property bool rightClickable: false
@@ -1164,29 +1167,10 @@ ShellRoot {
 
             Text {
                 text: item.icon
-                visible: item.imageIcon === ""
                 y: item.glyphOffsetY
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: item.iconSize
-                font.bold: true
-            }
-
-            Image {
-                visible: item.imageIcon !== ""
-                source: item.imageIcon
-                width: item.iconSize
-                height: item.iconSize
-                sourceSize.width: item.iconSize
-                sourceSize.height: item.iconSize
-            }
-
-            Text {
-                visible: item.detail !== ""
-                text: item.detail
-                color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 11
                 font.bold: true
             }
 
@@ -1195,16 +1179,11 @@ ShellRoot {
         MouseArea {
             id: iconMouse
             anchors.fill: parent
-            enabled: item.open && (item.clickable || item.command !== "")
+            enabled: item.open && item.clickable
             acceptedButtons: item.rightClickable ? Qt.LeftButton | Qt.RightButton : Qt.LeftButton
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: function(event) {
-                if (item.command !== "")
-                    shell.run(item.command);
-
-                item.clicked(event.button);
-            }
+            onClicked: function(event) { item.clicked(event.button); }
         }
 
         BarTooltip {
@@ -1241,15 +1220,14 @@ ShellRoot {
     component StatusCommand: Item {
         id: item
 
+        // Script path run with bash; it prints {"text": ...} or plain text.
         property string script: ""
-        property string hoverLabel: script.indexOf("gpu-") !== -1 ? "GPU" : script.indexOf("cpu-") !== -1 ? "CPU" : "RAM"
-        property string command: ""
+        property string hoverLabel: ""
         property bool clickable: false
         signal clicked()
         property bool open: true
         property int interval: 5000
         property string text: ""
-        property string tooltip: ""
         property int slotWidth: 44
         property int fixedWidth: 0
         property int fontSize: 13
@@ -1258,7 +1236,7 @@ ShellRoot {
             if (process.running)
                 return ;
 
-            process.command = ["bash", "-lc", item.script];
+            process.command = ["bash", item.script];
             process.running = true;
         }
 
@@ -1270,10 +1248,8 @@ ShellRoot {
             try {
                 var parsed = JSON.parse(value.split("\n").pop());
                 item.text = String(parsed.text || "");
-                item.tooltip = String(parsed.tooltip || "");
             } catch (e) {
                 item.text = value;
-                item.tooltip = "";
             }
         }
 
@@ -1281,7 +1257,6 @@ ShellRoot {
         height: 24
         opacity: open ? 1 : 0
         clip: true
-        Component.onCompleted: refresh()
 
         Text {
             id: label
@@ -1290,7 +1265,7 @@ ShellRoot {
             text: item.text
             textFormat: Text.RichText
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: item.fontSize
             font.bold: true
         }
@@ -1298,13 +1273,10 @@ ShellRoot {
         MouseArea {
             id: commandMouse
             anchors.fill: parent
-            enabled: item.open && (item.clickable || item.command !== "")
+            enabled: item.open && item.clickable
             hoverEnabled: true
             cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: {
-                item.clicked();
-                if (item.command !== "") shell.run(item.command);
-            }
+            onClicked: item.clicked()
         }
 
         BarTooltip {
@@ -1315,10 +1287,12 @@ ShellRoot {
             text: item.hoverLabel
         }
 
+        // Both bar orientations exist; only the visible one polls.
         Timer {
             interval: item.interval
-            running: true
+            running: item.visible
             repeat: true
+            triggeredOnStart: true
             onTriggered: item.refresh()
         }
 
@@ -1381,7 +1355,7 @@ ShellRoot {
             if (process.running)
                 return ;
 
-            process.command = ["bash", "-lc", "$HOME/.config/quickshell/desktop-bar/scripts/weather-status.sh"];
+            process.command = ["bash", Quickshell.shellDir + "/scripts/weather-status.sh"];
             requestedRevision = dataRevision;
             process.running = true;
         }
@@ -1426,14 +1400,14 @@ ShellRoot {
             Text {
                 text: weather.text.split(" ")[0]
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
             Text {
                 text: weather.temp || (weather.text.indexOf(" ") >= 0 ? weather.text.slice(weather.text.indexOf(" ") + 1).trim() : "")
                 color: shell.fg
-                font.family: "JetBrainsMono Nerd Font"
+                font.family: PanelStyle.fontFamily
                 font.pixelSize: weather.compact ? 12 : 14
                 font.bold: true
             }
@@ -1527,7 +1501,7 @@ ShellRoot {
             anchors.fill: parent
             text: notifications.text
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: 18
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
@@ -1581,8 +1555,9 @@ ShellRoot {
 
         Timer {
             interval: 1000
-            running: true
+            running: clock.visible
             repeat: true
+            triggeredOnStart: true
             onTriggered: clock.now = new Date()
         }
 
@@ -1593,7 +1568,7 @@ ShellRoot {
             text: Qt.formatDateTime(clock.now, clock.compact ? "hh:mm\nMMM dd" : "ddd MMM dd hh:mm AP")
             horizontalAlignment: Text.AlignHCenter
             color: shell.fg
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: clock.compact ? 12 : 14
             font.bold: true
         }

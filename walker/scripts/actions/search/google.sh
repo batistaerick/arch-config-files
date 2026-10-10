@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 query="$(
-  $HOME/.config/walker/bin/walker-dmenu \
+  "$HOME/.config/walker/bin/walker-dmenu" \
     --dmenu \
     --exec-search \
     --hide-scroll \

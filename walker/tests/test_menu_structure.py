@@ -27,6 +27,19 @@ class MenuStructureTests(unittest.TestCase):
         layout = ROOT / "walker/themes/current"
         self.assertEqual((layout / "item_menus-security.xml").read_text(),
                          (layout / "item_menus-system.xml").read_text())
+    def test_install_submenus_show_parent_marker(self):
+        for entry in menu("install")["entries"]:
+            if "submenu" in entry:
+                self.assertEqual(entry.get("subtext"), ">", entry["text"])
+        layout = ROOT / "walker/themes/current"
+        self.assertEqual((layout / "item_menus-install.xml").read_text(),
+                         (layout / "item_menus-system.xml").read_text())
+
+    def test_removed_package_menus_stay_removed(self):
+        self.assertFalse((MENUS / "packages-pacman.lua").exists())
+        self.assertFalse((MENUS / "packages-aur.lua").exists())
+        self.assertFalse((ROOT / "walker/scripts/menus/package-menu.lua").exists())
+
     def test_package_entries_open_terminal_pickers(self):
         for entry in [entry for entry in menu("install")["entries"] if entry["text"] in ("Pacman", "Yay (AUR)")]:
             self.assertNotIn("submenu", entry)

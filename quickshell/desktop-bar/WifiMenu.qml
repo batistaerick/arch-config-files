@@ -40,7 +40,7 @@ ThemedPopup {
     property real uploadRate: 0
     property var previous: null
     property var latency: ({})
-    property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/wifi-popup.py"
+    property string helper: Quickshell.shellDir + "/scripts/wifi-popup.py"
     function bytes(value) {
         if (value === undefined) return "--";
         var units = ["B", "KB", "MB", "GB", "TB"], index = 0;
@@ -104,7 +104,7 @@ ThemedPopup {
     }
     Process {
         id: qrQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/wifi-qr.py"]
+        command: ["python3", Quickshell.shellDir + "/scripts/wifi-qr.py"]
         stdinEnabled: true
         onStarted: { write(JSON.stringify({network: menu.shareNetwork, password: menu.qrSecret}) + "\n"); menu.qrSecret = ""; qrPassword.text = ""; }
         stdout: StdioCollector { id: qrOutput }
@@ -183,7 +183,7 @@ ThemedPopup {
                     }
                 }
             }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
             Item {
                 width: parent.width; height: 16
                 Text { text: "WI-FI BAND: " + (menu.details.band || "--"); color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
@@ -195,7 +195,7 @@ ThemedPopup {
                 TextField {
                     id: password; width: parent.width; placeholderText: "Password"; echoMode: TextInput.Password; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                     placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
-                    background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: password.activeFocus ? menu.accent : "transparent" }
+                    background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: password.activeFocus ? menu.accent : "transparent" }
                     HoverHandler { cursorShape: Qt.IBeamCursor }
                     onAccepted: connectButton.clicked()
                 }
@@ -206,7 +206,7 @@ ThemedPopup {
                 }
             }
             Text { visible: menu.message !== ""; width: parent.width; text: menu.message; wrapMode: Text.Wrap; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
         }
         Flickable {
             visible: !menu.sharing
@@ -233,7 +233,7 @@ ThemedPopup {
                             Rectangle {
                                 id: network
                                 required property var modelData
-                                width: networks.width; height: 44; radius: 4
+                                width: networks.width; height: 44; radius: PanelStyle.controlRadius
                                 color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, modelData.connected ? 0.18 : networkMouse.containsMouse ? 0.1 : 0.04)
                                 border.width: modelData.connected ? 0 : 1
                                 border.color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.15)
@@ -301,7 +301,7 @@ ThemedPopup {
                 width: parent.width; placeholderText: "WiFi password"; echoMode: TextInput.Password
                 font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize
                 color: menu.foreground; placeholderTextColor: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.5)
-                background: Rectangle { radius: 4; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: qrPassword.activeFocus ? menu.accent : "transparent" }
+                background: Rectangle { radius: PanelStyle.controlRadius; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.08); border.color: qrPassword.activeFocus ? menu.accent : "transparent" }
                 HoverHandler { cursorShape: Qt.IBeamCursor }
                 onAccepted: if (text.length > 0) menu.generateQr()
             }

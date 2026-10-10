@@ -20,7 +20,7 @@
   "javascript": {
     "yarn": {"label": "Yarn", "source": "managed", "packages": [], "manager": "NVM / npm"},
     "pnpm": {"label": "pnpm", "source": "managed", "packages": [], "manager": "NVM / npm"},
-    "bun": {"label": "Bun", "source": "managed", "packages": [], "manager": "Bun installer"},
+    "bun": {"label": "Bun", "source": "managed", "packages": [], "manager": "NVM / npm"},
     "deno": {"label": "Deno", "source": "managed", "packages": [], "manager": "Deno installer"}
   },
   "ai": {

@@ -7,7 +7,7 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 428
-    implicitHeight: 312 + Math.max(0, monitors.length - 1) * 48 + (editingSchedule ? 70 : 0) + (nightlightError ? 24 : 0) + (displayError ? 24 : 0)
+    implicitHeight: contentColumn.implicitHeight + PanelStyle.padding * 2 + PanelStyle.surfaceInset * 2
     keyTarget: content
     property var state: ({available: false, name: "Checking brightness", value: 0})
     property int requested: -1
@@ -18,12 +18,16 @@ ThemedPopup {
     property string displayError: ""
     signal primarySelected(string name)
     property string nightlightError: ""
+    // Status-read failures clear on the next successful read; action and
+    // validation errors stay until the user acts again.
+    readonly property string displayStatusError: "Display status unavailable"
+    readonly property string nightlightStatusError: "Nightlight status unavailable"
     property bool scheduleDirty: false
     property bool editingSchedule: false
     readonly property var timeLocale: Qt.locale()
-    readonly property string helper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/brightness.py"
+    readonly property string helper: Quickshell.shellDir + "/scripts/brightness.py"
     readonly property string nightlightHelper: Quickshell.env("HOME") + "/.config/walker/scripts/actions/toggle/nightlight.py"
-    readonly property string displayHelper: Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/display-primary.py"
+    readonly property string displayHelper: Quickshell.shellDir + "/scripts/display-primary.py"
 
     function refresh() {
         if (!query.running && !operation.running && !slider.pressed && !settle.running) query.running = true;
@@ -127,7 +131,8 @@ ThemedPopup {
                 let result = JSON.parse(displayOutput.text);
                 menu.monitors = result.monitors || [];
                 menu.primaryDisplay = result.primary || "";
-            } catch (e) { menu.displayError = "Display status unavailable"; }
+                if (menu.displayError === menu.displayStatusError) menu.displayError = "";
+            } catch (e) { menu.displayError = menu.displayStatusError; }
         }
     }
     Process {
@@ -144,7 +149,7 @@ ThemedPopup {
                 menu.monitors = result.monitors || [];
                 menu.primaryDisplay = result.primary || "";
                 menu.primarySelected(menu.primaryDisplay);
-            } catch (e) { menu.displayError = "Display status unavailable"; }
+            } catch (e) { menu.displayError = menu.displayStatusError; }
         }
     }
     Process {
@@ -152,8 +157,12 @@ ThemedPopup {
         command: ["python3", menu.nightlightHelper, "status"]
         stdout: StdioCollector { id: nightQueryOutput }
         onExited: {
-            try { menu.nightlight = JSON.parse(nightQueryOutput.text); menu.syncSchedule(); }
-            catch (e) { menu.nightlightError = "Nightlight status unavailable"; }
+            try {
+                menu.nightlight = JSON.parse(nightQueryOutput.text);
+                menu.syncSchedule();
+                if (menu.nightlightError === menu.nightlightStatusError) menu.nightlightError = "";
+            }
+            catch (e) { menu.nightlightError = menu.nightlightStatusError; }
         }
     }
     Process {
@@ -170,7 +179,7 @@ ThemedPopup {
                     if (changedDuringRequest) scheduleSettle.restart();
                     else { menu.scheduleDirty = false; menu.syncSchedule(); }
                 }
-                catch (e) { menu.nightlightError = "Nightlight status unavailable"; }
+                catch (e) { menu.nightlightError = menu.nightlightStatusError; }
             }
             menu.refreshNightlight();
         }
@@ -182,6 +191,7 @@ ThemedPopup {
         focus: true
         Keys.onEscapePressed: menu.opened = false
         Column {
+            id: contentColumn
             width: parent.width
             spacing: 12
             Row {
@@ -194,10 +204,11 @@ ThemedPopup {
                 width: parent.width
                 spacing: 10
                 Text { width: 30; height: 30; text: "󰃟"; verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 18 }
-                Controls.Slider {
+                PanelSlider {
                     id: slider
+                    accent: menu.accent
+                    foreground: menu.foreground
                     width: parent.width - 100
-                    height: 30
                     from: 1
                     to: 100
                     stepSize: 1
@@ -207,27 +218,10 @@ ThemedPopup {
                         if (menu.state.kind === "backlight") menu.applyValue(Math.round(value));
                         else settle.restart();
                     }
-                    background: Rectangle {
-                        x: slider.leftPadding
-                        y: (slider.height - height) / 2
-                        width: slider.availableWidth
-                        height: 5
-                        radius: 3
-                        color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.16)
-                        Rectangle { width: slider.visualPosition * parent.width; height: parent.height; radius: 3; color: menu.accent }
-                    }
-                    handle: Rectangle {
-                        x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
-                        y: (slider.height - height) / 2
-                        width: 12
-                        height: 12
-                        radius: 6
-                        color: menu.foreground
-                    }
                 }
                 Text { width: 50; height: 30; text: Math.round(slider.value) + "%"; horizontalAlignment: Text.AlignRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
             }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
             Row {
                 width: parent.width
                 height: 40
@@ -326,7 +320,7 @@ ThemedPopup {
                 font.family: PanelStyle.fontFamily
                 font.pixelSize: PanelStyle.captionSize
             }
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+            Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
             Text { text: "Displays"; color: menu.foreground; opacity: 0.65; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             Text { visible: menu.displayError !== ""; text: menu.displayError; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
             Text {

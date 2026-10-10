@@ -30,4 +30,8 @@ assert.equal(model.selection(0, 'down', 2, 3), 2);
 assert.equal(model.selection(2, 'up', 2, 3), 0);
 assert.equal(model.selection(2, 'down', 2, 3), 2);
 assert.equal(model.selection(0, 'right', 2, 0), -1);
+assert.deepEqual(JSON.parse(JSON.stringify(model.focusCommand(3))), ['hyprctl', 'dispatch', 'hl.dsp.focus({ workspace = 3 })']);
+assert.equal(model.focusCommand(0).length, 0);
+assert.equal(model.focusCommand(11).length, 0);
+assert.equal(model.focusCommand('2; rm').length, 0);
 console.log('Workspace model: defaults, sequential ceiling, cap, occupied-only groups, geometry passed');

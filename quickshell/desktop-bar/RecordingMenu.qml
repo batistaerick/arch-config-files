@@ -4,8 +4,8 @@ import "PanelStyle.js" as PanelStyle
 ThemedPopup {
     id: menu
     required property var controller
-    implicitWidth: 76 + PanelStyle.padding * 2 + 28
-    implicitHeight: 34 + PanelStyle.padding * 2 + 28
+    implicitWidth: 76 + PanelStyle.padding * 2 + PanelStyle.surfaceInset * 2
+    implicitHeight: 34 + PanelStyle.padding * 2 + PanelStyle.surfaceInset * 2
     Connections {
         target: menu.controller
         function onObsStateChanged() {

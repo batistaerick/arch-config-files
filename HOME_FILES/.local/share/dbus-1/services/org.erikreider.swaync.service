@@ -1,3 +1,5 @@
+# Quickshell owns org.freedesktop.Notifications. This file keeps the name of
+# the SwayNC package service file so it shadows it if SwayNC is ever installed.
 [D-BUS Service]
 Name=org.freedesktop.Notifications
 Exec=/usr/bin/quickshell -n -c desktop-bar --daemonize

@@ -36,6 +36,7 @@ zip
 wl-clipboard
 wtype
 libnotify
+playerctl
 hyprland
 hypridle
 hyprlock
@@ -50,6 +51,7 @@ qt6-multimedia
 qt6-multimedia-ffmpeg
 sddm
 xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
 xdg-utils
 polkit-kde-agent
 swayosd
@@ -59,7 +61,6 @@ pipewire-pulse
 wireplumber
 bluez
 bluez-utils
-blueman
 iwd
 brightnessctl
 ddcutil

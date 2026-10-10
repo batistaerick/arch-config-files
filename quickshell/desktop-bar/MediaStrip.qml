@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 import Quickshell.Services.Mpris
 import "MediaModel.js" as MediaModel
 
@@ -97,7 +98,7 @@ Item {
             text: control.text
             color: media.foreground
             opacity: control.available ? 1 : 0.4
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: PanelStyle.fontFamily
             font.pixelSize: 15
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter

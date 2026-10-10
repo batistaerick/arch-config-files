@@ -4,9 +4,7 @@ Icon = "edit-paste"
 FixedOrder = true
 
 local helper = os.getenv("HOME") .. "/.config/walker/scripts/menus/clipboard.py"
-local function quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 function GetEntries()
     local handle = io.popen("python3 " .. quote(helper))

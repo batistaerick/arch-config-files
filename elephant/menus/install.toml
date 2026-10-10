@@ -6,27 +6,31 @@ fixed_order = true
 
 [[entries]]
 text = "AI CLIs"
+subtext = ">"
 icon = "󱜙"
 submenu = "ai-install"
 
 [[entries]]
 text = "Browsers"
+subtext = ">"
 icon = "󰖟"
 submenu = "browsers"
 
 [[entries]]
 text = "Development Languages"
+subtext = ">"
 icon = "󰅩"
 submenu = "languages"
 
 [[entries]]
 text = "JavaScript Tools"
+subtext = ">"
 icon = "󰛦"
 submenu = "javascript-tools"
 
 [[entries]]
 text = "Pacman"
-subtext = "Official packages · Tab select · Enter install · Ctrl+B review"
+subtext = "Official packages · requires no pending updates · Tab select · Enter install · Ctrl+B review"
 icon = "󰏖"
 actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch pacman" }
 

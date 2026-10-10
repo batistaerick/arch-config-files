@@ -1,0 +1,4 @@
+module LockscreenComponents
+BackgroundVideo 1.0 BackgroundVideo.qml
+LoginController 1.0 LoginController.qml
+MaterialYouDesign 1.0 MaterialYouDesign.qml

@@ -1,4 +1,5 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 
 Item {
     id: marker
@@ -27,7 +28,7 @@ Item {
         y: marker.textOffsetY
         text: marker.style === "Glyph" ? (marker.active ? "✦" : "✧") : marker.label
         color: marker.active ? (marker.style === "Glyph" ? marker.accent : marker.selectedForeground) : marker.foreground
-        font.family: "JetBrainsMono Nerd Font"
+        font.family: PanelStyle.fontFamily
         font.pixelSize: marker.style === "Glyph" ? 19 : marker.fontSize
         font.bold: true
         horizontalAlignment: Text.AlignHCenter

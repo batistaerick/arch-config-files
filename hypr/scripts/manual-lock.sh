@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# A manual lock blanks and suspends sooner than hypridle's idle listeners
+# (15/30/60 minutes from last input); hypridle still covers unattended idling.
 DISPLAY_OFF_AFTER=900
 SUSPEND_AFTER=1800
+launcher="$HOME/.config/quickshell/lockscreen/scripts/launch.sh"
 
-if pgrep -x hyprlock >/dev/null; then
+# Covers Quickshell designs and Hyprlock, whether started here or by hypridle.
+if bash "$launcher" active; then
   notify-send -u low "󱄄  Screensaver already running"
   exit 0
 fi
 
-bash "$HOME/.config/quickshell/lockscreen/scripts/launch.sh" lock &
+bash "$launcher" lock &
 lock_pid=$!
 
 (

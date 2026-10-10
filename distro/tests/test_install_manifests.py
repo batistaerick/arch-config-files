@@ -32,6 +32,65 @@ class InstallManifestTests(unittest.TestCase):
             self.assertIn("NetworkManager is enabled", result.stderr)
             self.assertNotIn("Permission denied", result.stderr)
 
+    def run_check(self, home, populate, findmnt="echo btrfs"):
+        binaries = home / "bin"
+        binaries.mkdir()
+        mocks = {"pacman": "exit 0", "sudo": "exit 0", "systemctl": "exit 1",
+                 "findmnt": findmnt}
+        for name, body in mocks.items():
+            (binaries / name).write_text(f"#!/bin/sh\n{body}\n")
+            (binaries / name).chmod(0o755)
+        populate(home)
+        env = {key: value for key, value in os.environ.items() if not key.startswith("XDG_")}
+        env.update(HOME=str(home), PATH=str(binaries) + os.pathsep + os.environ["PATH"])
+        return subprocess.run(["bash", str(DISTRO / "install.sh"), "--check"], env=env,
+                              capture_output=True, text=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_lists_every_differing_user_config(self):
+        def populate(home):
+            for name in ("kitty", "nvim"):
+                (home / ".config" / name).mkdir(parents=True)
+                (home / ".config" / name / "user.conf").write_text("mine\n")
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), populate)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("would be overwritten", result.stderr)
+        self.assertIn(f"{directory}/.config/kitty", result.stderr)
+        self.assertIn(f"{directory}/.config/nvim", result.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_rejects_package_database_outside_root_snapshot(self):
+        findmnt = 'case "$*" in *FSTYPE*) echo btrfs ;; *pacman*) echo /dev/other ;; *) echo /dev/root ;; esac'
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), lambda home: None, findmnt)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("/var/lib/pacman is outside the root snapshot", result.stderr)
+        self.assertIn("supported Btrfs layout", result.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_skips_paths_recorded_by_a_previous_partial_run(self):
+        def populate(home):
+            (home / ".config/kitty").mkdir(parents=True)
+            (home / ".config/kitty/changed-after-install").write_text("x\n")
+            state = home / ".local/state/eitr"
+            state.mkdir(parents=True)
+            (state / "installed-paths").write_text(".config/kitty\n")
+            (home / ".local/bin").mkdir(parents=True)
+            (home / ".local/bin/walker").symlink_to("../../.config/walker/bin/walker")
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), populate)
+        self.assertNotIn("would be overwritten", result.stderr)
+        self.assertIn("Already installed by this installer (will skip): 2 paths", result.stdout)
+
+    def test_installer_never_overwrites_home_trees_directly(self):
+        installer = (DISTRO / "install.sh").read_text()
+        self.assertNotIn("cp -a -- \"$repo_root/systemd", installer)
+        self.assertNotIn("cp -a -- \"$icon_source", installer)
+        self.assertNotIn("HOME_FILES/.local/share/applications/.", installer)
+        self.assertIn("gtk-update-icon-cache", installer)
+        self.assertIn("RequiredForOnline=no", (DISTRO / "network/20-ethernet.network").read_text())
+
     def test_removed_packages_stay_out_of_install_manifests(self):
         packages = set()
         for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):
@@ -66,7 +125,8 @@ class InstallManifestTests(unittest.TestCase):
         packages = set((DISTRO / "packages.txt").read_text().splitlines())
         self.assertFalse({"snapper", "flatpak", "fprintd", "pam-u2f", "lazygit", "lazydocker"} - packages)
         installer = (DISTRO / "install.sh").read_text()
-        self.assertIn("com.nvidia.geforcenow", installer)
+        self.assertIn("recipe gaming geforcenow", installer)
+        self.assertNotIn("geforcenow.flatpakrepo", installer)
         self.assertIn("snapshots-setup", installer)
         self.assertIn("/usr/local/lib/eitr/eitr-system", installer)
 
@@ -101,6 +161,52 @@ class InstallManifestTests(unittest.TestCase):
             self.assertNotIn("npm install", calls)
             self.assertNotIn("sdk install", calls)
             self.assertFalse((home / ".zshrc").exists())
+
+    def run_development(self, home, kind):
+        log = home / "calls"
+        binaries = home / "bin"
+        binaries.mkdir(exist_ok=True)
+        # The mocked download is an installer that records how it was invoked.
+        (binaries / "curl").write_text(
+            '#!/bin/bash\nwhile [[ $# -gt 0 ]]; do [[ $1 == -o ]] && out=$2; shift; done\n'
+            'printf \'printf "installer %%s UV_NO_MODIFY_PATH=%%s\\\\n" "$*" "${UV_NO_MODIFY_PATH:-}" >> "$TEST_LOG"\\n\' > "$out"\n')
+        for name in ("npm", "uv"):
+            target = home / ".local/bin" / name if name == "uv" else binaries / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(f'#!/bin/bash\nprintf "{name} %s\\n" "$*" >> "$TEST_LOG"\n')
+            target.chmod(0o755)
+        (binaries / "curl").chmod(0o755)
+        nvm = home / ".nvm/nvm.sh"
+        nvm.parent.mkdir(parents=True, exist_ok=True)
+        nvm.write_text('nvm() { printf "nvm %s\\n" "$*" >> "$TEST_LOG"; }\n')
+        env = dict(os.environ, HOME=str(home), TEST_LOG=str(log),
+                   PATH=str(binaries) + os.pathsep + os.environ["PATH"])
+        script = DISTRO.parent / "walker/scripts/actions/install/development.sh"
+        result = subprocess.run(["bash", str(script), kind], env=env, capture_output=True, text=True)
+        return result, log.read_text() if log.exists() else ""
+
+    @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
+    def test_development_installers_never_edit_shell_profiles(self):
+        expectations = {"python": "UV_NO_MODIFY_PATH=1", "deno": "installer -y --no-modify-path"}
+        for kind, expected in expectations.items():
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                result, calls = self.run_development(Path(directory), kind)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(expected, calls)
+        with tempfile.TemporaryDirectory() as directory:
+            result, calls = self.run_development(Path(directory), "bun")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("npm install --global bun", calls)
+            self.assertNotIn("installer", calls)
+        self.assertNotIn("bun", json.loads((DISTRO / "installers.json").read_text()))
+
+    @unittest.skipIf(os.geteuid() == 0, "Development installer intentionally rejects root")
+    def test_unknown_development_tool_exits_with_usage_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result, calls = self.run_development(Path(directory), "cobol")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Unknown optional development tool", result.stderr)
+        self.assertEqual(calls, "")
 
     def test_streaming_launchers_build_isolated_commands(self):
         scripts = DISTRO.parent / "HOME_FILES/.local/bin"

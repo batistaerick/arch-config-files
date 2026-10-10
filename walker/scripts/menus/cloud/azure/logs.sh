@@ -2,10 +2,8 @@
 
 source "$HOME/.config/walker/scripts/menus/cloud/azure/common.sh"
 
-subscription="$(choose_azure_subscription)"
-minutes="$(choose_time_range_minutes)"
-
-if [ "$minutes" = "__back__" ]; then
+subscription="$(choose_azure_subscription)" || exit 0
+if ! minutes="$(choose_time_range_minutes)"; then
   back_to_azure_menu
   exit 0
 fi

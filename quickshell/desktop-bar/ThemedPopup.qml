@@ -1,6 +1,5 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
-import "BarGeometry.js" as Geometry
 import Quickshell
 import Quickshell.Hyprland
 

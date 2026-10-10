@@ -55,7 +55,7 @@ ThemedPopup {
     Timer { interval: 300000; repeat: true; running: menu.opened; onTriggered: menu.refresh() }
     Process {
         id: cached
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/ai-popup.py", "cached"]
+        command: ["python3", Quickshell.shellDir + "/scripts/ai-popup.py", "cached"]
         stdout: StdioCollector { id: cachedOutput }
         onExited: {
             try {
@@ -66,7 +66,7 @@ ThemedPopup {
     }
     Process {
         id: query
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/ai-popup.py"]
+        command: ["python3", Quickshell.shellDir + "/scripts/ai-popup.py"]
         stdout: StdioCollector { id: output }
         onExited: function(code) {
             try {
@@ -79,7 +79,7 @@ ThemedPopup {
     }
     Process {
         id: statsQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/ai-local-stats.py"]
+        command: ["python3", Quickshell.shellDir + "/scripts/ai-local-stats.py"]
         stdout: StdioCollector { id: statsOutput }
         onExited: { try { menu.statistics = JSON.parse(statsOutput.text); } catch (e) {} }
     }
@@ -147,7 +147,7 @@ ThemedPopup {
                     required property string modelData
                     width: (tabs.width - tabs.spacing * (menu.availableProviders.length - 1)) / Math.max(1, menu.availableProviders.length)
                     height: 32
-                    radius: 4
+                    radius: PanelStyle.controlRadius
                     text: modelData === "Claude" ? "Claude Code" : modelData
                     outlined: true
                     selected: menu.selectedProvider === modelData
@@ -171,7 +171,7 @@ ThemedPopup {
                 id: content
                 width: parent.width
                 spacing: 14
-                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
                 Text { text: "LIMITS"; visible: menu.selectedProvider !== ""; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 Text {
                     visible: menu.selectedProvider === ""
@@ -202,7 +202,7 @@ ThemedPopup {
                         Text { visible: !!limit.modelData.reset; width: parent.width; elide: Text.ElideRight; text: limit.modelData.reset ? menu.resetLabel(limit.modelData.reset) : ""; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                     }
                 }
-                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
                 Item {
                     visible: menu.selectedProvider === "Claude" || menu.selectedProvider === "Codex"
                     width: parent.width; height: 28
@@ -248,7 +248,7 @@ ThemedPopup {
                         }
                     }
                 }
-                Rectangle { width: parent.width; height: 1; color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12) }
+                Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
                 Text { text: "TOKENS BY MODEL"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.captionSize }
                 Text { visible: !statsQuery.running && menu.stats.models.length === 0; text: "No local token history"; color: menu.foreground; opacity: 0.6; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.secondarySize }
                 Column {

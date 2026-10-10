@@ -25,7 +25,15 @@ class PanelLayeringTests(unittest.TestCase):
         shell = (ROOT / "shell.qml").read_text()
         self.assertIn("notificationPopups.visible ? [bar, notificationPopups] : [bar]", shell)
         self.assertIn("hostWindow.panelFocusWindows || [hostWindow]", (ROOT / "DockPanel.qml").read_text())
-        for filename, owner in [("ThemedPopup.qml", "popup"), ("AudioMenu.qml", "menu"),
-                                ("SystemMonitorMenu.qml", "menu"), ("WorkspaceStyleMenu.qml", "menu")]:
+        self.assertIn("windows: popup.focusWindows", (ROOT / "ThemedPopup.qml").read_text())
+
+    def test_bar_panels_share_themed_popup_grab_and_focus(self):
+        themed = (ROOT / "ThemedPopup.qml").read_text()
+        self.assertIn("popup.keyTarget.forceActiveFocus();", themed)
+        self.assertIn("Keys.onEscapePressed: popup.opened = false", themed)
+        for filename in ("AudioMenu.qml", "SystemMonitorMenu.qml", "WorkspaceStyleMenu.qml"):
             with self.subTest(filename=filename):
-                self.assertIn("windows: " + owner + ".focusWindows", (ROOT / filename).read_text())
+                source = (ROOT / filename).read_text()
+                self.assertIn("\nThemedPopup {", source)
+                self.assertNotIn("HyprlandFocusGrab", source)
+                self.assertNotIn("BarGeometry.js", source)

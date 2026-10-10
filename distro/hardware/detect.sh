@@ -4,6 +4,7 @@ set -euo pipefail
 hardware_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 pci_root="${HARDWARE_SYSFS_ROOT:-/sys/bus/pci/devices}"
 cpuinfo="${HARDWARE_CPUINFO:-/proc/cpuinfo}"
+modules_root="${HARDWARE_MODULES_ROOT:-/usr/lib/modules}"
 declare -A found=() packages=()
 declare -a manifests=()
 
@@ -60,11 +61,37 @@ manifests+=(graphics-common.txt)
 [[ -n ${found[intel]:-} ]] && manifests+=(intel-gpu.txt)
 [[ -n ${found[virtual]:-} ]] && manifests+=(virtual-gpu.txt)
 
+# Prebuilt nvidia-open modules only match Arch's default kernel. Any other
+# installed kernel needs the DKMS variant plus headers for every kernel.
+nvidia_dkms_headers=()
+if [[ " ${manifests[*]} " == *' nvidia.txt '* ]]; then
+  for pkgbase in "$modules_root"/*/pkgbase; do
+    kernel="$(<"$pkgbase")"
+    [[ "$kernel" == linux ]] || nvidia_dkms_headers=(linux-headers)
+  done
+  if (( ${#nvidia_dkms_headers[@]} )); then
+    for pkgbase in "$modules_root"/*/pkgbase; do
+      nvidia_dkms_headers+=("$(<"$pkgbase")-headers")
+    done
+  fi
+fi
+
+emit() {
+  [[ -n ${packages[$1]:-} ]] && return
+  packages["$1"]=1
+  printf '%s\n' "$1"
+}
+
 printf 'Detected GPU vendors: %s\n' "${!found[*]}" >&2
 for manifest in "${manifests[@]}"; do
   while IFS= read -r package || [[ -n "$package" ]]; do
-    [[ -z "$package" || "$package" == \#* || -n ${packages[$package]:-} ]] && continue
-    packages["$package"]=1
-    printf '%s\n' "$package"
+    [[ -z "$package" || "$package" == \#* ]] && continue
+    if [[ "$package" == nvidia-open ]] && (( ${#nvidia_dkms_headers[@]} )); then
+      package=nvidia-open-dkms
+    fi
+    emit "$package"
   done < "$hardware_dir/$manifest"
+done
+for package in "${nvidia_dkms_headers[@]}"; do
+  emit "$package"
 done

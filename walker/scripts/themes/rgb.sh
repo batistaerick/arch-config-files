@@ -1,28 +1,38 @@
 #!/usr/bin/env bash
+# Apply the theme's rgb.color to every OpenRGB device. Runs in the background
+# during theme switches, so it only logs problems and never notifies.
 
-CURRENT_DIR="$HOME/.config/theme/current"
+set -euo pipefail
+
+CURRENT_DIR="${CURRENT_DIR:-$HOME/.config/theme/current}"
 RGB_FILE="$CURRENT_DIR/rgb.color"
 
 [[ -f "$RGB_FILE" ]] || exit 0
 
-RGB_COLOR="$(cat "$RGB_FILE" | tr -d '#[:space:]')"
+if ! command -v openrgb >/dev/null 2>&1; then
+  echo "rgb: openrgb is not installed; skipping" >&2
+  exit 0
+fi
+
+RGB_COLOR="$(tr -d '#[:space:]' < "$RGB_FILE")"
 
 if [[ ! "$RGB_COLOR" =~ ^[0-9A-Fa-f]{6}$ ]]; then
-  notify-send "RGB Theme" "Invalid RGB color: $RGB_COLOR"
+  echo "rgb: invalid color in $RGB_FILE: $RGB_COLOR" >&2
   exit 1
 fi
 
-if ! command -v openrgb >/dev/null 2>&1; then
-  notify-send "RGB Theme" "OpenRGB is not installed"
-  exit 1
+# `openrgb --list-devices` prints one "N: Device Name" header per device.
+mapfile -t devices < <(openrgb --list-devices 2>/dev/null | sed -nE 's/^([0-9]+): .*/\1/p')
+
+if (( ${#devices[@]} == 0 )); then
+  echo "rgb: no OpenRGB devices detected" >&2
+  exit 0
 fi
 
-openrgb --mode Static --color "$RGB_COLOR" >/dev/null 2>&1 || true
-
-for zone in 0 1 2 3 4; do
-  openrgb --device 0 --zone "$zone" --mode Static --color "$RGB_COLOR" >/dev/null 2>&1 || true
-done
-
-for device in 0 1 2 3 4 5; do
-  openrgb --device "$device" --mode Static --color "$RGB_COLOR" >/dev/null 2>&1 || true
+for device in "${devices[@]}"; do
+  if ! openrgb --device "$device" --mode Static --color "$RGB_COLOR" >/dev/null 2>&1; then
+    # Some controllers name their single-color mode "Direct" instead of "Static".
+    openrgb --device "$device" --mode Direct --color "$RGB_COLOR" >/dev/null 2>&1 ||
+      echo "rgb: device $device rejected Static and Direct modes" >&2
+  fi
 done

@@ -1,6 +1,5 @@
 import QtQuick
 import "PanelStyle.js" as PanelStyle
-import QtQuick.Controls.Basic as Controls
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 
@@ -37,7 +36,7 @@ Column {
         Rectangle {
             width: 30
             height: 30
-            radius: 4
+            radius: PanelStyle.controlRadius
             color: muteMouse.containsMouse ? Qt.rgba(control.foreground.r, control.foreground.g, control.foreground.b, 0.1) : "transparent"
             Text {
                 anchors.centerIn: parent
@@ -62,10 +61,11 @@ Column {
                 foreground: control.foreground
             }
         }
-        Controls.Slider {
+        PanelSlider {
             id: slider
+            accent: control.accent
+            foreground: control.foreground
             width: control.width - 100
-            height: 30
             from: 0
             to: 1
             stepSize: 0.01
@@ -81,28 +81,6 @@ Column {
                     control.node.audio.volume = value;
                     control.showVolumeOsd(value);
                 }
-            }
-            background: Rectangle {
-                x: slider.leftPadding
-                y: (slider.height - height) / 2
-                width: slider.availableWidth
-                height: 5
-                radius: 3
-                color: Qt.rgba(control.foreground.r, control.foreground.g, control.foreground.b, 0.16)
-                Rectangle {
-                    width: slider.visualPosition * parent.width
-                    height: parent.height
-                    radius: 3
-                    color: control.accent
-                }
-            }
-            handle: Rectangle {
-                x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
-                y: (slider.height - height) / 2
-                width: 12
-                height: 12
-                radius: 6
-                color: control.foreground
             }
         }
         Text {

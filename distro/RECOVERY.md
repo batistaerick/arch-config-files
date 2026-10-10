@@ -14,13 +14,19 @@ The installer enables `/etc/eitr/system-update-policy.conf`. Before
 System → Update → System Update upgrades official and AUR packages, it:
 
 1. Verifies the supported layout and Snapper root configuration.
-2. Creates a pre-upgrade root snapshot.
-3. Archives `/boot` and `/efi`, if present, under
-   `/var/lib/eitr/boot-backups/<snapshot-number>/` with root-only access.
-4. Aborts the upgrade if snapshot creation or boot backup fails.
+2. Archives `/boot` and `/efi` only when they are separate mounts (a `/boot`
+   directory inside the Btrfs root is already in the root snapshot). Archives
+   are stored under `/var/lib/eitr/boot-backups/<snapshot-number>/` with
+   root-only access.
+3. Creates a pre-upgrade root snapshot.
+4. Aborts the upgrade if boot backup or snapshot creation fails.
 
-After a successful update, the workflow creates the corresponding post snapshot.
-An interrupted/failed upgrade still retains its pre snapshot and boot archives.
+When the upgrade finishes, fails or is declined, the workflow creates the
+corresponding post snapshot; its description records the outcome ("after
+package upgrade", "after failed package upgrade"). If the workflow was killed
+before that, the next System Update first closes the leftover pre snapshot
+with an "after interrupted package upgrade" post snapshot. A failed upgrade
+retains its pre snapshot and boot archives either way.
 Updates to Flatpaks, SDKMAN/NVM runtimes and files on separate home subvolumes are
 not protected by these snapshots. Advanced updates and direct pacman/yay commands
 intentionally do not create automatic snapshots. Older Eitr snapshot hooks, if
@@ -28,9 +34,24 @@ manually installed, must be removed to adopt this policy.
 
 New Snapper configurations keep up to 10 ordinary and 5 important numbered
 snapshots through the cleanup timer. Existing policies are preserved. Boot
-archives are retained separately; monitor their disk use and remove an archive
-only after its recovery point is no longer needed. There is no automatic boot
-archive pruning yet. A full disk prevents updates rather than skipping protection.
+archives are pruned on each System Update to the newest 10, matching the
+default snapshot limit; an archive may outlive its snapshot if Snapper removes
+it first, so check the snapshot exists before restoring one. A full disk
+prevents updates rather than skipping protection.
+
+## Authentication changes
+
+Security → Enable Fingerprint/FIDO2 backs up `/etc/pam.d/hyprlock`, `sddm` and
+`sudo` under `/var/lib/eitr/pam-backups/<timestamp>/` before editing them, and
+restores all three if any write fails. Fingerprint is added to all three, so
+"password only" applies to the lockscreen too; pam_fprintd may delay the
+password prompt for up to 10 seconds. To return to an earlier policy from a working root
+shell or TTY:
+
+```sh
+sudo ls /var/lib/eitr/pam-backups
+sudo /usr/local/lib/eitr/eitr-system auth-restore <timestamp>
+```
 
 ## Inspect recovery points
 

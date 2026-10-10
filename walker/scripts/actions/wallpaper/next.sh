@@ -1,25 +1,17 @@
 #!/usr/bin/env bash
 
-CURRENT_DIR="$HOME/.config/theme/current"
-BACKGROUND_DIR="$CURRENT_DIR/backgrounds"
-CACHE_IMAGE="$HOME/.cache/current-wallpaper-image"
+set -euo pipefail
+
+WALLPAPER_DIR="$HOME/.config/walker/scripts/actions/wallpaper"
+BACKGROUND_DIR="$HOME/.config/theme/current/backgrounds"
 CACHE_PATH="$HOME/.cache/current-wallpaper"
 
-if [[ ! -d "$BACKGROUND_DIR" ]]; then
-  notify-send "Wallpaper" "No backgrounds folder found in current theme"
-  exit 1
-fi
-
-mapfile -t WALLPAPERS < <(
-  find "$BACKGROUND_DIR" -type f \
-    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) |
-    sort -V
-)
+mapfile -t WALLPAPERS < <(python3 "$WALLPAPER_DIR/transition.py" list "$BACKGROUND_DIR")
 
 TOTAL="${#WALLPAPERS[@]}"
 
 if (( TOTAL == 0 )); then
-  notify-send "Wallpaper" "No wallpapers found"
+  notify-send "Wallpaper" "No wallpapers found in the current theme"
   exit 1
 fi
 
@@ -39,7 +31,5 @@ for i in "${!WALLPAPERS[@]}"; do
 done
 
 NEXT_INDEX=$(( (CURRENT_INDEX + 1) % TOTAL ))
-NEXT_WALLPAPER="${WALLPAPERS[$NEXT_INDEX]}"
-NEXT_NAME="$(basename "$NEXT_WALLPAPER")"
 
-exec bash "$HOME/.config/walker/scripts/actions/wallpaper/apply.sh" "$NEXT_WALLPAPER"
+exec bash "$HOME/.config/walker/scripts/actions/wallpaper/apply.sh" "${WALLPAPERS[$NEXT_INDEX]}"

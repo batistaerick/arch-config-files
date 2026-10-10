@@ -2,7 +2,6 @@
 Description=Apply nightlight at scheduled times
 
 [Timer]
-OnStartupSec=15s
 OnCalendar=*-*-* 09:00:00
 OnCalendar=*-*-* 18:00:00
 Persistent=true

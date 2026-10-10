@@ -6,12 +6,19 @@ import unittest
 
 
 DETECTOR = Path(__file__).resolve().parents[1] / "hardware/detect.sh"
+ASSOCIATIVE_ARRAYS = subprocess.run(["bash", "-c", "declare -A probe=()"],
+                                    capture_output=True).returncode == 0
 
 
+@unittest.skipUnless(ASSOCIATIVE_ARRAYS, "detect.sh requires bash 4+ (Arch ships bash 5)")
 class HardwareDetectionTests(unittest.TestCase):
-    def run_detector(self, cpu, vendors, nvidia_driver=None):
+    def run_detector(self, cpu, vendors, nvidia_driver=None, kernels=("linux",)):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            modules = root / "modules"
+            for index, kernel in enumerate(kernels):
+                (modules / f"6.{index}.0").mkdir(parents=True)
+                (modules / f"6.{index}.0/pkgbase").write_text(kernel + "\n")
             cpuinfo = root / "cpuinfo"
             cpuinfo.write_text(f"vendor_id\t: {cpu}\n")
             pci = root / "pci"
@@ -22,7 +29,8 @@ class HardwareDetectionTests(unittest.TestCase):
                 (device / "class").write_text("0x030000\n")
                 (device / "vendor").write_text(vendor + "\n")
             env = os.environ.copy()
-            env.update(HARDWARE_SYSFS_ROOT=str(pci), HARDWARE_CPUINFO=str(cpuinfo))
+            env.update(HARDWARE_SYSFS_ROOT=str(pci), HARDWARE_CPUINFO=str(cpuinfo),
+                       HARDWARE_MODULES_ROOT=str(modules))
             env.pop("DISTRO_NVIDIA_DRIVER", None)
             if nvidia_driver:
                 env["DISTRO_NVIDIA_DRIVER"] = nvidia_driver
@@ -51,6 +59,18 @@ class HardwareDetectionTests(unittest.TestCase):
         self.assertEqual(selected.returncode, 0, selected.stderr)
         self.assertTrue({"nvidia-open", "lib32-nvidia-utils", "nvidia-settings",
                          "nvidia-prime", "vulkan-intel"} <= set(selected.stdout.splitlines()))
+
+    def test_nvidia_uses_dkms_with_a_non_default_kernel(self):
+        result = self.run_detector("AuthenticAMD", ["0x10de"], "open", kernels=("linux", "linux-lts"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        packages = result.stdout.splitlines()
+        self.assertIn("nvidia-open-dkms", packages)
+        self.assertNotIn("nvidia-open", packages)
+        self.assertTrue({"linux-headers", "linux-lts-headers"} <= set(packages))
+        self.assertEqual(len(packages), len(set(packages)))
+        default = self.run_detector("AuthenticAMD", ["0x10de"], "open").stdout.splitlines()
+        self.assertIn("nvidia-open", default)
+        self.assertFalse([package for package in default if package.endswith("-headers")])
 
     def test_virtual_gpu_gets_software_vulkan(self):
         result = self.run_detector("GenuineIntel", ["0x1af4"])

@@ -1,6 +1,10 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -19,7 +23,8 @@ class SoftwareTests(unittest.TestCase):
             calls = [call.args[0] for call in run.call_args_list]
             self.assertEqual(calls[0], ["flatpak", "remote-add", "--user", "--if-not-exists",
                                       "flathub", "https://dl.flathub.org/repo/flathub.flatpakrepo"])
-            self.assertEqual(calls[-1], ["flatpak", "install", "--user", "GeForceNOW", "com.nvidia.geforcenow"])
+            self.assertEqual(calls[-1], ["flatpak", "install", "--user", "--or-update",
+                                         "GeForceNOW", "com.nvidia.geforcenow"])
 
     def test_package_picker_installs_all_selected_packages(self):
         with patch.object(software, "text", return_value="firefox\nchromium"), \
@@ -72,9 +77,59 @@ class SoftwareTests(unittest.TestCase):
             recipe.assert_called_once_with("gaming", "geforcenow")
 
     def test_install_keeps_arguments_separate_and_deduplicates(self):
-        with patch.object(software, "run") as run:
+        with patch.object(software, "require_no_pending_updates"), patch.object(software, "run") as run:
             software.install("pacman", ["firefox", "firefox"])
             run.assert_called_once_with(["sudo", "pacman", "-Syu", "--needed", "--", "firefox"])
+
+    def checkupdates(self, returncode, stdout="", stderr=""):
+        return patch.object(software.subprocess, "run",
+                            return_value=SimpleNamespace(returncode=returncode, stdout=stdout, stderr=stderr))
+
+    def test_pending_updates_redirect_to_snapshot_protected_system_update(self):
+        with patch.object(software.shutil, "which", return_value="/usr/bin/checkupdates"), \
+                self.checkupdates(0, "linux 1 -> 2\nmesa 1 -> 2\n"), patch.object(software, "run") as run:
+            with self.assertRaisesRegex(RuntimeError, "2 system update.*System Update"):
+                software.install("pacman", ["firefox"])
+            run.assert_not_called()
+
+    def test_install_proceeds_only_when_no_updates_are_pending(self):
+        with patch.object(software.shutil, "which", return_value="/usr/bin/checkupdates"), \
+                self.checkupdates(2), patch.object(software, "run") as run:
+            software.install("pacman", ["firefox"])
+            run.assert_called_once()
+        for which, returncode in ((None, 2), ("/usr/bin/checkupdates", 1)):
+            with self.subTest(which=which, returncode=returncode), \
+                    patch.object(software.shutil, "which", return_value=which), \
+                    self.checkupdates(returncode, stderr="network down"), patch.object(software, "run") as run:
+                with self.assertRaises(RuntimeError):
+                    software.install("pacman", ["firefox"])
+                run.assert_not_called()
+
+    def test_missing_catalog_reports_existing_desktop_step(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(software.Path, "home", return_value=Path(directory)), \
+                patch.object(software, "SCRIPT", Path(directory) / "a/b/c/d/software.py"):
+            with self.assertRaisesRegex(FileNotFoundError, "Existing desktop"):
+                software.catalog()
+        # An existing desktop has an installed catalog; isolate the checkout
+        # fallback from the reviewer's HOME rather than assuming it is absent.
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(software.Path, "home", return_value=Path(directory)):
+            self.assertEqual(software.data_file("software.json"), ROOT / "distro/software.json")
+            self.assertTrue(software.installer_url("nvm").startswith("https://"))
+
+    def test_recipe_menu_shows_catalog_errors(self):
+        script = ROOT / "walker/scripts/actions/install/software.py"
+        with tempfile.TemporaryDirectory() as directory:
+            copy = Path(directory) / "software.py"
+            copy.write_text(script.read_text())
+            result = subprocess.run([sys.executable, str(copy), "recipes", "languages"],
+                                    capture_output=True, text=True, env=dict(os.environ, HOME=directory))
+        self.assertEqual(result.returncode, 1)
+        rows = json.loads(result.stdout)
+        self.assertTrue(rows[0]["error"])
+        self.assertIn("not installed", rows[0]["label"])
+        self.assertIn("row.error", (ROOT / "walker/scripts/menus/software-menu.lua").read_text())
 
     def test_invalid_package_never_executes(self):
         for name in ("--overwrite", "firefox; reboot", "$(id)", "../x", ""):
@@ -102,14 +157,6 @@ class SoftwareTests(unittest.TestCase):
             software.remove("pacman", "firefox")
             run.assert_called_once_with(["sudo", "pacman", "-R", "--", "firefox"])
 
-    def test_search_is_read_only_and_empty_query_has_no_network(self):
-        with patch.object(software.subprocess, "run") as run:
-            self.assertEqual(software.search("aur", "")[0]["name"], "")
-            run.assert_not_called()
-            run.return_value = SimpleNamespace(returncode=0, stdout="extra/firefox 1.0\n    Web browser\n", stderr="")
-            self.assertEqual(software.search("pacman", "firefox")[0]["name"], "firefox")
-            self.assertIn("-Ss", run.call_args.args[0])
-
     def test_catalog_names_and_no_default_grok(self):
         data = json.loads((ROOT / "distro/software.json").read_text())
         for entries in data.values():
@@ -127,8 +174,8 @@ class SoftwareTests(unittest.TestCase):
         self.assertIn("--provider desktopapplications", search)
         self.assertIn('{ action = "open", label = "Open", bind = "Return", default = true', config)
         self.assertIn('action = "app_uninstall", label = "Uninstall", bind = "Delete"', config)
-        self.assertIn('action = "package_toggle", label = "Select", bind = "Tab"', config)
-        self.assertIn('action = "package_review", label = "Review build", bind = "ctrl b"', config)
+        self.assertNotIn("package_toggle", config)
+        self.assertNotIn("package_review", config)
 
     def test_existing_desktop_update_does_not_require_distro_snapshot_setup(self):
         script = (ROOT / "walker/scripts/actions/system/update.sh").read_text()

@@ -2,10 +2,8 @@
 
 source "$HOME/.config/walker/scripts/menus/cloud/gcp/common.sh"
 
-project="$(choose_gcp_project)"
-minutes="$(choose_time_range_minutes)"
-
-if [ "$minutes" = "__back__" ]; then
+project="$(choose_gcp_project)" || exit 0
+if ! minutes="$(choose_time_range_minutes)"; then
   back_to_gcp_menu
   exit 0
 fi

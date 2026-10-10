@@ -31,9 +31,6 @@ quick_activate = []
 ]
 fallback = [
   { action = "app_uninstall", label = "Uninstall", bind = "Delete", after = "Close" },
-  { action = "package_toggle", label = "Select", bind = "Tab", after = "AsyncReload" },
-  { action = "package_install", label = "Install selected", bind = "Return", default = true, after = "Close" },
-  { action = "package_review", label = "Review build", bind = "ctrl b", after = "Nothing" },
   { action = "clipboard_delete", label = "Delete", bind = "Delete", after = "AsyncReload" },
   { action = "clipboard_paste", label = "Paste", bind = "Return", default = true, after = "Close" },
   { action = "lockscreen_apply", label = "Select", bind = "Return", default = true, after = "Close" },

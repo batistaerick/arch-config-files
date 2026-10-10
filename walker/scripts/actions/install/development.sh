@@ -13,17 +13,20 @@ download_run() {
   shift
   bash "$installer" "$@"
 }
+# Shell profiles already load these tools (HOME_FILES/.zshrc), so installers
+# must not append their own PATH lines.
 node_setup() {
   export NVM_DIR="$HOME/.nvm"
   if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
     PROFILE=/dev/null download_run "$(installer_url nvm)"
   fi
-  set +u
-  source "$NVM_DIR/nvm.sh"
-  nvm install --lts
-  nvm alias default 'lts/*'
-  nvm use default
-  set -u
+  # nvm is not written for errexit/nounset; check each step explicitly.
+  set +eu
+  source "$NVM_DIR/nvm.sh" || exit 1
+  nvm install --lts || exit 1
+  nvm alias default 'lts/*' || exit 1
+  nvm use default || exit 1
+  set -eu
 }
 case "$kind" in
   node) node_setup ;;
@@ -42,16 +45,17 @@ case "$kind" in
     sdk default java "$version" || exit 1
     sdk install maven || exit 1
     ;;
-  python) download_run "$(installer_url uv)"; "$HOME/.local/bin/uv" python install ;;
+  python) UV_NO_MODIFY_PATH=1 download_run "$(installer_url uv)"; "$HOME/.local/bin/uv" python install ;;
   rust) rustup toolchain install stable; rustup default stable ;;
   rails)
     mise use --global ruby@latest
     mise exec ruby -- gem install rails
     ;;
   laravel) composer global require laravel/installer ;;
-  yarn|pnpm) node_setup; npm install --global "$kind" ;;
-  bun) download_run "$(installer_url bun)" ;;
-  deno) download_run "$(installer_url deno)" ;;
+  # Bun's script installer always edits shell profiles; npm is an official
+  # Bun install method that leaves them alone.
+  yarn|pnpm|bun) node_setup; npm install --global "$kind" ;;
+  deno) download_run "$(installer_url deno)" -y --no-modify-path ;;
   codex|gemini)
     node_setup
     if [[ "$kind" == codex ]]; then npm install --global @openai/codex;

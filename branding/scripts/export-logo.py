@@ -75,7 +75,7 @@ def svg(side, paths, color, width=None, height=None, background=None):
     x, y = (width - side * scale) / 2, (height - side * scale) / 2
     backdrop = f'<rect width="{width}" height="{height}" fill="{background}"/>' if background else ""
     return (f'<svg xmlns="{SVG_NS}" viewBox="0 0 {width} {height}" '
-            f'width="{width}" height="{height}"><title>Eitr Rune Liquid logo</title>'
+            f'width="{width}" height="{height}"><title>Eitr logo</title>'
             f'{backdrop}<g fill="{color}" transform="translate({x:g} {y:g}) scale({scale:g})">'
             f'{paths}</g></svg>\n')
 

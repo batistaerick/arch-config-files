@@ -114,13 +114,22 @@ def reveal_window():
     subprocess.run(["hyprctl", "eval", 'hl.dispatch(hl.dsp.focus({ window = "class:^(com.obsproject.Studio)$" }))'], capture_output=True)
 
 
+WEBSOCKET_ENV = "OBS_WEBSOCKET_URL"
+
+
 def websocket_command():
+    """Return the obs-cmd command and export its connection URL.
+
+    The URL contains the WebSocket password, so it is passed through this
+    process's environment (inherited by obs-cmd children) instead of argv,
+    which other local users can read from the process list.
+    """
     config = json.loads((Path.home() / ".config/obs-studio/plugin_config/obs-websocket/config.json").read_text())
     if not config.get("server_enabled"):
         raise RuntimeError("Enable OBS WebSocket in Tools first")
     password = config.get("server_password", "") if config.get("auth_required") else ""
-    url = f"obsws://localhost:{config.get('server_port', 4455)}/{quote(password, safe='')}"
-    return ["obs-cmd", "--websocket", url]
+    os.environ[WEBSOCKET_ENV] = f"obsws://localhost:{config.get('server_port', 4455)}/{quote(password, safe='')}"
+    return ["obs-cmd"]
 
 
 def parse_status(text):

@@ -80,7 +80,7 @@ def main():
 def apply_live(key, value):
     try:
         subprocess.run(
-            ["qs", "-c", "desktop-bar", "ipc", "call", "--", "bar", "update", key, value],
+            ["quickshell", "ipc", "-c", "desktop-bar", "call", "--", "bar", "update", key, value],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3, check=False,
         )
     except (OSError, subprocess.TimeoutExpired):

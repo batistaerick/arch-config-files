@@ -5,9 +5,7 @@ Icon = "󰌾"
 FixedOrder = true
 
 local root = os.getenv("HOME") .. "/.config/quickshell/lockscreen/scripts/"
-local function quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 function GetEntries()
     local entries = {}

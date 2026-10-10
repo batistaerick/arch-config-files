@@ -5,9 +5,7 @@ Icon = "󰌌"
 FixedOrder = true
 
 local script = os.getenv("HOME") .. "/.config/quickshell/desktop-bar/scripts/keyboard-layout.py"
-local function quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 function GetEntries()
     local entries = {}

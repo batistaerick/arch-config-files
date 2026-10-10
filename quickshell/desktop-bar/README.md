@@ -17,6 +17,8 @@ OBS controls share compact icon backgrounds and show loading until actions and
 the resulting status refresh finish. Starting capture first prepares OBS in
 the background, then closes the panel before recording or streaming starts.
 The recording dot has its own tooltip and Pause/Resume + Stop popup.
+The OBS WebSocket password is handed to `obs-cmd` through its
+`OBS_WEBSOCKET_URL` environment variable, never on the command line.
 Recording options persist in `obs-recording.json`; audio and microphone
 switches affect OBS inputs, not system volume. Webcam requires a configured
 OBS camera source. The active scene must include visible full-screen monitor
@@ -157,7 +159,8 @@ Escape, or hiding the status icons dismiss them; pointer movement does not.
 Inactive workspace tooltips list their open applications by display name, with
 duplicates omitted. Current and empty workspaces show no tooltip.
 Walker System entries use show-panel.sh to open these same bar popups, including
-audio, microphone, keyboard, calendar, weather, hardware, and AI usage. Hidden
+audio, microphone, keyboard, display, calendar, weather, hardware, and AI usage.
+Its allowlist accepts exactly the `panels show` kinds; a test keeps them in sync. Hidden
 status icons remain hidden; their popups anchor beside the notification icon.
 Keyboard's Add Layout searches the installed XKB languages and variants. Added
 layouts persist in hypr/keyboard-layouts.lua and retain Alt+Shift switching.
@@ -287,7 +290,11 @@ quickshell kill -c desktop-bar
 ## Panel Style
 
 `PanelStyle.js` defines the shared font family, utility heading (18 px),
-body/control text (14 px), captions (12-13 px), padding, and corner radii.
+body/control text (14 px), captions (12-13 px), padding, corner radii
+(`controlRadius` for rows, inputs, and buttons), the divider alpha
+(`dividerAlpha`), and `surfaceInset`: PanelSurface's 14 px content inset on
+each side, so panel heights add `padding * 2 + surfaceInset * 2`.
+Bar glyphs and the appearance picker use the same font family.
 Calendar dates, weather temperatures, and glyphs retain purpose-specific sizes.
 Compact selectors retain their smaller padding; full panels use 18 px.
 Notification CSS uses the same font family, with larger text for message content.

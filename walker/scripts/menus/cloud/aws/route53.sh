@@ -10,12 +10,12 @@ choose_hosted_zone() {
 
   if ! zones="$(aws_cli route53 list-hosted-zones | jq -r '.HostedZones[] | "\(.Name)  \(.Id | split("/")[-1])"')"; then
     notify-send "Route 53" "Failed to list hosted zones"
-    exit 1
+    return 1
   fi
 
-  [ -z "$zones" ] && notify-send "Route 53" "No hosted zones found" && exit 0
+  [ -z "$zones" ] && notify-send "Route 53" "No hosted zones found" && return 1
   chosen="$(printf "%s\n" "$zones" | walker_menu "Hosted Zone")"
-  [ -z "$chosen" ] && exit 0
+  [ -z "$chosen" ] && return 1
   echo "$chosen" | awk '{ print $NF }'
 }
 
@@ -23,46 +23,46 @@ options="󰖟  Hosted zones
 󰑓  Records
 󰅟  Zone details"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="Route 53 - $AWS_PROFILE")
+chosen="$(printf '%s\n' "$options" | walker_menu "Route 53 - $AWS_PROFILE")"
 
 case "$chosen" in
   "󰖟  Hosted zones")
     run_in_kitty "Route 53 Zones - $AWS_PROFILE" "
-aws_header 'Route 53 hosted zones'
-aws_kv 'Profile' '$AWS_PROFILE'
+cloud_header 'Route 53 hosted zones'
+cloud_kv 'Profile' '$AWS_PROFILE'
 echo
 
 $(aws_base) route53 list-hosted-zones \
 | jq -r '.HostedZones[] | \"\u001b[36m\(.Name)\u001b[0m  id=\(.Id | split(\"/\")[-1])  records=\(.ResourceRecordSetCount)  private=\(.Config.PrivateZone)\"' \
-| aws_fzf 'Hosted zones' plain
+| cloud_fzf 'Hosted zones' plain
 " close-on-success toggle
     ;;
   "󰑓  Records")
-    zone_id="$(choose_hosted_zone)"
+    zone_id="$(choose_hosted_zone)" || exit 0
     quoted_zone_id="$(shell_quote "$zone_id")"
 
     run_in_kitty "Route 53 Records - $AWS_PROFILE" "
-aws_header 'Route 53 records'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'Zone' $quoted_zone_id
+cloud_header 'Route 53 records'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'Zone' $quoted_zone_id
 echo
 
 $(aws_base) route53 list-resource-record-sets --hosted-zone-id $quoted_zone_id \
 | jq -r '.ResourceRecordSets[] | \"\u001b[36m\(.Name)\u001b[0m  type=\(.Type)  ttl=\(.TTL // \"alias\")  values=\([.ResourceRecords[]?.Value] | join(\",\")) alias=\(.AliasTarget.DNSName // \"\")\"' \
-| aws_fzf 'Records' plain
+| cloud_fzf 'Records' plain
 " close-on-success toggle
     ;;
   "󰅟  Zone details")
-    zone_id="$(choose_hosted_zone)"
+    zone_id="$(choose_hosted_zone)" || exit 0
     quoted_zone_id="$(shell_quote "$zone_id")"
 
     run_in_kitty "Route 53 Zone - $AWS_PROFILE" "
-aws_header 'Route 53 hosted zone'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_kv 'Zone' $quoted_zone_id
+cloud_header 'Route 53 hosted zone'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_kv 'Zone' $quoted_zone_id
 echo
 
-$(aws_base) route53 get-hosted-zone --id $quoted_zone_id | aws_json
+$(aws_base) route53 get-hosted-zone --id $quoted_zone_id | cloud_json
 " close-on-success toggle
     ;;
   "")

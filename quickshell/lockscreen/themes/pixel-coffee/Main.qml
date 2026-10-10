@@ -3,6 +3,7 @@ import QtQuick.Window
 import Qt5Compat.GraphicalEffects
 import Qt.labs.folderlistmodel
 import SddmComponents 2.0
+import LockscreenComponents
 
 Rectangle {
     // Wayland Cursor Fix
@@ -32,7 +33,7 @@ Rectangle {
     Component.onCompleted: { fadeAnim.start(); keyboard.numLock = true }
     NumberAnimation { id: fadeAnim; target: root; property: "ui"; from: 0; to: 1; duration: 800; easing.type: Easing.OutCubic }
 
-    Loader { anchors.fill: parent; source: "BackgroundVideo.qml" }
+    BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background) }
 
     // Top Overlay
     Rectangle { anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right; height: 160 * s; gradient: Gradient { GradientStop { position: 0.0; color: "#d8000000" } GradientStop { position: 1.0; color: "transparent" } } }

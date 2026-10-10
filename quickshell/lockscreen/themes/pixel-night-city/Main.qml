@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Window
 import Qt5Compat.GraphicalEffects
 import SddmComponents 2.0
+import LockscreenComponents
 
 // Night City
 Rectangle {
@@ -35,7 +36,7 @@ Rectangle {
     Component.onCompleted: { fadeAnim.start(); keyboard.numLock = true }
     NumberAnimation { id: fadeAnim; target: root; property: "ui"; from: 0; to: 1; duration: 1500; easing.type: Easing.OutSine }
 
-    Loader { anchors.fill: parent; source: "BackgroundVideo.qml" }
+    BackgroundVideo { anchors.fill: parent; source: Qt.resolvedUrl(config.background) }
 
     // Dark Overlay
     Rectangle { anchors.fill: parent; color: "black"; opacity: 0.3 }

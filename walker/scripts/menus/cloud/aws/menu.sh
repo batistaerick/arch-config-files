@@ -2,46 +2,24 @@
 
 source "$HOME/.config/walker/scripts/menus/cloud/aws/common.sh"
 
-choose_profile() {
-  walker_menu "AWS Profile" \
-    "Development" \
-    "Production"
-}
-
-resolve_profile() {
-  case "$1" in
-    "Development")
-      echo "doola-dev"
-      ;;
-    "Production")
-      echo "doola-prod"
-      ;;
-    *)
-      echo "$1"
-      ;;
-  esac
-}
-
-if [ "$1" = "--choose-profile-only" ]; then
-  AWS_PROFILE="$(resolve_profile "$(choose_profile)")"
-  printf "%s\n" "$AWS_PROFILE"
+# Used by the Elephant AWS and Grafana menus: "Label<TAB>profile" lines.
+if [ "${1:-}" = "--list-profiles" ]; then
+  aws_profile_choices
   exit 0
 fi
 
-AWS_PROFILE="${1:-$(resolve_profile "$(choose_profile)")}"
-
-case "$AWS_PROFILE" in
-  "")
-    exit 0
-    ;;
-esac
+if [ -n "${1:-}" ]; then
+  AWS_PROFILE="$1"
+else
+  AWS_PROFILE="$(choose_aws_profile)" || exit 0
+fi
 
 case "${2:-}" in
   --sso-login)
     run_in_kitty "AWS SSO - $AWS_PROFILE" "
-aws_header 'AWS SSO login'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_success 'Opening AWS SSO login...'
+cloud_header 'AWS SSO login'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_success 'Opening AWS SSO login...'
 echo
 $(aws_base) sso login
 " close-on-success
@@ -49,9 +27,9 @@ $(aws_base) sso login
     ;;
   --check-auth)
     run_in_kitty "AWS Auth - $AWS_PROFILE" "
-aws_header 'AWS auth'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_success 'Checking AWS auth...'
+cloud_header 'AWS auth'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_success 'Checking AWS auth...'
 echo
 $(aws_base) sts get-caller-identity \
 | jq -r '
@@ -82,15 +60,15 @@ options="󰒋  SSO Login
 󰖟  VPC
 󰒃  IAM"
 
-chosen=$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="AWS - $AWS_PROFILE")
+chosen="$(printf '%s\n' "$options" | walker_menu "AWS - $AWS_PROFILE")"
 
 case "$chosen" in
 
   "󰒋  SSO Login")
     run_in_kitty "AWS SSO - $AWS_PROFILE" "
-aws_header 'AWS SSO login'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_success 'Opening AWS SSO login...'
+cloud_header 'AWS SSO login'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_success 'Opening AWS SSO login...'
 echo
 $(aws_base) sso login
 " close-on-success
@@ -98,9 +76,9 @@ $(aws_base) sso login
 
   "󰅟  Check Auth")
     run_in_kitty "AWS Auth - $AWS_PROFILE" "
-aws_header 'AWS auth'
-aws_kv 'Profile' '$AWS_PROFILE'
-aws_success 'Checking AWS auth...'
+cloud_header 'AWS auth'
+cloud_kv 'Profile' '$AWS_PROFILE'
+cloud_success 'Checking AWS auth...'
 echo
 $(aws_base) sts get-caller-identity \
 | jq -r '

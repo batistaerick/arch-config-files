@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Keep in sync with the `panels` IpcHandler show() kinds in shell.qml;
+# tests/test_show_panel_kinds.py enforces this.
 case "${1:-}" in
-  wifi|bluetooth|volume|mic|keyboard|calendar|weather|hardware|ai|notifications|overview) ;;
+  wifi|bluetooth|brightness|display|volume|mic|keyboard|idle|calendar|weather|hardware|ai|obs|workspace|recording|notifications|overview) ;;
   *) exit 2 ;;
 esac
 sleep 0.2

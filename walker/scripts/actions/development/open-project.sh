@@ -69,7 +69,7 @@ while true; do
     options+=("󰉋  $dir")
   done
 
-  chosen="$(printf "%s\n" "${options[@]}" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="$prompt")"
+  chosen="$(printf "%s\n" "${options[@]}" | "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --matching=contains --cache-file /dev/null --prompt="$prompt")"
 
   case "$chosen" in
     "")

@@ -1,18 +1,7 @@
 -- Detect whether this session is running on the laptop panel or the desktop monitors.
-local function has_internal_display()
-	local handle = io.popen("cat /sys/class/drm/card*-eDP-*/status 2>/dev/null")
-	if not handle then
-		return false
-	end
-
-	local output = handle:read("*a") or ""
-	handle:close()
-
-	return output:match("connected") ~= nil
-end
-
-local function has_connected_output(output)
-	local handle = io.popen("cat /sys/class/drm/card*-" .. output .. "/status 2>/dev/null")
+-- DRM status files contain "connected" or "disconnected"; match whole lines only.
+local function drm_output_connected(output_glob)
+	local handle = io.popen("cat /sys/class/drm/card*-" .. output_glob .. "/status 2>/dev/null")
 	if not handle then
 		return false
 	end
@@ -20,11 +9,11 @@ local function has_connected_output(output)
 	local status = handle:read("*a") or ""
 	handle:close()
 
-	return status:match("connected") ~= nil
+	return ("\n" .. status):match("\nconnected") ~= nil
 end
 
-local is_laptop = has_internal_display()
-local has_hdmi = has_connected_output("HDMI-A-1")
+local is_laptop = drm_output_connected("eDP-*")
+local has_hdmi = drm_output_connected("HDMI-A-1")
 local portable_config = io.open(os.getenv("HOME") .. "/.config/hypr/portable.mode", "r")
 local portable_mode = portable_config ~= nil
 if portable_config then
@@ -130,7 +119,6 @@ local hyprScriptsDir = "~/.config/hypr/scripts"
 hl.on("hyprland.start", function()
 	hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
 	hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
-	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("quickshell -n -c desktop-bar --daemonize")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("hyprpaper")
@@ -245,6 +233,8 @@ hl.config({
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
 		force_default_wallpaper = -1,
+		-- Lets launch.sh hand a crashed Quickshell lock over to Hyprlock.
+		allow_session_lock_restore = true,
 	},
 })
 
@@ -286,10 +276,13 @@ hl.gesture({
 --   scale = 1.0,
 -- })
 
-hl.device({
-	name = "epic-mouse-v1",
-	sensitivity = -0.5,
-})
+-- Owner-specific hardware tuning; fresh installs create portable.mode and skip it.
+if not portable_mode then
+	hl.device({
+		name = "epic-mouse-v1",
+		sensitivity = -0.5,
+	})
+end
 
 -----------------
 -- Keybindings --
@@ -316,6 +309,7 @@ hl.bind(
 
 -- Window state and layout
 hl.bind(mainMod .. " + W", hl.dsp.window.close())
+-- Intentional pair: SUPER+T toggles floating and pin together (see Learn > Shortcuts).
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + T", hl.dsp.window.pin())
 hl.bind(mainMod .. " + CTRL + F", hl.dsp.window.fullscreen())
@@ -402,12 +396,12 @@ hl.bind(
 hl.bind(
 	"XF86AudioMute",
 	hl.dsp.exec_cmd("swayosd-client --output-volume=mute-toggle --max-volume=100"),
-	{ locked = true, repeating = true }
+	{ locked = true }
 )
 hl.bind(
 	"XF86AudioMicMute",
 	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
-	{ locked = true, repeating = true }
+	{ locked = true }
 )
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("swayosd-client --brightness +2"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness -2"), { locked = true, repeating = true })
@@ -488,7 +482,6 @@ end
 -- Floating utility windows
 local topRightPanelPosition = "top-right"
 
-floating_window_rule("blueman-manager-float", "^(blueman-manager)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("setup-wifi-float", "^(setup-wifi)$", { 700, 480 }, topRightPanelPosition)
 floating_window_rule("gnome-calculator-float", "^(org.gnome.Calculator)$", { 420, 560 })
 floating_window_rule("gnome-characters-float", "^(org.gnome.Characters)$", { 700, 500 })

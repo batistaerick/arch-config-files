@@ -208,6 +208,24 @@ class ObsControlTests(unittest.TestCase):
                 obs.control("stop")
             launch.assert_not_called()
 
+    def test_websocket_password_is_not_passed_in_argv(self):
+        config = '{"server_enabled":true,"auth_required":true,"server_password":"p@ss/word","server_port":4460}'
+        with patch.dict(obs.os.environ, {}, clear=False), patch.object(Path, "read_text", return_value=config):
+            command = obs.websocket_command()
+            self.assertEqual(command, ["obs-cmd"])
+            self.assertNotIn("p@ss", " ".join(command))
+            self.assertEqual(obs.os.environ[obs.WEBSOCKET_ENV], "obsws://localhost:4460/p%40ss%2Fword")
+
+    def test_status_commands_carry_no_secret(self):
+        config = '{"server_enabled":true,"auth_required":true,"server_password":"hunter2"}'
+        output = SimpleNamespace(returncode=0, stdout="Active: false\n")
+        with patch.dict(obs.os.environ, {}, clear=False), patch.object(Path, "read_text", return_value=config), \
+                patch.object(obs.subprocess, "run", return_value=output) as run:
+            obs.status()
+            commands = [call.args[0] for call in run.call_args_list]
+            self.assertIn(["obs-cmd", "recording", "status"], commands)
+            self.assertFalse(any("hunter2" in part for command in commands for part in command))
+
     def test_invalid_action_is_rejected(self):
         with self.assertRaisesRegex(RuntimeError, "Unknown"):
             obs.control("quit")

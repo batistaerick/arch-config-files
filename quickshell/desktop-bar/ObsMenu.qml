@@ -1,4 +1,5 @@
 import QtQuick
+import "ObsQueue.js" as ObsQueue
 import "PanelStyle.js" as PanelStyle
 import Quickshell
 import Quickshell.Io
@@ -6,7 +7,7 @@ import Quickshell.Io
 ThemedPopup {
     id: menu
     implicitWidth: 328
-    implicitHeight: content.implicitHeight + PanelStyle.padding * 2 + 28
+    implicitHeight: content.implicitHeight + PanelStyle.padding * 2 + PanelStyle.surfaceInset * 2
     property string status: ""
     property string actionError: ""
     property string pendingAction: ""
@@ -19,6 +20,7 @@ ThemedPopup {
     readonly property bool busy: pendingAction !== ""
     property var obsState: ({ready: false, recording: false, paused: false, streaming: false})
     readonly property bool controlsReady: obsState.ready && !busy
+    readonly property string controlScript: Quickshell.shellDir + "/scripts/obs-control.py"
 
     function refresh() {
         if (busy && !awaitingState) return;
@@ -36,7 +38,7 @@ ThemedPopup {
         if (!optionWriter.running) beginAction();
     }
     function beginAction() {
-        actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", preparingStart ? "prepare" : pendingAction];
+        actionProcess.command = ["python3", menu.controlScript, preparingStart ? "prepare" : pendingAction];
         actionProcess.running = true;
     }
     function loadOptions() {
@@ -44,31 +46,23 @@ ThemedPopup {
     }
     function saveOption(key, enabled) {
         if (busy) return;
-        const options = Object.assign({}, captureOptions);
-        options[key] = Object.assign({}, options[key], {enabled: enabled});
-        captureOptions = options;
-        const changes = Object.assign({}, pendingOptionChanges);
-        changes[key] = enabled;
-        pendingOptionChanges = changes;
+        captureOptions = ObsQueue.withOption(captureOptions, key, enabled);
+        pendingOptionChanges = ObsQueue.enqueue(pendingOptionChanges, key, enabled);
         writeNextOption();
     }
     function writeNextOption() {
         if (optionWriter.running) return;
-        const keys = Object.keys(pendingOptionChanges);
-        if (!keys.length) return;
-        const key = keys[0];
-        const enabled = pendingOptionChanges[key];
-        const remaining = Object.assign({}, pendingOptionChanges);
-        delete remaining[key];
-        pendingOptionChanges = remaining;
-        optionWriter.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "set-option", key, enabled ? "true" : "false"];
+        const next = ObsQueue.takeNext(pendingOptionChanges);
+        if (!next) return;
+        pendingOptionChanges = next.remaining;
+        optionWriter.command = ["python3", menu.controlScript].concat(ObsQueue.optionArguments(next.key, next.enabled));
         optionWriter.running = true;
     }
     onOpenedChanged: if (opened) { refresh(); loadOptions(); }
     Component.onCompleted: { refresh(); loadOptions(); }
     Process {
         id: optionQuery
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "options"]
+        command: ["python3", menu.controlScript, "options"]
         stdout: StdioCollector { id: optionOutput }
         onExited: function(code) {
             if (optionWriter.running || Object.keys(menu.pendingOptionChanges).length) return;
@@ -98,13 +92,13 @@ ThemedPopup {
         id: startDelay
         interval: menu.transitionDuration + 50
         onTriggered: {
-            actionProcess.command = ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", menu.pendingAction];
+            actionProcess.command = ["python3", menu.controlScript, menu.pendingAction];
             actionProcess.running = true;
         }
     }
     Process {
         id: query
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/desktop-bar/scripts/obs-control.py", "status"]
+        command: ["python3", menu.controlScript, "status"]
         stdout: StdioCollector { id: stateOutput }
         onExited: function(code) {
             if (actionProcess.running) return;
@@ -226,7 +220,7 @@ ThemedPopup {
                 Rectangle {
                     width: parent.width
                     height: 1
-                    color: Qt.rgba(menu.foreground.r, menu.foreground.g, menu.foreground.b, 0.12)
+                    color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha)
                 }
                 Row {
                     width: parent.width

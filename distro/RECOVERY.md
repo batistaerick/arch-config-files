@@ -50,7 +50,8 @@ shell or TTY:
 
 ```sh
 sudo ls /var/lib/eitr/pam-backups
-sudo /usr/local/lib/eitr/eitr-system auth-restore <timestamp>
+sudo /usr/lib/eitr/eitr-system auth-restore <timestamp>
+# Without the eitr-desktop package, the helper is /usr/local/lib/eitr/eitr-system.
 ```
 
 ## TPM disk unlock

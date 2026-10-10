@@ -43,21 +43,21 @@ target_state() {
   fi
 }
 
-# Copies through a staging path so an interrupted copy never leaves a partial
-# target that a rerun would treat as a user config.
-install_path() {
-  local source="$1" target="$2" parent staging
-  case "$(target_state "$source" "$target")" in
-    installed) record "${target#"$HOME"/}"; return ;;
-    conflict) die "Refusing to overwrite existing user file: $target" ;;
-  esac
-  parent="$(dirname -- "$target")"
-  mkdir -p -- "$parent"
-  staging="$(mktemp -d -- "$parent/.eitr-install.XXXXXX")"
-  cleanup_paths+=("$staging")
-  cp -a -- "$source" "$staging/item"
-  mv -T -- "$staging/item" "$target"
-  record "${target#"$HOME"/}"
+# Builds the eitr-desktop package from this tree's committed HEAD (or a
+# stamped ISO export) and installs it; pacman resolves its official depends.
+# The package ships the default configs, data files, root helper and user units.
+install_desktop_package() {
+  local build_dir
+  local -a package
+  mkdir -p -- "${XDG_CACHE_HOME:-$HOME/.cache}/eitr"
+  # Kept on disk, not in a tmpfs /tmp: the tree includes large wallpapers.
+  build_dir="$(mktemp -d -- "${XDG_CACHE_HOME:-$HOME/.cache}/eitr/package.XXXXXX")"
+  cleanup_paths+=("$build_dir")
+  export BUILDDIR="$build_dir/build" PKGDEST="$build_dir/out" PKGEXT=.pkg.tar
+  (cd "$repo_root/distro/pkg/eitr-desktop" && makepkg --nodeps --noconfirm --force)
+  mapfile -t package < <(cd "$repo_root/distro/pkg/eitr-desktop" && makepkg --packagelist)
+  unset BUILDDIR PKGDEST PKGEXT
+  sudo pacman -U --needed -- "${package[@]}"
 }
 
 clone_once() {
@@ -97,7 +97,7 @@ collect_targets() {
     add_target "$repo_root/$item" "$HOME/.config/$item"
   done
   add_target "$repo_root/themes/catppuccin" "$HOME/.config/theme/current"
-  add_tree "$repo_root/systemd/user" "$HOME/.config/systemd/user"
+  # systemd user units ship in /usr/lib/systemd/user with eitr-desktop.
   add_tree "$repo_root/HOME_FILES/.local" "$HOME/.local"
 }
 
@@ -202,22 +202,31 @@ if ! command -v yay >/dev/null; then
 fi
 yay -S --needed --mflags "--options !debug" -- "${aur[@]}" "${aur_apps[@]}"
 
-# Development runtimes and AI CLIs are installed only by explicit menu selection.
-# These are installer-owned reference copies, refreshed on every run.
-mkdir -p "$HOME/.local/share/eitr"
-install -m 644 "$repo_root/distro/software.json" "$HOME/.local/share/eitr/software.json"
-install -m 644 "$repo_root/distro/installers.json" "$HOME/.local/share/eitr/installers.json"
-install -m 644 "$repo_root/distro/RECOVERY.md" "$HOME/.local/share/eitr/RECOVERY.md"
-install -m 644 "$repo_root/distro/SECURE-BOOT.md" "$HOME/.local/share/eitr/SECURE-BOOT.md"
-sudo install -Dm755 "$repo_root/distro/system/eitr-system.py" /usr/local/lib/eitr/eitr-system
-sudo /usr/local/lib/eitr/eitr-system snapshots-setup
+# Development runtimes and AI CLIs are installed only by explicit menu selection;
+# their catalogs ship in /usr/share/eitr with the package.
+install_desktop_package
+sudo /usr/lib/eitr/eitr-system snapshots-setup
 # Snapshot boot entries change the boot menu, so they need typed confirmation.
 bash "$repo_root/distro/bootloader/setup.sh" --offer
-sudo install -Dm644 "$repo_root/distro/system-update-policy.conf" /etc/eitr/system-update-policy.conf
+sudo install -Dm644 /usr/share/eitr/system-update-policy.conf /etc/eitr/system-update-policy.conf
 
 mkdir -p "$HOME/.config" "$HOME/.cache" "$HOME/.local/bin"
-for index in "${!targets[@]}"; do
-  install_path "${sources[$index]}" "${targets[$index]}"
+# The shipped .zshrc needs Oh My Zsh (eitr-config waits for it), so clone it
+# before seeding the defaults.
+if shell_setup_clear; then
+  clone_once https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
+  clone_once https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+  zsh_plugin_loader zsh-autosuggestions
+  zsh_plugin_loader zsh-syntax-highlighting
+  for name in "${shell_files[@]}"; do targets+=("$HOME/$name"); done
+else
+  printf 'Existing Zsh files found; skipped Oh My Zsh setup and kept your shell files.\n' >&2
+fi
+# Copies only missing defaults (never overwrites) and records their checksums
+# so later `eitr-config update` runs can tell unedited files from edited ones.
+eitr-config seed
+for target in "${targets[@]}"; do
+  if [[ -e "$target" || -L "$target" ]]; then record "${target#"$HOME"/}"; fi
 done
 
 # Hyprland and the bar default to a generic layout. Machine-local overrides are
@@ -252,18 +261,6 @@ if systemctl --user show-environment >/dev/null 2>&1; then
 else
   printf 'No systemd user session is available (for example over su or a bare TTY).\n' >&2
   printf 'After first graphical login, run: systemctl --user enable --now nightlight-auto.timer\n' >&2
-fi
-
-if shell_setup_clear; then
-  clone_once https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
-  clone_once https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
-  zsh_plugin_loader zsh-autosuggestions
-  zsh_plugin_loader zsh-syntax-highlighting
-  for name in "${shell_files[@]}"; do
-    install_path "$repo_root/HOME_FILES/$name" "$HOME/$name"
-  done
-else
-  printf 'Existing Zsh files found; skipped Oh My Zsh and shell file setup.\n' >&2
 fi
 
 sudo install -Dm644 "$repo_root/distro/network/20-ethernet.network" /etc/systemd/network/20-ethernet.network

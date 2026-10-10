@@ -103,7 +103,9 @@ link once installation and release testing is complete.
    verifies that every manifest entry exists in the enabled repositories (AUR
    names once `yay` is available). It does not copy browser, Wi-Fi, SSH, AI,
    or 1Password credentials. The installer downloads official packages,
-   builds `yay` from AUR, installs AUR apps, configures Snapper and System Update protection,
+   builds `yay` from AUR, installs AUR apps, builds and installs the
+   `eitr-desktop` package (see [Desktop package](#desktop-package-and-config-updates))
+   and seeds your home from it with `eitr-config seed`, configures Snapper and System Update protection,
    and installs GeForce NOW. Development SDKs and AI CLIs are selected later
    from Walker rather than installed automatically. Audit the manifests and
    upstream installers before running them.
@@ -164,6 +166,52 @@ hyprctl reload
 A leftover `~/.config/hypr/portable.mode` on other machines is harmless and can
 be deleted.
 
+## Desktop package and config updates
+
+`pkg/eitr-desktop/PKGBUILD` packages the desktop from this tree. A Git checkout
+contributes only its committed `HEAD` (via `git archive`), so uncommitted and
+ignored machine-local files never ship; the version is `0.r<commits>.g<hash>`.
+It installs:
+
+- default configs under `/usr/share/eitr/config/` (the directories in
+  `user-defaults.json`) and `HOME_FILES` defaults under `/usr/share/eitr/home/`;
+- `software.json`, `installers.json`, `RECOVERY.md` and
+  `system-update-policy.conf` in `/usr/share/eitr/`;
+- the root helper as `/usr/lib/eitr/eitr-system` (earlier manual installs used
+  `/usr/local/lib/eitr/eitr-system`, which callers still accept as a fallback);
+- `eitr-config` in `/usr/bin` and the systemd user units in `/usr/lib/systemd/user`.
+
+Its dependencies are the official `packages.txt` entries except `base`,
+`base-devel`, `linux` and `linux-firmware`, which stay system choices (so
+`linux-lts`/`linux-zen` systems are valid). `apps.txt`, hardware drivers and AUR
+packages are not hard dependencies; the AUR desktop packages appear as optional
+dependencies and `install.sh` installs them with `yay`. Build and install it as
+your normal user from an up-to-date system:
+
+```sh
+cd distro/pkg/eitr-desktop
+makepkg --nodeps --clean   # pacman -U below resolves the official dependencies
+sudo pacman -U eitr-desktop-*.pkg.tar.zst
+```
+
+Packages only update files under `/usr`; your home is changed by `eitr-config`,
+run as the desktop user:
+
+- `eitr-config status` lists defaults that are new, outdated (unchanged by you),
+  in conflict (changed by you and upstream), or differ without ever being seeded.
+  `--all` also lists matching and locally modified files.
+- `eitr-config seed` copies missing defaults and never overwrites anything.
+  It records each copied file's checksum in
+  `${XDG_STATE_HOME:-~/.local/state}/eitr/user-defaults-state.json`.
+- `eitr-config update` seeds new defaults, replaces files you never edited, and
+  writes `<file>.eitr-new` beside files you edited (like pacman's `.pacnew`).
+  After merging one, `eitr-config resolve <file>` accepts it and removes the
+  `.eitr-new` copy. Files you deleted stay deleted. `theme/current` is only
+  seeded, because theme switches rewrite it. Both commands accept `--dry-run`.
+
+`eitr-config` honours `XDG_CONFIG_HOME` and `XDG_STATE_HOME`. With
+`--repo <checkout>` it compares against a checkout instead of the package.
+
 ## Build installer ISO
 
 Install `archiso` on an Arch build machine, then run `bash distro/build-iso.sh`.
@@ -216,23 +264,22 @@ and root-owned helper and System Update policy deliberately:
 
 ```sh
 sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker pacman-contrib
-sudo install -Dm755 distro/system/eitr-system.py /usr/local/lib/eitr/eitr-system
-sudo /usr/local/lib/eitr/eitr-system snapshots-setup
-sudo install -Dm644 distro/system-update-policy.conf /etc/eitr/system-update-policy.conf
+(cd distro/pkg/eitr-desktop && makepkg --nodeps --clean)
+sudo pacman -U distro/pkg/eitr-desktop/eitr-desktop-*.pkg.tar.zst
+sudo /usr/lib/eitr/eitr-system snapshots-setup
+sudo install -Dm644 /usr/share/eitr/system-update-policy.conf /etc/eitr/system-update-policy.conf
 ```
 
-The Install submenus, development installers, Snapshots → Recovery
-Instructions and Security → Secure Boot Guide read the distro data files
-from `~/.local/share/eitr/`. The live
-`~/.config` copies cannot locate this checkout, so install (and refresh after
-pulling changes) those reference copies as the desktop user:
-
-```sh
-install -Dm644 -t ~/.local/share/eitr distro/software.json distro/installers.json distro/RECOVERY.md distro/SECURE-BOOT.md
-```
-
-Rerun the `install -Dm755 … eitr-system` line after helper changes; the
-installed root-owned copy is never updated automatically.
+The [package](#desktop-package-and-config-updates) installs the root helper,
+the data files read by the Install submenus, development installers and
+Snapshots → Recovery Instructions and Security → Secure Boot Guide, and
+`eitr-config`. Rebuild and reinstall it
+after pulling changes; there is no manual copy step. Installing the package does
+not touch `~/.config`: run `eitr-config status` to compare the live files with
+the shipped defaults before deciding on `eitr-config update` (it never
+overwrites edited files). Copies in `~/.local/share/eitr/` take precedence over
+`/usr/share/eitr/`, so remove stale ones from earlier manual installs, and remove
+an old `/usr/local/lib/eitr/eitr-system` once the packaged helper is installed.
 
 Run from this repo, as the normal desktop user. If setup rejects the layout,
 stop; do not bypass its protection. The initial dependency bootstrap above is

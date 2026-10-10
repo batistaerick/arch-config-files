@@ -6,7 +6,13 @@ from pathlib import Path
 import subprocess
 import sys
 
-ROOT_HELPER = "/usr/local/lib/eitr/eitr-system"
+# The eitr-desktop package installs the helper under /usr/lib; earlier manual
+# installs used /usr/local/lib. Both locations are root-owned.
+ROOT_HELPERS = ("/usr/lib/eitr/eitr-system", "/usr/local/lib/eitr/eitr-system")
+
+
+def root_helper():
+    return next((path for path in ROOT_HELPERS if Path(path).is_file()), None)
 
 
 def fido_enroll():
@@ -38,8 +44,10 @@ def fido_enroll():
 
 
 def require_helper():
-    if not Path(ROOT_HELPER).exists():
+    helper = root_helper()
+    if helper is None:
         raise RuntimeError("The root-owned Eitr helper is not installed. See distro/README.md; never sudo a user-writable helper.")
+    return helper
 
 
 def luks_devices():
@@ -74,24 +82,24 @@ Undo at any time with Security > TPM Disk Unlock > Remove TPM Unlock.
 
 
 def tpm_action(action):
-    require_helper()
+    helper = require_helper()
     device = choose_luks_device()
     if action == "tpm-status":
-        subprocess.run(["sudo", ROOT_HELPER, "luks-tpm-check", device], check=True)
+        subprocess.run(["sudo", helper, "luks-tpm-check", device], check=True)
         return
     if action == "tpm-remove":
         print(f"This removes TPM unlock from {device}; the passphrase is required at every boot again.")
         if input("Type REMOVE TPM to confirm (anything else cancels): ") == "REMOVE TPM":
-            subprocess.run(["sudo", ROOT_HELPER, "luks-tpm-remove", device], check=True)
+            subprocess.run(["sudo", helper, "luks-tpm-remove", device], check=True)
         return
-    subprocess.run(["sudo", ROOT_HELPER, "luks-tpm-check", device], check=True)
+    subprocess.run(["sudo", helper, "luks-tpm-check", device], check=True)
     print(TPM_EXPLANATION)
     if input("Create a recovery key first? Strongly recommended. [Y/n]: ").strip().lower() not in ("n", "no"):
-        subprocess.run(["sudo", ROOT_HELPER, "luks-recovery-key", device], check=True)
+        subprocess.run(["sudo", helper, "luks-recovery-key", device], check=True)
         input("Write the recovery key down and store it offline, then press Enter. ")
     if input("Type ENROLL TPM to enroll TPM unlock (anything else cancels): ") != "ENROLL TPM":
         return
-    subprocess.run(["sudo", ROOT_HELPER, "luks-tpm-enroll", device], check=True)
+    subprocess.run(["sudo", helper, "luks-tpm-enroll", device], check=True)
 
 
 def main(action):
@@ -105,12 +113,12 @@ def main(action):
     elif action == "fido2":
         fido_enroll()
     elif action in ("enable-fingerprint", "enable-fido2", "password-only"):
-        require_helper()
+        helper = require_helper()
         method = "password" if action == "password-only" else action.removeprefix("enable-")
         print("This changes login, lockscreen and sudo authentication. Password fallback is retained.")
         if input("Type ENABLE to confirm (anything else cancels): ") != "ENABLE":
             return
-        subprocess.run(["sudo", ROOT_HELPER, "auth-enable", method], check=True)
+        subprocess.run(["sudo", helper, "auth-enable", method], check=True)
     else:
         raise ValueError("Unknown security action")
 

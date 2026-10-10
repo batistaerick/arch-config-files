@@ -4,6 +4,11 @@ __pycache__/
 .DS_Store
 distro/build/
 distro/out/
+# makepkg output when building eitr-desktop in place.
+/distro/pkg/eitr-desktop/src/
+/distro/pkg/eitr-desktop/pkg/
+/distro/pkg/eitr-desktop/*.pkg.tar*
+/distro/pkg/eitr-desktop/source-version
 # Machine-local desktop state and overrides, written at runtime or by hand.
 /hypr/primary-display
 /hypr/local.lua

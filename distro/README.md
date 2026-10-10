@@ -158,5 +158,7 @@ sudo install -Dm644 distro/hooks/95-eitr-snapshot-post.hook /etc/pacman.d/hooks/
 Run from this repo, as the normal desktop user. If setup rejects the layout,
 stop; do not bypass its protection. The initial dependency bootstrap above is
 not protected by hooks that have not yet been installed. Thereafter, the Update
-menu requires the hooks. Never sudo a helper under a user-writable config path.
+menu is protected by pacman's hooks. Existing desktops without hooks can still
+update normally; snapshot protection is not a prerequisite for using the menu.
+Never sudo a helper under a user-writable config path.
 Do not restart SDDM or test authentication without a recovery console available.

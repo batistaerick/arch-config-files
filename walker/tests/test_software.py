@@ -122,7 +122,17 @@ class SoftwareTests(unittest.TestCase):
 
     def test_walker_delete_and_tab_actions_are_scoped(self):
         config = (ROOT / "walker/config.toml").read_text()
-        self.assertIn('default = [ "menus:apps", "websearch" ]', config)
+        self.assertIn('default = [ "desktopapplications", "websearch" ]', config)
+        search = (ROOT / "walker/scripts/menus/search.sh").read_text()
+        self.assertIn("--provider desktopapplications", search)
+        self.assertIn('{ action = "open", label = "Open", bind = "Return", default = true', config)
         self.assertIn('action = "app_uninstall", label = "Uninstall", bind = "Delete"', config)
         self.assertIn('action = "package_toggle", label = "Select", bind = "Tab"', config)
         self.assertIn('action = "package_review", label = "Review build", bind = "ctrl b"', config)
+
+    def test_existing_desktop_update_does_not_require_distro_snapshot_setup(self):
+        script = (ROOT / "walker/scripts/actions/system/update.sh").read_text()
+        self.assertNotIn("exit 1", script)
+        self.assertIn("sudo pacman -Syu", script)
+        hook = (ROOT / "distro/hooks/05-eitr-snapshot-pre.hook").read_text()
+        self.assertIn("AbortOnFail", hook)

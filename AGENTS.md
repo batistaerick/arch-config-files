@@ -64,6 +64,10 @@ them with upstream defaults.
   Use local scripts from that directory, not legacy Waybar or Wofi helpers.
 - Walker is the launcher; Elephant supplies its menus. Update all relevant
   shortcut and Learn/Shortcuts entry points when changing a workflow.
+- SUPER+Space must keep the native desktopapplications provider and its existing
+  pins/history/actions. Do not replace it with a custom menu to add another action.
+  Existing desktops must not require distro snapshot setup just to update;
+  fresh distro installs enforce protection through their pacman hooks.
 - Keep Walker menus organized: group related setup/actions into named submenus
   and sort their labels alphabetically (case-insensitive). Main retains its
   custom order, and Apps retains its existing behavior.

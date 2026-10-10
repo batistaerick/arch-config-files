@@ -17,13 +17,18 @@ hide_quick_activation = true
 
 [providers]
 max_results = 256
-default = [ "menus:apps", "websearch" ]
+default = [ "desktopapplications", "websearch" ]
 
 [keybinds]
 close = ["Escape"]
 quick_activate = []
 
 [providers.actions]
+"menus:apps" = [
+  { action = "open", label = "Open", bind = "Return", default = true, after = "Close" },
+  { action = "app_uninstall", label = "Uninstall", bind = "Delete", after = "Close" },
+  { action = "menus:parent", label = "back", bind = "shift BackSpace", after = "Nothing" },
+]
 fallback = [
   { action = "app_uninstall", label = "Uninstall", bind = "Delete", after = "Close" },
   { action = "package_toggle", label = "Select", bind = "Tab", after = "AsyncReload" },

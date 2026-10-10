@@ -24,7 +24,10 @@ Ctrl+B opens official metadata or the AUR build repository without
 executing it; review PKGBUILD, .install files and patches before accepting Yay's
 build prompts. Selection lasts only for that picker session.
 
-SUPER+Space and Main → Apps use the same application menu. Delete opens a themed
+SUPER+Space uses Elephant's native desktopapplications provider, preserving
+existing pins, pin/unpin actions, history and Enter-to-launch. SUPER+F opens Main.
+Main → Apps is the separate custom menu with Enter-to-launch and back navigation.
+In that custom menu, Delete opens a themed
 Cancel/Confirm prompt, then a terminal for package-manager authorization. The
 whole owning package is removed, not just one launcher; dependencies are never
 force-removed and personal application data is not deleted. Locally created
@@ -45,8 +48,10 @@ security-key enrollment. Enrolling does not automatically change PAM; enabling
 authentication is a separate confirmed operation through the root-owned helper.
 Password fallback remains. A FIDO2 biometric key is not a laptop fingerprint reader.
 Touch ID on the host Mac is not passed through as a normal Linux fingerprint reader.
-System → Snapshots and Update require the reviewed privileged integration described
-in [the distro guide](../distro/README.md). No PAM or snapshot setup runs at login.
+System → Snapshots requires the reviewed privileged integration described
+in [the distro guide](../distro/README.md). Update works normally on existing
+desktops; fresh distro installs enforce snapshots through pacman hooks.
+No PAM or snapshot setup runs at login.
 
 Gaming offers Steam and NVIDIA's official GeForce NOW Flatpak. NVIDIA's cloud
 service is not restricted to local NVIDIA GPUs; no AMD-branded equivalent is

@@ -1,11 +1,12 @@
 import QtQuick
+import "PanelStyle.js" as PanelStyle
 
 Item {
     id: surface
     required property var hostWindow
     property color color: hostWindow.background
     property string edge: hostWindow.barEdge
-    readonly property int contentInset: 14
+    readonly property int contentInset: PanelStyle.surfaceInset
     readonly property bool vertical: edge === "left" || edge === "right"
     readonly property real progress: hostWindow.revealProgress
     readonly property bool flushLeading: vertical ? hostWindow.y <= 0 : hostWindow.x <= 0
@@ -14,8 +15,8 @@ Item {
         : hostWindow.x + hostWindow.width >= hostWindow.parent.width)
     // Concave joins inset the painted body except at a flush screen edge.
     // Pad relative to that body, not the larger rectangular attachment area.
-    readonly property int leadingBodyInset: flushLeading ? 0 : 14
-    readonly property int trailingBodyInset: flushTrailing ? 0 : 14
+    readonly property int leadingBodyInset: flushLeading ? 0 : contentInset
+    readonly property int trailingBodyInset: flushTrailing ? 0 : contentInset
     default property alias panelContent: contents.data
 
     Item {
@@ -48,7 +49,7 @@ Item {
                 if (surface.edge === "bottom") { ctx.translate(width, height); ctx.rotate(Math.PI); }
                 else if (surface.edge === "left") { ctx.translate(0, height); ctx.rotate(-Math.PI / 2); }
                 else if (surface.edge === "right") { ctx.translate(width, 0); ctx.rotate(Math.PI / 2); }
-                var r = Math.min(14, w / 4, h / 2);
+                var r = Math.min(surface.contentInset, w / 4, h / 2);
                 var reversed = surface.edge === "bottom" || surface.edge === "left";
                 var startInset = (reversed ? surface.flushTrailing : surface.flushLeading) ? 0 : r;
                 var endInset = (reversed ? surface.flushLeading : surface.flushTrailing) ? 0 : r;

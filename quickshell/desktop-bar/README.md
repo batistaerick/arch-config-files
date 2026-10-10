@@ -290,7 +290,11 @@ quickshell kill -c desktop-bar
 ## Panel Style
 
 `PanelStyle.js` defines the shared font family, utility heading (18 px),
-body/control text (14 px), captions (12-13 px), padding, and corner radii.
+body/control text (14 px), captions (12-13 px), padding, corner radii
+(`controlRadius` for rows, inputs, and buttons), the divider alpha
+(`dividerAlpha`), and `surfaceInset`: PanelSurface's 14 px content inset on
+each side, so panel heights add `padding * 2 + surfaceInset * 2`.
+Bar glyphs and the appearance picker use the same font family.
 Calendar dates, weather temperatures, and glyphs retain purpose-specific sizes.
 Compact selectors retain their smaller padding; full panels use 18 px.
 Notification CSS uses the same font family, with larger text for message content.

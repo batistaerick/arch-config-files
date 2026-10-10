@@ -277,6 +277,10 @@ fi
 sudo python3 "$HOME/.config/quickshell/lockscreen/scripts/install-login.py"
 sudo usermod -s /usr/bin/zsh "$(id -un)"
 sudo systemctl enable iwd systemd-networkd systemd-resolved bluetooth sddm
+# Laptop-only: hardware/detect.sh adds power-profiles-daemon when it finds a battery.
+if pacman -Q power-profiles-daemon >/dev/null 2>&1; then
+  sudo systemctl enable power-profiles-daemon.service
+fi
 # GeForce NOW uses the same software.json recipe as Walker → Gaming.
 python3 "$repo_root/walker/scripts/actions/install/software.py" recipe gaming geforcenow
 printf '\nInstalled desktop files for %s. Reboot after reviewing network and SDDM setup.\n' "$USER"

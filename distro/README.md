@@ -21,6 +21,8 @@ the graphical desktop and AUR packages are installed on the target system by
   explicit driver choice because older cards require a different driver. If a
   non-default kernel (for example `linux-lts` or `linux-zen`) is installed,
   `nvidia-open-dkms` and headers for every installed kernel replace `nvidia-open`.
+  A system battery (`BAT*`) or laptop DMI chassis adds `laptop.txt`
+  (`power-profiles-daemon`); the installer enables it only when installed.
 - Steam, GameMode, Gamescope, MangoHud, 32-bit graphics libraries, and
   `lib32-systemd` for Steam networking with systemd-networkd.
 - FFmpeg, Qt Multimedia's FFmpeg backend, and GStreamer with base/good/bad/

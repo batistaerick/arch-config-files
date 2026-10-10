@@ -267,6 +267,11 @@ brightness is generated from the current theme when styles change.
 For an Arch installation image, include `brightnessctl` for direct laptop
 backlight control and `ddcutil` for external monitors. The control chooses a
 usable native backlight before DDC; chassis type is not used to select it.
+On laptops, a Power Profile row below brightness switches power-profiles-daemon
+between Power Saver, Balanced, and Performance through `scripts/power-profile.py`
+(`powerprofilesctl` in argv form). Profiles the hardware lacks are disabled. The
+row is hidden without a system battery (`/sys/class/power_supply/BAT*`) or the
+daemon, so desktops never see it; no extra bar icon is added.
 
 Volume and Mic open themed native PipeWire popups with live volume/gain sliders,
 mute controls, and default output/input device selection. Volume also lists

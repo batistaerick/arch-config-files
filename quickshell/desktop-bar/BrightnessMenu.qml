@@ -28,6 +28,16 @@ ThemedPopup {
     readonly property string helper: Quickshell.shellDir + "/scripts/brightness.py"
     readonly property string nightlightHelper: Quickshell.env("HOME") + "/.config/walker/scripts/actions/toggle/nightlight.py"
     readonly property string displayHelper: Quickshell.shellDir + "/scripts/display-primary.py"
+    // Laptop-only: the helper reports unavailable without a system battery
+    // or power-profiles-daemon, which hides the whole Power Profile section.
+    property var power: ({available: false, active: "", profiles: []})
+    property string powerError: ""
+    readonly property string powerHelper: Quickshell.shellDir + "/scripts/power-profile.py"
+    readonly property var powerProfiles: [
+        {name: "power-saver", label: "Power Saver"},
+        {name: "balanced", label: "Balanced"},
+        {name: "performance", label: "Performance"}
+    ]
 
     function refresh() {
         if (!query.running && !operation.running && !slider.pressed && !settle.running) query.running = true;
@@ -47,6 +57,15 @@ ThemedPopup {
     }
     function refreshDisplays() {
         if (!displayQuery.running && !setPrimary.running) displayQuery.running = true;
+    }
+    function refreshPower() {
+        if (!powerQuery.running && !powerOperation.running) powerQuery.running = true;
+    }
+    function setPowerProfile(name) {
+        if (powerOperation.running || name === power.active) return;
+        powerError = "";
+        powerOperation.command = ["python3", powerHelper, "set", name];
+        powerOperation.running = true;
     }
     function selectPrimary(name) {
         if (setPrimary.running || name === primaryDisplay) return;
@@ -89,13 +108,13 @@ ThemedPopup {
         nightOperation.running = true;
     }
     onOpenedChanged: {
-        if (opened) { refresh(); refreshNightlight(); refreshDisplays(); }
+        if (opened) { refresh(); refreshNightlight(); refreshDisplays(); refreshPower(); }
         else {
             editingSchedule = false;
             if (scheduleDirty) scheduleSettle.restart();
         }
     }
-    Timer { interval: 3000; repeat: true; running: menu.opened; onTriggered: { menu.refresh(); menu.refreshNightlight(); } }
+    Timer { interval: 3000; repeat: true; running: menu.opened; onTriggered: { menu.refresh(); menu.refreshNightlight(); menu.refreshPower(); } }
     Timer { interval: 6000; repeat: true; running: menu.opened; onTriggered: menu.refreshDisplays() }
     Timer { id: scheduleSettle; interval: 650; onTriggered: if (menu.scheduleDirty && !nightOperation.running) menu.configureNightlight(menu.nightlight.mode) }
     Timer { id: settle; interval: 80; onTriggered: menu.applyValue(Math.round(slider.value)) }
@@ -122,6 +141,28 @@ ThemedPopup {
         }
     }
     Process { id: brightnessOsd; command: ["swayosd-client", "--custom-icon", "display-brightness-symbolic", "--custom-progress", "0"] }
+    Process {
+        id: powerQuery
+        command: ["python3", menu.powerHelper, "status"]
+        stdout: StdioCollector { id: powerQueryOutput }
+        onExited: {
+            try { menu.power = JSON.parse(powerQueryOutput.text); }
+            catch (e) { menu.power = {available: false, active: "", profiles: []}; }
+        }
+    }
+    Process {
+        id: powerOperation
+        stdout: StdioCollector { id: powerOperationOutput }
+        onExited: function(code) {
+            if (code !== 0) {
+                menu.powerError = "Could not change power profile";
+                menu.refreshPower();
+                return;
+            }
+            try { menu.power = JSON.parse(powerOperationOutput.text); }
+            catch (e) { menu.refreshPower(); }
+        }
+    }
     Process {
         id: displayQuery
         command: ["python3", menu.displayHelper, "status"]
@@ -220,6 +261,39 @@ ThemedPopup {
                     }
                 }
                 Text { width: 50; height: 30; text: Math.round(slider.value) + "%"; horizontalAlignment: Text.AlignRight; verticalAlignment: Text.AlignVCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+            }
+            Column {
+                visible: menu.power.available
+                width: parent.width
+                spacing: 12
+                Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
+                Text { text: "Power Profile"; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: PanelStyle.bodySize }
+                Row {
+                    id: powerRow
+                    width: parent.width
+                    spacing: 8
+                    Repeater {
+                        model: menu.powerProfiles
+                        PanelButton {
+                            required property var modelData
+                            width: (powerRow.width - powerRow.spacing * 2) / 3
+                            text: modelData.label
+                            foreground: menu.foreground
+                            available: menu.power.profiles.indexOf(modelData.name) >= 0
+                            loading: powerOperation.running && powerOperation.command[3] === modelData.name
+                            selected: menu.power.active === modelData.name
+                            onClicked: menu.setPowerProfile(modelData.name)
+                        }
+                    }
+                }
+                Text {
+                    visible: menu.powerError !== ""
+                    text: menu.powerError
+                    color: menu.foreground
+                    opacity: 0.7
+                    font.family: PanelStyle.fontFamily
+                    font.pixelSize: PanelStyle.captionSize
+                }
             }
             Rectangle { width: parent.width; height: 1; color: Qt.alpha(menu.foreground, PanelStyle.dividerAlpha) }
             Row {

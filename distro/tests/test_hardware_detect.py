@@ -12,7 +12,7 @@ ASSOCIATIVE_ARRAYS = subprocess.run(["bash", "-c", "declare -A probe=()"],
 
 @unittest.skipUnless(ASSOCIATIVE_ARRAYS, "detect.sh requires bash 4+ (Arch ships bash 5)")
 class HardwareDetectionTests(unittest.TestCase):
-    def run_detector(self, cpu, vendors, nvidia_driver=None, kernels=("linux",)):
+    def run_detector(self, cpu, vendors, nvidia_driver=None, kernels=("linux",), supplies=None, chassis="3"):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             modules = root / "modules"
@@ -28,9 +28,16 @@ class HardwareDetectionTests(unittest.TestCase):
                 device.mkdir()
                 (device / "class").write_text("0x030000\n")
                 (device / "vendor").write_text(vendor + "\n")
+            power = root / "power_supply"
+            power.mkdir()
+            for name, kind in (supplies or {}).items():
+                (power / name).mkdir()
+                (power / name / "type").write_text(kind + "\n")
+            (root / "chassis_type").write_text(chassis + "\n")
             env = os.environ.copy()
             env.update(HARDWARE_SYSFS_ROOT=str(pci), HARDWARE_CPUINFO=str(cpuinfo),
-                       HARDWARE_MODULES_ROOT=str(modules))
+                       HARDWARE_MODULES_ROOT=str(modules), HARDWARE_POWER_SUPPLY_ROOT=str(power),
+                       HARDWARE_CHASSIS_TYPE=str(root / "chassis_type"))
             env.pop("DISTRO_NVIDIA_DRIVER", None)
             if nvidia_driver:
                 env["DISTRO_NVIDIA_DRIVER"] = nvidia_driver
@@ -84,6 +91,16 @@ class HardwareDetectionTests(unittest.TestCase):
         self.assertEqual(len(packages), len(set(packages)))
         self.assertIn("vulkan-radeon", packages)
         self.assertIn("vulkan-intel", packages)
+
+    def test_power_profiles_only_on_laptops(self):
+        desktop = self.run_detector("AuthenticAMD", ["0x1002"], supplies={"AC": "Mains", "hidpp_battery_0": "Battery"})
+        self.assertEqual(desktop.returncode, 0, desktop.stderr)
+        self.assertNotIn("power-profiles-daemon", desktop.stdout.splitlines())
+        battery = self.run_detector("AuthenticAMD", ["0x1002"], supplies={"BAT0": "Battery"})
+        self.assertIn("power-profiles-daemon", battery.stdout.splitlines())
+        self.assertIn("Laptop detected", battery.stderr)
+        convertible = self.run_detector("GenuineIntel", ["0x8086"], chassis="31")
+        self.assertIn("power-profiles-daemon", convertible.stdout.splitlines())
 
     def test_unknown_gpu_stops_install(self):
         result = self.run_detector("GenuineIntel", ["0xffff"])

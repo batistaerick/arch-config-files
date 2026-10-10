@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-DEV_DIR="$HOME/Development"
-MENUS_DIR="$HOME/.config/walker/scripts/menus"
-BACK_MENU="${BACK_MENU:-$MENUS_DIR/native-main.sh}"
+DEV_DIR="${DEV_DIR:-$HOME/Development}"
+DEV_DIR="${DEV_DIR%/}"
 WALKER_DMENU="$HOME/.config/walker/bin/walker-dmenu"
 
 case "${1:-}" in
@@ -44,7 +43,7 @@ case "${1:-}" in
       *) exit 0 ;;
     esac
 
-    chosen="$(echo -e "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool")"
+    chosen="$(echo -e "$options" | "$WALKER_DMENU" --dmenu --no-sort --cache-file /dev/null --prompt="AI Tool")"
     ;;
 esac
 

@@ -32,6 +32,56 @@ class InstallManifestTests(unittest.TestCase):
             self.assertIn("NetworkManager is enabled", result.stderr)
             self.assertNotIn("Permission denied", result.stderr)
 
+    def run_check(self, home, populate):
+        binaries = home / "bin"
+        binaries.mkdir()
+        mocks = {"pacman": "exit 0", "sudo": "exit 0", "systemctl": "exit 1",
+                 "findmnt": "echo btrfs"}
+        for name, body in mocks.items():
+            (binaries / name).write_text(f"#!/bin/sh\n{body}\n")
+            (binaries / name).chmod(0o755)
+        populate(home)
+        env = {key: value for key, value in os.environ.items() if not key.startswith("XDG_")}
+        env.update(HOME=str(home), PATH=str(binaries) + os.pathsep + os.environ["PATH"])
+        return subprocess.run(["bash", str(DISTRO / "install.sh"), "--check"], env=env,
+                              capture_output=True, text=True)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_lists_every_differing_user_config(self):
+        def populate(home):
+            for name in ("kitty", "nvim"):
+                (home / ".config" / name).mkdir(parents=True)
+                (home / ".config" / name / "user.conf").write_text("mine\n")
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), populate)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("would be overwritten", result.stderr)
+        self.assertIn(f"{directory}/.config/kitty", result.stderr)
+        self.assertIn(f"{directory}/.config/nvim", result.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_skips_paths_recorded_by_a_previous_partial_run(self):
+        def populate(home):
+            (home / ".config/kitty").mkdir(parents=True)
+            (home / ".config/kitty/changed-after-install").write_text("x\n")
+            state = home / ".local/state/eitr"
+            state.mkdir(parents=True)
+            (state / "installed-paths").write_text(".config/kitty\n")
+            (home / ".local/bin").mkdir(parents=True)
+            (home / ".local/bin/walker").symlink_to("../../.config/walker/bin/walker")
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), populate)
+        self.assertNotIn("would be overwritten", result.stderr)
+        self.assertIn("Already installed by this installer (will skip): 2 paths", result.stdout)
+
+    def test_installer_never_overwrites_home_trees_directly(self):
+        installer = (DISTRO / "install.sh").read_text()
+        self.assertNotIn("cp -a -- \"$repo_root/systemd", installer)
+        self.assertNotIn("cp -a -- \"$icon_source", installer)
+        self.assertNotIn("HOME_FILES/.local/share/applications/.", installer)
+        self.assertIn("gtk-update-icon-cache", installer)
+        self.assertIn("RequiredForOnline=no", (DISTRO / "network/20-ethernet.network").read_text())
+
     def test_removed_packages_stay_out_of_install_manifests(self):
         packages = set()
         for filename in ("packages.txt", "apps.txt", "aur-packages.txt", "aur-apps.txt"):

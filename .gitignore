@@ -13,3 +13,4 @@ distro/out/
 /quickshell/desktop-bar/bar-settings.json
 /quickshell/desktop-bar/workspace-style.json
 /quickshell/desktop-bar/obs-recording.json
+/.claude/worktrees/

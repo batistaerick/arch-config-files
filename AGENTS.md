@@ -162,6 +162,12 @@ them with upstream defaults.
 - Never restart SDDM during a session. Ask before restarting Elephant or another
   service that could disrupt the user's work, unless permission was given for
   the current task. Prefer Quickshell auto-reload and config-only Hyprland reload.
+- Boot, disk, LUKS/TPM, Secure Boot and PAM changes stay explicit `eitr-system`
+  actions behind typed confirmation, with backups or a documented undo. The
+  installer may only offer them (`distro/bootloader/setup.sh --offer`); never
+  automate sbctl key enrollment, initramfs `HOOKS` edits or `limine-update`.
+  systemd-boot snapshot booting is unsupported. Laptop-only features (power
+  profiles, battery limit) must stay hidden or refused without a system battery.
 - Do not uninstall packages, delete configs, or weaken credential permissions
   without explicit authorization. Keep WiFi QR secrets out of files and argv.
 - Inspect screenshots for clipping, alignment, and theme consistency without

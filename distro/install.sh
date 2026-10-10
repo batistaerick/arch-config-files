@@ -210,6 +210,8 @@ install -m 644 "$repo_root/distro/installers.json" "$HOME/.local/share/eitr/inst
 install -m 644 "$repo_root/distro/RECOVERY.md" "$HOME/.local/share/eitr/RECOVERY.md"
 sudo install -Dm755 "$repo_root/distro/system/eitr-system.py" /usr/local/lib/eitr/eitr-system
 sudo /usr/local/lib/eitr/eitr-system snapshots-setup
+# Snapshot boot entries change the boot menu, so they need typed confirmation.
+bash "$repo_root/distro/bootloader/setup.sh" --offer
 sudo install -Dm644 "$repo_root/distro/system-update-policy.conf" /etc/eitr/system-update-policy.conf
 
 mkdir -p "$HOME/.config" "$HOME/.cache" "$HOME/.local/bin"

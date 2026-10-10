@@ -55,6 +55,10 @@ the graphical desktop and AUR packages are installed on the target system by
   Advanced Pacman/AUR updates intentionally do not request snapshots. Supported fresh installs require Btrfs
   root with `/usr`, `/etc`, and `/var/lib/pacman` inside that root subvolume.
   Boot/EFI archives are separate; see [recovery instructions](RECOVERY.md).
+- `bootloader/`: optional Snapper snapshot boot entries. `setup.sh` detects
+  GRUB (`grub-btrfs`) or Limine (AUR `limine-snapper-sync`), installs that
+  loader's manifest and runs `eitr-system snapshots-boot-setup` only after typed
+  confirmation. systemd-boot cannot boot snapshots and is refused.
 - Security offers password changes, fingerprint enrollment, FIDO2-key enrollment,
   and separately confirmed optional authentication policy. Password fallback is
   preserved. Each policy change backs up the PAM files and can be undone with

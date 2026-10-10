@@ -5,6 +5,13 @@ icon = "󰋊"
 fixed_order = true
 
 [[entries]]
+text = "Bootable Snapshot Status"
+subtext = "GRUB or Limine snapshot boot entries"
+keywords = ["boot", "grub", "limine", "rollback"]
+icon = "󰑓"
+actions = { open = "kitty --hold -e sudo /usr/local/lib/eitr/eitr-system snapshots-boot-status" }
+
+[[entries]]
 text = "Configure Snapshot Protection"
 subtext = "Requires Btrfs root; never formats or repartitions"
 icon = "󰒃"

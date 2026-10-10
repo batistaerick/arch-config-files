@@ -69,6 +69,81 @@ Arch installer ISO and mount the system's Btrfs filesystem. Identify the correct
 disk, encryption mapping, root subvolume, snapshot number and EFI mount before
 making any changes. Do not copy commands from another machine blindly.
 
+## Boot an older snapshot
+
+With GRUB or Limine, the boot menu can list read-only Snapper snapshots, so a
+broken update can be inspected and rolled back without live media. The
+installer offers this only after you type `yes`; on an existing installation run
+`bash distro/bootloader/setup.sh` (`--check` only reports). Check the result with
+Walker → System → Snapshots → Bootable Snapshot Status, or
+`sudo /usr/local/lib/eitr/eitr-system snapshots-boot-status`.
+
+| Boot loader | Integration | Packages (`distro/bootloader/`) |
+|---|---|---|
+| GRUB | `grub-btrfsd.service` rebuilds the "Arch Linux snapshots" submenu whenever Snapper adds or removes a snapshot | `grub-btrfs`, `inotify-tools` (official) |
+| Limine | `limine-snapper-sync.service` adds snapshot entries to `limine.conf` | `limine-snapper-sync`, `limine-mkinitcpio-hook` (AUR) |
+| systemd-boot | **Not supported.** It only loads kernels from the EFI/XBOOTLDR partition and cannot open Btrfs snapshots | Use the live-media procedure below |
+
+Detection reads the GRUB, Limine and systemd-boot files under `/boot`, `/efi`
+and `/boot/efi`. If more than one loader is configured (for example leftover
+systemd-boot files next to GRUB), setup refuses rather than guessing; remove the
+stale files or configure entries manually. Setup copies the current
+`grub.cfg`/`limine.conf` to `/var/lib/eitr/boot-config-backups/<timestamp>/`
+first, and enables the service for the next boot:
+
+- **GRUB:** setup runs `grub-mkconfig -o /boot/grub/grub.cfg` once. If `/boot`
+  is a separate partition, snapshot entries boot the *current* kernel; after a
+  kernel update, restore the matching boot archive (see below) as well.
+- **Limine:** `limine-snapper-sync` manages entries created by
+  `limine-entry-tool` (from `limine-mkinitcpio-hook`) and keeps copies of each
+  snapshot's kernel on the EFI partition, so that partition needs room (upstream
+  recommends 4 GiB). Review `/etc/default/limine` (`SNAPPER_CONFIG_NAME="root"`,
+  `ESP_PATH` if not detected), run `sudo limine-update`, check the menu, then
+  `sudo systemctl start limine-snapper-sync.service`. Eitr does not run
+  `limine-update` for you because it rewrites the boot menu.
+
+To undo, disable the service and copy the backup back, for example
+`sudo systemctl disable grub-btrfsd.service` and
+`sudo cp /var/lib/eitr/boot-config-backups/<timestamp>/grub.cfg /boot/grub/grub.cfg`.
+
+### Read-only snapshots
+
+Snapper snapshots are read-only. A snapshot booted as-is cannot write `/var`, so
+SDDM and other services may fail; log in on a text console (Ctrl+Alt+F3) if the
+graphical login does not start. An initramfs overlay makes the booted snapshot
+writable in RAM (changes vanish at reboot). Eitr does not edit `HOOKS`; add it
+yourself, then regenerate, and note that only snapshots created afterwards
+contain the hook:
+
+- GRUB: append `grub-btrfs-overlayfs` to `HOOKS=(...)` in `/etc/mkinitcpio.conf`,
+  then `sudo mkinitcpio -P`.
+- Limine: add `btrfs-overlayfs` after `filesystems` (or `sd-btrfs-overlayfs`
+  with the systemd hooks), then `sudo limine-update`.
+
+### Roll back for good
+
+1. Pick the newest "before package upgrade" snapshot in the boot menu's
+   snapshot list and confirm the system works there.
+2. **Limine:** run `sudo limine-snapper-restore` and choose the snapshot. It
+   restores with the configured `RESTORE_METHOD` and adds a backup entry for the
+   replaced system, so the restore itself can be reverted from the boot menu.
+3. **GRUB:** `snapper rollback` only works when the root is mounted through the
+   Btrfs default subvolume. Arch layouts usually boot `rootflags=subvol=@`
+   (check `findmnt -no OPTIONS /` and `/etc/fstab`), so rollback would have no
+   effect. Replace the root subvolume instead, from the booted snapshot or live
+   media, adjusting names to `sudo btrfs subvolume list /`:
+
+   ```sh
+   sudo mount -o subvolid=5 /dev/<root-or-mapper> /mnt
+   sudo mv /mnt/@ /mnt/@.broken
+   sudo btrfs subvolume snapshot /mnt/@.snapshots/<number>/snapshot /mnt/@
+   ```
+
+   Restore the matching `/var/lib/eitr/boot-backups/<number>/` archive if `/boot`
+   is separate, reboot into the normal entry, run
+   `sudo grub-mkconfig -o /boot/grub/grub.cfg`, and delete `@.broken` with
+   `sudo btrfs subvolume delete` only after the restored system is verified.
+
 ## Restore safely from live media
 
 1. Back up any newer files you need. Mount the Btrfs top-level filesystem and
@@ -86,8 +161,11 @@ making any changes. Do not copy commands from another machine blindly.
 
 This is a layout-aware manual recovery procedure, **not a verified one-click
 rollback implementation**. Snapper's `rollback` command alone is not sufficient
-for arbitrary Arch subvolume/bootloader layouts. Bootable snapshot integration
-must be validated during distro testing before claiming automatic recovery.
+for arbitrary Arch subvolume/bootloader layouts. The GRUB and Limine snapshot
+entries above still need validation on real hardware before claiming automatic
+recovery.
 
-References: [Snapper recovery concepts](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-snapper.html),
+References: [grub-btrfs](https://github.com/Antynea/grub-btrfs),
+[limine-snapper-sync](https://gitlab.com/Zesko/limine-snapper-sync),
+[Snapper recovery concepts](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-snapper.html),
 [Arch installation guide](https://wiki.archlinux.org/title/Installation_guide).

@@ -10,7 +10,7 @@ import tempfile
 import tomllib
 
 
-def terminal_logo(path):
+def terminal_logo(path, width=34, height=34):
     """Render the selected logo's alpha mask as theme-colored terminal cells.
 
     Returns None when the logo has no visible alpha mask to render.
@@ -23,12 +23,12 @@ def terminal_logo(path):
         bounds = alpha.getbbox()
         if bounds is None:
             return None
-        alpha = alpha.crop(bounds).resize((34, 34), Image.Resampling.LANCZOS)
+        alpha = alpha.crop(bounds).resize((width, height), Image.Resampling.LANCZOS)
         rows = []
-        for y in range(0, 34, 2):
+        for y in range(0, height, 2):
             rows.append("".join(" ▄▀█"[(alpha.getpixel((x, y)) >= 128) * 2
                                       + (alpha.getpixel((x, y + 1)) >= 128)]
-                                for x in range(34)))
+                                for x in range(width)))
         return "$1" + "\n".join(rows)
 
 
@@ -68,12 +68,18 @@ def build_config(config_home, cache_home, image=True):
         return " ".join(parts)
     logo = config_home / "fastfetch/assets/eitr-logo.png"
     logo_source = terminal_logo(logo) if image and logo.exists() else None
+    wordmark = config_home / "fastfetch/assets/eitr-wordmark.png"
+    wordmark_source = terminal_logo(wordmark, 24, 10) if image and wordmark.exists() else None
+    # A space suppresses Fastfetch's default "Custom" key for empty strings.
+    heading = [custom(" ", "{#" + accent + "}" + row + "{#}")
+               for row in wordmark_source.removeprefix("$1").splitlines()] if wordmark_source else []
     return {
         "logo": {"type": "data", "source": logo_source,
                  "color": {"1": accent}, "padding": {"right": 4, "left": 2}}
                 if logo_source else {"type": "none"},
         "display": {"separator": "  ", "color": {"keys": accent}},
         "modules": [
+            *heading,
             custom("Eitr", "Arch-based Linux desktop"), "break",
             {"type": "os", "key": "Base"}, "kernel", "uptime", "packages",
             "wm", custom("Shell", Path(os.environ.get("SHELL", "/bin/sh")).name), "terminal", "display", "break",

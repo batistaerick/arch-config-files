@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Export the approved Eitr wordmark from its polygon paths. Requires Pillow."""
 from pathlib import Path
+import shutil
 import re
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageDraw
@@ -34,6 +35,8 @@ def main():
                               for px, py in polygon], fill=color)
             image.resize((target_width, target_height), Image.Resampling.LANCZOS).save(
                 ROOT / f"png/eitr-wordmark-{name}-{target_width}.png")
+    shutil.copyfile(ROOT / "png/eitr-wordmark-black-512.png",
+                    ROOT.parent / "fastfetch/assets/eitr-wordmark.png")
 
 
 if __name__ == "__main__":

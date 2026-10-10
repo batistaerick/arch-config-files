@@ -38,6 +38,8 @@ class LogoExportsTests(unittest.TestCase):
         self.assertLess(mismatch / (1024 * 1024), 0.005)
 
     def test_wordmark_exports_preserve_transparency_and_color_independent_shape(self):
+        self.assertEqual((ROOT / "png/eitr-wordmark-black-512.png").read_bytes(),
+                         (ROOT.parent / "fastfetch/assets/eitr-wordmark.png").read_bytes())
         master = ET.parse(ROOT / "source/eitr-wordmark-master.svg")
         _, _, width, height = map(float, master.getroot().get("viewBox").split())
         for size in (512, 1024, 2048):

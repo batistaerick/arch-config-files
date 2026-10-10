@@ -44,6 +44,24 @@ class AboutTests(unittest.TestCase):
         self.assertEqual(len(logo.splitlines()), 17)
         self.assertIn("▀", logo)
 
+    def test_wordmark_uses_five_rows_and_active_accent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            assets = root / "fastfetch/assets"
+            assets.mkdir(parents=True)
+            (assets / "eitr-wordmark.png").write_bytes(
+                (ROOT / "fastfetch/assets/eitr-wordmark.png").read_bytes())
+            theme = root / "theme/current"
+            theme.mkdir(parents=True)
+            (theme / "colors.toml").write_text('accent = "#112233"\n')
+            config = ABOUT.build_config(root, root)
+            heading = config["modules"][:5]
+            self.assertTrue(all(row["key"] == " " for row in heading))
+            self.assertTrue(all(row["format"].startswith("{##112233}") for row in heading))
+            self.assertTrue(all(len(row["format"].removeprefix("{##112233}").removesuffix("{#}")) == 24
+                                for row in heading))
+            self.assertEqual(ABOUT.build_config(root, root, False)["modules"][0]["key"], "Eitr")
+
 
 if __name__ == "__main__":
     unittest.main()

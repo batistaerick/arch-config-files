@@ -48,7 +48,7 @@ PanelWindow {
     function choose(id) {
         if (id < 1 || id > 10) return;
         opened = false;
-        Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + id + " })"]);
+        Quickshell.execDetached(WorkspaceModel.focusCommand(id));
     }
     IpcHandler {
         target: "overview"

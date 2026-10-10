@@ -199,8 +199,9 @@ ShellRoot {
 
     AppearancePicker {}
 
-    function run(command) {
-        Quickshell.execDetached(["bash", "-lc", command]);
+    function focusWorkspace(id) {
+        var command = WorkspaceModel.focusCommand(id);
+        if (command.length) Quickshell.execDetached(command);
     }
 
     function workspaceActive(index) {
@@ -515,7 +516,7 @@ ShellRoot {
                                     active: shell.workspaceActive(index + 1)
                                     width: shell.workspaceItemSize; buttonHeight: shell.workspaceItemSize; fontSize: 14; cornerRadius: 6; textOffsetY: 0
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
+                                    onClicked: shell.focusWorkspace(index + 1)
                                     onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
                             }
@@ -703,7 +704,7 @@ ShellRoot {
                                     fontSize: 14
                                     cornerRadius: 6
                                     textOffsetY: 0
-                                    onClicked: shell.run("hyprctl dispatch 'hl.dsp.focus({ workspace = " + (index + 1) + " })'")
+                                    onClicked: shell.focusWorkspace(index + 1)
                                     onRightClicked: bar.togglePanel(workspaceMenu)
                                 }
 

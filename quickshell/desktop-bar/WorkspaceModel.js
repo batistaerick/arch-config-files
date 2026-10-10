@@ -51,3 +51,10 @@ function selection(index, direction, columns, count) {
     var delta = direction === "left" ? -1 : direction === "right" ? 1 : direction === "up" ? -columns : columns;
     return Math.max(0, Math.min(count - 1, index + delta));
 }
+
+// argv for focusing a numbered workspace; shared by bar markers and Overview.
+function focusCommand(id) {
+    var number = Number(id);
+    if (!Number.isInteger(number) || number < 1 || number > 10) return [];
+    return ["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + number + " })"];
+}

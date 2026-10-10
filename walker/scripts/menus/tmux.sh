@@ -2,10 +2,10 @@
 
 options="$(cat <<'EOF'
   Tmux basics
-  tmux new -s doola          Create a named session
-  tmux attach -t doola       Attach to a session
+  tmux new -s work           Create a named session
+  tmux attach -t work        Attach to a session
   tmux ls                    List sessions
-  tmux kill-session -t doola Kill a session
+  tmux kill-session -t work  Kill a session
   tmux rename-session -t old new  Rename a session
   tmux source-file ~/.config/tmux/tmux.conf Reload config from shell
 󰌌  Prefix keys
@@ -59,10 +59,10 @@ options="$(cat <<'EOF'
   tmux list-buffers          List tmux paste buffers
   tmux show-buffer           Show latest tmux buffer
   Useful workflows
-  tmux new -s doola          Start project session
+  tmux new -s work           Start project session
   tmux attach                Attach to latest session
   tmux detach-client         Detach current client
-  tmux switch-client -t doola Switch attached client
+  tmux switch-client -t work  Switch attached client
   tmux new-window -n logs    Create named window
   tmux capture-pane -p       Print current pane contents
   tmux kill-server           Stop all tmux sessions
@@ -71,7 +71,7 @@ EOF
 
 chosen="$(
   echo -e "$options" |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --width 860 --height 720 --prompt="Tmux Commands"
+    "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --matching=contains --cache-file /dev/null --width 860 --height 720 --prompt="Tmux Commands"
 )"
 
 copy_command() {

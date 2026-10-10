@@ -62,3 +62,8 @@ invented. Accounts, subscriptions and VM/cloud-client compatibility are separate
 Wallpaper and theme selections use the same 650 ms center-out reveal behind
 application windows, without an input grab. Hyprpaper remains the persistent
 wallpaper backend; if the transition cannot run, the static wallpaper still applies.
+
+Development > Cloud lists AWS profiles from `aws configure list-profiles`. To show
+friendly labels or pin a default region, copy
+`scripts/menus/cloud/cloud.env.example` to `~/.config/eitr/cloud.env`; that file
+is machine-local and never committed.

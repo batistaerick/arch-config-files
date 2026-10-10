@@ -48,28 +48,13 @@ for module in system walker btop kitty vscode swayosd; do
   fi
 done
 
-# Hyprland theme files
-mkdir -p "$HYPR_THEMES_DIR"
-
-if [[ -f "$CURRENT_DIR/hyprland.conf" ]]; then
-  cp "$CURRENT_DIR/hyprland.conf" "$HYPR_THEMES_DIR/current.conf"
-fi
-
-if [[ -f "$CURRENT_DIR/hyprland.lua" ]]; then
-  cp "$CURRENT_DIR/hyprland.lua" "$HYPR_THEMES_DIR/current.lua"
-fi
-
-# Theme env file used by hyprland.lua load_theme_env()
-if [[ -f "$CURRENT_DIR/theme-env.conf" ]]; then
-  cp "$CURRENT_DIR/theme-env.conf" "$HOME/.config/hypr/theme-env.conf"
-fi
-
-# Reload Hyprland after theme/env files are copied
+# hyprland.lua reads the active palette for borders and other colors.
 hyprctl reload || true
 
-# Restart Dolphin so it inherits the new theme/env
+# Kvantum and KDE color schemes are read when a Qt app starts, so a running
+# Dolphin keeps the previous theme until it is restarted.
 if pgrep -x dolphin >/dev/null; then
-  kquitapp6 dolphin 2>/dev/null || pkill dolphin || true
+  kquitapp6 dolphin 2>/dev/null || pkill -x dolphin || true
 fi
 
 # Rebuild KDE service cache for Dolphin/KDE apps

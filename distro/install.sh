@@ -229,14 +229,6 @@ if [[ ! -e "$HOME/.cache/current-wallpaper-image" && ! -L "$HOME/.cache/current-
     printf '%s\n' "$wallpaper" > "$HOME/.cache/current-wallpaper"
   fi
 fi
-# Derived from whichever theme is current, so reruns stay consistent with it.
-mkdir -p "$HOME/.config/hypr/themes"
-if [[ -f "$HOME/.config/theme/current/hyprland.lua" ]]; then
-  cp -- "$HOME/.config/theme/current/hyprland.lua" "$HOME/.config/hypr/themes/current.lua"
-fi
-if [[ -f "$HOME/.config/theme/current/theme-env.conf" ]]; then
-  cp -- "$HOME/.config/theme/current/theme-env.conf" "$HOME/.config/hypr/theme-env.conf"
-fi
 if command -v gtk-update-icon-cache >/dev/null; then
   gtk-update-icon-cache -f -t -q "$HOME/.local/share/icons/hicolor"
 fi

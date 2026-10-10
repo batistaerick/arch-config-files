@@ -169,16 +169,25 @@ contain the hook:
 3. **GRUB:** `snapper rollback` only works when the root is mounted through the
    Btrfs default subvolume. Arch layouts usually boot `rootflags=subvol=@`
    (check `findmnt -no OPTIONS /` and `/etc/fstab`), so rollback would have no
-   effect. Replace the root subvolume instead, from the booted snapshot or live
-   media, adjusting names to `sudo btrfs subvolume list /`:
+   effect. Replace the root subvolume from live media after inspecting the
+   top-level filesystem's subvolume list. The following example is **only** for
+   Eitr's guided-install layout, where Snapper created the nested
+   `@/.snapshots` subvolume; other layouts need their actual paths:
 
    ```sh
    sudo mount -o subvolid=5 /dev/<root-or-mapper> /mnt
    sudo mv /mnt/@ /mnt/@.broken
-   sudo btrfs subvolume snapshot /mnt/@.snapshots/<number>/snapshot /mnt/@
+   sudo btrfs subvolume snapshot /mnt/@.broken/.snapshots/<number>/snapshot /mnt/@
+   # A Btrfs snapshot does not include nested subvolumes. Keep the original
+   # Snapper store in the restored root instead of deleting it with @.broken.
+   sudo rmdir /mnt/@/.snapshots
+   sudo mv /mnt/@.broken/.snapshots /mnt/@/.snapshots
    ```
 
-   Restore the matching `/var/lib/eitr/boot-backups/<number>/` archive if `/boot`
+   If any command fails, stop and inspect; do not delete the preserved root.
+   Verify the snapshot store is present under the restored root, and review
+   its fstab before proceeding. Restore the matching
+   `/var/lib/eitr/boot-backups/<number>/` archive if `/boot`
    is separate, reboot into the normal entry, run
    `sudo grub-mkconfig -o /boot/grub/grub.cfg`, and delete `@.broken` with
    `sudo btrfs subvolume delete` only after the restored system is verified.

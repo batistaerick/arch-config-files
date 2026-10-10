@@ -17,6 +17,8 @@ OBS controls share compact icon backgrounds and show loading until actions and
 the resulting status refresh finish. Starting capture first prepares OBS in
 the background, then closes the panel before recording or streaming starts.
 The recording dot has its own tooltip and Pause/Resume + Stop popup.
+The OBS WebSocket password is handed to `obs-cmd` through its
+`OBS_WEBSOCKET_URL` environment variable, never on the command line.
 Recording options persist in `obs-recording.json`; audio and microphone
 switches affect OBS inputs, not system volume. Webcam requires a configured
 OBS camera source. The active scene must include visible full-screen monitor

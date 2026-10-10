@@ -4,7 +4,6 @@ import Quickshell.Wayland
 
 ShellRoot {
     id: shell
-    readonly property bool preview: Quickshell.env("DESKTOP_LOCK_PREVIEW") === "1"
     readonly property string themePath: Quickshell.env("DESKTOP_LOCK_THEME")
     readonly property var config: JSON.parse(Quickshell.env("DESKTOP_LOCK_CONFIG") || "{}")
     readonly property var sddm: auth.sddm
@@ -16,7 +15,8 @@ ShellRoot {
     QtObject { id: keyboardState; property bool numLock: false }
     AuthAdapter {
         id: auth
-        preview: shell.preview
+        // Previews run preview.qml instead; this shell always holds a real lock.
+        preview: false
         onAuthenticated: {
             shell.unlocked = true;
             Quickshell.execDetached(["loginctl", "unlock-session"]);
@@ -66,30 +66,10 @@ ShellRoot {
 
     WlSessionLock {
         id: sessionLock
-        locked: !shell.preview && !shell.unlocked
+        locked: !shell.unlocked
         surface: WlSessionLockSurface {
             color: "black"
             Loader { anchors.fill: parent; sourceComponent: themeSurface }
-        }
-    }
-
-    Loader {
-        active: shell.preview
-        sourceComponent: Component {
-            PanelWindow {
-                anchors { top: true; bottom: true; left: true; right: true }
-                exclusionMode: ExclusionMode.Ignore
-                WlrLayershell.layer: WlrLayer.Overlay
-                WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-                color: "black"
-                Loader { anchors.fill: parent; sourceComponent: themeSurface }
-                Item {
-                    anchors.fill: parent
-                    focus: true
-                    Keys.onEscapePressed: Qt.quit()
-                    Shortcut { sequence: "Escape"; onActivated: Qt.quit() }
-                }
-            }
         }
     }
 }

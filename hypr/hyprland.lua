@@ -233,6 +233,8 @@ hl.config({
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
 		force_default_wallpaper = -1,
+		-- Lets launch.sh hand a crashed Quickshell lock over to Hyprlock.
+		allow_session_lock_restore = true,
 	},
 })
 

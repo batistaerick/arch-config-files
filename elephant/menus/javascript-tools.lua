@@ -1,6 +1,6 @@
 Name = "javascript-tools"
 NamePretty = "JavaScript Tools"
-Parent = "development"
+Parent = "install"
 Icon = "󰛦"
 FixedOrder = true
 SoftwareGroup = "javascript"

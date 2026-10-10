@@ -27,6 +27,11 @@ icon = "󰅩"
 submenu = "languages"
 
 [[entries]]
+text = "JavaScript Tools"
+icon = "󰛦"
+submenu = "javascript-tools"
+
+[[entries]]
 text = "AI CLIs"
 icon = "󱜙"
 submenu = "ai-install"

@@ -1,0 +1,17 @@
+name = "fingerprint"
+name_pretty = "Fingerprint"
+parent = "security"
+icon = "󰈷"
+fixed_order = true
+
+[[entries]]
+text = "Enroll Fingerprint"
+subtext = "Requires a supported fingerprint reader"
+icon = "󰈷"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py fingerprint" }
+
+[[entries]]
+text = "Enable Fingerprint Authentication"
+subtext = "After enrollment · login / lockscreen / sudo · password fallback retained"
+icon = "󰈷"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py enable-fingerprint" }

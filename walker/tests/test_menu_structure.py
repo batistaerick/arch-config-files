@@ -1,0 +1,37 @@
+from pathlib import Path
+import tomllib
+import unittest
+
+ROOT = Path(__file__).resolve().parents[2]
+MENUS = ROOT / "elephant/menus"
+
+
+def menu(name):
+    return tomllib.loads((MENUS / (name + ".toml")).read_text())
+
+
+class MenuStructureTests(unittest.TestCase):
+    def test_install_and_gaming_follow_learn(self):
+        names = [entry["text"] for entry in menu("main")["entries"]]
+        start = names.index("Learn")
+        self.assertEqual(names[start:start + 3], ["Learn", "Install", "Gaming"])
+
+    def test_optional_runtimes_belong_to_install(self):
+        development = [entry.get("submenu") for entry in menu("development")["entries"]]
+        install = [entry.get("submenu") for entry in menu("install")["entries"]]
+        for name in ("languages", "javascript-tools"):
+            self.assertNotIn(name, development)
+            self.assertIn(name, install)
+            self.assertIn('Parent = "install"', (MENUS / (name + ".lua")).read_text())
+        self.assertNotIn("developer-tools", development)
+        self.assertFalse((MENUS / "developer-tools.lua").exists())
+        packages = (ROOT / "distro/packages.txt").read_text().splitlines()
+        for name in ("lazygit", "lazydocker"):
+            self.assertIn(name, packages)
+
+    def test_fingerprint_has_its_own_submenu(self):
+        entries = menu("security")["entries"]
+        self.assertTrue(any(entry.get("submenu") == "fingerprint" for entry in entries))
+        self.assertFalse(any("Fingerprint" in entry["text"] and "actions" in entry for entry in entries))
+        self.assertEqual(menu("fingerprint")["parent"], "security")
+        self.assertEqual(len(menu("fingerprint")["entries"]), 2)

@@ -30,8 +30,9 @@ launchers without an identifiable package are rejected, not silently deleted.
 Clipboard History (SUPER+Ctrl+V) Delete removes only the selected stored entry
 and its private preview; it does not clear the active system clipboard.
 
-Development → Languages & Frameworks, JavaScript Tools, Developer Tools, and
-AI → Install AI CLIs install optional tools explicitly. Install → Browsers
+Install → Development Languages, JavaScript Tools, and AI CLIs install optional
+tools explicitly. Lazygit and Lazydocker are mandatory distro defaults, not a
+Developer Tools submenu. Install → Browsers
 offers Firefox, Tor Browser Launcher, Edge, Chromium and Chrome. Existing packages
 are reused with --needed; the terminal still shows any update/dependency prompts.
 Managed tool installers use official endpoints recorded in `distro/installers.json`;

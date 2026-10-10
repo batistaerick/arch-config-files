@@ -1,6 +1,6 @@
 Name = "languages"
 NamePretty = "Languages & Frameworks"
-Parent = "development"
+Parent = "install"
 Icon = "󰅩"
 FixedOrder = true
 SoftwareGroup = "languages"

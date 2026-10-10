@@ -10,22 +10,16 @@ icon = "󰌾"
 actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py password" }
 
 [[entries]]
-text = "Enroll Fingerprint"
-subtext = "Requires a supported fingerprint reader; keeps password fallback"
+text = "Fingerprint"
+subtext = ">"
 icon = "󰈷"
-actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py fingerprint" }
+submenu = "fingerprint"
 
 [[entries]]
 text = "Enroll FIDO2 Security Key"
 subtext = "Security key / biometric key, not a laptop fingerprint reader"
 icon = "󰌆"
 actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py fido2" }
-
-[[entries]]
-text = "Enable Fingerprint Authentication"
-subtext = "After enrollment · login / lockscreen / sudo"
-icon = "󰈷"
-actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py enable-fingerprint" }
 
 [[entries]]
 text = "Enable FIDO2 Authentication"

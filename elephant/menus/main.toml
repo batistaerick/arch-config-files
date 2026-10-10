@@ -5,18 +5,6 @@ icon = "󰣇"
 fixed_order = true
 
 [[entries]]
-text = "Install"
-subtext = ">"
-icon = "󰏖"
-submenu = "install"
-
-[[entries]]
-text = "Gaming"
-subtext = ">"
-icon = "󰊴"
-submenu = "gaming"
-
-[[entries]]
 text = "Development"
 subtext = ">"
 keywords = ["dev", "projects", "code"]
@@ -64,6 +52,18 @@ subtext = ">"
 keywords = ["shortcuts", "keybinds", "vim", "commands", "help"]
 icon = "󰧑"
 submenu = "learn"
+
+[[entries]]
+text = "Install"
+subtext = ">"
+icon = "󰏖"
+submenu = "install"
+
+[[entries]]
+text = "Gaming"
+subtext = ">"
+icon = "󰊴"
+submenu = "gaming"
 
 [[entries]]
 text = "System"

@@ -31,8 +31,8 @@ the graphical desktop and AUR packages are installed on the target system by
   SwayNC, CEF, and Walker/Mongosh debug packages are deliberately excluded.
   Quickshell owns notifications.
 - Development languages, frameworks, JavaScript tools and AI CLIs are optional:
-  Walker → Development → Languages & Frameworks / JavaScript Tools / AI → Install
-  AI CLIs. `software.json` records optional package recipes. Java uses SDKMAN
+  Walker → Install → Development Languages / JavaScript Tools / AI CLIs.
+  `software.json` records optional package recipes. Java uses SDKMAN
   with the latest available Temurin LTS and Maven; Node uses NVM's latest LTS.
   Python remains a system dependency for desktop helpers; uv-managed development
   Python is optional. Rust uses rustup; Ruby/Rails uses mise; PHP/Composer,

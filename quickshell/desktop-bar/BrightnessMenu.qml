@@ -194,10 +194,11 @@ ThemedPopup {
                 width: parent.width
                 spacing: 10
                 Text { width: 30; height: 30; text: "󰃟"; verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter; color: menu.foreground; font.family: PanelStyle.fontFamily; font.pixelSize: 18 }
-                Controls.Slider {
+                PanelSlider {
                     id: slider
+                    accent: menu.accent
+                    foreground: menu.foreground
                     width: parent.width - 100
-                    height: 30
                     from: 1
                     to: 100
                     stepSize: 1

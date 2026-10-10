@@ -36,7 +36,7 @@ after installation and release validation is complete.
 Read [the installation guide](distro/README.md), including its hardware caveats
 and current limitations. The installer is intended for a **new Arch installation**,
 with Btrfs root, as a normal user with sudo access, not an existing configured desktop. It refuses
-to overwrite existing configuration paths. Enable Arch's multilib repository as
+to overwrite existing configuration paths and can be rerun after a partial failure. Enable Arch's multilib repository as
 described in the guide before proceeding.
 
 ```sh

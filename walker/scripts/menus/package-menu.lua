@@ -1,5 +1,5 @@
 local helper = os.getenv("HOME") .. "/.config/walker/scripts/actions/install/software.py"
-local function quote(value) return "'" .. tostring(value):gsub("'", "'\\''") .. "'" end
+local quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 function Toggle(value)
     if value == "" then return end
     local selected = state()

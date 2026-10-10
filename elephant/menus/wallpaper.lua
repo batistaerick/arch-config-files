@@ -7,9 +7,7 @@ FixedOrder = true
 local home = os.getenv("HOME")
 local background_dir = home .. "/.config/theme/current/backgrounds"
 
-local function shell_quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local shell_quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 function GetEntries()
     local entries = {}

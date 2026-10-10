@@ -14,9 +14,7 @@ local app_dirs = {
     "/usr/share/applications",
 }
 
-local function shell_quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local shell_quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 local function basename(path)
     return path:match("([^/]+)$") or path

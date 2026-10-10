@@ -1,7 +1,5 @@
 local script = os.getenv("HOME") .. "/.config/quickshell/desktop-bar/scripts/bar-settings.py"
-local function quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 return function(key, choices)
     local current = ""

@@ -1,9 +1,7 @@
 local home = os.getenv("HOME")
 local themes_dir = home .. "/.config/themes"
 
-local function shell_quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-end
+local shell_quote = dofile(os.getenv("HOME") .. "/.config/elephant/shell-quote.lua")
 
 local function current_theme()
     local file = io.open(home .. "/.cache/current-theme", "r")

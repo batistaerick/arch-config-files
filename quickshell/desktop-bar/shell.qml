@@ -1219,15 +1219,14 @@ ShellRoot {
     component StatusCommand: Item {
         id: item
 
+        // Script path run with bash; it prints {"text": ...} or plain text.
         property string script: ""
-        property string hoverLabel: script.indexOf("gpu-") !== -1 ? "GPU" : script.indexOf("cpu-") !== -1 ? "CPU" : "RAM"
-        property string command: ""
+        property string hoverLabel: ""
         property bool clickable: false
         signal clicked()
         property bool open: true
         property int interval: 5000
         property string text: ""
-        property string tooltip: ""
         property int slotWidth: 44
         property int fixedWidth: 0
         property int fontSize: 13
@@ -1236,7 +1235,7 @@ ShellRoot {
             if (process.running)
                 return ;
 
-            process.command = ["bash", "-lc", item.script];
+            process.command = ["bash", item.script];
             process.running = true;
         }
 
@@ -1248,10 +1247,8 @@ ShellRoot {
             try {
                 var parsed = JSON.parse(value.split("\n").pop());
                 item.text = String(parsed.text || "");
-                item.tooltip = String(parsed.tooltip || "");
             } catch (e) {
                 item.text = value;
-                item.tooltip = "";
             }
         }
 
@@ -1259,7 +1256,6 @@ ShellRoot {
         height: 24
         opacity: open ? 1 : 0
         clip: true
-        Component.onCompleted: refresh()
 
         Text {
             id: label
@@ -1290,10 +1286,12 @@ ShellRoot {
             text: item.hoverLabel
         }
 
+        // Both bar orientations exist; only the visible one polls.
         Timer {
             interval: item.interval
-            running: true
+            running: item.visible
             repeat: true
+            triggeredOnStart: true
             onTriggered: item.refresh()
         }
 
@@ -1556,8 +1554,9 @@ ShellRoot {
 
         Timer {
             interval: 1000
-            running: true
+            running: clock.visible
             repeat: true
+            triggeredOnStart: true
             onTriggered: clock.now = new Date()
         }
 

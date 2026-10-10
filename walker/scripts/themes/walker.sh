@@ -8,22 +8,10 @@ CURRENT_FILE="$WALKER_THEME_DIR/style.css"
 
 mkdir -p "$WALKER_THEME_DIR"
 
-is_light_mode() {
-  [[ -f "$CURRENT_DIR/light.mode" ]]
-}
+THEME_SCRIPTS_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-theme_value() {
-  local key="$1"
-  local file="$CURRENT_DIR/colors.toml"
-
-  awk -v key="$key" '
-    $0 ~ "^[[:space:]]*" key "[[:space:]]*=" {
-      if (match($0, /"#[0-9A-Fa-f]{6}"/)) {
-        print substr($0, RSTART + 1, 7)
-      }
-      exit
-    }
-  ' "$file"
+palette() {
+  THEME_DIR="$CURRENT_DIR" python3 "$THEME_SCRIPTS_DIR/palette.py" "$@"
 }
 
 hex_to_rgb() {
@@ -44,14 +32,16 @@ if [[ ! -f "$CURRENT_DIR/colors.toml" ]]; then
   exit 0
 fi
 
-accent="$(theme_value accent)"
-foreground="$(theme_value foreground)"
-background="$(theme_value background)"
-selection_foreground="$(theme_value selection_foreground)"
-selection_background="$(theme_value selection_background)"
-error_background="$(theme_value color1)"
-color0="$(theme_value color0)"
-color8="$(theme_value color8)"
+{
+  read -r accent
+  read -r foreground
+  read -r background
+  read -r selection_foreground
+  read -r selection_background
+  read -r error_background
+  read -r color0
+  read -r color8
+} < <(palette get accent foreground background selection_foreground selection_background color1 color0 color8)
 
 if [[ -z "$accent" || -z "$foreground" || -z "$background" ]]; then
   cp /etc/xdg/walker/themes/default/style.css "$CURRENT_FILE"
@@ -65,18 +55,22 @@ color0="${color0:-$background}"
 color8="${color8:-$color0}"
 workspace_selected_foreground="$(python3 "$HOME/.config/quickshell/desktop-bar/scripts/workspace-color.py" | jq -r '.foreground')"
 
+light_mode=false
+if palette is-light; then
+  light_mode=true
+fi
+
 ai_assets="$HOME/.config/quickshell/desktop-bar/assets/ai"
-hex="${foreground#\#}"
-if (( 0x${hex:0:2} + 0x${hex:2:2} + 0x${hex:4:2} > 384 )); then
-  codex_mark="$ai_assets/OpenAI-white-monoblossom.svg"
-else
+if [[ "$light_mode" == true ]]; then
   codex_mark="$ai_assets/OpenAI-black-monoblossom.svg"
+else
+  codex_mark="$ai_assets/OpenAI-white-monoblossom.svg"
 fi
 if [[ -f "$codex_mark" ]]; then
   cp "$codex_mark" "$WALKER_THEME_DIR/codex.svg"
 fi
 
-if is_light_mode; then
+if [[ "$light_mode" == true ]]; then
   window_alpha="0.92"
   input_alpha="0.76"
   selected_alpha="0.22"
@@ -90,7 +84,7 @@ else
   shadow_alpha="0.34"
 fi
 
-selection_colors="$(python3 "$(dirname "${BASH_SOURCE[0]}")/selection-colors.py" "$CURRENT_DIR")"
+selection_colors="$(python3 "$THEME_SCRIPTS_DIR/selection-colors.py" "$CURRENT_DIR")"
 row_background="$(jq -r '.background' <<< "$selection_colors")"
 row_foreground="$(jq -r '.foreground' <<< "$selection_colors")"
 current_row_foreground="$(jq -r '.current' <<< "$selection_colors")"

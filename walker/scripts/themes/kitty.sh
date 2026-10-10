@@ -1,96 +1,52 @@
 #!/usr/bin/env bash
 
-CURRENT_DIR="$HOME/.config/theme/current"
-KITTY_THEME="$HOME/.config/kitty/theme.conf"
+set -euo pipefail
+
+CURRENT_DIR="${CURRENT_DIR:-$HOME/.config/theme/current}"
+KITTY_THEME="${KITTY_THEME:-$HOME/.config/kitty/theme.conf}"
+THEME_SCRIPTS_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 if [[ ! -f "$CURRENT_DIR/colors.toml" ]]; then
   exit 0
 fi
 
-mkdir -p "$HOME/.config/kitty"
+mkdir -p "$(dirname "$KITTY_THEME")"
 
-python - "$CURRENT_DIR/colors.toml" "$KITTY_THEME" <<'PY'
+python3 - "$THEME_SCRIPTS_DIR" "$CURRENT_DIR" "$KITTY_THEME" <<'PY'
 import sys
-import tomllib
 from pathlib import Path
 
-colors_path = Path(sys.argv[1])
-kitty_path = Path(sys.argv[2])
+sys.path.insert(0, sys.argv[1])
+from palette import load
 
-data = tomllib.loads(colors_path.read_text())
+colors = load(sys.argv[2])
+missing = [key for key in ("background", "foreground") if key not in colors]
+if missing:
+    raise SystemExit(f"colors.toml is missing: {', '.join(missing)}")
 
-def get(*keys, default=None):
-    cur = data
-    for key in keys:
-        if not isinstance(cur, dict) or key not in cur:
-            return default
-        cur = cur[key]
-    return cur
+bg = colors["background"]
+fg = colors["foreground"]
+# Fall back within the theme's own palette rather than to another theme.
+palette = []
+for index in range(16):
+    fallback = palette[index - 8] if index >= 8 else (bg if index == 0 else fg)
+    palette.append(colors.get(f"color{index}", fallback))
 
-bg = get("colors", "background") or get("background") or "#1e1e2e"
-fg = get("colors", "foreground") or get("foreground") or "#cdd6f4"
-cursor = get("colors", "cursor") or get("cursor") or fg
-selection_bg = get("colors", "selection_background") or get("selection_background") or "#45475a"
-selection_fg = get("colors", "selection_foreground") or get("selection_foreground") or fg
-
-black = get("colors", "black") or get("black") or "#45475a"
-red = get("colors", "red") or get("red") or "#f38ba8"
-green = get("colors", "green") or get("green") or "#a6e3a1"
-yellow = get("colors", "yellow") or get("yellow") or "#f9e2af"
-blue = get("colors", "blue") or get("blue") or "#89b4fa"
-magenta = get("colors", "magenta") or get("magenta") or "#cba6f7"
-cyan = get("colors", "cyan") or get("cyan") or "#94e2d5"
-white = get("colors", "white") or get("white") or "#bac2de"
-
-bright_black = get("colors", "bright_black") or get("bright_black") or "#585b70"
-bright_red = get("colors", "bright_red") or get("bright_red") or red
-bright_green = get("colors", "bright_green") or get("bright_green") or green
-bright_yellow = get("colors", "bright_yellow") or get("bright_yellow") or yellow
-bright_blue = get("colors", "bright_blue") or get("bright_blue") or blue
-bright_magenta = get("colors", "bright_magenta") or get("bright_magenta") or magenta
-bright_cyan = get("colors", "bright_cyan") or get("bright_cyan") or cyan
-bright_white = get("colors", "bright_white") or get("bright_white") or "#a6adc8"
-
-# Numbered palette entries take precedence over semantic fallbacks.
-palette = [black, red, green, yellow, blue, magenta, cyan, white,
-           bright_black, bright_red, bright_green, bright_yellow,
-           bright_blue, bright_magenta, bright_cyan, bright_white]
-palette = [get("colors", f"color{i}") or get(f"color{i}") or color
-           for i, color in enumerate(palette)]
-black, red, green, yellow, blue, magenta, cyan, white = palette[:8]
-bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white = palette[8:]
-
-kitty = f"""# Auto-generated from ~/.config/theme/current/colors.toml
-
-background {bg}
-foreground {fg}
-
-cursor {cursor}
-cursor_text_color {bg}
-
-selection_background {selection_bg}
-selection_foreground {selection_fg}
-
-color0 {black}
-color1 {red}
-color2 {green}
-color3 {yellow}
-color4 {blue}
-color5 {magenta}
-color6 {cyan}
-color7 {white}
-
-color8 {bright_black}
-color9 {bright_red}
-color10 {bright_green}
-color11 {bright_yellow}
-color12 {bright_blue}
-color13 {bright_magenta}
-color14 {bright_cyan}
-color15 {bright_white}
-"""
-
-kitty_path.write_text(kitty)
+lines = [
+    "# Auto-generated from ~/.config/theme/current/colors.toml",
+    "",
+    f"background {bg}",
+    f"foreground {fg}",
+    "",
+    f"cursor {colors.get('cursor', fg)}",
+    f"cursor_text_color {bg}",
+    "",
+    f"selection_background {colors.get('selection_background', palette[8])}",
+    f"selection_foreground {colors.get('selection_foreground', fg)}",
+    "",
+]
+lines += [f"color{index} {color}" for index, color in enumerate(palette)]
+Path(sys.argv[3]).write_text("\n".join(lines) + "\n")
 PY
 
 if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then

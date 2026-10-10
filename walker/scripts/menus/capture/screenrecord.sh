@@ -94,7 +94,7 @@ options="  Open OBS
 󰍬  Record + audio + webcam
   Stop recording"
 
-chosen="$(echo "$options" | $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --prompt="Screenrecord")"
+chosen="$(echo "$options" | "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --cache-file /dev/null --prompt="Screenrecord")"
 
 case "$chosen" in
   "  Open OBS")

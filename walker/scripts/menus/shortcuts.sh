@@ -98,7 +98,7 @@ options="󰌌  Launchers
 
 chosen="$(
   echo -e "$options" |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --cache-file /dev/null --width 820 --height 720 --prompt="Shortcuts"
+    "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --cache-file /dev/null --width 820 --height 720 --prompt="Shortcuts"
 )"
 
 # Normalize Walker's output so actions also match when indentation is trimmed.
@@ -131,7 +131,7 @@ case "$chosen" in
     dolphin --new-window &
     ;;
   "  SUPER + F"*)
-    walker --provider menus:main
+    "$HOME/.config/walker/bin/walker" --provider menus:main
     ;;
   "  SUPER + G"*)
     "$ACTIONS_DIR/search/google.sh"

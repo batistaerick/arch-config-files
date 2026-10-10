@@ -243,7 +243,7 @@ EOF
 
 chosen="$(
   echo -e "$options" |
-    $HOME/.config/walker/bin/walker-dmenu --dmenu --no-sort --matching=contains --cache-file /dev/null --width 860 --height 760 --prompt="LazyVim Commands"
+    "$HOME/.config/walker/bin/walker-dmenu" --dmenu --no-sort --matching=contains --cache-file /dev/null --width 860 --height 760 --prompt="LazyVim Commands"
 )"
 
 copy_command() {

@@ -36,6 +36,7 @@ zip
 wl-clipboard
 wtype
 libnotify
+playerctl
 hyprland
 hypridle
 hyprlock
@@ -59,7 +60,6 @@ pipewire-pulse
 wireplumber
 bluez
 bluez-utils
-blueman
 iwd
 brightnessctl
 ddcutil

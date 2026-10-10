@@ -26,7 +26,7 @@ text = "Secure Boot Guide"
 keywords = ["sbctl", "uefi", "signing"]
 subtext = "Documentation only · nothing is changed"
 icon = "󰧑"
-actions = { open = "kitty --hold -e sh -c 'f=\"$HOME/.local/share/eitr/SECURE-BOOT.md\"; if [ -r \"$f\" ]; then less \"$f\"; else echo \"The Secure Boot guide is not installed. Read distro/SECURE-BOOT.md in the Eitr repository, or see distro/README.md (Existing desktop).\"; fi'" }
+actions = { open = "kitty --hold -e sh -c 'for f in \"${XDG_DATA_HOME:-$HOME/.local/share}/eitr/SECURE-BOOT.md\" /usr/share/eitr/SECURE-BOOT.md; do if [ -r \"$f\" ]; then exec less \"$f\"; fi; done; echo \"The Secure Boot guide is not installed. Install the eitr-desktop package, or read distro/SECURE-BOOT.md in the Eitr repository.\"'" }
 
 [[entries]]
 text = "TPM Disk Unlock"

@@ -53,7 +53,8 @@ package() {
   cd "$srcdir/eitr" || return
   python3 distro/bin/eitr-config --repo . stage "$pkgdir/usr/share/eitr"
   install -Dm644 -t "$pkgdir/usr/share/eitr" \
-    distro/software.json distro/installers.json distro/RECOVERY.md distro/system-update-policy.conf
+    distro/software.json distro/installers.json distro/RECOVERY.md distro/SECURE-BOOT.md \
+    distro/system-update-policy.conf
   install -Dm755 distro/system/eitr-system.py "$pkgdir/usr/lib/eitr/eitr-system"
   install -Dm755 distro/bin/eitr-config "$pkgdir/usr/bin/eitr-config"
   install -Dm644 -t "$pkgdir/usr/lib/systemd/user" systemd/user/*.service systemd/user/*.timer

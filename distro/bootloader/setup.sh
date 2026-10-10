@@ -7,7 +7,13 @@
 set -euo pipefail
 
 bootloader_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-helper="${EITR_SYSTEM_HELPER:-/usr/local/lib/eitr/eitr-system}"
+helper="${EITR_SYSTEM_HELPER:-}"
+if [[ -z "$helper" ]]; then
+  # Packaged location first, then the older manual install path.
+  for helper in /usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system; do
+    [[ -x "$helper" ]] && break
+  done
+fi
 mode="${1:-}"
 
 die() { printf '%s\n' "$*" >&2; exit 1; }

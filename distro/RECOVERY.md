@@ -113,7 +113,7 @@ broken update can be inspected and rolled back without live media. The
 installer offers this only after you type `yes`; on an existing installation run
 `bash distro/bootloader/setup.sh` (`--check` only reports). Check the result with
 Walker → System → Snapshots → Bootable Snapshot Status, or
-`sudo /usr/local/lib/eitr/eitr-system snapshots-boot-status`.
+`sudo /usr/lib/eitr/eitr-system snapshots-boot-status`.
 
 | Boot loader | Integration | Packages (`distro/bootloader/`) |
 |---|---|---|

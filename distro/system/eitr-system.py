@@ -291,7 +291,10 @@ POWER_SUPPLY = Path("/sys/class/power_supply")
 BATTERY_LIMIT_CONFIG = Path("/etc/eitr/battery-limit")
 SYSTEMD_SYSTEM = Path("/etc/systemd/system")
 BATTERY_UNIT = "eitr-battery-limit.service"
-INSTALLED_HELPER = "/usr/local/lib/eitr/eitr-system"
+# The eitr-desktop package installs the helper in /usr/lib; older manual installs
+# used /usr/local/lib. Generated units call whichever root-owned copy is running.
+HELPER_PATHS = ("/usr/lib/eitr/eitr-system", "/usr/local/lib/eitr/eitr-system")
+INSTALLED_HELPER = next((path for path in HELPER_PATHS if Path(path).is_file()), HELPER_PATHS[0])
 SLEEP_TARGETS = "suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target"
 BATTERY_UNIT_CONTENT = f"""[Unit]
 Description=Apply the Eitr battery charge limit

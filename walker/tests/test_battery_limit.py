@@ -14,7 +14,7 @@ class BatteryMenuConfirmationTests(unittest.TestCase):
     def test_limit_requires_typed_yes(self):
         with tempfile.NamedTemporaryFile() as helper:
             for answer, expected in (("", 0), ("y", 0), ("yes", 1)):
-                with self.subTest(answer=answer), patch.object(walker, "ROOT_HELPER", helper.name), \
+                with self.subTest(answer=answer), patch.object(walker, "ROOT_HELPERS", (helper.name,)), \
                         patch("builtins.input", return_value=answer), patch("builtins.print"), \
                         patch.object(walker.subprocess, "run") as run:
                     walker.main(["set", "80"])
@@ -23,7 +23,7 @@ class BatteryMenuConfirmationTests(unittest.TestCase):
                         run.assert_called_once_with(["sudo", helper.name, "battery-limit", "80"], check=True)
 
     def test_invalid_value_never_prompts(self):
-        with tempfile.NamedTemporaryFile() as helper, patch.object(walker, "ROOT_HELPER", helper.name), \
+        with tempfile.NamedTemporaryFile() as helper, patch.object(walker, "ROOT_HELPERS", (helper.name,)), \
                 patch("builtins.input") as prompt:
             for args in (["set", "40"], ["set"], ["drain"]):
                 with self.assertRaises(ValueError):

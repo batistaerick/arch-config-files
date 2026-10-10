@@ -9,7 +9,7 @@ text = "Bootable Snapshot Status"
 subtext = "GRUB or Limine snapshot boot entries"
 keywords = ["boot", "grub", "limine", "rollback"]
 icon = "󰑓"
-actions = { open = "kitty --hold -e sudo /usr/local/lib/eitr/eitr-system snapshots-boot-status" }
+actions = { open = "kitty --hold -e sh -c 'for helper in /usr/lib/eitr/eitr-system /usr/local/lib/eitr/eitr-system; do if [ -x \"$helper\" ]; then exec sudo \"$helper\" snapshots-boot-status; fi; done; echo \"The root-owned Eitr helper is not installed. Install the eitr-desktop package (see distro/README.md).\"'" }
 
 [[entries]]
 text = "Configure Snapshot Protection"

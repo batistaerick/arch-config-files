@@ -90,8 +90,8 @@ class MenuStructureTests(unittest.TestCase):
     def test_secure_boot_guide_is_documentation_only(self):
         entry = next(entry for entry in menu("security")["entries"] if entry["text"] == "Secure Boot Guide")
         action = entry["actions"]["open"]
-        self.assertIn(".local/share/eitr/SECURE-BOOT.md", action)
+        self.assertIn("/usr/share/eitr/SECURE-BOOT.md", action)
         self.assertNotIn("sbctl", action)
         self.assertNotIn("sudo", action)
-        self.assertIn("SECURE-BOOT.md", (ROOT / "distro/install.sh").read_text())
+        self.assertIn("distro/SECURE-BOOT.md", (ROOT / "distro/pkg/eitr-desktop/PKGBUILD").read_text())
         self.assertTrue((ROOT / "distro/SECURE-BOOT.md").is_file())

@@ -51,7 +51,7 @@ class BatteryLimitTests(unittest.TestCase):
         self.assertEqual(self.threshold(battery), "80")
         self.assertEqual(system.BATTERY_LIMIT_CONFIG.read_text(), "80\n")
         unit = (system.SYSTEMD_SYSTEM / system.BATTERY_UNIT).read_text()
-        self.assertIn("ExecStart=/usr/local/lib/eitr/eitr-system battery-limit-apply", unit)
+        self.assertIn(f"ExecStart={system.INSTALLED_HELPER} battery-limit-apply", unit)
         self.assertIn("suspend.target", unit.split("WantedBy=")[1])
         self.assertEqual(self.calls, [["systemctl", "daemon-reload"], ["systemctl", "enable", system.BATTERY_UNIT]])
 

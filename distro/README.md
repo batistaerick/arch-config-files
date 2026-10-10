@@ -57,7 +57,8 @@ the graphical desktop and AUR packages are installed on the target system by
   Boot/EFI archives are separate; see [recovery instructions](RECOVERY.md).
 - Security offers password changes, fingerprint enrollment, FIDO2-key enrollment,
   and separately confirmed optional authentication policy. Password fallback is
-  preserved. Hardware support and real authentication still require testing.
+  preserved. Each policy change backs up the PAM files and can be undone with
+  `eitr-system auth-restore`; see [recovery instructions](RECOVERY.md). Hardware support and real authentication still require testing.
 - Direct helper dependencies include `lm_sensors` for hardware temperatures,
   `qrencode` for Wi-Fi sharing, and `desktop-file-utils` for launcher registration.
 - Bruno, ngrok, kubectl, Helm, Minikube, printing packages (CUPS, HPLIP and

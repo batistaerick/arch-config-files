@@ -10,8 +10,11 @@ case "${1:-}" in
       exec 9>"${XDG_RUNTIME_DIR:-/tmp}/eitr-system-update-$UID.lock"
       flock -n 9 || { echo 'Another System Update is running.' >&2; exit 1; }
       sudo "$helper" snapshot-pre
+      # Always pair the pre snapshot, even when the upgrade fails or is declined.
+      outcome=failed
+      trap 'sudo "$helper" snapshot-post "$outcome"' EXIT
       full_update
-      sudo "$helper" snapshot-post
+      outcome=success
     else
       full_update
     fi

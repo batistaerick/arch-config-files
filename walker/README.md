@@ -39,14 +39,20 @@ Install → Development Languages, JavaScript Tools, and AI CLIs install optiona
 tools explicitly. Lazygit and Lazydocker are mandatory distro defaults, not a
 Developer Tools submenu. Install → Browsers
 offers Firefox, Tor Browser Launcher, Edge, Chromium and Chrome. Existing packages
-are reused with --needed; the terminal still shows any update/dependency prompts.
-Managed tool installers use official endpoints recorded in `distro/installers.json`;
-the runtime catalog is installed under `~/.local/share/eitr/`.
+are reused with --needed. Official-package installs first run `checkupdates`;
+if system updates are pending they stop and point to System Update, so upgrades
+never happen outside its recovery snapshots (Arch does not support partial
+upgrades). Managed tool installers use official endpoints recorded in
+`distro/installers.json` and never edit shell profiles; `HOME_FILES/.zshrc`
+already adds their PATH entries. The runtime catalog is installed under
+`~/.local/share/eitr/`; a missing catalog is shown as an error row in the menu.
 
 System → Security separates password changes, fingerprint enrollment and FIDO2
 security-key enrollment. Enrolling does not automatically change PAM; enabling
 authentication is a separate confirmed operation through the root-owned helper.
-Password fallback remains. A FIDO2 biometric key is not a laptop fingerprint reader.
+Password fallback remains. Fingerprint is added to the hyprlock, SDDM and sudo
+PAM stacks so "password only" also applies to the lockscreen; pam_fprintd may
+delay the password prompt for up to 10 seconds. A FIDO2 biometric key is not a laptop fingerprint reader.
 Touch ID on the host Mac is not passed through as a normal Linux fingerprint reader.
 System → Snapshots requires the reviewed privileged integration described
 in [the distro guide](../distro/README.md). Update works normally on existing

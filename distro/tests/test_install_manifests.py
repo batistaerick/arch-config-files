@@ -32,11 +32,11 @@ class InstallManifestTests(unittest.TestCase):
             self.assertIn("NetworkManager is enabled", result.stderr)
             self.assertNotIn("Permission denied", result.stderr)
 
-    def run_check(self, home, populate):
+    def run_check(self, home, populate, findmnt="echo btrfs"):
         binaries = home / "bin"
         binaries.mkdir()
         mocks = {"pacman": "exit 0", "sudo": "exit 0", "systemctl": "exit 1",
-                 "findmnt": "echo btrfs"}
+                 "findmnt": findmnt}
         for name, body in mocks.items():
             (binaries / name).write_text(f"#!/bin/sh\n{body}\n")
             (binaries / name).chmod(0o755)
@@ -58,6 +58,15 @@ class InstallManifestTests(unittest.TestCase):
         self.assertIn("would be overwritten", result.stderr)
         self.assertIn(f"{directory}/.config/kitty", result.stderr)
         self.assertIn(f"{directory}/.config/nvim", result.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
+    def test_check_rejects_package_database_outside_root_snapshot(self):
+        findmnt = 'case "$*" in *FSTYPE*) echo btrfs ;; *pacman*) echo /dev/other ;; *) echo /dev/root ;; esac'
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_check(Path(directory), lambda home: None, findmnt)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("/var/lib/pacman is outside the root snapshot", result.stderr)
+        self.assertIn("supported Btrfs layout", result.stderr)
 
     @unittest.skipIf(os.geteuid() == 0, "Installer intentionally rejects root")
     def test_check_skips_paths_recorded_by_a_previous_partial_run(self):

@@ -146,9 +146,10 @@ if [[ ${1:-} == --check ]]; then
   if systemctl is-enabled --quiet NetworkManager.service 2>/dev/null; then
     die 'NetworkManager is enabled. This desktop uses iwd/networkd; resolve that conflict first.'
   fi
-  if [[ $(findmnt -n -o FSTYPE /) != btrfs ]]; then
-    die 'Eitr snapshot-protected updates require a Btrfs root. Use Btrfs on the fresh target.'
-  fi
+  # The same read-only layout check snapshots-setup runs later, so an
+  # unsupported subvolume layout stops here before any package is installed.
+  python3 "$repo_root/distro/system/eitr-system.py" snapshots-check ||
+    die 'Snapshot-protected updates need a supported Btrfs layout; see distro/RECOVERY.md.'
   for item in "${config_dirs[@]}" "${config_files[@]}"; do
     [[ -e "$repo_root/$item" ]] || die "Missing source: $item"
   done

@@ -47,5 +47,17 @@ class BarSettingsTests(unittest.TestCase):
             self.assertEqual(bar_settings.read_settings(), bar_settings.DEFAULTS)
 
 
+    def test_missing_file_uses_defaults(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(bar_settings, "SETTINGS", Path(directory) / "absent.json"):
+            self.assertEqual(bar_settings.read_settings(), bar_settings.DEFAULTS)
+
+    def test_live_update_uses_quickshell_ipc(self):
+        with patch.object(bar_settings.subprocess, "run") as run:
+            bar_settings.apply_live("edge", "left")
+        self.assertEqual(run.call_args.args[0],
+                         ["quickshell", "ipc", "-c", "desktop-bar", "call", "--", "bar", "update", "edge", "left"])
+
+
 if __name__ == "__main__":
     unittest.main()

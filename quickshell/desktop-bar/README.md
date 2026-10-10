@@ -255,8 +255,9 @@ Display opens a themed native panel with brightness, Nightlight, and active
 monitor names, resolutions, and refresh rates. Clicking a display makes it the
 bar's primary screen; the choice persists in `~/.config/hypr/primary-display`.
 If that display is unplugged, the bar uses an available screen until it returns.
-Existing installations retain the HDMI preference until a choice is saved;
-fresh portable installs default to the largest active screen. Display modes
+Until a choice is saved, the bar uses the first connected output listed in the
+machine-local `~/.config/hypr/preferred-outputs`, else the largest active
+screen. Display modes
 remain read-only so this selection cannot disturb the Hyprland monitor layout.
 The Nightlight editor saves valid time changes automatically; its Auto switch
 enables or disables the schedule, while the main switch remains a manual override.

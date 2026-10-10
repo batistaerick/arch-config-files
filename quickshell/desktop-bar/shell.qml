@@ -27,7 +27,7 @@ ShellRoot {
     property color hoverBg: Qt.rgba(180 / 255, 190 / 255, 254 / 255, 0.15)
     property bool idleLockEnabled: false
     property string primaryDisplay: ""
-    property bool portableDisplayMode: false
+    property var preferredOutputs: []
     property string workspaceStyle: "Numbers"
     readonly property int workspaceCount: WorkspaceModel.ceiling(WorkspaceModel.occupied(Hyprland.toplevels.values),
         Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 0)
@@ -162,7 +162,9 @@ ShellRoot {
             try {
                 var result = JSON.parse(primaryDisplayOutput.text);
                 shell.primaryDisplay = result.primary || "";
-                shell.portableDisplayMode = !!result.portable;
+                var preferred = result.preferred || [];
+                if (JSON.stringify(preferred) !== JSON.stringify(shell.preferredOutputs))
+                    shell.preferredOutputs = preferred;
             } catch (e) {}
         }
     }
@@ -231,32 +233,26 @@ ShellRoot {
 
     // display-primary.py owns the choice and reports it as primaryDisplay.
     // This fallback mirrors its choose_primary() order (saved/reported name,
-    // largest screen in portable mode, else HDMI-A-1, DP-3, first) so startup
-    // and unmatched names pick the same screen without a bar jump.
+    // first connected machine-local preferred output, else the largest screen)
+    // so startup and unmatched names pick the same screen without a bar jump.
     function targetScreens() {
         var screens = Quickshell.screens || [];
-        var fallback = null;
+        var byName = {};
         var largest = null;
         for (var i = 0; i < screens.length; i++) {
             if (!screens[i])
                 continue;
-
-            if (primaryDisplay && screens[i].name === primaryDisplay)
-                return [screens[i]];
-
+            byName[screens[i].name] = screens[i];
             if (!largest || screens[i].width * screens[i].height > largest.width * largest.height)
                 largest = screens[i];
-
-            if (screens[i].name === "HDMI-A-1")
-                fallback = screens[i];
-            else if (screens[i].name === "DP-3" && (!fallback || fallback.name !== "HDMI-A-1"))
-                fallback = screens[i];
-            else if (!fallback)
-                fallback = screens[i];
         }
-        if (portableDisplayMode && largest)
-            return [largest];
-        return fallback ? [fallback] : [];
+        if (primaryDisplay && byName[primaryDisplay])
+            return [byName[primaryDisplay]];
+        for (var j = 0; j < preferredOutputs.length; j++) {
+            if (byName[preferredOutputs[j]])
+                return [byName[preferredOutputs[j]]];
+        }
+        return largest ? [largest] : [];
     }
 
     Variants {

@@ -11,6 +11,7 @@ import tempfile
 
 CONFIG_DIR = Path.home() / ".config/hypr"
 PREFERENCE = CONFIG_DIR / "primary-display"
+PREFERRED_OUTPUTS = CONFIG_DIR / "preferred-outputs"
 
 
 def active_monitors():
@@ -27,33 +28,41 @@ def saved_primary():
         return ""
 
 
+def preferred_outputs():
+    """Read the machine-local output order: one name per line, # comments."""
+    try:
+        text = PREFERRED_OUTPUTS.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return []
+    names = []
+    for line in text.splitlines():
+        name = line.split("#", 1)[0].strip()
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
 # shell.qml's targetScreens() mirrors this order for the moment before the
 # first status query returns; keep both in sync (tests/test_display_primary.py).
-LEGACY_PREFERENCE = ("HDMI-A-1", "DP-3")
-
-
-def choose_primary(monitors, saved="", portable=False):
-    connected = {monitor["name"]: monitor for monitor in monitors}
+def choose_primary(monitors, saved="", preferred=()):
+    """Saved choice, then the first connected preferred output, then the largest."""
+    connected = {monitor["name"] for monitor in monitors}
     if saved in connected:
         return saved
     if not connected:
         return ""
-    if portable:
-        # Largest area; ties keep compositor order, as QML can match it.
-        return max(monitors, key=lambda monitor: monitor["width"] * monitor["height"])["name"]
-    for name in LEGACY_PREFERENCE:
+    for name in preferred:
         if name in connected:
             return name
-    return monitors[0]["name"]
+    # Largest area; ties keep compositor order, as QML can match it.
+    return max(monitors, key=lambda monitor: monitor["width"] * monitor["height"])["name"]
 
 
 def status():
     monitors = active_monitors()
-    portable = (CONFIG_DIR / "portable.mode").exists()
-    primary = choose_primary(
-        monitors, saved_primary(), portable
-    )
-    return {"monitors": monitors, "primary": primary, "portable": portable}
+    preferred = preferred_outputs()
+    primary = choose_primary(monitors, saved_primary(), preferred)
+    return {"monitors": monitors, "primary": primary, "preferred": preferred}
 
 
 def set_primary(name):

@@ -17,13 +17,13 @@ icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-new-named" }
 
 [[entries]]
-text = "Resume Picker"
-keywords = ["claude", "resume"]
-icon = "claude-brand"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-picker" }
-
-[[entries]]
 text = "Resume by Name"
 keywords = ["claude", "resume"]
 icon = "claude-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-name" }
+
+[[entries]]
+text = "Resume Picker"
+keywords = ["claude", "resume"]
+icon = "claude-brand"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh claude-resume-picker" }

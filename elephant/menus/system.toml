@@ -5,22 +5,15 @@ icon = ""
 fixed_order = true
 
 [[entries]]
-text = "Security"
-subtext = ">"
-icon = "󰒃"
-submenu = "security"
+text = "About"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/about.sh" }
 
 [[entries]]
-text = "Snapshots"
-subtext = ">"
-icon = "󰋊"
-submenu = "snapshots"
-
-[[entries]]
-text = "Workspace Overview"
-keywords = ["workspaces", "windows", "expose", "overview"]
-icon = "󰕮"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh overview" }
+text = "AI Usage"
+keywords = ["claude", "codex", "limits", "tokens"]
+icon = "󱜙"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh ai" }
 
 [[entries]]
 text = "Audio"
@@ -28,21 +21,38 @@ icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh volume" }
 
 [[entries]]
-text = "WiFi"
-keywords = ["network", "impala"]
-icon = ""
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh wifi" }
-
-[[entries]]
 text = "Bluetooth"
 icon = ""
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh bluetooth" }
+
+[[entries]]
+text = "Calendar"
+icon = "󰃭"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh calendar" }
+
+[[entries]]
+text = "Cleanup"
+keywords = ["clean", "cache", "disk", "storage", "ssd"]
+icon = "󰃢"
+actions = { "open" = "kitty --class system-cleanup -e $HOME/.config/walker/scripts/actions/system/cleanup.sh" }
 
 [[entries]]
 text = "Display"
 keywords = ["brightness", "nightlight", "monitor", "resolution", "refresh rate"]
 icon = "󰍹"
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh display" }
+
+[[entries]]
+text = "Dotfiles"
+keywords = ["config"]
+icon = ""
+actions = { "open" = "code $HOME/.config" }
+
+[[entries]]
+text = "Hardware"
+keywords = ["gpu", "cpu", "ram", "memory", "monitor"]
+icon = "󰍛"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh hardware" }
 
 [[entries]]
 text = "Keyboard"
@@ -56,32 +66,16 @@ icon = "󰍬"
 actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh mic" }
 
 [[entries]]
-text = "Calendar"
-icon = "󰃭"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh calendar" }
+text = "Security"
+subtext = ">"
+icon = "󰒃"
+submenu = "security"
 
 [[entries]]
-text = "Weather"
-icon = "󰖐"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh weather" }
-
-[[entries]]
-text = "Hardware"
-keywords = ["gpu", "cpu", "ram", "memory", "monitor"]
-icon = "󰍛"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh hardware" }
-
-[[entries]]
-text = "AI Usage"
-keywords = ["claude", "codex", "limits", "tokens"]
-icon = "󱜙"
-actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh ai" }
-
-[[entries]]
-text = "Dotfiles"
-keywords = ["config"]
-icon = ""
-actions = { "open" = "code $HOME/.config" }
+text = "Snapshots"
+subtext = ">"
+icon = "󰋊"
+submenu = "snapshots"
 
 [[entries]]
 text = "Update"
@@ -90,12 +84,18 @@ icon = ""
 submenu = "update"
 
 [[entries]]
-text = "Cleanup"
-keywords = ["clean", "cache", "disk", "storage", "ssd"]
-icon = "󰃢"
-actions = { "open" = "kitty --class system-cleanup -e $HOME/.config/walker/scripts/actions/system/cleanup.sh" }
+text = "Weather"
+icon = "󰖐"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh weather" }
 
 [[entries]]
-text = "About"
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/actions/about.sh" }
+text = "WiFi"
+keywords = ["network", "impala"]
+icon = ""
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh wifi" }
+
+[[entries]]
+text = "Workspace Overview"
+keywords = ["workspaces", "windows", "expose", "overview"]
+icon = "󰕮"
+actions = { "open" = "bash $HOME/.config/quickshell/desktop-bar/scripts/show-panel.sh overview" }

@@ -12,15 +12,15 @@ icon = ""
 submenu = "aws-profiles"
 
 [[entries]]
-text = "GCP"
-subtext = ">"
-keywords = ["google cloud"]
-icon = ""
-submenu = "gcp"
-
-[[entries]]
 text = "Azure"
 subtext = ">"
 keywords = ["microsoft cloud"]
 icon = "󰠅"
 submenu = "azure"
+
+[[entries]]
+text = "GCP"
+subtext = ">"
+keywords = ["google cloud"]
+icon = ""
+submenu = "gcp"

@@ -5,24 +5,9 @@ icon = "⏻"
 fixed_order = true
 
 [[entries]]
-text = "Shutdown"
-icon = ""
-actions = { "open" = "systemctl poweroff" }
-
-[[entries]]
-text = "Reboot"
-icon = ""
-actions = { "open" = "systemctl reboot" }
-
-[[entries]]
 text = "Lock"
 icon = ""
 actions = { "open" = "$HOME/.config/hypr/scripts/manual-lock.sh" }
-
-[[entries]]
-text = "Suspend"
-icon = ""
-actions = { "open" = "sh -c 'loginctl lock-session && sleep 1 && systemctl suspend'" }
 
 [[entries]]
 text = "Logout"
@@ -30,7 +15,22 @@ icon = ""
 actions = { "open" = "uwsm stop" }
 
 [[entries]]
+text = "Reboot"
+icon = ""
+actions = { "open" = "systemctl reboot" }
+
+[[entries]]
 text = "Reboot BIOS"
 keywords = ["firmware", "uefi"]
 icon = ""
 actions = { "open" = "kitty -e systemctl reboot --firmware-setup" }
+
+[[entries]]
+text = "Shutdown"
+icon = ""
+actions = { "open" = "systemctl poweroff" }
+
+[[entries]]
+text = "Suspend"
+icon = ""
+actions = { "open" = "sh -c 'loginctl lock-session && sleep 1 && systemctl suspend'" }

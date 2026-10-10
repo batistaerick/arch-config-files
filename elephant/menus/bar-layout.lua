@@ -11,3 +11,5 @@ function GetEntries()
         {"Three Sections", "split", "󰕰"},
     })
 end
+
+dofile(os.getenv("HOME") .. "/.config/walker/scripts/menus/alphabetical.lua")

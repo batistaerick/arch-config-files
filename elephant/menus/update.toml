@@ -5,6 +5,12 @@ icon = ""
 fixed_order = true
 
 [[entries]]
+text = "Full Upgrade"
+subtext = "Pacman plus AUR devel update"
+icon = "󰜉"
+actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh full" }
+
+[[entries]]
 text = "Pacman"
 subtext = "Official packages"
 icon = "󰚰"
@@ -15,9 +21,3 @@ text = "Yay"
 subtext = "AUR and official packages"
 icon = "󰀦"
 actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh yay" }
-
-[[entries]]
-text = "Full Upgrade"
-subtext = "Pacman plus AUR devel update"
-icon = "󰜉"
-actions = { "open" = "kitty --hold -e bash $HOME/.config/walker/scripts/actions/system/update.sh full" }

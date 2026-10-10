@@ -11,13 +11,13 @@ icon = "codex-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-new" }
 
 [[entries]]
-text = "Resume Picker"
-keywords = ["codex", "resume"]
-icon = "codex-brand"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-picker" }
-
-[[entries]]
 text = "Resume by Name or ID"
 keywords = ["codex", "resume"]
 icon = "codex-brand"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-name" }
+
+[[entries]]
+text = "Resume Picker"
+keywords = ["codex", "resume"]
+icon = "codex-brand"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/ai-tools.sh codex-resume-picker" }

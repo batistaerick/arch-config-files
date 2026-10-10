@@ -39,3 +39,5 @@ function GetEntries()
 
     return entries
 end
+
+dofile(os.getenv("HOME") .. "/.config/walker/scripts/menus/alphabetical.lua")

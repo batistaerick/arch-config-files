@@ -5,16 +5,9 @@ icon = "󰏖"
 fixed_order = true
 
 [[entries]]
-text = "Pacman"
-subtext = "Official packages · Tab select · Enter install · Ctrl+B review"
-icon = "󰏖"
-actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch pacman" }
-
-[[entries]]
-text = "Yay (AUR)"
-subtext = "Community builds · Tab select · Enter install · Ctrl+B review"
-icon = "󰀦"
-actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch aur" }
+text = "AI CLIs"
+icon = "󱜙"
+submenu = "ai-install"
 
 [[entries]]
 text = "Browsers"
@@ -32,6 +25,13 @@ icon = "󰛦"
 submenu = "javascript-tools"
 
 [[entries]]
-text = "AI CLIs"
-icon = "󱜙"
-submenu = "ai-install"
+text = "Pacman"
+subtext = "Official packages · Tab select · Enter install · Ctrl+B review"
+icon = "󰏖"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch pacman" }
+
+[[entries]]
+text = "Yay (AUR)"
+subtext = "Community builds · Tab select · Enter install · Ctrl+B review"
+icon = "󰀦"
+actions = { open = "python3 $HOME/.config/walker/scripts/actions/install/software.py picker-launch aur" }

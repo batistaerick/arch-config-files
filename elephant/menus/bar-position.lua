@@ -13,3 +13,5 @@ function GetEntries()
         {"Right", "right", "󰁔"},
     })
 end
+
+dofile(os.getenv("HOME") .. "/.config/walker/scripts/menus/alphabetical.lua")

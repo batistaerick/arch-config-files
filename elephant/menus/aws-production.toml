@@ -5,29 +5,9 @@ icon = ""
 fixed_order = true
 
 [[entries]]
-text = "SSO Login"
-icon = "󰒋"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-prod --sso-login" }
-
-[[entries]]
-text = "Check Auth"
-icon = "󰅟"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-prod --check-auth" }
-
-[[entries]]
-text = "CloudWatch"
-icon = "󰃷"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudwatch.sh doola-prod" }
-
-[[entries]]
-text = "ECS"
-icon = "󰡨"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecs.sh doola-prod" }
-
-[[entries]]
-text = "S3"
-icon = "󰓟"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/s3.sh doola-prod" }
+text = "Amazon Grafana"
+icon = "󰨇"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh doola-prod" }
 
 [[entries]]
 text = "Aurora / RDS"
@@ -35,14 +15,19 @@ icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/rds.sh doola-prod" }
 
 [[entries]]
-text = "ECR"
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecr.sh doola-prod" }
+text = "Check Auth"
+icon = "󰅟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-prod --check-auth" }
 
 [[entries]]
-text = "Amazon Grafana"
-icon = "󰨇"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/grafana.sh doola-prod" }
+text = "CloudFront"
+icon = "󰅧"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudfront.sh doola-prod" }
+
+[[entries]]
+text = "CloudWatch"
+icon = "󰃷"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudwatch.sh doola-prod" }
 
 [[entries]]
 text = "Cognito"
@@ -55,14 +40,29 @@ icon = ""
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/docdb.sh doola-prod" }
 
 [[entries]]
+text = "EC2"
+icon = "󰍹"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ec2.sh doola-prod" }
+
+[[entries]]
+text = "ECR"
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecr.sh doola-prod" }
+
+[[entries]]
+text = "ECS"
+icon = "󰡨"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ecs.sh doola-prod" }
+
+[[entries]]
+text = "IAM"
+icon = "󰒃"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/iam.sh doola-prod" }
+
+[[entries]]
 text = "Lambda"
 icon = "󰊕"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lambda.sh doola-prod" }
-
-[[entries]]
-text = "CloudFront"
-icon = "󰅧"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/cloudfront.sh doola-prod" }
 
 [[entries]]
 text = "Lightsail"
@@ -70,21 +70,21 @@ icon = "󰌢"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/lightsail.sh doola-prod" }
 
 [[entries]]
-text = "EC2"
-icon = "󰍹"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/ec2.sh doola-prod" }
-
-[[entries]]
 text = "Route 53"
 icon = "󰑃"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/route53.sh doola-prod" }
 
 [[entries]]
+text = "S3"
+icon = "󰓟"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/s3.sh doola-prod" }
+
+[[entries]]
+text = "SSO Login"
+icon = "󰒋"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/menu.sh doola-prod --sso-login" }
+
+[[entries]]
 text = "VPC"
 icon = "󰖟"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/vpc.sh doola-prod" }
-
-[[entries]]
-text = "IAM"
-icon = "󰒃"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/cloud/aws/iam.sh doola-prod" }

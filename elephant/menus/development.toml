@@ -12,18 +12,11 @@ icon = "󱜙"
 submenu = "ai-tools"
 
 [[entries]]
-text = "VS Code"
+text = "Cloud"
 subtext = ">"
-keywords = ["code", "vscode", "project"]
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh vscode" }
-
-[[entries]]
-text = "LazyVim"
-subtext = ">"
-keywords = ["lazyvim", "nvim", "vim", "project"]
-icon = ""
-actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh nvim" }
+keywords = ["aws", "gcp", "azure"]
+icon = ""
+submenu = "cloud"
 
 [[entries]]
 text = "Grafana Logs"
@@ -33,8 +26,15 @@ icon = "󰨇"
 submenu = "grafana-logs"
 
 [[entries]]
-text = "Cloud"
+text = "LazyVim"
 subtext = ">"
-keywords = ["aws", "gcp", "azure"]
-icon = ""
-submenu = "cloud"
+keywords = ["lazyvim", "nvim", "vim", "project"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh nvim" }
+
+[[entries]]
+text = "VS Code"
+subtext = ">"
+keywords = ["code", "vscode", "project"]
+icon = ""
+actions = { "open" = "$HOME/.config/walker/scripts/actions/development/open-project.sh vscode" }

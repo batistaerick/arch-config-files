@@ -65,6 +65,8 @@ them with upstream defaults.
 - Walker is the launcher; Elephant supplies its menus. Update all relevant
   shortcut and Learn/Shortcuts entry points when changing a workflow.
 - Keep Walker menus organized: group related setup/actions into named submenus
+  and sort their labels alphabetically (case-insensitive). Main retains its
+  custom order, and Apps retains its existing behavior.
   instead of crowding their parent. Set each submenu's parent to its actual
   location so Shift+Backspace returns correctly. Submenu rows use ">" subtext
   with the shared horizontal row layout (for example item_menus-system.xml),

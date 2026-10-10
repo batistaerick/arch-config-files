@@ -11,3 +11,5 @@ function GetEntries()
         {"Theme Color", "solid", "󰏘"},
     })
 end
+
+dofile(os.getenv("HOME") .. "/.config/walker/scripts/menus/alphabetical.lua")

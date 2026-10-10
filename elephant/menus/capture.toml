@@ -5,17 +5,10 @@ icon = ""
 fixed_order = true
 
 [[entries]]
-text = "Screenshot"
-subtext = ">"
-icon = "󰄀"
-submenu = "screenshot"
-
-[[entries]]
-text = "Screenrecord"
-subtext = ">"
-keywords = ["record", "video"]
-icon = ""
-submenu = "screenrecord"
+text = "Color"
+keywords = ["picker", "hyprpicker"]
+icon = "󰈊"
+actions = { "open" = "sh -c 'sleep 0.2 && hyprpicker -a'" }
 
 [[entries]]
 text = "OCR text"
@@ -30,13 +23,20 @@ icon = "󰐲"
 actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/qr.sh" }
 
 [[entries]]
+text = "Screenrecord"
+subtext = ">"
+keywords = ["record", "video"]
+icon = ""
+submenu = "screenrecord"
+
+[[entries]]
+text = "Screenshot"
+subtext = ">"
+icon = "󰄀"
+submenu = "screenshot"
+
+[[entries]]
 text = "Transcode"
 keywords = ["convert", "compress", "image", "video"]
 icon = "󰑕"
 actions = { "open" = "$HOME/.config/walker/scripts/actions/capture/transcode.sh" }
-
-[[entries]]
-text = "Color"
-keywords = ["picker", "hyprpicker"]
-icon = "󰈊"
-actions = { "open" = "sh -c 'sleep 0.2 && hyprpicker -a'" }

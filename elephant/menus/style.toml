@@ -5,6 +5,20 @@ icon = ""
 fixed_order = true
 
 [[entries]]
+text = "Desktop Bar"
+subtext = ">"
+keywords = ["quickshell", "bar", "transparent", "split", "position"]
+icon = "󰍜"
+submenu = "bar"
+
+[[entries]]
+text = "Lockscreen"
+subtext = ">"
+keywords = ["lock", "screen", "security"]
+icon = "󰌾"
+submenu = "lockscreen"
+
+[[entries]]
 text = "Theme"
 subtext = ">"
 keywords = ["colors", "appearance"]
@@ -19,22 +33,8 @@ icon = "🖻"
 submenu = "wallpaper"
 
 [[entries]]
-text = "Lockscreen"
-subtext = ">"
-keywords = ["lock", "screen", "security"]
-icon = "󰌾"
-submenu = "lockscreen"
-
-[[entries]]
 text = "Workspaces"
 subtext = ">"
 keywords = ["numbers", "glyph", "dots", "bar"]
 icon = "󰍹"
 submenu = "workspaces"
-
-[[entries]]
-text = "Desktop Bar"
-subtext = ">"
-keywords = ["quickshell", "bar", "transparent", "split", "position"]
-icon = "󰍜"
-submenu = "bar"

@@ -20,14 +20,14 @@ icon = "󰕾"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh audio" }
 
 [[entries]]
-text = "Record + Webcam"
-icon = "󰖠"
-actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh webcam" }
-
-[[entries]]
 text = "Record + Audio + Webcam"
 icon = "󰖠"
 actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh audio-webcam" }
+
+[[entries]]
+text = "Record + Webcam"
+icon = "󰖠"
+actions = { "open" = "$HOME/.config/walker/scripts/menus/capture/screenrecord.sh webcam" }
 
 [[entries]]
 text = "Stop Recording"

@@ -5,9 +5,10 @@ icon = "󰒃"
 fixed_order = true
 
 [[entries]]
-text = "Update Password"
-icon = "󰌾"
-actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py password" }
+text = "FIDO2 Security Key"
+subtext = ">"
+icon = "󰌆"
+submenu = "fido2"
 
 [[entries]]
 text = "Fingerprint"
@@ -16,12 +17,11 @@ icon = "󰈷"
 submenu = "fingerprint"
 
 [[entries]]
-text = "FIDO2 Security Key"
-subtext = ">"
-icon = "󰌆"
-submenu = "fido2"
-
-[[entries]]
 text = "Return to Password Authentication"
 icon = "󰌾"
 actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py password-only" }
+
+[[entries]]
+text = "Update Password"
+icon = "󰌾"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py password" }

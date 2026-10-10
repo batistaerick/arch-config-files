@@ -170,11 +170,23 @@ integration on a reviewed supported Btrfs installation, install the dependencies
 and root-owned helper and System Update policy deliberately:
 
 ```sh
-sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker
+sudo pacman -S --needed snapper fprintd pam-u2f flatpak lazygit lazydocker pacman-contrib
 sudo install -Dm755 distro/system/eitr-system.py /usr/local/lib/eitr/eitr-system
 sudo /usr/local/lib/eitr/eitr-system snapshots-setup
 sudo install -Dm644 distro/system-update-policy.conf /etc/eitr/system-update-policy.conf
 ```
+
+The Install submenus, development installers and Snapshots → Recovery
+Instructions read the distro data files from `~/.local/share/eitr/`. The live
+`~/.config` copies cannot locate this checkout, so install (and refresh after
+pulling changes) those reference copies as the desktop user:
+
+```sh
+install -Dm644 -t ~/.local/share/eitr distro/software.json distro/installers.json distro/RECOVERY.md
+```
+
+Rerun the `install -Dm755 … eitr-system` line after helper changes; the
+installed root-owned copy is never updated automatically.
 
 Run from this repo, as the normal desktop user. If setup rejects the layout,
 stop; do not bypass its protection. The initial dependency bootstrap above is

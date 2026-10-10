@@ -15,9 +15,6 @@ import urllib.parse
 import urllib.request
 
 SCRIPT = Path(__file__).resolve()
-CATALOG = Path.home() / ".local/share/eitr/software.json"
-if not CATALOG.exists():
-    CATALOG = SCRIPT.parents[4] / "distro/software.json"
 WALKER = Path.home() / ".config/walker/bin/walker"
 NAME = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9@._+:-]*\Z")
 
@@ -47,56 +44,48 @@ def confirm(label):
     return answer.returncode == 0 and answer.stdout.strip() == "Confirm"
 
 
+def data_file(name):
+    """Find a distro data file: the installed copy, else this repository's checkout."""
+    candidates = [Path.home() / ".local/share/eitr" / name, SCRIPT.parents[4] / "distro" / name]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(f"Eitr {name} is not installed. Copy it from the repository's distro/ "
+                            "folder to ~/.local/share/eitr (see distro/README.md, Existing desktop).")
+
+
 def catalog():
-    return json.loads(CATALOG.read_text())
+    return json.loads(data_file("software.json").read_text())
+
+
+def installer_url(name):
+    url = json.loads(data_file("installers.json").read_text())[name]
+    if not url.startswith("https://"):
+        raise ValueError("Installer must use HTTPS")
+    return url
 
 
 def recipes(group):
     return [{"id": key, **value} for key, value in catalog()[group].items()]
 
 
-def search(source, query):
-    query = query.strip()
-    if len(query) < 2:
-        return [{"name": "", "description": "Type at least two characters to search packages"}]
-    if len(query) > 120:
-        return []
-    if source == "pacman":
-        # pacman searches descriptions as well as names using a regexp.
-        result = subprocess.run(["pacman", "-Ss", "--color", "never", "--", re.escape(query)],
-                                capture_output=True, text=True, timeout=10)
-        if result.returncode not in (0, 1):
-            raise RuntimeError(result.stderr.strip())
-        rows = []
-        for line in result.stdout.splitlines():
-            if line and not line[0].isspace():
-                repository, _, rest = line.partition("/")
-                name = rest.split()[0] if rest else ""
-                if NAME.fullmatch(name):
-                    rows.append({"name": name, "description": repository + " · " + rest})
-            elif rows:
-                rows[-1]["description"] += " · " + line.strip()
-        return rows[:150]
-    if source != "aur":
-        raise ValueError("Unknown package source")
-    cache_dir = Path.home() / ".cache/eitr-package-search"
-    import hashlib
-    cache_file = cache_dir / (hashlib.sha256(query.encode()).hexdigest() + ".json")
-    try:
-        if time.time() - cache_file.stat().st_mtime < 300:
-            return json.loads(cache_file.read_text())
-    except (OSError, ValueError):
-        pass
-    url = "https://aur.archlinux.org/rpc/v5/search/" + urllib.parse.quote(query, safe="") + "?by=name-desc"
-    with urllib.request.urlopen(url, timeout=3) as response:
-        data = json.load(response)
-    if data.get("type") == "error":
-        raise RuntimeError(data.get("error", "AUR search failed"))
-    rows = [{"name": package_name(row["Name"]), "description": "AUR · " + (row.get("Description") or "")}
-            for row in data.get("results", [])[:150]]
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    cache_file.write_text(json.dumps(rows))
-    return rows
+def require_no_pending_updates():
+    """Refuse installs that would also perform an unsnapshotted system upgrade.
+
+    Partial upgrades (-Sy without -u) are unsupported on Arch, so installs only
+    proceed once System Update has brought the system up to date.
+    """
+    if not shutil.which("checkupdates"):
+        raise RuntimeError("checkupdates (pacman-contrib) is required to install safely. "
+                           "Run System → Update → System Update, then install pacman-contrib.")
+    # checkupdates syncs a private database copy: 0 = updates, 2 = none, 1 = error.
+    result = subprocess.run(["checkupdates"], capture_output=True, text=True, timeout=120)
+    if result.returncode == 0:
+        count = len(result.stdout.splitlines())
+        raise RuntimeError(f"{count} system update(s) pending. Run System → Update → System Update first, "
+                           "so upgrades get a recovery snapshot, then install again.")
+    if result.returncode != 2:
+        raise RuntimeError("Could not check for pending updates: " + (result.stderr.strip() or "checkupdates failed"))
 
 
 def install(source, packages):
@@ -104,6 +93,9 @@ def install(source, packages):
     if not packages:
         raise ValueError("Select at least one package")
     if source == "pacman":
+        require_no_pending_updates()
+        # Nothing is pending, so -u only refreshes the databases; pacman still
+        # lists every transaction before asking for confirmation.
         run(["sudo", "pacman", "-Syu", "--needed", "--", *packages])
     elif source == "aur":
         # Never execute AUR builds as root or suppress yay's review prompts.
@@ -184,7 +176,7 @@ def recipe(group, identifier):
         for remote in item.get("runtime_remotes", []):
             run(["flatpak", "remote-add", "--user", "--if-not-exists", remote["name"], remote["url"]])
         run(["flatpak", "remote-add", "--user", "--if-not-exists", item["remote"], item["url"]])
-        run(["flatpak", "install", "--user", item["remote"], *item["packages"]])
+        run(["flatpak", "install", "--user", "--or-update", item["remote"], *item["packages"]])
     else:
         if item["packages"]:
             install("aur" if item["source"] == "aur" else "pacman", item["packages"])
@@ -244,19 +236,20 @@ def gaming_install(identifier):
     recipe("gaming", identifier)
 
 
-def main():
+JSON_ACTIONS = {"recipes"}
+
+
+def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["search", "recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch", "gaming", "gaming-install", "picker", "picker-launch"])
+    parser.add_argument("action", choices=["recipes", "installer", "install", "launch", "review", "uninstall", "remove", "recipe", "recipe-launch", "gaming", "gaming-install", "picker", "picker-launch"])
     parser.add_argument("args", nargs="*")
-    options = parser.parse_args()
+    return parser.parse_args()
+
+
+def main(options):
     args = options.args
-    if options.action == "search":
-        print(json.dumps(search(args[0], args[1] if len(args) > 1 else "")))
-    elif options.action == "installer":
-        url = json.loads(CATALOG.with_name("installers.json").read_text())[args[0]]
-        if not url.startswith("https://"):
-            raise ValueError("Installer must use HTTPS")
-        print(url)
+    if options.action == "installer":
+        print(installer_url(args[0]))
     elif options.action == "recipes":
         print(json.dumps(recipes(args[0])))
     elif options.action == "install":
@@ -286,12 +279,14 @@ def main():
 
 
 if __name__ == "__main__":
+    options = parse_arguments()
     try:
-        main()
+        main(options)
     except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         print(str(error), file=sys.stderr)
-        if "search" in sys.argv or "recipes" in sys.argv:
-            print(json.dumps([{"name": "", "description": "Search unavailable; check network/package databases"}]))
+        if options.action in JSON_ACTIONS:
+            # Menus render this row instead of silently showing nothing.
+            print(json.dumps([{"label": str(error), "error": True}]))
         else:
             subprocess.run(["notify-send", "Eitr software", str(error)])
         sys.exit(1)

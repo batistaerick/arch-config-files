@@ -275,10 +275,13 @@ hl.gesture({
 --   scale = 1.0,
 -- })
 
-hl.device({
-	name = "epic-mouse-v1",
-	sensitivity = -0.5,
-})
+-- Owner-specific hardware tuning; fresh installs create portable.mode and skip it.
+if not portable_mode then
+	hl.device({
+		name = "epic-mouse-v1",
+		sensitivity = -0.5,
+	})
+end
 
 -----------------
 -- Keybindings --

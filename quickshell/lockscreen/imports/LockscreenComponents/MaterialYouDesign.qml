@@ -100,7 +100,7 @@ Rectangle {
             errTimer.start();
         }
     }
-    
+
     // UI States
     property real ui1: 0
     property real ui2: 0
@@ -111,7 +111,7 @@ Rectangle {
         id: customFont
         source: root.fontSource
     }
-    
+
     readonly property string sansFont: customFont.name !== "" ? customFont.name : "Roboto, Inter, sans-serif"
 
     Timer {
@@ -170,7 +170,7 @@ Rectangle {
         Column {
             spacing: 24 * s
             anchors.verticalCenter: parent.verticalCenter
-            
+
             Timer {
                 interval: 1000
                 running: true
@@ -186,7 +186,7 @@ Rectangle {
             // Clock
             Column {
                 spacing: -24 * s
-                
+
                 Text {
                     id: hText
                     text: Qt.formatTime(new Date(), "hh")
@@ -195,7 +195,7 @@ Rectangle {
                     font.weight: Font.Bold
                     color: root.colors.primaryText
                 }
-                
+
                 Text {
                     id: mText
                     text: Qt.formatTime(new Date(), "mm")
@@ -212,7 +212,7 @@ Rectangle {
                 height: 44 * s
                 radius: 22 * s
                 color: root.colors.accentContainer
-                
+
                 Text {
                     id: dateChipText
                     anchors.centerIn: parent
@@ -245,7 +245,7 @@ Rectangle {
             Grid {
                 columns: 2
                 spacing: 16 * s
-                
+
                 // Power
                 Rectangle {
                     id: powerTile
@@ -254,18 +254,18 @@ Rectangle {
                     scale: powerMouse.pressed ? 0.95 : (powerMouse.containsMouse ? 1.03 : 1.0)
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-                    
+
                     Row {
                         anchors.fill: parent
                         anchors.leftMargin: 16 * s
                         anchors.rightMargin: 16 * s
                         spacing: 12 * s
-                        
+
                         Rectangle {
                             width: 48 * s; height: 48 * s; radius: 24 * s
                             color: root.colors.accentContainer
                             anchors.verticalCenter: parent.verticalCenter
-                            
+
                             Image {
                                 id: powerIcon
                                 source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M18.36 6.64a9 9 0 1 1-12.73 0'></path><line x1='12' y1='2' x2='12' y2='12'></line></svg>"
@@ -282,11 +282,11 @@ Rectangle {
                                 color: root.colors.primaryText
                             }
                         }
-                        
+
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 2 * s
-                            
+
                             Text {
                                 text: "POWER"
                                 font.family: root.sansFont
@@ -304,7 +304,7 @@ Rectangle {
                             }
                         }
                     }
-                    
+
                     MouseArea {
                         id: powerMouse
                         anchors.fill: parent
@@ -313,7 +313,7 @@ Rectangle {
                         onClicked: if (!login.isQuickshell) root.auth.powerOff();
                     }
                 }
-                
+
                 // Session
                 Rectangle {
                     id: sessionTile
@@ -322,18 +322,18 @@ Rectangle {
                     scale: sessionMouse.pressed ? 0.95 : (sessionMouse.containsMouse ? 1.03 : 1.0)
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-                    
+
                     Row {
                         anchors.fill: parent
                         anchors.leftMargin: 16 * s
                         anchors.rightMargin: 16 * s
                         spacing: 12 * s
-                        
+
                         Rectangle {
                             width: 48 * s; height: 48 * s; radius: 24 * s
                             color: root.colors.accentContainer
                             anchors.verticalCenter: parent.verticalCenter
-                            
+
                             Image {
                                 id: sessionIcon
                                 source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='3'></circle><path d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'></path></svg>"
@@ -350,11 +350,11 @@ Rectangle {
                                 color: root.colors.primaryText
                             }
                         }
-                        
+
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 2 * s
-                            
+
                             Text {
                                 text: "SESSION"
                                 font.family: root.sansFont
@@ -374,7 +374,7 @@ Rectangle {
                             }
                         }
                     }
-                    
+
                     MouseArea {
                         id: sessionMouse
                         anchors.fill: parent
@@ -394,18 +394,18 @@ Rectangle {
                     scale: rebootMouse.pressed ? 0.95 : (rebootMouse.containsMouse ? 1.03 : 1.0)
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-                    
+
                     Row {
                         anchors.fill: parent
                         anchors.leftMargin: 16 * s
                         anchors.rightMargin: 16 * s
                         spacing: 12 * s
-                        
+
                         Rectangle {
                             width: 48 * s; height: 48 * s; radius: 24 * s
                             color: root.colors.accentContainer
                             anchors.verticalCenter: parent.verticalCenter
-                            
+
                             Image {
                                 id: rebootIcon
                                 source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='23 4 23 10 17 10'></polyline><path d='M20.49 15a9 9 0 1 1-2.12-9.36L23 10'></path></svg>"
@@ -422,11 +422,11 @@ Rectangle {
                                 color: root.colors.primaryText
                             }
                         }
-                        
+
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 2 * s
-                            
+
                             Text {
                                 text: "REBOOT"
                                 font.family: root.sansFont
@@ -444,7 +444,7 @@ Rectangle {
                             }
                         }
                     }
-                    
+
                     MouseArea {
                         id: rebootMouse
                         anchors.fill: parent
@@ -462,18 +462,18 @@ Rectangle {
                     scale: suspendMouse.pressed ? 0.95 : (suspendMouse.containsMouse ? 1.03 : 1.0)
                     Behavior on color { ColorAnimation { duration: 150 } }
                     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
-                    
+
                     Row {
                         anchors.fill: parent
                         anchors.leftMargin: 16 * s
                         anchors.rightMargin: 16 * s
                         spacing: 12 * s
-                        
+
                         Rectangle {
                             width: 48 * s; height: 48 * s; radius: 24 * s
                             color: root.colors.accentContainer
                             anchors.verticalCenter: parent.verticalCenter
-                            
+
                             Image {
                                 id: suspendIcon
                                 source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'></path></svg>"
@@ -490,11 +490,11 @@ Rectangle {
                                 color: root.colors.primaryText
                             }
                         }
-                        
+
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 2 * s
-                            
+
                             Text {
                                 text: "SLEEP"
                                 font.family: root.sansFont
@@ -512,7 +512,7 @@ Rectangle {
                             }
                         }
                     }
-                    
+
                     MouseArea {
                         id: suspendMouse
                         anchors.fill: parent
@@ -531,17 +531,17 @@ Rectangle {
                 radius: 32 * s
                 color: root.colors.card
                 transform: Translate { id: shakeTranslate }
-                
+
                 Column {
                     anchors.fill: parent
                     anchors.margins: 20 * s
                     spacing: 12 * s
-                    
+
                     // Header
                     Row {
                         width: parent.width
                         spacing: 8 * s
-                        
+
                         Item {
                             width: 12 * s
                             height: 12 * s
@@ -587,7 +587,7 @@ Rectangle {
                         border.color: root.errorMessage !== "" ? root.colors.error : (pwd.activeFocus ? root.colors.focus : "transparent")
                         border.width: pwd.activeFocus ? 2 * s : 0
                         Behavior on border.color { ColorAnimation { duration: 150 } }
-                        
+
                         TextInput {
                             id: pwd
                             anchors.fill: parent
@@ -602,14 +602,14 @@ Rectangle {
                             horizontalAlignment: TextInput.AlignHCenter
                             verticalAlignment: TextInput.AlignVCenter
                             clip: true
-                            
+
                             cursorVisible: false
                             cursorDelegate: Item { width: 0; height: 0 }
                             selectionColor: root.colors.selection
-                            
+
                             property bool wasClicked: false
                             onActiveFocusChanged: if (!activeFocus && text.length === 0) wasClicked = false
-                            
+
                             Text {
                                 anchors.centerIn: parent
                                 text: root.errorMessage !== "" ? root.errorMessage : "PASSWORD REQUIRED"
@@ -621,7 +621,7 @@ Rectangle {
                                 opacity: pwd.text === "" && (!pwd.activeFocus || (!pwd.wasClicked && pwd.text.length === 0)) ? 1 : 0
                                 Behavior on opacity { NumberAnimation { duration: 150 } }
                             }
-                            
+
                             // Cursor
                             Rectangle {
                                 id: customCursor
@@ -631,7 +631,7 @@ Rectangle {
                                 anchors.verticalCenter: parent.verticalCenter
                                 x: pwd.cursorRectangle.x
                                 visible: pwd.activeFocus && (pwd.text.length > 0 || pwd.wasClicked) && root.errorMessage === ""
-                                
+
                                 SequentialAnimation {
                                     loops: Animation.Infinite
                                     running: customCursor.visible
@@ -639,7 +639,7 @@ Rectangle {
                                     NumberAnimation { target: customCursor; property: "opacity"; from: 0; to: 1; duration: 400; easing.type: Easing.InOutQuad }
                                 }
                             }
-                            
+
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.IBeamCursor
@@ -648,7 +648,7 @@ Rectangle {
                                     pwd.forceActiveFocus();
                                 }
                             }
-                            
+
                             onAccepted: {
                                 login.login(pwd.text);
                             }
@@ -659,7 +659,7 @@ Rectangle {
                     Row {
                         width: parent.width
                         spacing: 12 * s
-                        
+
                         // User Switch
                         Rectangle {
                             width: userText.implicitWidth + 32 * s
@@ -669,7 +669,7 @@ Rectangle {
                             scale: userMouse.pressed ? 0.95 : (userMouse.containsMouse ? 1.02 : 1.0)
                             Behavior on color { ColorAnimation { duration: 150 } }
                             Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
-                            
+
                             Text {
                                 id: userText
                                 anchors.centerIn: parent
@@ -680,7 +680,7 @@ Rectangle {
                                 font.letterSpacing: 1 * s
                                 color: root.colors.chipButtonText
                             }
-                            
+
                             MouseArea {
                                 id: userMouse
                                 anchors.fill: parent
@@ -696,7 +696,7 @@ Rectangle {
                         Item {
                             width: parent.width - (userText.implicitWidth + 32 * s) - 12 * s
                             height: 38 * s
-                            
+
                             Rectangle {
                                 anchors.right: parent.right
                                 width: parent.width
@@ -706,11 +706,11 @@ Rectangle {
                                 scale: loginMouse.pressed ? 0.95 : (loginMouse.containsMouse ? 1.02 : 1.0)
                                 Behavior on color { ColorAnimation { duration: 150 } }
                                 Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
-                                
+
                                 Row {
                                     anchors.centerIn: parent
                                     spacing: 6 * s
-                                    
+
                                     Text {
                                         text: "UNLOCK"
                                         font.family: root.sansFont
@@ -732,7 +732,7 @@ Rectangle {
                                         }
                                     }
                                 }
-                                
+
                                 MouseArea {
                                     id: loginMouse
                                     anchors.fill: parent

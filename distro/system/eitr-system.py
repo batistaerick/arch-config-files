@@ -385,6 +385,106 @@ def battery_limit_status():
     return 0
 
 
+# TPM2 unlock for LUKS2. Every operation keeps the existing passphrase slot;
+# nothing here runs from the installer.
+MKINITCPIO_CONFIGS = (Path("/etc/mkinitcpio.conf"), Path("/etc/mkinitcpio.conf.d"))
+TPM_PCRS = "7"
+KEEP_SLOT_TYPES = {"password", "recovery"}
+
+
+def is_block_device(path):
+    return stat.S_ISBLK(os.stat(path).st_mode)
+
+
+def luks2_device(device):
+    if not device or not device.startswith("/dev/"):
+        raise ValueError("Give the encrypted partition as a /dev path, for example /dev/nvme0n1p2")
+    if not is_block_device(device):
+        raise RuntimeError(f"{device} is not a block device")
+    if subprocess.run(["cryptsetup", "isLuks", "--type", "luks2", device]).returncode:
+        raise RuntimeError(f"{device} is not a LUKS2 volume. TPM unlock needs LUKS2.")
+    return device
+
+
+def enrolled_slot_types(device):
+    """Parse `systemd-cryptenroll DEVICE`: a SLOT TYPE header, then one slot per line."""
+    lines = output(["systemd-cryptenroll", device]).splitlines()[1:]
+    return [line.split()[1] for line in lines if len(line.split()) >= 2]
+
+
+def tpm2_devices():
+    result = subprocess.run(["systemd-cryptenroll", "--tpm2-device=list"], capture_output=True, text=True)
+    if result.returncode:
+        return []
+    return [line.split()[0] for line in result.stdout.splitlines() if line.startswith("/dev/")]
+
+
+def initramfs_hooks():
+    """Return the effective mkinitcpio HOOKS list, or None without mkinitcpio."""
+    main, drop_ins = MKINITCPIO_CONFIGS
+    files = ([main] if main.is_file() else []) + (sorted(drop_ins.glob("*.conf")) if drop_ins.is_dir() else [])
+    hooks = None
+    for path in files:
+        for line in path.read_text().splitlines():
+            line = line.strip()
+            if line.startswith("HOOKS=(") and line.endswith(")"):
+                hooks = line[len("HOOKS=("):-1].split()
+    return hooks
+
+
+def luks_tpm_check(device):
+    luks2_device(device)
+    slots = enrolled_slot_types(device)
+    devices = tpm2_devices()
+    hooks = initramfs_hooks()
+    print(f"{device}: LUKS2, enrolled slots: {', '.join(slots) or 'none'}")
+    print(f"TPM2 devices: {', '.join(devices) or 'none found'}")
+    if hooks is None:
+        print("Initramfs: mkinitcpio not found; make sure your initramfs unlocks with systemd-cryptsetup.")
+    elif "sd-encrypt" in hooks:
+        print("Initramfs: systemd sd-encrypt hook present; it tries the TPM2 token at boot.")
+    else:
+        print("Initramfs: the busybox 'encrypt' hook cannot use TPM2 tokens. Switch to the systemd and "
+              "sd-encrypt hooks first (see RECOVERY.md, TPM disk unlock).")
+    print(f"PCR policy: {TPM_PCRS} (Secure Boot state). Firmware or Secure Boot key changes require the "
+          "passphrase once, then re-enrollment.")
+    return slots, devices, hooks
+
+
+def luks_tpm_enroll(device):
+    slots, devices, hooks = luks_tpm_check(device)
+    if not devices:
+        raise RuntimeError("No TPM2 device found. Nothing was changed.")
+    if hooks is not None and "sd-encrypt" not in hooks:
+        raise RuntimeError("The initramfs cannot use TPM2 unlock yet. Nothing was changed.")
+    if "tpm2" in slots:
+        raise RuntimeError(f"{device} already has a TPM2 slot. Remove it first to re-enroll.")
+    if not KEEP_SLOT_TYPES & set(slots):
+        raise RuntimeError("No passphrase or recovery key slot found; refusing to rely on the TPM alone.")
+    # Adds a slot; existing passphrase and recovery slots are left untouched.
+    run(["systemd-cryptenroll", "--tpm2-device=auto", f"--tpm2-pcrs={TPM_PCRS}", device])
+    print(f"TPM2 unlock enrolled for {device} with PCR {TPM_PCRS}. Your passphrase still works.")
+    print(f"Undo with: sudo {INSTALLED_HELPER} luks-tpm-remove {device}")
+
+
+def luks_recovery_key(device):
+    luks2_device(device)
+    # The key is printed to this terminal only; it is never written to disk.
+    run(["systemd-cryptenroll", "--recovery-key", device])
+
+
+def luks_tpm_remove(device):
+    luks2_device(device)
+    slots = enrolled_slot_types(device)
+    if "tpm2" not in slots:
+        print(f"{device} has no TPM2 slot.")
+        return
+    if not KEEP_SLOT_TYPES & set(slots):
+        raise RuntimeError("No passphrase or recovery key slot remains; add one before removing TPM2 unlock.")
+    run(["systemd-cryptenroll", "--wipe-slot=tpm2", device])
+    print(f"TPM2 unlock removed from {device}; the passphrase is required at boot again.")
+
+
 def pam_with_method(content, method):
     remaining = [line for line in content.splitlines() if not line.endswith(MARKER)]
     modules = {
@@ -488,10 +588,11 @@ if __name__ == "__main__":
     parser.add_argument("action", choices=["snapshots-check", "snapshots-setup", "snapshot-pre", "snapshot-post",
                                            "bootloader-detect", "snapshots-boot-status", "snapshots-boot-setup",
                                            "battery-limit", "battery-limit-apply", "battery-limit-status",
+                                           "luks-tpm-check", "luks-tpm-enroll", "luks-recovery-key", "luks-tpm-remove",
                                            "auth-enable", "auth-restore"])
     parser.add_argument("argument", nargs="?",
                         help="auth-enable: fingerprint|fido2|password; auth-restore: backup name; "
-                             "snapshot-post: success|failed; battery-limit: 60-100|off")
+                             "snapshot-post: success|failed; battery-limit: 60-100|off; luks-*: /dev path")
     args = parser.parse_args()
     # Read-only checks may run unprivileged (an unreadable EFI partition then
     # reports "unknown"), so the installer's --check can use them.
@@ -514,6 +615,14 @@ if __name__ == "__main__":
             battery_limit_apply()
         elif args.action == "battery-limit-status":
             sys.exit(battery_limit_status())
+        elif args.action == "luks-tpm-check":
+            luks_tpm_check(args.argument)
+        elif args.action == "luks-tpm-enroll":
+            luks_tpm_enroll(args.argument)
+        elif args.action == "luks-recovery-key":
+            luks_recovery_key(args.argument)
+        elif args.action == "luks-tpm-remove":
+            luks_tpm_remove(args.argument)
         elif args.action == "snapshot-pre":
             snapshot_pre()
         elif args.action == "snapshot-post":

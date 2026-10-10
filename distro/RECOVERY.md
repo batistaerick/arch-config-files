@@ -53,6 +53,42 @@ sudo ls /var/lib/eitr/pam-backups
 sudo /usr/local/lib/eitr/eitr-system auth-restore <timestamp>
 ```
 
+## TPM disk unlock
+
+Security → TPM Disk Unlock can add a TPM2 key slot to a LUKS2 root so the disk
+unlocks at boot without typing the passphrase. Nothing here runs from the
+installer. The root helper (`luks-tpm-check`, `luks-recovery-key`,
+`luks-tpm-enroll`, `luks-tpm-remove`) refuses unless the device is LUKS2, a TPM2
+device is listed by `systemd-cryptenroll --tpm2-device=list`, and a passphrase
+or recovery slot already exists. It only **adds** a slot; the passphrase stays.
+
+- **Recovery key first.** The Walker flow offers
+  `systemd-cryptenroll --recovery-key`; the key is printed once to the terminal
+  and never stored. Write it down offline. It works at the normal passphrase prompt.
+- **PCR choice.** Eitr binds to PCR 7 (Secure Boot state and keys). Firmware
+  updates rarely change it, while a Secure Boot key change does. PCR 7 only
+  protects much when Secure Boot is enabled with your own keys (see
+  [SECURE-BOOT.md](SECURE-BOOT.md)); otherwise anyone can boot this machine
+  with an edited kernel command line and get an unlocked disk. For stronger
+  protection, enroll manually with a PIN:
+  `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes <device>`.
+- **Initramfs.** The busybox `encrypt` hook cannot use TPM2 tokens, so
+  enrollment refuses while it is configured. Switching to `systemd` and
+  `sd-encrypt` in `HOOKS` (with `rd.luks.name=<LUKS-UUID>=root` replacing
+  `cryptdevice=` on the kernel command line, or `/etc/crypttab.initramfs`) is a
+  boot-critical change Eitr leaves to you. Make it, run `sudo mkinitcpio -P`,
+  update the boot entry, and confirm one passphrase boot works **before**
+  enrolling the TPM.
+
+If the TPM stops unlocking (firmware or Secure Boot change, TPM reset), the
+passphrase prompt appears as before. Enter it, then remove and re-enroll. To
+roll back completely, use Remove TPM Unlock, or from any working shell:
+
+```sh
+sudo systemd-cryptenroll /dev/<luks-partition>            # list slots
+sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/<luks-partition>
+```
+
 ## Inspect recovery points
 
 Use Walker → System → Snapshots, or run these read-only checks:

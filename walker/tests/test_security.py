@@ -61,3 +61,38 @@ class PolicyConfirmationTests(unittest.TestCase):
                 security.main("password-only")
             prompt.assert_not_called()
             run.assert_not_called()
+
+
+class TpmUnlockTests(unittest.TestCase):
+    LSBLK = SimpleNamespace(stdout="/dev/nvme0n1\n/dev/nvme0n1p1 vfat\n/dev/nvme0n1p2 crypto_LUKS\n")
+
+    def run_tpm(self, action, answers):
+        with tempfile.NamedTemporaryFile() as helper, patch.object(security, "ROOT_HELPER", helper.name), \
+                patch("builtins.input", side_effect=answers), patch("builtins.print"), \
+                patch.object(security.subprocess, "run", return_value=self.LSBLK) as run:
+            security.main(action)
+        commands = [call.args[0] for call in run.call_args_list]
+        return [command[2:] for command in commands if command[0] == "sudo"]
+
+    def test_enroll_offers_recovery_key_then_requires_typed_phrase(self):
+        self.assertEqual(self.run_tpm("tpm-enroll", ["", "", "ENROLL TPM"]), [
+            ["luks-tpm-check", "/dev/nvme0n1p2"], ["luks-recovery-key", "/dev/nvme0n1p2"],
+            ["luks-tpm-enroll", "/dev/nvme0n1p2"]])
+
+    def test_enroll_without_phrase_changes_nothing(self):
+        for answers in (["n", "enroll tpm"], ["n", "yes"], ["n", ""]):
+            with self.subTest(answers=answers):
+                self.assertEqual(self.run_tpm("tpm-enroll", answers), [["luks-tpm-check", "/dev/nvme0n1p2"]])
+
+    def test_remove_requires_typed_phrase(self):
+        self.assertEqual(self.run_tpm("tpm-remove", ["yes"]), [])
+        self.assertEqual(self.run_tpm("tpm-remove", ["REMOVE TPM"]), [["luks-tpm-remove", "/dev/nvme0n1p2"]])
+
+    def test_several_luks_devices_need_a_valid_choice(self):
+        many = SimpleNamespace(stdout="/dev/sda2 crypto_LUKS\n/dev/sdb1 crypto_LUKS\n")
+        with patch.object(security.subprocess, "run", return_value=many), patch("builtins.print"):
+            with patch("builtins.input", return_value="2"):
+                self.assertEqual(security.choose_luks_device(), "/dev/sdb1")
+            for answer in ("0", "3", "x"):
+                with patch("builtins.input", return_value=answer), self.assertRaises(ValueError):
+                    security.choose_luks_device()

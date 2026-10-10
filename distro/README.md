@@ -65,6 +65,10 @@ the graphical desktop and AUR packages are installed on the target system by
   and separately confirmed optional authentication policy. Password fallback is
   preserved. Each policy change backs up the PAM files and can be undone with
   `eitr-system auth-restore`; see [recovery instructions](RECOVERY.md). Hardware support and real authentication still require testing.
+  Security → TPM Disk Unlock adds (or removes) a PCR 7 TPM2 slot on a LUKS2
+  root after a typed confirmation, offering a recovery key first and keeping the
+  passphrase. It refuses the busybox `encrypt` initramfs hook and never runs
+  from the installer.
 - Laptops: Walker → System → Battery Charge Limit runs
   `eitr-system battery-limit <60-100|off>`, which writes
   `charge_control_end_threshold` and installs `eitr-battery-limit.service` to

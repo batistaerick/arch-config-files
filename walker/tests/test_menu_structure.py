@@ -74,3 +74,15 @@ class MenuStructureTests(unittest.TestCase):
         self.assertFalse(any("Fingerprint" in entry["text"] and "actions" in entry for entry in entries))
         self.assertEqual(menu("fingerprint")["parent"], "security")
         self.assertEqual(len(menu("fingerprint")["entries"]), 2)
+
+    def test_tpm_unlock_has_its_own_security_submenu(self):
+        entry = next(entry for entry in menu("security")["entries"] if entry.get("submenu") == "tpm-unlock")
+        self.assertEqual(entry.get("subtext"), ">")
+        self.assertEqual(menu("tpm-unlock")["parent"], "security")
+        for item in menu("tpm-unlock")["entries"]:
+            self.assertIn("security.py tpm-", item["actions"]["open"])
+
+    def test_battery_limit_lives_under_system(self):
+        entry = next(entry for entry in menu("system")["entries"] if entry.get("submenu") == "battery-limit")
+        self.assertEqual(entry.get("subtext"), ">")
+        self.assertEqual(menu("battery-limit")["parent"], "system")

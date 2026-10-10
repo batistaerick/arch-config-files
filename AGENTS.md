@@ -64,6 +64,10 @@ them with upstream defaults.
   Use local scripts from that directory, not legacy Waybar or Wofi helpers.
 - Walker is the launcher; Elephant supplies its menus. Update all relevant
   shortcut and Learn/Shortcuts entry points when changing a workflow.
+- Keep Walker menus organized: group related setup/actions into named submenus
+  instead of crowding their parent. Set each submenu's parent to its actual
+  location so Shift+Backspace returns correctly. Do not use a standalone ">"
+  subtext as a submenu indicator; it renders below the label.
 - Walker system actions should open the same native panels as bar clicks. Use
   the existing `panels` IPC interface, including `call -- panels show <kind>`.
 - Use `walker/bin/walker` for Walker launches. It carries an application-scoped

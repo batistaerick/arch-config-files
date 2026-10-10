@@ -11,6 +11,13 @@ def menu(name):
 
 
 class MenuStructureTests(unittest.TestCase):
+    def test_security_groups_authentication_methods(self):
+        entries = menu("security")["entries"]
+        for name in ("fingerprint", "fido2"):
+            entry = next(entry for entry in entries if entry.get("submenu") == name)
+            self.assertNotEqual(entry.get("subtext"), ">")
+            self.assertEqual(menu(name)["parent"], "security")
+        self.assertFalse(any("FIDO2" in entry["text"] and "actions" in entry for entry in entries))
     def test_package_entries_open_terminal_pickers(self):
         for entry in menu("install")["entries"][:2]:
             self.assertNotIn("submenu", entry)

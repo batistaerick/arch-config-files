@@ -1,0 +1,17 @@
+name = "fido2"
+name_pretty = "FIDO2 Security Key"
+parent = "security"
+icon = "󰌆"
+fixed_order = true
+
+[[entries]]
+text = "Enroll Security Key"
+subtext = "Requires a compatible FIDO2 key"
+icon = "󰌆"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py fido2" }
+
+[[entries]]
+text = "Enable FIDO2 Authentication"
+subtext = "After enrollment · password fallback retained"
+icon = "󰌆"
+actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py enable-fido2" }

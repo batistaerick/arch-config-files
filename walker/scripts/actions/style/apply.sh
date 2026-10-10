@@ -3,21 +3,29 @@
 set -euo pipefail
 
 if [[ -z "${1:-}" ]]; then
-  echo "Usage: theme-apply.sh <theme-name>"
+  echo "Usage: apply.sh <theme-name>" >&2
   exit 1
 fi
 
 THEMES_DIR="$HOME/.config/themes"
-CURRENT_DIR="$HOME/.config/theme/current"
-HYPR_THEMES_DIR="$HOME/.config/hypr/themes"
+THEME_ROOT="$HOME/.config/theme"
+CURRENT_DIR="$THEME_ROOT/current"
 THEME_SCRIPTS_DIR="$HOME/.config/walker/scripts/themes"
+WALLPAPER_HELPER="$HOME/.config/walker/scripts/actions/wallpaper/transition.py"
+LOG_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}"
 
+# Accept display labels such as "Tokyo Night" as well as folder names.
 THEME_NAME="$(
-  echo "$1" |
+  printf '%s\n' "$1" |
     sed -E 's/<[^>]+>//g' |
     tr '[:upper:]' '[:lower:]' |
     tr ' ' '-'
 )"
+
+if [[ ! "$THEME_NAME" =~ ^[a-z0-9-]+$ ]]; then
+  notify-send "Theme" "Invalid theme name: $1"
+  exit 1
+fi
 
 THEME_DIR="$THEMES_DIR/$THEME_NAME"
 
@@ -26,18 +34,27 @@ if [[ ! -d "$THEME_DIR" ]]; then
   exit 1
 fi
 
-previous_wallpaper="$(python3 "$HOME/.config/walker/scripts/actions/wallpaper/transition.py" snapshot)"
-rm -rf "$CURRENT_DIR"
-mkdir -p "$CURRENT_DIR"
+previous_wallpaper="$(python3 "$WALLPAPER_HELPER" snapshot)"
 
-# Copy all theme files, including hidden files
-cp -a "$THEME_DIR"/. "$CURRENT_DIR/"
+# Build the new current theme beside the old one, then swap it in so readers
+# never observe a half-copied directory.
+mkdir -p "$THEME_ROOT"
+staging_dir="$(mktemp -d "$THEME_ROOT/.current.XXXXXX")"
+trap 'rm -rf -- "$staging_dir" "$THEME_ROOT/.current.old"' EXIT
+cp -a "$THEME_DIR"/. "$staging_dir/"
+chmod 755 "$staging_dir"
+
+rm -rf -- "$THEME_ROOT/.current.old"
+if [[ -e "$CURRENT_DIR" ]]; then
+  mv -- "$CURRENT_DIR" "$THEME_ROOT/.current.old"
+fi
+mv -- "$staging_dir" "$CURRENT_DIR"
 
 mkdir -p "$HOME/.cache"
 echo "$THEME_NAME" > "$HOME/.cache/current-theme"
 
-# RGB in background
-nohup "$THEME_SCRIPTS_DIR/rgb.sh" >/tmp/rgb.log 2>&1 &
+# RGB in background; it logs instead of notifying.
+nohup "$THEME_SCRIPTS_DIR/rgb.sh" >"$LOG_DIR/eitr-rgb.log" 2>&1 &
 
 # Apply theme modules
 failed_modules=()
@@ -62,16 +79,11 @@ if command -v kbuildsycoca6 >/dev/null 2>&1; then
   kbuildsycoca6 >/dev/null 2>&1 || true
 fi
 
-# Wallpaper
-mapfile -t wallpapers < <(
-  find "$CURRENT_DIR/backgrounds" -type f \
-    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) 2>/dev/null |
-    sort
-)
+mapfile -t wallpapers < <(python3 "$WALLPAPER_HELPER" list "$CURRENT_DIR/backgrounds")
 FIRST_WALLPAPER="${wallpapers[0]:-}"
 
 if [[ -n "$FIRST_WALLPAPER" ]]; then
-  python3 "$HOME/.config/walker/scripts/actions/wallpaper/transition.py" apply "$FIRST_WALLPAPER" --previous "$previous_wallpaper"
+  python3 "$WALLPAPER_HELPER" apply "$FIRST_WALLPAPER" --previous "$previous_wallpaper"
 fi
 
 if (( ${#failed_modules[@]} )); then

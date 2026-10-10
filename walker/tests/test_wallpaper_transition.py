@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import tempfile
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -47,7 +48,45 @@ class WallpaperTests(unittest.TestCase):
                     patch.object(transition.subprocess, "run", side_effect=OSError("missing quickshell")), \
                     patch.object(transition, "commit") as commit:
                 transition.apply(str(image))
-                commit.assert_called_once_with(str(image))
+                commit.assert_called_once_with(str(image.resolve()))
+
+    def test_one_failing_monitor_still_persists_wallpaper(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            image = home / "wallpaper.png"
+            image.write_bytes(b"mock")
+            monitors = '[{"name": "DP-1"}, {"name": "HDMI-A-1"}]'
+            calls = []
+
+            def run(command, check):
+                calls.append(command[-1])
+                if command[-1].startswith("DP-1,"):
+                    raise subprocess.CalledProcessError(1, command)
+
+            with patch.object(transition.Path, "home", return_value=home), \
+                    patch.object(transition.subprocess, "check_output", return_value=monitors), \
+                    patch.object(transition.subprocess, "run", side_effect=run):
+                with self.assertRaisesRegex(transition.CommitError, "DP-1"):
+                    transition.commit(str(image))
+            self.assertEqual(len(calls), 2, "every monitor is attempted")
+            self.assertEqual((home / ".cache/current-wallpaper-image").resolve(), image.resolve())
+            self.assertEqual((home / ".cache/current-wallpaper").read_text().strip(), str(image.resolve()))
+
+    def test_apply_fallback_commit_failure_is_not_fatal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "wallpaper.png"
+            image.write_bytes(b"mock")
+            with patch.object(transition, "runtime", return_value=Path(directory)), \
+                    patch.object(transition, "snapshot", return_value=""), \
+                    patch.object(transition.subprocess, "run", side_effect=OSError("missing quickshell")), \
+                    patch.object(transition, "commit", side_effect=transition.CommitError("hyprpaper failed on: DP-1")), \
+                    patch("sys.stderr"):
+                transition.apply(str(image))
+
+    def test_image_errors_fail_immediately(self):
+        qml = (ROOT / "quickshell/wallpaper-transition/shell.qml").read_text()
+        self.assertIn("status === Image.Error", qml)
+        self.assertEqual(qml.count("onStatusChanged: root.failOnError(status)"), 2)
 
     def test_wallpapers_are_listed_in_natural_order(self):
         with tempfile.TemporaryDirectory() as directory:

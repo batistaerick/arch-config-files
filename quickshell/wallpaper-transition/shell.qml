@@ -36,6 +36,11 @@ ShellRoot {
     // Keep the completed frame covering Hyprpaper until the compositor catches up.
     Timer { id: handoff; interval: 250; onTriggered: Qt.quit(); }
     Timer { interval: 10000; running: true; onTriggered: Qt.exit(1); }
+    // A broken image can never become ready; fail now so transition.py
+    // commits the static wallpaper instead of waiting for the timeout.
+    function failOnError(status) {
+        if (status === Image.Error) Qt.exit(1);
+    }
     Variants {
         id: windows
         model: Quickshell.screens
@@ -44,7 +49,12 @@ ShellRoot {
             required property var modelData
             readonly property bool ready: newImage.status === Image.Ready && (oldImage.status === Image.Ready || root.previous === "")
             onReadyChanged: root.start()
-            Component.onCompleted: Qt.callLater(root.start)
+            Component.onCompleted: {
+                // Local images may fail before the status handlers run.
+                root.failOnError(oldImage.status);
+                root.failOnError(newImage.status);
+                Qt.callLater(root.start);
+            }
             screen: modelData
             anchors { top: true; bottom: true; left: true; right: true }
             exclusionMode: ExclusionMode.Ignore
@@ -57,6 +67,7 @@ ShellRoot {
                 anchors.fill: parent
                 source: root.previous
                 fillMode: Image.PreserveAspectCrop
+                onStatusChanged: root.failOnError(status)
             }
             Item {
                 id: circleMask
@@ -76,6 +87,7 @@ ShellRoot {
                 anchors.fill: parent
                 source: root.next
                 fillMode: Image.PreserveAspectCrop
+                onStatusChanged: root.failOnError(status)
                 layer.enabled: true
                 layer.effect: MultiEffect {
                     maskEnabled: true

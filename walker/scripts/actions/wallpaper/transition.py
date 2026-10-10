@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
@@ -43,11 +44,18 @@ def snapshot():
     return name
 
 
+class CommitError(RuntimeError):
+    """Hyprpaper rejected the wallpaper on one or more monitors."""
+
+
 def commit(path):
+    """Persist the wallpaper, then apply it to every monitor.
+
+    The cache files are written even when Hyprpaper fails on some monitors so
+    the next login or reload restores the chosen wallpaper. Failures are
+    reported afterwards as a single CommitError.
+    """
     path = str(Path(path).resolve(strict=True))
-    monitors = json.loads(subprocess.check_output(["hyprctl", "monitors", "-j"], text=True))
-    for monitor in monitors:
-        subprocess.run(["hyprctl", "hyprpaper", "wallpaper", monitor["name"] + "," + path], check=True)
     cache = Path.home() / ".cache"
     cache.mkdir(parents=True, exist_ok=True)
     temporary = cache / "current-wallpaper-image.new"
@@ -57,6 +65,19 @@ def commit(path):
     listing = cache / "current-wallpaper.new"
     listing.write_text(path + "\n")
     listing.replace(cache / "current-wallpaper")
+    try:
+        monitors = json.loads(subprocess.check_output(["hyprctl", "monitors", "-j"], text=True))
+    except (OSError, subprocess.SubprocessError, ValueError) as error:
+        raise CommitError(f"cannot list monitors: {error}") from error
+    failed = []
+    for monitor in monitors:
+        name = monitor.get("name", "?")
+        try:
+            subprocess.run(["hyprctl", "hyprpaper", "wallpaper", name + "," + path], check=True)
+        except (OSError, subprocess.SubprocessError):
+            failed.append(name)
+    if failed:
+        raise CommitError("hyprpaper failed on: " + ", ".join(failed))
 
 
 def apply(path, previous=None):
@@ -80,7 +101,12 @@ def apply(path, previous=None):
                 # Successful QML already committed underneath the transition.
                 # Reapplying after removing the layer can cause another flash.
                 if not committed:
-                    commit(path)
+                    try:
+                        commit(path)
+                    except CommitError as error:
+                        # The cache already points at the new wallpaper, so a
+                        # reload restores it; do not abort the theme switch.
+                        print(f"transition.py: {error}", file=sys.stderr)
             finally:
                 if owned:
                     Path(previous).unlink(missing_ok=True)
@@ -99,6 +125,9 @@ if __name__ == "__main__":
             print(wallpaper)
     elif args.action == "commit":
         from urllib.parse import unquote, urlparse
-        commit(unquote(urlparse(args.path).path) if args.path.startswith("file:") else args.path)
+        try:
+            commit(unquote(urlparse(args.path).path) if args.path.startswith("file:") else args.path)
+        except CommitError as error:
+            sys.exit(f"transition.py: {error}")
     else:
         apply(args.path, args.previous)

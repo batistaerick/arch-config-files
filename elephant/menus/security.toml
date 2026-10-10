@@ -22,6 +22,13 @@ icon = "󰌾"
 actions = { open = "kitty --hold -e python3 $HOME/.config/walker/scripts/actions/system/security.py password-only" }
 
 [[entries]]
+text = "Secure Boot Guide"
+keywords = ["sbctl", "uefi", "signing"]
+subtext = "Documentation only · nothing is changed"
+icon = "󰧑"
+actions = { open = "kitty --hold -e sh -c 'f=\"$HOME/.local/share/eitr/SECURE-BOOT.md\"; if [ -r \"$f\" ]; then less \"$f\"; else echo \"The Secure Boot guide is not installed. Read distro/SECURE-BOOT.md in the Eitr repository, or see distro/README.md (Existing desktop).\"; fi'" }
+
+[[entries]]
 text = "TPM Disk Unlock"
 keywords = ["luks", "encryption", "tpm2", "cryptenroll"]
 subtext = ">"

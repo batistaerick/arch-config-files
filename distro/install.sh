@@ -208,6 +208,7 @@ mkdir -p "$HOME/.local/share/eitr"
 install -m 644 "$repo_root/distro/software.json" "$HOME/.local/share/eitr/software.json"
 install -m 644 "$repo_root/distro/installers.json" "$HOME/.local/share/eitr/installers.json"
 install -m 644 "$repo_root/distro/RECOVERY.md" "$HOME/.local/share/eitr/RECOVERY.md"
+install -m 644 "$repo_root/distro/SECURE-BOOT.md" "$HOME/.local/share/eitr/SECURE-BOOT.md"
 sudo install -Dm755 "$repo_root/distro/system/eitr-system.py" /usr/local/lib/eitr/eitr-system
 sudo /usr/local/lib/eitr/eitr-system snapshots-setup
 # Snapshot boot entries change the boot menu, so they need typed confirmation.

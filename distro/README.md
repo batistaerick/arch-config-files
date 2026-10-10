@@ -69,6 +69,8 @@ the graphical desktop and AUR packages are installed on the target system by
   root after a typed confirmation, offering a recovery key first and keeping the
   passphrase. It refuses the busybox `encrypt` initramfs hook and never runs
   from the installer.
+  Secure Boot is documentation only: [SECURE-BOOT.md](SECURE-BOOT.md) (sbctl,
+  Option ROM risks, GRUB/Limine snapshot entries, undo), linked from Security.
 - Laptops: Walker → System → Battery Charge Limit runs
   `eitr-system battery-limit <60-100|off>`, which writes
   `charge_control_end_threshold` and installs `eitr-battery-limit.service` to
@@ -219,13 +221,14 @@ sudo /usr/local/lib/eitr/eitr-system snapshots-setup
 sudo install -Dm644 distro/system-update-policy.conf /etc/eitr/system-update-policy.conf
 ```
 
-The Install submenus, development installers and Snapshots → Recovery
-Instructions read the distro data files from `~/.local/share/eitr/`. The live
+The Install submenus, development installers, Snapshots → Recovery
+Instructions and Security → Secure Boot Guide read the distro data files
+from `~/.local/share/eitr/`. The live
 `~/.config` copies cannot locate this checkout, so install (and refresh after
 pulling changes) those reference copies as the desktop user:
 
 ```sh
-install -Dm644 -t ~/.local/share/eitr distro/software.json distro/installers.json distro/RECOVERY.md
+install -Dm644 -t ~/.local/share/eitr distro/software.json distro/installers.json distro/RECOVERY.md distro/SECURE-BOOT.md
 ```
 
 Rerun the `install -Dm755 … eitr-system` line after helper changes; the

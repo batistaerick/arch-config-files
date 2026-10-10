@@ -86,3 +86,12 @@ class MenuStructureTests(unittest.TestCase):
         entry = next(entry for entry in menu("system")["entries"] if entry.get("submenu") == "battery-limit")
         self.assertEqual(entry.get("subtext"), ">")
         self.assertEqual(menu("battery-limit")["parent"], "system")
+
+    def test_secure_boot_guide_is_documentation_only(self):
+        entry = next(entry for entry in menu("security")["entries"] if entry["text"] == "Secure Boot Guide")
+        action = entry["actions"]["open"]
+        self.assertIn(".local/share/eitr/SECURE-BOOT.md", action)
+        self.assertNotIn("sbctl", action)
+        self.assertNotIn("sudo", action)
+        self.assertIn("SECURE-BOOT.md", (ROOT / "distro/install.sh").read_text())
+        self.assertTrue((ROOT / "distro/SECURE-BOOT.md").is_file())

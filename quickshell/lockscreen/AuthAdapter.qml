@@ -27,10 +27,18 @@ Item {
     }
     QtObject {
         id: bridge
+        // Lets designs tell this bridge from SDDM (see LoginController.qml).
+        readonly property bool quickshellLock: true
         signal loginFailed()
         signal loginSucceeded()
         function login(user, value, sessionIndex) {
-            if (auth.preview || pam.active || user !== users.lastUser) return;
+            // Previews never authenticate; a second submit during an attempt is
+            // ignored so its pending result is not reported as a failure.
+            if (auth.preview || pam.active) return;
+            if (user !== users.lastUser) {
+                loginFailed();
+                return;
+            }
             auth.password = value;
             auth.supplied = false;
             pam.start();

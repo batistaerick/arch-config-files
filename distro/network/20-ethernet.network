@@ -3,3 +3,7 @@ Type=ether
 
 [Network]
 DHCP=yes
+
+[Link]
+# Unplugged Ethernet must not delay boot through systemd-networkd-wait-online.
+RequiredForOnline=no
